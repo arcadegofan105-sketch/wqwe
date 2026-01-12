@@ -961,3 +961,34 @@ body {
 		font-size: 56px;
 	}
 }
+
+/* ✅ ADD: input styles for withdraw modal */
+.modal-input {
+	width: 100%;
+	padding: 14px 18px;
+	border: none;
+	border-radius: 16px;
+
+	background: rgba(15, 23, 42, 0.85);
+	box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.2), 0 10px 25px rgba(0, 0, 0, 0.3);
+
+	font-size: 18px;
+	font-weight: 600;
+	color: #e5e7eb;
+
+	transition: box-shadow 0.2s ease;
+}
+
+.modal-input:focus {
+	outline: none;
+	box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.5), 0 12px 30px rgba(0, 0, 0, 0.4);
+}
+
+.modal-hint {
+	width: 100%;
+	font-size: 12px;
+	opacity: 0.9;
+	color: #94a3b8;
+	text-align: center;
+	margin-top: -4px;
+}
