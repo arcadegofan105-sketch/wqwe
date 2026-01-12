@@ -42,6 +42,18 @@ showApp()
 const INIT_DATA = tg.initData
 const telegramUser = tg.initDataUnsafe?.user || null
 
+// ===== TON CONNECT =====
+const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+	manifestUrl: `${location.origin}/tonconnect-manifest.json`,
+	buttonRootId: 'ton-connect',
+});
+
+// (не обязательно, но полезно для проверки)
+tonConnectUI.onStatusChange(walletInfo => {
+	console.log('TON wallet status:', walletInfo);
+});
+
+
 // ===== UI ELEMENTS =====
 const wheel = document.getElementById('wheel')
 const spinButton = document.getElementById('spin-button')
@@ -708,4 +720,5 @@ window.addEventListener('resize', () => {
 		alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
 	}
 })()
+
 
