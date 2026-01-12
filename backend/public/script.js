@@ -243,9 +243,12 @@ async function keepPrizeApi(prize) {
 	return apiPost('/prize/keep', { prize })
 }
 
-async function sellPrizeApi(prize) {
-	return apiPost('/prize/sell', { prize })
+async function sellPrizeApi(prize, idx) {
+	const body = { prize }
+	if (Number.isInteger(idx)) body.idx = idx
+	return apiPost('/prize/sell', body)
 }
+
 
 async function applyPromoApi(code) {
 	return apiPost('/promo/apply', { code })
@@ -349,7 +352,7 @@ inventoryList?.addEventListener('click', async e => {
 
 	if (e.target.classList.contains('inv-sell')) {
 		try {
-			const data = await sellPrizeApi(item)
+			const data = await sellPrizeApi(item, idx)
 			balance = Number(data.newBalance ?? balance)
 			updateBalanceUI()
 			await fetchUserData()
@@ -607,3 +610,4 @@ window.addEventListener('resize', () => {
 		alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
 	}
 })()
+
