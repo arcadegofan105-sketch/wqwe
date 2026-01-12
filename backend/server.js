@@ -212,7 +212,7 @@ app.post("/api/prize/sell", auth, (req, res) => {
   res.json({ newBalance: u.balance, inventory: u.inventory });
 });
 
-// ===== Withdraw TON (заявка админу) =====
+// ===== Withdraw TON (списываем + заявка админу) =====
 app.post("/api/withdraw/ton", auth, async (req, res) => {
   const id = String(req.tgUser.id);
   const u = getOrCreateUser(id);
@@ -224,6 +224,9 @@ app.post("/api/withdraw/ton", auth, async (req, res) => {
   if (amount < MIN_WITHDRAW) return res.status(400).json({ error: `Минимум ${MIN_WITHDRAW} TON` });
   if (amount > u.balance) return res.status(400).json({ error: "Недостаточно средств" });
 
+  // ✅ списываем сразу
+  u.balance = Number((u.balance - amount).toFixed(2));
+
   const username = req.tgUser?.username ? `@${req.tgUser.username}` : "(no username)";
   const fullName = [req.tgUser?.first_name, req.tgUser?.last_name].filter(Boolean).join(" ");
 
@@ -232,19 +235,20 @@ app.post("/api/withdraw/ton", auth, async (req, res) => {
     `Пользователь: ${fullName || "User"} ${username}\n` +
     `ID: ${id}\n` +
     `Сумма: ${amount.toFixed(2)} TON\n` +
-    `Баланс сейчас: ${Number(u.balance || 0).toFixed(2)} TON`;
+    `Баланс после списания: ${Number(u.balance || 0).toFixed(2)} TON`;
 
   try {
     await sendAdminMessage(text);
   } catch (e) {
+    // если сообщение админу не ушло — можно вернуть деньги обратно
+    u.balance = Number((u.balance + amount).toFixed(2));
     return res.status(500).json({ error: e.message || "Ошибка уведомления" });
   }
 
-  // это заявка — баланс пока не списываем
-  res.json({ ok: true });
+  return res.json({ ok: true, newBalance: u.balance });
 });
 
-// ===== Withdraw Gift (заявка админу) =====
+// ===== Withdraw Gift (удаляем из инвентаря + заявка админу) =====
 app.post("/api/withdraw/gift", auth, async (req, res) => {
   const id = String(req.tgUser.id);
   const u = getOrCreateUser(id);
@@ -254,7 +258,9 @@ app.post("/api/withdraw/gift", auth, async (req, res) => {
     return res.status(400).json({ error: "Некорректный предмет" });
   }
 
+  // ✅ забираем предмет и удаляем из инвентаря
   const item = u.inventory[idx];
+  u.inventory.splice(idx, 1); // удаляем 1 элемент по индексу [web:360]
 
   const username = req.tgUser?.username ? `@${req.tgUser.username}` : "(no username)";
   const fullName = [req.tgUser?.first_name, req.tgUser?.last_name].filter(Boolean).join(" ");
@@ -264,19 +270,18 @@ app.post("/api/withdraw/gift", auth, async (req, res) => {
     `Пользователь: ${fullName || "User"} ${username}\n` +
     `ID: ${id}\n` +
     `Подарок: ${(item?.emoji || "🎁")} ${item?.name || "Подарок"}\n` +
-    `Оценка: ${Number(item?.price || 0).toFixed(2)} TON\n` +
-    `Индекс в инвентаре: ${idx}`;
+    `Оценка: ${Number(item?.price || 0).toFixed(2)} TON`;
 
   try {
     await sendAdminMessage(text);
   } catch (e) {
+    // если админу не отправилось — возвращаем предмет обратно на то же место
+    u.inventory.splice(idx, 0, item);
     return res.status(500).json({ error: e.message || "Ошибка уведомления" });
   }
 
-  // это заявка — предмет пока не удаляем
-  res.json({ ok: true });
+  return res.json({ ok: true, inventory: u.inventory });
 });
-
 // ===== Crash sync (общий баланс) =====
 app.post("/api/crash/bet", auth, (req, res) => {
   const id = String(req.tgUser.id);
@@ -310,3 +315,4 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
