@@ -65,7 +65,7 @@ function auth(req, res, next) {
 // минимальные API, чтобы фронт не падал
 const users = new Map();
 function getOrCreateUser(id) {
-  if (!users.has(id)) users.set(id, { balance: 5, inventory: [] });
+  if (!users.has(id)) users.set(id, { balance: 0, inventory: [] });
   return users.get(id);
 }
 
@@ -91,3 +91,4 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
