@@ -16,16 +16,18 @@ if (!BOT_TOKEN) {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ВАЖНО: фронт теперь лежит в backend/public
+// Фронт лежит в backend/public
 const PUBLIC_DIR = path.join(__dirname, "public");
 const INDEX_PATH = path.join(PUBLIC_DIR, "index.html");
 
 console.log("PUBLIC_DIR:", PUBLIC_DIR);
-console.log("PUBLIC_FILES:", fs.existsSync(PUBLIC_DIR) ? fs.readdirSync(PUBLIC_DIR).slice(0, 50) : "NO_DIR");
+console.log(
+  "PUBLIC_FILES:",
+  fs.existsSync(PUBLIC_DIR) ? fs.readdirSync(PUBLIC_DIR).slice(0, 50) : "NO_DIR"
+);
 console.log("INDEX_EXISTS:", fs.existsSync(INDEX_PATH));
 
-app.use(express.static(PUBLIC_DIR)); // раздаём статику [web:22]
-
+app.use(express.static(PUBLIC_DIR)); // статика через express.static [web:22]
 app.get("/", (req, res) => res.sendFile(INDEX_PATH));
 
 function validateInitData(initData) {
@@ -45,6 +47,12 @@ function validateInitData(initData) {
   const calculatedHash = crypto.createHmac("sha256", secretKey).update(dataCheckString).digest("hex");
   if (calculatedHash !== hash) throw new Error("invalid initData hash");
 
+  // Рекомендуется проверять auth_date (защита от повторного использования initData) [web:6]
+  const authDate = Number(params.get("auth_date") || 0);
+  if (!authDate) throw new Error("auth_date missing");
+  const now = Math.floor(Date.now() / 1000);
+  if (now - authDate > 24 * 60 * 60) throw new Error("initData expired");
+
   const userStr = params.get("user");
   if (!userStr) throw new Error("user missing");
   const user = JSON.parse(userStr);
@@ -62,13 +70,16 @@ function auth(req, res, next) {
   }
 }
 
-// минимальные API, чтобы фронт не падал
+// ===== In-memory storage (до БД) =====
 const users = new Map();
+
+// Первый заход: баланс 0 (как ты хотел)
 function getOrCreateUser(id) {
-  if (!users.has(id)) users.set(id, { balance: 5, inventory: [] });
+  if (!users.has(id)) users.set(id, { balance: 0, inventory: [] });
   return users.get(id);
 }
 
+// ===== API =====
 app.post("/api/me", auth, (req, res) => {
   const id = String(req.tgUser.id);
   const u = getOrCreateUser(id);
@@ -78,9 +89,37 @@ app.post("/api/me", auth, (req, res) => {
 app.post("/api/spin", auth, (req, res) => {
   const id = String(req.tgUser.id);
   const u = getOrCreateUser(id);
-  if (u.balance < 1) return res.status(400).json({ error: "Недостаточно средств" });
-  u.balance = Number((u.balance - 1).toFixed(2));
+
+  const SPIN_PRICE = 1;
+  if (u.balance < SPIN_PRICE) return res.status(400).json({ error: "Недостаточно средств" });
+
+  u.balance = Number((u.balance - SPIN_PRICE).toFixed(2));
   res.json({ prize: { emoji: "🧸", name: "Мишка", price: 0.1 }, newBalance: u.balance });
+});
+
+// ===== Crash sync (общий баланс) =====
+app.post("/api/crash/bet", auth, (req, res) => {
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
+
+  const amount = Number(req.body?.amount || 0);
+  if (!Number.isFinite(amount) || amount <= 0) return res.status(400).json({ error: "amount required" });
+
+  if (u.balance < amount) return res.status(400).json({ error: "Недостаточно средств" });
+
+  u.balance = Number((u.balance - amount).toFixed(2));
+  res.json({ newBalance: u.balance });
+});
+
+app.post("/api/crash/cashout", auth, (req, res) => {
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
+
+  const amount = Number(req.body?.amount || 0);
+  if (!Number.isFinite(amount) || amount <= 0) return res.status(400).json({ error: "amount required" });
+
+  u.balance = Number((u.balance + amount).toFixed(2));
+  res.json({ newBalance: u.balance });
 });
 
 // fallback: любые не-API роуты -> index.html
@@ -91,5 +130,3 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
-
-
