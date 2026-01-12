@@ -185,12 +185,23 @@ function computeSectorBaseAngles() {
 }
 
 function findSectorIndexForPrize(prize) {
-	const matches = []
+	// 1) пробуем точное совпадение name+emoji
 	for (let i = 0; i < wheelSectors.length; i++) {
-		if (wheelSectors[i].name === prize?.name) matches.push(i)
+		if (
+			wheelSectors[i]?.name === prize?.name &&
+			wheelSectors[i]?.emoji === prize?.emoji
+		) {
+			return i
+		}
 	}
-	if (matches.length === 0) return 0
-	return matches[Math.floor(Math.random() * matches.length)]
+
+	// 2) если emoji нет/не совпало — совпадение только по name
+	for (let i = 0; i < wheelSectors.length; i++) {
+		if (wheelSectors[i]?.name === prize?.name) return i
+	}
+
+	// 3) fallback
+	return 0
 }
 
 function updateTelegramUserUI() {
@@ -610,4 +621,5 @@ window.addEventListener('resize', () => {
 		alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
 	}
 })()
+
 
