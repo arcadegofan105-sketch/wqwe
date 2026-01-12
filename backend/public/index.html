@@ -164,54 +164,56 @@
         </section>
 
         <!-- Экран ПРОФИЛЬ -->
-        <section id="screen-profile" class="screen">
-          <div class="profile-header">
-            <div class="profile-avatar"></div>
-            <div class="profile-main">
-              <div class="profile-name">Nick</div>
-              <div class="profile-id">ID: тестовый пользователь</div>
-            </div>
-          </div>
+<section id="screen-profile" class="screen">
+  <div class="profile-header">
+    <div class="profile-avatar"></div>
+    <div class="profile-main">
+      <div class="profile-name">Nick</div>
+      <div class="profile-id">ID: тестовый пользователь</div>
+    </div>
+  </div>
 
-          <div class="profile-balance-card">
-            <div class="profile-balance-top">
-              <span>Общий баланс</span>
-              <span class="ton-chip">
-                <span class="balance-icon">⚡</span>
-                <span id="balance-value-3">5</span> TON
-              </span>
-            </div>
-            <div class="profile-balance-bottom">
-              <button id="deposit-btn" class="action-btn action-green">
-                Депозит TON
-              </button>
-              <button id="withdraw-btn" class="action-btn action-blue">
-                Вывод TON
-              </button>
-            </div>
-          </div>
+  <div class="profile-balance-card">
+    <div class="profile-balance-top">
+      <span>Общий баланс</span>
+      <span class="ton-chip">
+        <span class="balance-icon">⚡</span>
+        <span id="balance-value-3">5</span> TON
+      </span>
+    </div>
+    <div class="profile-balance-bottom">
+      <button id="deposit-btn" class="action-btn action-green">
+        Депозит TON
+      </button>
+      <button id="withdraw-btn" class="action-btn action-blue">
+        Вывод TON
+      </button>
+    </div>
+  </div>
 
-          <div class="inventory-section">
-            <div class="inventory-title">Инвентарь подарков</div>
-            <div id="inventory-list" class="inventory-list">
-              <!-- Динамически будут добавляться подарки -->
-              <div class="inventory-empty">У вас пока нет подарков</div>
-            </div>
-          </div>
+  <!-- ✅ Контейнер TonConnect (кнопка появится тут) -->
+  <div id="ton-connect" style="margin-top: 10px;"></div>
 
-          <div class="ref-card">
-            <div class="ref-title">Реферальная программа</div>
-            <div class="ref-text">
-              Делимся частью дохода с активными игроками. Ниже можно будет
-              создать свой промокод для друзей.
-            </div>
-            <button class="action-btn action-outline" disabled>
-              Создать промокод (скоро)
-            </button>
-          </div>
-        </section>
+  <div class="inventory-section">
+    <div class="inventory-title">Инвентарь подарков</div>
+    <div id="inventory-list" class="inventory-list">
+      <!-- Динамически будут добавляться подарки -->
+      <div class="inventory-empty">У вас пока нет подарков</div>
+    </div>
+  </div>
+
+  <div class="ref-card">
+    <div class="ref-title">Реферальная программа</div>
+    <div class="ref-text">
+      Делимся частью дохода с активными игроками. Ниже можно будет
+      создать свой промокод для друзей.
+    </div>
+    <button class="action-btn action-outline" disabled>
+      Создать промокод (скоро)
+    </button>
+  </div>
+</section>
       </main>
-
       <nav class="bottom-nav">
         <button class="nav-btn active" data-target="wheel">
           🎰
@@ -290,3 +292,4 @@
     <script src="script.js"></script>
   </body>
 </html>
+
