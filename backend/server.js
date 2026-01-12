@@ -13,6 +13,12 @@ if (!BOT_TOKEN) {
   process.exit(1);
 }
 
+const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID; // 7995955451
+if (!ADMIN_CHAT_ID) {
+  console.error("❌ ADMIN_CHAT_ID is not set");
+  process.exit(1);
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -68,6 +74,28 @@ function auth(req, res, next) {
   } catch (e) {
     res.status(401).json({ error: e.message || "unauthorized" });
   }
+}
+
+// ===== Telegram notify helper (sendMessage) =====
+async function sendAdminMessage(text) {
+  const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: ADMIN_CHAT_ID,
+      text,
+      parse_mode: "HTML",
+      disable_web_page_preview: true,
+    }),
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data?.ok === false) {
+    console.error("❌ Telegram sendMessage failed:", data);
+    throw new Error("Не удалось отправить сообщение админу");
+  }
+  return data;
 }
 
 // ===== In-memory storage (до БД) =====
@@ -182,6 +210,71 @@ app.post("/api/prize/sell", auth, (req, res) => {
 
   u.balance = Number((u.balance + price).toFixed(2));
   res.json({ newBalance: u.balance, inventory: u.inventory });
+});
+
+// ===== Withdraw TON (заявка админу) =====
+app.post("/api/withdraw/ton", auth, async (req, res) => {
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
+
+  const amount = Number(req.body?.amount || 0);
+  if (!Number.isFinite(amount)) return res.status(400).json({ error: "Некорректная сумма" });
+
+  const MIN_WITHDRAW = 5;
+  if (amount < MIN_WITHDRAW) return res.status(400).json({ error: `Минимум ${MIN_WITHDRAW} TON` });
+  if (amount > u.balance) return res.status(400).json({ error: "Недостаточно средств" });
+
+  const username = req.tgUser?.username ? `@${req.tgUser.username}` : "(no username)";
+  const fullName = [req.tgUser?.first_name, req.tgUser?.last_name].filter(Boolean).join(" ");
+
+  const text =
+    `💸 Заявка на вывод TON\n` +
+    `Пользователь: ${fullName || "User"} ${username}\n` +
+    `ID: ${id}\n` +
+    `Сумма: ${amount.toFixed(2)} TON\n` +
+    `Баланс сейчас: ${Number(u.balance || 0).toFixed(2)} TON`;
+
+  try {
+    await sendAdminMessage(text);
+  } catch (e) {
+    return res.status(500).json({ error: e.message || "Ошибка уведомления" });
+  }
+
+  // это заявка — баланс пока не списываем
+  res.json({ ok: true });
+});
+
+// ===== Withdraw Gift (заявка админу) =====
+app.post("/api/withdraw/gift", auth, async (req, res) => {
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
+
+  const idx = Number(req.body?.idx);
+  if (!Number.isInteger(idx) || idx < 0 || idx >= u.inventory.length) {
+    return res.status(400).json({ error: "Некорректный предмет" });
+  }
+
+  const item = u.inventory[idx];
+
+  const username = req.tgUser?.username ? `@${req.tgUser.username}` : "(no username)";
+  const fullName = [req.tgUser?.first_name, req.tgUser?.last_name].filter(Boolean).join(" ");
+
+  const text =
+    `🎁 Заявка на вывод подарка\n` +
+    `Пользователь: ${fullName || "User"} ${username}\n` +
+    `ID: ${id}\n` +
+    `Подарок: ${(item?.emoji || "🎁")} ${item?.name || "Подарок"}\n` +
+    `Оценка: ${Number(item?.price || 0).toFixed(2)} TON\n` +
+    `Индекс в инвентаре: ${idx}`;
+
+  try {
+    await sendAdminMessage(text);
+  } catch (e) {
+    return res.status(500).json({ error: e.message || "Ошибка уведомления" });
+  }
+
+  // это заявка — предмет пока не удаляем
+  res.json({ ok: true });
 });
 
 // ===== Crash sync (общий баланс) =====
