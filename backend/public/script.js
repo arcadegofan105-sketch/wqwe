@@ -300,14 +300,17 @@ spinButton?.addEventListener('click', async e => {
 	balance = Number(prizeData.newBalance ?? balance - SPIN_PRICE)
 	updateBalanceUI()
 
-	const sectorIndex = findSectorIndexForPrize(currentPrize)
-	const desiredAngle = 270
-	const current = ((currentRotation % 360) + 360) % 360
-	const base = sectorBaseAngles?.[sectorIndex] ?? 0
-	const delta = (((desiredAngle - base - current) % 360) + 360) % 360
+	// ВСЕГДА крутим на мишку (берём первый сектор с name === 'Мишка')
+const bearIndex = wheelSectors.findIndex(s => s?.name === 'Мишка')
+const sectorIndex = bearIndex >= 0 ? bearIndex : 0
 
-	currentRotation += FULL_ROUNDS * 360 + delta
-	wheel.style.transform = `rotate(${currentRotation.toFixed(3)}deg)`
+const desiredAngle = 270
+const current = ((currentRotation % 360) + 360) % 360
+const base = sectorBaseAngles?.[sectorIndex] ?? 0
+const delta = (((desiredAngle - base - current) % 360) + 360) % 360
+
+currentRotation += FULL_ROUNDS * 360 + delta
+wheel.style.transform = `rotate(${currentRotation.toFixed(3)}deg)`
 })
 
 wheel?.addEventListener('transitionend', e => {
@@ -621,5 +624,6 @@ window.addEventListener('resize', () => {
 		alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
 	}
 })()
+
 
 
