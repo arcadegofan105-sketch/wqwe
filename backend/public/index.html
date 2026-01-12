@@ -27,13 +27,11 @@
         </div>
       </header>
 
-
       <main class="content">
         <!-- Экран КОЛЕСО -->
         <section id="screen-wheel" class="screen active">
           <div class="screen-title">Колесо фортуны</div>
           <div class="screen-subtitle">Каждый спин стоит 1 TON</div>
-
 
           <div class="wheel-wrapper">
             <div class="wheel-arrow">▼</div>
@@ -54,7 +52,6 @@
             </div>
           </div>
 
-
           <div class="info-row">
             <div class="info-card">
               <div class="info-label">Ваш баланс</div>
@@ -67,7 +64,6 @@
               <div class="info-value" id="last-prize">—</div>
             </div>
           </div>
-
 
           <div class="prizes-list">
             <div class="prizes-grid">
@@ -99,12 +95,10 @@
           </div>
         </section>
 
-
         <!-- Экран КРАШ -->
         <section id="screen-crash" class="screen">
           <div class="screen-title">🚀 Краш</div>
           <div class="screen-subtitle">Выведите деньги до того, как ракета взорвётся!</div>
-
 
           <div class="crash-container">
             <!-- Game Canvas -->
@@ -114,7 +108,6 @@
               <div class="crash-status" id="crash-status">Ожидание...</div>
             </div>
 
-
             <!-- Controls -->
             <div class="crash-controls">
               <div class="crash-input-group">
@@ -122,17 +115,14 @@
                 <input type="number" id="crash-bet-input" placeholder="0.1" min="0.1" step="0.1" value="1" />
               </div>
 
-
               <button id="crash-play-btn" class="crash-btn crash-btn-play">
                 Играть
               </button>
-
 
               <button id="crash-cashout-btn" class="crash-btn crash-btn-cashout" disabled>
                 Вывести
               </button>
             </div>
-
 
             <!-- Info -->
             <div class="crash-info">
@@ -148,14 +138,12 @@
           </div>
         </section>
 
-
         <!-- Экран БОНУСЫ -->
         <section id="screen-bonus" class="screen">
           <div class="screen-title">Бонусы и промокоды</div>
           <div class="screen-subtitle">
             Введите промокод, чтобы получить бонус или скидку.
           </div>
-
 
           <div class="promo-block">
             <input
@@ -166,7 +154,6 @@
             <button id="promo-apply">Активировать</button>
           </div>
 
-
           <div class="bonus-card">
             <div class="bonus-title">Раздел промокоды</div>
             <div class="bonus-text">
@@ -175,7 +162,6 @@
             </div>
           </div>
         </section>
-
 
         <!-- Экран ПРОФИЛЬ -->
         <section id="screen-profile" class="screen">
@@ -186,7 +172,6 @@
               <div class="profile-id">ID: тестовый пользователь</div>
             </div>
           </div>
-
 
           <div class="profile-balance-card">
             <div class="profile-balance-top">
@@ -206,7 +191,6 @@
             </div>
           </div>
 
-
           <div class="inventory-section">
             <div class="inventory-title">Инвентарь подарков</div>
             <div id="inventory-list" class="inventory-list">
@@ -214,7 +198,6 @@
               <div class="inventory-empty">У вас пока нет подарков</div>
             </div>
           </div>
-
 
           <div class="ref-card">
             <div class="ref-title">Реферальная программа</div>
@@ -228,7 +211,6 @@
           </div>
         </section>
       </main>
-
 
       <nav class="bottom-nav">
         <button class="nav-btn active" data-target="wheel">
@@ -248,7 +230,6 @@
           <span>Профиль</span>
         </button>
       </nav>
-
 
       <!-- Модальное окно для выбора: продать или оставить -->
       <div id="prize-modal" class="modal">
@@ -271,14 +252,41 @@
           </div>
         </div>
       </div>
+
+      <!-- ✅ Модалка вывода TON -->
+      <div id="withdraw-modal" class="modal">
+        <div class="modal-content">
+          <div class="modal-title">Вывод TON</div>
+          <div class="modal-text">Укажи сумму вывода (минимум 5 TON).</div>
+
+          <input
+            id="withdraw-amount-input"
+            class="modal-input"
+            type="number"
+            min="5"
+            step="0.01"
+            placeholder="Например: 5"
+            inputmode="decimal"
+          />
+
+          <div id="withdraw-hint" class="modal-hint">Баланс: <span id="withdraw-balance-hint">0</span> TON</div>
+
+          <div class="modal-buttons">
+            <button id="withdraw-cancel" class="modal-btn modal-btn-sell" type="button">
+              Отмена
+            </button>
+            <button id="withdraw-confirm" class="modal-btn modal-btn-keep" type="button">
+              Подтвердить
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ✅ TELEGRAM WEB APP SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
+
     <!-- Ваш основной скрипт -->
     <script src="script.js"></script>
   </body>
 </html>
-
-
