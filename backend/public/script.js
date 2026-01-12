@@ -411,9 +411,11 @@ inventoryList?.addEventListener('click', async e => {
 	}
 
 	if (e.target.classList.contains('inv-withdraw')) {
-		// заявка на вывод подарка
+				// ✅ вывод подарка: сервер удаляет предмет и возвращает обновлённый inventory
 		try {
-			await withdrawGiftApi(idx)
+			const r = await withdrawGiftApi(idx)
+			inventory = Array.isArray(r.inventory) ? r.inventory : inventory
+			renderInventory()
 			alert('Заявка на вывод подарка отправлена админу.')
 		} catch (err) {
 			alert(err.message || 'Ошибка вывода подарка')
@@ -441,6 +443,7 @@ promoApplyBtn?.addEventListener('click', async () => {
 
 depositBtn?.addEventListener('click', () => alert('Депозит будет добавлен позже.'))
 
+
 // ✅ open withdraw TON modal
 withdrawBtn?.addEventListener('click', () => {
 	openWithdrawModal(String(Math.max(MIN_WITHDRAW_TON, 5)))
@@ -467,7 +470,11 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
 
 	try {
 		withdrawConfirmBtn.disabled = true
-		await withdrawTonApi(amount)
+
+		const r = await withdrawTonApi(amount) // ✅ сервер теперь возвращает newBalance
+		balance = Number(r.newBalance ?? balance)
+		updateBalanceUI()
+
 		closeWithdrawModal()
 		alert(`Заявка на вывод ${amount.toFixed(2)} TON отправлена админу.`)
 	} catch (err) {
@@ -476,6 +483,7 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
 		withdrawConfirmBtn.disabled = false
 	}
 })
+
 
 // ===== CRASH (синхронизация с сервером) =====
 const crashCanvas = document.getElementById('crash-canvas')
@@ -700,3 +708,4 @@ window.addEventListener('resize', () => {
 		alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
 	}
 })()
+
