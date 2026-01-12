@@ -502,23 +502,29 @@ depositBtn?.addEventListener('click', async () => {
 
 		// 2) отправляем транзакцию
 		const tx = {
-			validUntil: Math.floor(Date.now() / 1000) + 360,
-			messages: [
-				{
-					address: dep.address,
-					amount: toNanoString(dep.amount),
-				},
-			],
-		}
-		await tonConnectUI.sendTransaction(tx)
+  validUntil: Math.floor(Date.now() / 1000) + 360,
+  messages: [
+    {
+      address: dep.address,
+      amount: toNanoString(dep.amount),
+      payload: dep.payloadBase64, // <-- ВАЖНО: приходит с /api/deposit/create
+    },
+  ],
+}
+
+await tonConnectUI.sendTransaction(tx, {
+  modals: ['before', 'success', 'error'],
+  notifications: ['before', 'success', 'error'],
+  skipRedirectToWallet: 'never',
+})
+
 
 		// 3) поллим сервер, пока не зачислилось
 		for (let i = 0; i < 12; i++) {
 			await sleep(5000)
 			const r = await depositCheckApi(dep.depositId)
 			if (r.credited) {
-				balance = Number(r.newBalance ?? balance)
-				updateBalanceUI()
+				await fetchUserData()
 				alert(`Депозит зачислен: +${Number(dep.amount).toFixed(2)} TON`)
 				return
 			}
@@ -796,5 +802,6 @@ window.addEventListener('resize', () => {
 		alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
 	}
 })()
+
 
 
