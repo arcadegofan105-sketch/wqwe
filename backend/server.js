@@ -6,35 +6,31 @@ import { fileURLToPath } from "url";
 const app = express();
 app.use(express.json());
 
-// ====== ENV ======
+// ===== ENV =====
 const BOT_TOKEN = process.env.BOT_TOKEN;
 if (!BOT_TOKEN) {
   console.error("❌ BOT_TOKEN is not set");
   process.exit(1);
 }
 
-// ====== PATHS ======
-// server.js находится в /backend, а фронт лежит в корне репо (..)
+// ===== PATHS =====
+// backend/server.js  -> корень репозитория = на уровень выше
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const ROOT_DIR = path.join(__dirname, ".."); // <- корень репозитория
+const ROOT_DIR = path.resolve(__dirname, ".."); // важно: без слэшей типа "/.." [web:109]
 
-// ====== STATIC ======
-// Раздаём: /index.html, /style.css, /script.js, /toncoin-ton-logo.jpg и т.д.
+// ===== STATIC =====
 app.use(express.static(ROOT_DIR)); // [web:22]
 
-// Главная (чтобы не было 404 на "/")
+// ===== MAIN PAGE =====
 app.get("/", (req, res) => {
-  res.sendFile(path.join(ROOT_DIR, "index.html"));
+  // ВАЖНО: "index.html" без ведущего "/"
+  res.sendFile(path.join(ROOT_DIR, "index.html")); // [web:114]
 });
 
-// ====== TELEGRAM initData validation ======
-// Алгоритм: HMAC-SHA256(WebAppData, BOT_TOKEN) -> secretKey,
-// затем HMAC-SHA256(secretKey, data_check_string) и сравнить с hash [web:6]
+// ===== Telegram initData validation =====
 function validateInitData(initData) {
-  if (!initData || typeof initData !== "string") {
-    throw new Error("initData required");
-  }
+  if (!initData || typeof initData !== "string") throw new Error("initData required");
 
   const params = new URLSearchParams(initData);
   const hash = params.get("hash");
@@ -48,19 +44,15 @@ function validateInitData(initData) {
 
   const secretKey = crypto.createHmac("sha256", "WebAppData").update(BOT_TOKEN).digest();
   const calculatedHash = crypto.createHmac("sha256", secretKey).update(dataCheckString).digest("hex");
-
   if (calculatedHash !== hash) throw new Error("invalid initData hash");
 
   const authDate = Number(params.get("auth_date") || 0);
   if (!authDate) throw new Error("auth_date missing");
-
-  // анти-replay (например 24 часа)
   const now = Math.floor(Date.now() / 1000);
   if (now - authDate > 24 * 60 * 60) throw new Error("initData expired");
 
   const userStr = params.get("user");
   if (!userStr) throw new Error("user missing");
-
   const user = JSON.parse(userStr);
   if (!user?.id) throw new Error("user id missing");
 
@@ -69,15 +61,14 @@ function validateInitData(initData) {
 
 function auth(req, res, next) {
   try {
-    const user = validateInitData(req.body?.initData);
-    req.tgUser = user;
+    req.tgUser = validateInitData(req.body?.initData);
     next();
   } catch (e) {
     res.status(401).json({ error: e.message || "unauthorized" });
   }
 }
 
-// ====== GAME DATA (пока память, БД добавим следующим шагом) ======
+// ===== Demo storage (пока без БД) =====
 const wheelSectors = [
   { emoji: "🧸", name: "Мишка", price: 0.1 },
   { emoji: "🐸", name: "Пепе", price: 0.0 },
@@ -93,24 +84,21 @@ function randomPrize() {
 }
 
 const users = new Map(); // telegramId -> { balance, inventory }
-
 function getOrCreateUser(telegramId) {
-  if (!users.has(telegramId)) {
-    users.set(telegramId, { balance: 5, inventory: [] });
-  }
+  if (!users.has(telegramId)) users.set(telegramId, { balance: 5, inventory: [] });
   return users.get(telegramId);
 }
 
-// ====== API ======
+// ===== API =====
 app.post("/api/me", auth, (req, res) => {
-  const telegramId = String(req.tgUser.id);
-  const u = getOrCreateUser(telegramId);
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
   res.json({ balance: u.balance, inventory: u.inventory });
 });
 
 app.post("/api/spin", auth, (req, res) => {
-  const telegramId = String(req.tgUser.id);
-  const u = getOrCreateUser(telegramId);
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
 
   const SPIN_PRICE = 1;
   if (u.balance < SPIN_PRICE) return res.status(400).json({ error: "Недостаточно средств" });
@@ -121,8 +109,8 @@ app.post("/api/spin", auth, (req, res) => {
 });
 
 app.post("/api/prize/keep", auth, (req, res) => {
-  const telegramId = String(req.tgUser.id);
-  const u = getOrCreateUser(telegramId);
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
 
   const prize = req.body?.prize;
   if (!prize?.name) return res.status(400).json({ error: "prize required" });
@@ -132,8 +120,8 @@ app.post("/api/prize/keep", auth, (req, res) => {
 });
 
 app.post("/api/prize/sell", auth, (req, res) => {
-  const telegramId = String(req.tgUser.id);
-  const u = getOrCreateUser(telegramId);
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
 
   const prize = req.body?.prize;
   if (!prize?.name) return res.status(400).json({ error: "prize required" });
@@ -141,18 +129,15 @@ app.post("/api/prize/sell", auth, (req, res) => {
   const price = Number(prize.price || 0);
   u.balance = Number((u.balance + price).toFixed(2));
 
-  // если продаём из инвентаря — удалим 1 совпадение
-  const idx = u.inventory.findIndex(
-    (x) => x?.name === prize.name && Number(x?.price || 0) === price
-  );
+  const idx = u.inventory.findIndex((x) => x?.name === prize.name && Number(x?.price || 0) === price);
   if (idx >= 0) u.inventory.splice(idx, 1);
 
   res.json({ newBalance: u.balance });
 });
 
 app.post("/api/promo/apply", auth, (req, res) => {
-  const telegramId = String(req.tgUser.id);
-  const u = getOrCreateUser(telegramId);
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
 
   const code = String(req.body?.code || "").trim().toUpperCase();
   if (!code) return res.status(400).json({ error: "code required" });
@@ -164,14 +149,13 @@ app.post("/api/promo/apply", auth, (req, res) => {
   res.json({ amount, newBalance: u.balance });
 });
 
-// ====== SPA fallback ======
-// Если пользователь откроет /something — отдаём index.html, чтобы UI не ломался
+// ===== fallback =====
+// если запросили несуществующий путь, но это не API — вернём index.html
 app.get("*", (req, res) => {
+  if (req.path.startsWith("/api")) return res.status(404).json({ error: "Not Found" });
   res.sendFile(path.join(ROOT_DIR, "index.html"));
 });
 
-// ====== START ======
+// ===== start =====
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log("✅ Listening on", PORT);
-});
+app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
