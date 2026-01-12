@@ -16,7 +16,7 @@ if (!BOT_TOKEN) {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Фронт лежит в backend/public
+// фронт лежит в backend/public
 const PUBLIC_DIR = path.join(__dirname, "public");
 const INDEX_PATH = path.join(PUBLIC_DIR, "index.html");
 
@@ -30,6 +30,7 @@ console.log("INDEX_EXISTS:", fs.existsSync(INDEX_PATH));
 app.use(express.static(PUBLIC_DIR)); // статика через express.static [web:22]
 app.get("/", (req, res) => res.sendFile(INDEX_PATH));
 
+// ===== Telegram initData validation =====
 function validateInitData(initData) {
   if (!initData || typeof initData !== "string") throw new Error("initData required");
 
@@ -47,7 +48,7 @@ function validateInitData(initData) {
   const calculatedHash = crypto.createHmac("sha256", secretKey).update(dataCheckString).digest("hex");
   if (calculatedHash !== hash) throw new Error("invalid initData hash");
 
-  // Рекомендуется проверять auth_date (защита от повторного использования initData) [web:6]
+  // auth_date expiration check (рекомендуется) [web:8]
   const authDate = Number(params.get("auth_date") || 0);
   if (!authDate) throw new Error("auth_date missing");
   const now = Math.floor(Date.now() / 1000);
@@ -72,12 +73,22 @@ function auth(req, res, next) {
 
 // ===== In-memory storage (до БД) =====
 const users = new Map();
-
-// Первый заход: баланс 0 (как ты хотел)
 function getOrCreateUser(id) {
-  if (!users.has(id)) users.set(id, { balance: 5, inventory: [] });
+  if (!users.has(id)) {
+    users.set(id, {
+      balance: 0,
+      inventory: [],
+      usedPromos: [],
+    });
+  }
   return users.get(id);
 }
+
+// ===== Promo config =====
+const PROMOS = {
+  WheelTon: 1,
+  Admintestcodesss: 50,
+};
 
 // ===== API =====
 app.post("/api/me", auth, (req, res) => {
@@ -86,15 +97,72 @@ app.post("/api/me", auth, (req, res) => {
   res.json({ balance: u.balance, inventory: u.inventory });
 });
 
+// Не трогаем: как ты просил, всегда мишка
 app.post("/api/spin", auth, (req, res) => {
   const id = String(req.tgUser.id);
   const u = getOrCreateUser(id);
 
-  const SPIN_PRICE = 1;
-  if (u.balance < SPIN_PRICE) return res.status(400).json({ error: "Недостаточно средств" });
+  if (u.balance < 1) return res.status(400).json({ error: "Недостаточно средств" });
+  u.balance = Number((u.balance - 1).toFixed(2));
 
-  u.balance = Number((u.balance - SPIN_PRICE).toFixed(2));
   res.json({ prize: { emoji: "🧸", name: "Мишка", price: 0.1 }, newBalance: u.balance });
+});
+
+// ===== Promo apply =====
+app.post("/api/promo/apply", auth, (req, res) => {
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
+
+  const codeRaw = String(req.body?.code || "").trim();
+  if (!codeRaw) return res.status(400).json({ error: "Введите промокод" });
+
+  // промокоды чувствительны к регистру (WheelTon != wheelton)
+  const amount = PROMOS[codeRaw];
+  if (!amount) return res.status(400).json({ error: "Промокод не найден" });
+
+  if (u.usedPromos.includes(codeRaw)) {
+    return res.status(400).json({ error: "Этот промокод уже использован" });
+  }
+
+  u.usedPromos.push(codeRaw);
+  u.balance = Number((u.balance + amount).toFixed(2));
+
+  res.json({ newBalance: u.balance, amount });
+});
+
+// ===== Prize keep/sell =====
+app.post("/api/prize/keep", auth, (req, res) => {
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
+
+  const prize = req.body?.prize;
+  if (!prize || typeof prize !== "object") return res.status(400).json({ error: "prize required" });
+
+  const emoji = String(prize.emoji || "🎁");
+  const name = String(prize.name || "Подарок");
+  const price = Number(prize.price || 0);
+
+  u.inventory.push({ emoji, name, price });
+
+  res.json({ ok: true, inventory: u.inventory });
+});
+
+app.post("/api/prize/sell", auth, (req, res) => {
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
+
+  const prize = req.body?.prize;
+  if (!prize || typeof prize !== "object") return res.status(400).json({ error: "prize required" });
+
+  const price = Number(prize.price || 0);
+  if (!Number.isFinite(price) || price <= 0) {
+    return res.status(400).json({ error: "Этот подарок нельзя продать" });
+  }
+
+  // Продажа из модалки (после spin) — просто начисляем цену
+  u.balance = Number((u.balance + price).toFixed(2));
+
+  res.json({ newBalance: u.balance });
 });
 
 // ===== Crash sync (общий баланс) =====
@@ -130,4 +198,3 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
-
