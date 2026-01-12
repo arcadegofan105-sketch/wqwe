@@ -3,6 +3,7 @@ const API_URL = '/api'
 const SPIN_PRICE = 1
 const FULL_ROUNDS = 5
 const MIN_WITHDRAW_TON = 5
+const MIN_DEPOSIT_TON = 0.1
 
 const wheelSectors = [
 	{ emoji: '🧸', name: 'Мишка', price: 0.1 },
@@ -46,13 +47,7 @@ const telegramUser = tg.initDataUnsafe?.user || null
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
 	manifestUrl: `${location.origin}/tonconnect-manifest.json`,
 	buttonRootId: 'ton-connect',
-});
-
-// (не обязательно, но полезно для проверки)
-tonConnectUI.onStatusChange(walletInfo => {
-	console.log('TON wallet status:', walletInfo);
-});
-
+})
 
 // ===== UI ELEMENTS =====
 const wheel = document.getElementById('wheel')
@@ -222,26 +217,6 @@ function computeSectorBaseAngles() {
 	wheel.style.transition = prevTransition
 }
 
-function findSectorIndexForPrize(prize) {
-	// 1) пробуем точное совпадение name+emoji
-	for (let i = 0; i < wheelSectors.length; i++) {
-		if (
-			wheelSectors[i]?.name === prize?.name &&
-			wheelSectors[i]?.emoji === prize?.emoji
-		) {
-			return i
-		}
-	}
-
-	// 2) если emoji нет/не совпало — совпадение только по name
-	for (let i = 0; i < wheelSectors.length; i++) {
-		if (wheelSectors[i]?.name === prize?.name) return i
-	}
-
-	// 3) fallback
-	return 0
-}
-
 function updateTelegramUserUI() {
 	if (!telegramUser) return
 
@@ -261,6 +236,25 @@ function updateTelegramUserUI() {
 		})
 	}
 }
+
+// ===== TON CONNECT (deposit lock) =====
+function isWalletConnected() {
+	return Boolean(tonConnectUI?.account?.address)
+}
+
+function updateDepositButtonState() {
+	if (!depositBtn) return
+	depositBtn.disabled = !isWalletConnected()
+	if (depositBtn.disabled) {
+		depositBtn.title = 'Сначала подключи TON-кошелёк'
+	} else {
+		depositBtn.title = ''
+	}
+}
+
+tonConnectUI.onStatusChange(() => {
+	updateDepositButtonState()
+})
 
 // ===== API (initData auth) =====
 async function apiPost(path, body = {}) {
@@ -309,6 +303,26 @@ async function withdrawTonApi(amount) {
 
 async function withdrawGiftApi(idx) {
 	return apiPost('/withdraw/gift', { idx })
+}
+
+// ✅ deposit APIs (auto)
+async function depositInfoApi() {
+	return apiPost('/deposit/info')
+}
+async function depositCreateApi(amount) {
+	return apiPost('/deposit/create', { amount })
+}
+async function depositCheckApi(depositId) {
+	return apiPost('/deposit/check', { depositId })
+}
+
+// ===== deposit helpers =====
+function toNanoString(tonAmount) {
+	return String(Math.round(tonAmount * 1e9))
+}
+
+function sleep(ms) {
+	return new Promise(r => setTimeout(r, ms))
 }
 
 // ===== EVENTS =====
@@ -423,7 +437,6 @@ inventoryList?.addEventListener('click', async e => {
 	}
 
 	if (e.target.classList.contains('inv-withdraw')) {
-				// ✅ вывод подарка: сервер удаляет предмет и возвращает обновлённый inventory
 		try {
 			const r = await withdrawGiftApi(idx)
 			inventory = Array.isArray(r.inventory) ? r.inventory : inventory
@@ -453,8 +466,72 @@ promoApplyBtn?.addEventListener('click', async () => {
 	}
 })
 
-depositBtn?.addEventListener('click', () => alert('Депозит будет добавлен позже.'))
+// ✅ DEPOSIT TON (auto)
+depositBtn?.addEventListener('click', async () => {
+	try {
+		// защита на клик (на всякий)
+		if (!isWalletConnected()) {
+			alert('Сначала подключи TON-кошелёк (Connect wallet).')
+			return
+		}
 
+		// получаем minDeposit с сервера (на будущее)
+		let minDeposit = MIN_DEPOSIT_TON
+		try {
+			const info = await depositInfoApi()
+			minDeposit = Number(info.minDeposit ?? MIN_DEPOSIT_TON)
+		} catch (_) {}
+
+		const raw = prompt(`Введите сумму депозита (минимум ${minDeposit} TON):`, String(minDeposit))
+		if (raw === null) return
+
+		const amountTon = Number(String(raw).replace(',', '.').trim())
+		if (!Number.isFinite(amountTon) || amountTon <= 0) {
+			alert('Введите корректную сумму')
+			return
+		}
+		if (amountTon < minDeposit) {
+			alert(`Минимум ${minDeposit} TON`)
+			return
+		}
+
+		depositBtn.disabled = true
+
+		// 1) создаём депозит на сервере (получаем address + comment)
+		const dep = await depositCreateApi(amountTon)
+
+		// 2) отправляем транзакцию
+		const tx = {
+			validUntil: Math.floor(Date.now() / 1000) + 360,
+			messages: [
+				{
+					address: dep.address,
+					amount: toNanoString(dep.amount),
+					payload: btoa(dep.comment),
+				},
+			],
+		}
+		await tonConnectUI.sendTransaction(tx)
+
+		// 3) поллим сервер, пока не зачислилось
+		for (let i = 0; i < 12; i++) {
+			await sleep(5000)
+			const r = await depositCheckApi(dep.depositId)
+			if (r.credited) {
+				balance = Number(r.newBalance ?? balance)
+				updateBalanceUI()
+				alert(`Депозит зачислен: +${Number(dep.amount).toFixed(2)} TON`)
+				return
+			}
+		}
+
+		alert('Транзакция отправлена. Если не зачислилось — подожди 1–2 минуты и попробуй ещё раз.')
+	} catch (err) {
+		alert(err.message || 'Ошибка депозита')
+	} finally {
+		updateDepositButtonState()
+	}
+})
 
 // ✅ open withdraw TON modal
 withdrawBtn?.addEventListener('click', () => {
@@ -483,7 +560,7 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
 	try {
 		withdrawConfirmBtn.disabled = true
 
-		const r = await withdrawTonApi(amount) // ✅ сервер теперь возвращает newBalance
+		const r = await withdrawTonApi(amount)
 		balance = Number(r.newBalance ?? balance)
 		updateBalanceUI()
 
@@ -495,7 +572,6 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
 		withdrawConfirmBtn.disabled = false
 	}
 })
-
 
 // ===== CRASH (синхронизация с сервером) =====
 const crashCanvas = document.getElementById('crash-canvas')
@@ -615,7 +691,6 @@ async function startCrash() {
 		return
 	}
 
-	// Списываем ставку НА СЕРВЕРЕ (общий баланс)
 	try {
 		const r = await apiPost('/crash/bet', { amount: crashBetAmount })
 		balance = Number(r.newBalance ?? balance)
@@ -648,7 +723,6 @@ async function cashoutCrash() {
 
 	const winAmount = crashBetAmount * crashMultiplier
 
-	// Начисляем выигрыш НА СЕРВЕРЕ (общий баланс)
 	try {
 		const r = await apiPost('/crash/cashout', { amount: winAmount })
 		balance = Number(r.newBalance ?? balance)
@@ -714,11 +788,13 @@ window.addEventListener('resize', () => {
 		drawCrashGraph()
 	}
 
+	// ✅ сразу выставляем состояние кнопки депозита (заблокирована пока нет кошелька)
+	updateDepositButtonState()
+
 	try {
 		await fetchUserData()
 	} catch (err) {
 		alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
 	}
 })()
-
 
