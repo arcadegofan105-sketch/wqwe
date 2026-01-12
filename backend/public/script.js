@@ -38,8 +38,8 @@ tg.expand()
 document.body.style.backgroundColor = tg.themeParams?.bg_color || '#02051a'
 showApp()
 
-const INIT_DATA = tg.initData // строка querystring, подписанная Telegram [web:13]
-const telegramUser = tg.initDataUnsafe?.user || null // только для UI (не для авторизации) [web:13]
+const INIT_DATA = tg.initData
+const telegramUser = tg.initDataUnsafe?.user || null
 
 // ===== UI ELEMENTS =====
 const wheel = document.getElementById('wheel')
@@ -222,9 +222,7 @@ async function apiPost(path, body = {}) {
 	})
 
 	const data = await res.json().catch(() => ({}))
-	if (!res.ok) {
-		throw new Error(data?.error || `HTTP ${res.status}`)
-	}
+	if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`)
 	return data
 }
 
@@ -289,7 +287,7 @@ spinButton?.addEventListener('click', async e => {
 	updateBalanceUI()
 
 	const sectorIndex = findSectorIndexForPrize(currentPrize)
-	const desiredAngle = 270 // “стрелка” сверху
+	const desiredAngle = 270
 	const current = ((currentRotation % 360) + 360) % 360
 	const base = sectorBaseAngles?.[sectorIndex] ?? 0
 	const delta = (((desiredAngle - base - current) % 360) + 360) % 360
@@ -383,14 +381,10 @@ promoApplyBtn?.addEventListener('click', async () => {
 	}
 })
 
-depositBtn?.addEventListener('click', () =>
-	alert('Депозит будет добавлен позже.')
-)
-withdrawBtn?.addEventListener('click', () =>
-	alert('Вывод будет добавлен позже.')
-)
+depositBtn?.addEventListener('click', () => alert('Депозит будет добавлен позже.'))
+withdrawBtn?.addEventListener('click', () => alert('Вывод будет добавлен позже.'))
 
-// ===== CRASH (оставил как было по логике, только баланс локальный) =====
+// ===== CRASH (синхронизация с сервером) =====
 const crashCanvas = document.getElementById('crash-canvas')
 const crashCtx = crashCanvas ? crashCanvas.getContext('2d') : null
 const crashMultiplierEl = document.getElementById('crash-multiplier')
@@ -470,16 +464,12 @@ function drawCrashGraph() {
 }
 
 function updateCrashMultiplierUI() {
-	if (crashMultiplierEl)
-		crashMultiplierEl.textContent = `${crashMultiplier.toFixed(2)}x`
+	if (crashMultiplierEl) crashMultiplierEl.textContent = `${crashMultiplier.toFixed(2)}x`
 	if (crashBetAmount > 0 && crashPotentialWinEl) {
-		crashPotentialWinEl.textContent = `${(
-			crashBetAmount * crashMultiplier
-		).toFixed(2)} TON`
+		crashPotentialWinEl.textContent = `${(crashBetAmount * crashMultiplier).toFixed(2)} TON`
 	}
 	if (crashCurrentBetEl) {
-		crashCurrentBetEl.textContent =
-			crashBetAmount > 0 ? `${crashBetAmount.toFixed(2)} TON` : '—'
+		crashCurrentBetEl.textContent = crashBetAmount > 0 ? `${crashBetAmount.toFixed(2)} TON` : '—'
 	}
 }
 
@@ -499,7 +489,7 @@ function animateCrash() {
 	crashAnimFrame = requestAnimationFrame(animateCrash)
 }
 
-function startCrash() {
+async function startCrash() {
 	if (crashState !== 'idle') return
 
 	crashBetAmount = parseFloat(crashBetInput?.value || '0')
@@ -512,8 +502,15 @@ function startCrash() {
 		return
 	}
 
-	balance -= crashBetAmount
-	updateBalanceUI()
+	// Списываем ставку НА СЕРВЕРЕ (общий баланс)
+	try {
+		const r = await apiPost('/crash/bet', { amount: crashBetAmount })
+		balance = Number(r.newBalance ?? balance)
+		updateBalanceUI()
+	} catch (err) {
+		alert(err.message || 'Ошибка ставки')
+		return
+	}
 
 	crashPoint = generateCrashPoint()
 	crashMultiplier = 1.0
@@ -533,12 +530,20 @@ function startCrash() {
 	animateCrash()
 }
 
-function cashoutCrash() {
+async function cashoutCrash() {
 	if (crashState !== 'playing') return
+
 	const winAmount = crashBetAmount * crashMultiplier
-	balance += winAmount
-	updateBalanceUI()
-	endCrash(true)
+
+	// Начисляем выигрыш НА СЕРВЕРЕ (общий баланс)
+	try {
+		const r = await apiPost('/crash/cashout', { amount: winAmount })
+		balance = Number(r.newBalance ?? balance)
+		updateBalanceUI()
+		endCrash(true)
+	} catch (err) {
+		alert(err.message || 'Ошибка вывода')
+	}
 }
 
 function endCrash(cashedOut) {
