@@ -3,6 +3,7 @@ import crypto from "crypto";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
+import { beginCell, Cell } from "@ton/core";
 
 const app = express();
 app.use(express.json());
@@ -20,7 +21,7 @@ if (!ADMIN_CHAT_ID) {
 }
 
 // ✅ Deposit config (Railway Variables)
-const TON_DEPOSIT_ADDRESS = process.env.TON_DEPOSIT_ADDRESS;
+const TON_DEPOSIT_ADDRESS = String(process.env.TON_DEPOSIT_ADDRESS || "").replace(/\s+/g, "").trim();
 if (!TON_DEPOSIT_ADDRESS) {
   console.error("❌ TON_DEPOSIT_ADDRESS is not set");
   process.exit(1);
@@ -131,17 +132,36 @@ async function toncenterGetTransactions(address, limit = 25) {
   return data?.result || [];
 }
 
+// ===== Deposit payload helpers (BOC comment) =====
+function makeCommentPayloadBase64(text) {
+  // Text comment: op=0 (32 bits) + UTF-8 string
+  return beginCell().storeUint(0, 32).storeStringTail(text).endCell().toBoc().toString("base64");
+}
+
+function tryDecodeCommentFromBodyBase64(bodyBase64) {
+  try {
+    const cell = Cell.fromBoc(Buffer.from(bodyBase64, "base64"))[0];
+    const s = cell.beginParse();
+    const op = s.loadUint(32);
+    if (op !== 0) return "";
+    return s.loadStringTail();
+  } catch {
+    return "";
+  }
+}
+
 // В toncenter иногда комментарий может быть не в in_msg.message.
-// Сейчас делаем "best effort": пробуем message и decoded body (если будет).
+// Правильно: msg_data.body = base64 BOC, который надо декодить.
 function extractIncomingComment(tx) {
   const inMsg = tx?.in_msg || {};
+
   const msgText = inMsg?.message;
   if (typeof msgText === "string" && msgText.trim()) return msgText.trim();
 
-  // иногда встречается тело (body) в base64, которое можно логировать и потом допарсить
-  // оставляем как fallback (не ломает логику)
-  if (typeof inMsg?.msg_data?.body === "string" && inMsg.msg_data.body.trim()) {
-    return inMsg.msg_data.body.trim();
+  const body = inMsg?.msg_data?.body;
+  if (typeof body === "string" && body.trim()) {
+    const decoded = tryDecodeCommentFromBodyBase64(body.trim());
+    if (decoded) return decoded.trim();
   }
 
   return "";
@@ -342,7 +362,7 @@ app.post("/api/deposit/info", auth, (req, res) => {
   res.json({ address: TON_DEPOSIT_ADDRESS, minDeposit: MIN_DEPOSIT_TON });
 });
 
-// создаём ожидаемый депозит с уникальным комментом
+// создаём ожидаемый депозит с уникальным комментом + payloadBase64 (BOC)
 app.post("/api/deposit/create", auth, (req, res) => {
   const userId = String(req.tgUser.id);
   const amount = Number(req.body?.amount || 0);
@@ -356,6 +376,7 @@ app.post("/api/deposit/create", auth, (req, res) => {
 
   const depositId = makeDepositId();
   const comment = `dep_${userId}_${depositId}`;
+  const payloadBase64 = makeCommentPayloadBase64(comment);
 
   pendingDeposits.set(depositId, {
     userId,
@@ -370,6 +391,7 @@ app.post("/api/deposit/create", auth, (req, res) => {
     address: TON_DEPOSIT_ADDRESS,
     amount: Number(amount.toFixed(2)),
     comment,
+    payloadBase64,
   });
 });
 
@@ -392,10 +414,10 @@ app.post("/api/deposit/check", auth, async (req, res) => {
     return res.status(500).json({ error: e.message || "toncenter error" });
   }
 
-  // ищем транзакцию с нашим уникальным комментом
-  const found = txs.find(tx => {
+  // ищем транзакцию с нашим уникальным комментом (после BOC decode)
+  const found = txs.find((tx) => {
     const comment = extractIncomingComment(tx);
-    return comment.includes(dep.comment);
+    return typeof comment === "string" && comment.includes(dep.comment);
   });
 
   if (!found) {
