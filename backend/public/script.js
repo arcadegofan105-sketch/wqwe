@@ -507,7 +507,6 @@ depositBtn?.addEventListener('click', async () => {
 				{
 					address: dep.address,
 					amount: toNanoString(dep.amount),
-					payload: btoa(dep.comment),
 				},
 			],
 		}
@@ -797,4 +796,5 @@ window.addEventListener('resize', () => {
 		alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
 	}
 })()
+
 
