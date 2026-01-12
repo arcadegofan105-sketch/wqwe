@@ -1,629 +1,312 @@
-// ===== CONFIG =====
-const API_URL = '/api'
-const SPIN_PRICE = 1
-const FULL_ROUNDS = 5
+import express from "express";
+import crypto from "crypto";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
 
-const wheelSectors = [
-	{ emoji: '🧸', name: 'Мишка', price: 0.1 },
-	{ emoji: '🐸', name: 'Пепе', price: 0.0 },
-	{ emoji: '💋', name: 'Губы', price: 0.0 },
-	{ emoji: '📅', name: 'Календарь', price: 1.5 },
-	{ emoji: '🍀', name: 'Клевер', price: 0.0 },
-	{ emoji: '🍑', name: 'Слива', price: 0.0 },
-	{ emoji: '🧸', name: 'Мишка', price: 0.1 },
-]
+const app = express();
+app.use(express.json());
 
-// ===== TELEGRAM =====
-const tg = window.Telegram?.WebApp || null
-const notTelegram = document.getElementById('not-telegram')
-const appRoot = document.getElementById('app-root')
-
-function showNotTelegram() {
-	if (notTelegram) notTelegram.style.display = 'block'
-	if (appRoot) appRoot.style.display = 'none'
+const BOT_TOKEN = process.env.BOT_TOKEN;
+if (!BOT_TOKEN) {
+  console.error("❌ BOT_TOKEN is not set");
+  process.exit(1);
 }
 
-function showApp() {
-	if (notTelegram) notTelegram.style.display = 'none'
-	if (appRoot) appRoot.style.display = 'block'
+const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID; // <-- 7995955451
+if (!ADMIN_CHAT_ID) {
+  console.error("❌ ADMIN_CHAT_ID is not set");
+  process.exit(1);
 }
 
-if (!tg) {
-	showNotTelegram()
-	throw new Error('Telegram WebApp not found')
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// фронт лежит в backend/public
+const PUBLIC_DIR = path.join(__dirname, "public");
+const INDEX_PATH = path.join(PUBLIC_DIR, "index.html");
+
+console.log("PUBLIC_DIR:", PUBLIC_DIR);
+console.log(
+  "PUBLIC_FILES:",
+  fs.existsSync(PUBLIC_DIR) ? fs.readdirSync(PUBLIC_DIR).slice(0, 50) : "NO_DIR"
+);
+console.log("INDEX_EXISTS:", fs.existsSync(INDEX_PATH));
+
+app.use(express.static(PUBLIC_DIR));
+app.get("/", (req, res) => res.sendFile(INDEX_PATH));
+
+// ===== Telegram initData validation =====
+function validateInitData(initData) {
+  if (!initData || typeof initData !== "string") throw new Error("initData required");
+
+  const params = new URLSearchParams(initData);
+  const hash = params.get("hash");
+  if (!hash) throw new Error("hash missing");
+  params.delete("hash");
+
+  const pairs = [];
+  for (const [k, v] of params.entries()) pairs.push(`${k}=${v}`);
+  pairs.sort();
+  const dataCheckString = pairs.join("\n");
+
+  const secretKey = crypto.createHmac("sha256", "WebAppData").update(BOT_TOKEN).digest();
+  const calculatedHash = crypto.createHmac("sha256", secretKey).update(dataCheckString).digest("hex");
+  if (calculatedHash !== hash) throw new Error("invalid initData hash");
+
+  const authDate = Number(params.get("auth_date") || 0);
+  if (!authDate) throw new Error("auth_date missing");
+  const now = Math.floor(Date.now() / 1000);
+  if (now - authDate > 24 * 60 * 60) throw new Error("initData expired");
+
+  const userStr = params.get("user");
+  if (!userStr) throw new Error("user missing");
+  const user = JSON.parse(userStr);
+  if (!user?.id) throw new Error("user id missing");
+
+  return user;
 }
 
-tg.ready()
-tg.expand()
-document.body.style.backgroundColor = tg.themeParams?.bg_color || '#02051a'
-showApp()
-
-const INIT_DATA = tg.initData
-const telegramUser = tg.initDataUnsafe?.user || null
-
-// ===== UI ELEMENTS =====
-const wheel = document.getElementById('wheel')
-const spinButton = document.getElementById('spin-button')
-const balanceValueSpan = document.getElementById('balance-value')
-const balanceValueSpan2 = document.getElementById('balance-value-2')
-const balanceValueSpan3 = document.getElementById('balance-value-3')
-const lastPrizeSpan = document.getElementById('last-prize')
-
-const promoInput = document.getElementById('promo-input')
-const promoApplyBtn = document.getElementById('promo-apply')
-
-const navButtons = document.querySelectorAll('.nav-btn')
-const screens = {
-	wheel: document.getElementById('screen-wheel'),
-	crash: document.getElementById('screen-crash'),
-	bonus: document.getElementById('screen-bonus'),
-	profile: document.getElementById('screen-profile'),
+function auth(req, res, next) {
+  try {
+    req.tgUser = validateInitData(req.body?.initData);
+    next();
+  } catch (e) {
+    res.status(401).json({ error: e.message || "unauthorized" });
+  }
 }
 
-const depositBtn = document.getElementById('deposit-btn')
-const withdrawBtn = document.getElementById('withdraw-btn')
+// ===== Telegram sendMessage helper =====
+async function sendAdminMessage(text) {
+  const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: ADMIN_CHAT_ID,
+      text,
+      parse_mode: "HTML",
+      disable_web_page_preview: true,
+    }),
+  });
 
-const prizeModal = document.getElementById('prize-modal')
-const modalPrizeEmoji = document.getElementById('modal-prize-emoji')
-const modalPrizeName = document.getElementById('modal-prize-name')
-const modalPrizePrice = document.getElementById('modal-prize-price')
-const modalSellBtn = document.getElementById('modal-sell')
-const modalKeepBtn = document.getElementById('modal-keep')
-
-const inventoryList = document.getElementById('inventory-list')
-
-// ===== STATE =====
-let currentRotation = 0
-let balance = 0
-let inventory = []
-let currentPrize = null
-let isSpinning = false
-let sectorBaseAngles = null
-
-// ===== HELPERS =====
-function updateBalanceUI() {
-	const rounded = Number((balance || 0).toFixed(2))
-	if (balanceValueSpan) balanceValueSpan.textContent = String(rounded)
-	if (balanceValueSpan2) balanceValueSpan2.textContent = String(rounded)
-	if (balanceValueSpan3) balanceValueSpan3.textContent = String(rounded)
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data?.ok === false) {
+    console.error("❌ Telegram sendMessage failed:", data);
+    throw new Error("Не удалось отправить уведомление админу");
+  }
+  return data;
 }
 
-function setLastPrizeText(prize) {
-	if (!lastPrizeSpan) return
-	lastPrizeSpan.textContent = prize ? `${prize.emoji} ${prize.name}` : '—'
+// ===== In-memory storage (до БД) =====
+const users = new Map();
+function getOrCreateUser(id) {
+  if (!users.has(id)) {
+    users.set(id, {
+      balance: 0,
+      inventory: [],
+      usedPromos: [],
+    });
+  }
+  return users.get(id);
 }
 
-function openModal(prize) {
-	if (!prizeModal) return
-	modalPrizeEmoji.textContent = prize.emoji
-	modalPrizeName.textContent = prize.name
-	modalPrizePrice.textContent = Number(prize.price || 0).toFixed(2)
-	prizeModal.classList.add('active')
-}
-
-function closeModal() {
-	if (!prizeModal) return
-	prizeModal.classList.remove('active')
-}
-
-function renderWheel() {
-	if (!wheel) return
-	const sectorNodes = wheel.querySelectorAll('.sector')
-	sectorNodes.forEach((node, i) => {
-		const s = wheelSectors[i]
-		node.textContent = s ? s.emoji : '❔'
-		node.title = s ? `${s.name} (${s.price} TON)` : ''
-	})
-}
-
-function renderInventory() {
-	if (!inventoryList) return
-
-	if (!Array.isArray(inventory) || inventory.length === 0) {
-		inventoryList.innerHTML = `<div class="inventory-empty">У вас пока нет подарков</div>`
-		return
-	}
-
-	inventoryList.innerHTML = inventory
-		.map((item, idx) => {
-			const price = Number(item.price || 0).toFixed(2)
-			return `
-        <div class="inventory-item" data-idx="${idx}">
-          <div class="inventory-item-top">
-            <div class="inventory-item-emoji">${item.emoji || '🎁'}</div>
-            <div class="inventory-item-price">${price} TON</div>
-          </div>
-          <div class="inventory-item-name">${item.name || 'Подарок'}</div>
-          <div class="inventory-item-actions">
-            <button class="inventory-btn inv-sell" type="button">Продать</button>
-            <button class="inventory-btn inv-withdraw" type="button">Вывести</button>
-          </div>
-        </div>
-      `
-		})
-		.join('')
-}
-
-function setScreen(name) {
-	Object.keys(screens).forEach(key => {
-		screens[key]?.classList.toggle('active', key === name)
-	})
-	navButtons.forEach(btn => {
-		btn.classList.toggle('active', btn.dataset.target === name)
-	})
-}
-
-function computeSectorBaseAngles() {
-	if (!wheel) return
-
-	const prevTransition = wheel.style.transition
-	const prevTransform = wheel.style.transform
-
-	wheel.style.transition = 'none'
-	wheel.style.transform = 'rotate(0deg)'
-	wheel.offsetHeight
-
-	const wheelRect = wheel.getBoundingClientRect()
-	const cx = wheelRect.left + wheelRect.width / 2
-	const cy = wheelRect.top + wheelRect.height / 2
-
-	sectorBaseAngles = []
-	const nodes = wheel.querySelectorAll('.sector')
-	nodes.forEach((node, i) => {
-		const r = node.getBoundingClientRect()
-		const x = r.left + r.width / 2
-		const y = r.top + r.height / 2
-
-		let deg = (Math.atan2(y - cy, x - cx) * 180) / Math.PI
-		deg = (deg + 360) % 360
-		sectorBaseAngles[i] = deg
-	})
-
-	wheel.style.transform = prevTransform || 'rotate(0deg)'
-	wheel.offsetHeight
-	wheel.style.transition = prevTransition
-}
-
-function findSectorIndexForPrize(prize) {
-	// 1) пробуем точное совпадение name+emoji
-	for (let i = 0; i < wheelSectors.length; i++) {
-		if (
-			wheelSectors[i]?.name === prize?.name &&
-			wheelSectors[i]?.emoji === prize?.emoji
-		) {
-			return i
-		}
-	}
-
-	// 2) если emoji нет/не совпало — совпадение только по name
-	for (let i = 0; i < wheelSectors.length; i++) {
-		if (wheelSectors[i]?.name === prize?.name) return i
-	}
-
-	// 3) fallback
-	return 0
-}
-
-function updateTelegramUserUI() {
-	if (!telegramUser) return
-
-	const userName = telegramUser.first_name || telegramUser.username || 'User'
-	document
-		.querySelectorAll('.user-name, .profile-name')
-		.forEach(el => (el.textContent = userName))
-
-	const idEl = document.querySelector('.profile-id')
-	if (idEl) idEl.textContent = `ID: ${telegramUser.id}`
-
-	if (telegramUser.photo_url) {
-		document.querySelectorAll('.avatar, .profile-avatar').forEach(avatar => {
-			avatar.style.backgroundImage = `url(${telegramUser.photo_url})`
-			avatar.style.backgroundSize = 'cover'
-			avatar.style.backgroundPosition = 'center'
-		})
-	}
-}
-
-// ===== API (initData auth) =====
-async function apiPost(path, body = {}) {
-	const res = await fetch(`${API_URL}${path}`, {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ initData: INIT_DATA, ...body }),
-	})
-
-	const data = await res.json().catch(() => ({}))
-	if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`)
-	return data
-}
-
-async function fetchUserData() {
-	const data = await apiPost('/me')
-	balance = Number(data.balance || 0)
-	inventory = Array.isArray(data.inventory) ? data.inventory : []
-	updateBalanceUI()
-	renderInventory()
-	return data
-}
-
-async function spinApi() {
-	return apiPost('/spin')
-}
-
-async function keepPrizeApi(prize) {
-	return apiPost('/prize/keep', { prize })
-}
-
-async function sellPrizeApi(prize, idx) {
-	const body = { prize }
-	if (Number.isInteger(idx)) body.idx = idx
-	return apiPost('/prize/sell', body)
-}
-
-
-async function applyPromoApi(code) {
-	return apiPost('/promo/apply', { code })
-}
-
-// ===== EVENTS =====
-navButtons.forEach(btn => {
-	btn.addEventListener('click', () => setScreen(btn.dataset.target))
-})
-
-spinButton?.addEventListener('click', async e => {
-	e.preventDefault()
-	e.stopPropagation()
-	if (isSpinning) return
-	if (prizeModal?.classList.contains('active')) return
-
-	if (balance < SPIN_PRICE) {
-		alert('Недостаточно средств. Нужно минимум 1 TON.')
-		return
-	}
-
-	if (!sectorBaseAngles) computeSectorBaseAngles()
-
-	isSpinning = true
-	spinButton.disabled = true
-
-	let prizeData = null
-	try {
-		prizeData = await spinApi()
-	} catch (err) {
-		alert(err.message || 'Ошибка при прокрутке')
-		isSpinning = false
-		spinButton.disabled = false
-		return
-	}
-
-	currentPrize = prizeData.prize
-	balance = Number(prizeData.newBalance ?? balance - SPIN_PRICE)
-	updateBalanceUI()
-
-	// ВСЕГДА крутим на мишку (берём первый сектор с name === 'Мишка')
-const bearIndex = wheelSectors.findIndex(s => s?.name === 'Мишка')
-const sectorIndex = bearIndex >= 0 ? bearIndex : 0
-
-const desiredAngle = 270
-const current = ((currentRotation % 360) + 360) % 360
-const base = sectorBaseAngles?.[sectorIndex] ?? 0
-const delta = (((desiredAngle - base - current) % 360) + 360) % 360
-
-currentRotation += FULL_ROUNDS * 360 + delta
-wheel.style.transform = `rotate(${currentRotation.toFixed(3)}deg)`
-})
-
-wheel?.addEventListener('transitionend', e => {
-	if (e.propertyName !== 'transform') return
-	if (!isSpinning) return
-
-	currentRotation = ((currentRotation % 360) + 360) % 360
-	wheel.style.transition = 'none'
-	wheel.style.transform = `rotate(${currentRotation.toFixed(3)}deg)`
-	wheel.offsetHeight
-	wheel.style.transition = ''
-
-	setLastPrizeText(currentPrize)
-	openModal(currentPrize)
-
-	isSpinning = false
-})
-
-modalSellBtn?.addEventListener('click', async () => {
-	if (!currentPrize) return
-	try {
-		const data = await sellPrizeApi(currentPrize)
-		balance = Number(data.newBalance ?? balance)
-		updateBalanceUI()
-		currentPrize = null
-		closeModal()
-		spinButton.disabled = false
-	} catch (err) {
-		alert(err.message || 'Ошибка продажи')
-	}
-})
-
-modalKeepBtn?.addEventListener('click', async () => {
-	if (!currentPrize) return
-	try {
-		await keepPrizeApi(currentPrize)
-		await fetchUserData()
-		currentPrize = null
-		closeModal()
-		spinButton.disabled = false
-	} catch (err) {
-		alert(err.message || 'Ошибка сохранения')
-	}
-})
-
-inventoryList?.addEventListener('click', async e => {
-	const card = e.target.closest('.inventory-item')
-	if (!card) return
-
-	const idx = Number(card.dataset.idx)
-	const item = inventory?.[idx]
-	if (!item) return
-
-	if (e.target.classList.contains('inv-sell')) {
-		try {
-			const data = await sellPrizeApi(item, idx)
-			balance = Number(data.newBalance ?? balance)
-			updateBalanceUI()
-			await fetchUserData()
-		} catch (err) {
-			alert(err.message || 'Ошибка продажи')
-		}
-	}
-
-	if (e.target.classList.contains('inv-withdraw')) {
-		alert('Вывод будет добавлен позже.')
-	}
-})
-
-promoApplyBtn?.addEventListener('click', async () => {
-	const code = (promoInput?.value || '').trim()
-	if (!code) {
-		alert('Введите промокод')
-		return
-	}
-
-	try {
-		const data = await applyPromoApi(code)
-		balance = Number(data.newBalance ?? balance)
-		updateBalanceUI()
-		promoInput.value = ''
-		alert(`Промокод применён: +${Number(data.amount || 0).toFixed(2)} TON`)
-	} catch (err) {
-		alert(err.message || 'Ошибка промокода')
-	}
-})
-
-depositBtn?.addEventListener('click', () => alert('Депозит будет добавлен позже.'))
-withdrawBtn?.addEventListener('click', () => alert('Вывод будет добавлен позже.'))
-
-// ===== CRASH (синхронизация с сервером) =====
-const crashCanvas = document.getElementById('crash-canvas')
-const crashCtx = crashCanvas ? crashCanvas.getContext('2d') : null
-const crashMultiplierEl = document.getElementById('crash-multiplier')
-const crashStatusEl = document.getElementById('crash-status')
-const crashBetInput = document.getElementById('crash-bet-input')
-const crashPlayBtn = document.getElementById('crash-play-btn')
-const crashCashoutBtn = document.getElementById('crash-cashout-btn')
-const crashCurrentBetEl = document.getElementById('crash-current-bet')
-const crashPotentialWinEl = document.getElementById('crash-potential-win')
-
-let crashState = 'idle'
-let crashMultiplier = 1.0
-let crashPoint = null
-let crashBetAmount = 0
-let crashAnimFrame = null
-let crashStartTime = null
-
-function initCrashCanvas() {
-	if (!crashCanvas || !crashCtx) return
-	const dpr = window.devicePixelRatio || 1
-	const rect = crashCanvas.getBoundingClientRect()
-	crashCanvas.width = rect.width * dpr
-	crashCanvas.height = rect.height * dpr
-	crashCtx.setTransform(dpr, 0, 0, dpr, 0, 0)
-}
-
-function generateCrashPoint() {
-	const rand = Math.random() * 100
-	if (rand < 99) return 1.01 + Math.random() * 0.4
-	if (rand < 99.9) return 1.41 + Math.random() * 1.59
-	return 3.0 + Math.random() * 7.0
-}
-
-function drawCrashGraph() {
-	if (!crashCtx || !crashCanvas) return
-	const rect = crashCanvas.getBoundingClientRect()
-	const w = rect.width
-	const h = rect.height
-
-	crashCtx.clearRect(0, 0, w, h)
-
-	const gradient = crashCtx.createLinearGradient(0, 0, w, h)
-	gradient.addColorStop(0, 'rgba(56, 189, 248, 0.05)')
-	gradient.addColorStop(1, 'rgba(139, 92, 246, 0.05)')
-	crashCtx.fillStyle = gradient
-	crashCtx.fillRect(0, 0, w, h)
-
-	crashCtx.strokeStyle = 'rgba(148, 163, 184, 0.1)'
-	crashCtx.lineWidth = 1
-	for (let i = 0; i <= 5; i++) {
-		const y = (h / 5) * i
-		crashCtx.beginPath()
-		crashCtx.moveTo(0, y)
-		crashCtx.lineTo(w, y)
-		crashCtx.stroke()
-	}
-
-	if (crashState === 'playing' || crashState === 'crashed') {
-		const maxYMult = Math.max(crashPoint || 2, 2)
-		const progress = Math.min((crashMultiplier - 1) / (maxYMult - 1), 1)
-
-		crashCtx.strokeStyle = crashState === 'crashed' ? '#ef4444' : '#38bdf8'
-		crashCtx.lineWidth = 3
-		crashCtx.beginPath()
-		crashCtx.moveTo(0, h)
-
-		for (let i = 0; i <= progress * 100; i++) {
-			const x = (i / 100) * w
-			const t = i / 100
-			const mult = 1 + t * (crashMultiplier - 1)
-			const y = h - ((mult - 1) * h) / Math.max(maxYMult - 1, 0.2)
-			if (i === 0) crashCtx.moveTo(x, y)
-			else crashCtx.lineTo(x, y)
-		}
-		crashCtx.stroke()
-	}
-}
-
-function updateCrashMultiplierUI() {
-	if (crashMultiplierEl) crashMultiplierEl.textContent = `${crashMultiplier.toFixed(2)}x`
-	if (crashBetAmount > 0 && crashPotentialWinEl) {
-		crashPotentialWinEl.textContent = `${(crashBetAmount * crashMultiplier).toFixed(2)} TON`
-	}
-	if (crashCurrentBetEl) {
-		crashCurrentBetEl.textContent = crashBetAmount > 0 ? `${crashBetAmount.toFixed(2)} TON` : '—'
-	}
-}
-
-function animateCrash() {
-	if (crashState !== 'playing') return
-	const elapsed = (Date.now() - crashStartTime) / 1000
-	crashMultiplier = 1 + elapsed * 0.2
-
-	if (crashMultiplier >= crashPoint) {
-		crashMultiplier = crashPoint
-		endCrash(false)
-		return
-	}
-
-	updateCrashMultiplierUI()
-	drawCrashGraph()
-	crashAnimFrame = requestAnimationFrame(animateCrash)
-}
-
-async function startCrash() {
-	if (crashState !== 'idle') return
-
-	crashBetAmount = parseFloat(crashBetInput?.value || '0')
-	if (isNaN(crashBetAmount) || crashBetAmount < 0.1) {
-		alert('Минимум 0.1 TON')
-		return
-	}
-	if (balance < crashBetAmount) {
-		alert('Недостаточно средств.')
-		return
-	}
-
-	// Списываем ставку НА СЕРВЕРЕ (общий баланс)
-	try {
-		const r = await apiPost('/crash/bet', { amount: crashBetAmount })
-		balance = Number(r.newBalance ?? balance)
-		updateBalanceUI()
-	} catch (err) {
-		alert(err.message || 'Ошибка ставки')
-		return
-	}
-
-	crashPoint = generateCrashPoint()
-	crashMultiplier = 1.0
-	crashState = 'playing'
-	crashStartTime = Date.now()
-
-	if (crashStatusEl) {
-		crashStatusEl.textContent = 'Летим...'
-		crashStatusEl.style.color = '#38bdf8'
-	}
-
-	if (crashPlayBtn) crashPlayBtn.disabled = true
-	if (crashCashoutBtn) crashCashoutBtn.disabled = false
-
-	updateCrashMultiplierUI()
-	drawCrashGraph()
-	animateCrash()
-}
-
-async function cashoutCrash() {
-	if (crashState !== 'playing') return
-
-	const winAmount = crashBetAmount * crashMultiplier
-
-	// Начисляем выигрыш НА СЕРВЕРЕ (общий баланс)
-	try {
-		const r = await apiPost('/crash/cashout', { amount: winAmount })
-		balance = Number(r.newBalance ?? balance)
-		updateBalanceUI()
-		endCrash(true)
-	} catch (err) {
-		alert(err.message || 'Ошибка вывода')
-	}
-}
-
-function endCrash(cashedOut) {
-	crashState = 'crashed'
-	if (crashAnimFrame) cancelAnimationFrame(crashAnimFrame)
-	crashAnimFrame = null
-
-	if (crashPlayBtn) crashPlayBtn.disabled = false
-	if (crashCashoutBtn) crashCashoutBtn.disabled = true
-
-	if (crashStatusEl) {
-		crashStatusEl.textContent = cashedOut ? 'Вы забрали!' : 'Бум!'
-		crashStatusEl.style.color = cashedOut ? '#10b981' : '#ef4444'
-	}
-
-	updateCrashMultiplierUI()
-	drawCrashGraph()
-
-	setTimeout(() => {
-		crashState = 'idle'
-		crashMultiplier = 1.0
-		crashBetAmount = 0
-		crashPoint = null
-
-		if (crashStatusEl) {
-			crashStatusEl.textContent = 'Ожидание...'
-			crashStatusEl.style.color = '#94a3b8'
-		}
-		if (crashMultiplierEl) crashMultiplierEl.textContent = '1.00x'
-		if (crashCurrentBetEl) crashCurrentBetEl.textContent = '—'
-		if (crashPotentialWinEl) crashPotentialWinEl.textContent = '—'
-		drawCrashGraph()
-	}, 2000)
-}
-
-crashPlayBtn?.addEventListener('click', startCrash)
-crashCashoutBtn?.addEventListener('click', cashoutCrash)
-window.addEventListener('resize', () => {
-	computeSectorBaseAngles()
-	if (crashCanvas) {
-		initCrashCanvas()
-		drawCrashGraph()
-	}
-})
-
-// ===== INIT =====
-;(async function init() {
-	updateTelegramUserUI()
-	renderWheel()
-	setLastPrizeText(null)
-
-	computeSectorBaseAngles()
-	if (crashCanvas) {
-		initCrashCanvas()
-		drawCrashGraph()
-	}
-
-	try {
-		await fetchUserData()
-	} catch (err) {
-		alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
-	}
-})()
-
-
-
+// ===== Promo config =====
+const PROMOS = {
+  WheelTon: 1,
+  Admintestcodesss: 50,
+};
+
+// ===== API =====
+app.post("/api/me", auth, (req, res) => {
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
+  res.json({ balance: u.balance, inventory: u.inventory });
+});
+
+// /api/spin не трогаем: всегда мишка
+app.post("/api/spin", auth, (req, res) => {
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
+
+  if (u.balance < 1) return res.status(400).json({ error: "Недостаточно средств" });
+  u.balance = Number((u.balance - 1).toFixed(2));
+
+  res.json({ prize: { emoji: "🧸", name: "Мишка", price: 0.1 }, newBalance: u.balance });
+});
+
+// ===== Promo apply =====
+app.post("/api/promo/apply", auth, (req, res) => {
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
+
+  const code = String(req.body?.code || "").trim();
+  if (!code) return res.status(400).json({ error: "Введите промокод" });
+
+  const amount = PROMOS[code];
+  if (!amount) return res.status(400).json({ error: "Промокод не найден" });
+
+  if (u.usedPromos.includes(code)) {
+    return res.status(400).json({ error: "Этот промокод уже использован" });
+  }
+
+  u.usedPromos.push(code);
+  u.balance = Number((u.balance + amount).toFixed(2));
+
+  res.json({ newBalance: u.balance, amount });
+});
+
+// ===== Prize keep/sell =====
+app.post("/api/prize/keep", auth, (req, res) => {
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
+
+  const prize = req.body?.prize;
+  if (!prize || typeof prize !== "object") {
+    return res.status(400).json({ error: "prize required" });
+  }
+
+  const emoji = String(prize.emoji || "🎁");
+  const name = String(prize.name || "Подарок");
+  const price = Number(prize.price || 0);
+
+  u.inventory.push({ emoji, name, price });
+
+  res.json({ ok: true, inventory: u.inventory });
+});
+
+app.post("/api/prize/sell", auth, (req, res) => {
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
+
+  const prize = req.body?.prize;
+  if (!prize || typeof prize !== "object") {
+    return res.status(400).json({ error: "prize required" });
+  }
+
+  const price = Number(prize.price || 0);
+  if (!Number.isFinite(price) || price <= 0) {
+    return res.status(400).json({ error: "Этот подарок нельзя продать" });
+  }
+
+  // Если idx передан — удаляем из инвентаря
+  const idxRaw = req.body?.idx;
+  if (idxRaw !== undefined && idxRaw !== null && idxRaw !== "") {
+    const idx = Number(idxRaw);
+    if (!Number.isInteger(idx) || idx < 0 || idx >= u.inventory.length) {
+      return res.status(400).json({ error: "Некорректный индекс предмета" });
+    }
+
+    const item = u.inventory[idx];
+    if (!item) return res.status(400).json({ error: "Предмет не найден" });
+
+    // защита: чтобы нельзя было “продать” несуществующий предмет по idx
+    if (String(item.name) !== String(prize.name) || Number(item.price || 0) !== price) {
+      return res.status(400).json({ error: "Предмет не найден" });
+    }
+
+    u.inventory.splice(idx, 1);
+  }
+
+  u.balance = Number((u.balance + price).toFixed(2));
+  res.json({ newBalance: u.balance, inventory: u.inventory });
+});
+
+// ===== Withdraw TON (заявка админу) =====
+app.post("/api/withdraw/ton", auth, async (req, res) => {
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
+
+  const amount = Number(req.body?.amount || 0);
+  if (!Number.isFinite(amount)) return res.status(400).json({ error: "Некорректная сумма" });
+
+  // правила
+  const MIN_WITHDRAW = 5;
+  if (amount < MIN_WITHDRAW) return res.status(400).json({ error: `Минимум ${MIN_WITHDRAW} TON` });
+  if (amount > u.balance) return res.status(400).json({ error: "Недостаточно средств" });
+
+  const username = req.tgUser?.username ? `@${req.tgUser.username}` : "(no username)";
+  const fullName = [req.tgUser?.first_name, req.tgUser?.last_name].filter(Boolean).join(" ");
+
+  const text =
+    `💸 Заявка на вывод TON\n` +
+    `Пользователь: ${fullName || "User"} ${username}\n` +
+    `ID: ${id}\n` +
+    `Сумма: ${amount.toFixed(2)} TON\n` +
+    `Баланс сейчас: ${Number(u.balance || 0).toFixed(2)} TON`;
+
+  try {
+    await sendAdminMessage(text);
+  } catch (e) {
+    return res.status(500).json({ error: e.message || "Ошибка уведомления" });
+  }
+
+  // ВАЖНО: это заявка, баланс пока НЕ списываем (как и договаривались)
+  res.json({ ok: true });
+});
+
+// ===== Withdraw Gift (заявка админу) =====
+app.post("/api/withdraw/gift", auth, async (req, res) => {
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
+
+  const idx = Number(req.body?.idx);
+  if (!Number.isInteger(idx) || idx < 0 || idx >= u.inventory.length) {
+    return res.status(400).json({ error: "Некорректный предмет" });
+  }
+
+  const item = u.inventory[idx];
+  const username = req.tgUser?.username ? `@${req.tgUser.username}` : "(no username)";
+  const fullName = [req.tgUser?.first_name, req.tgUser?.last_name].filter(Boolean).join(" ");
+
+  const text =
+    `🎁 Заявка на вывод подарка\n` +
+    `Пользователь: ${fullName || "User"} ${username}\n` +
+    `ID: ${id}\n` +
+    `Подарок: ${(item?.emoji || "🎁")} ${item?.name || "Подарок"}\n` +
+    `Оценка: ${Number(item?.price || 0).toFixed(2)} TON\n` +
+    `Индекс в инвентаре: ${idx}`;
+
+  try {
+    await sendAdminMessage(text);
+  } catch (e) {
+    return res.status(500).json({ error: e.message || "Ошибка уведомления" });
+  }
+
+  // это заявка — предмет НЕ удаляем (можно поменять на удаление после подтверждения)
+  res.json({ ok: true });
+});
+
+// ===== Crash sync (общий баланс) =====
+app.post("/api/crash/bet", auth, (req, res) => {
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
+
+  const amount = Number(req.body?.amount || 0);
+  if (!Number.isFinite(amount) || amount <= 0) return res.status(400).json({ error: "amount required" });
+
+  if (u.balance < amount) return res.status(400).json({ error: "Недостаточно средств" });
+
+  u.balance = Number((u.balance - amount).toFixed(2));
+  res.json({ newBalance: u.balance });
+});
+
+app.post("/api/crash/cashout", auth, (req, res) => {
+  const id = String(req.tgUser.id);
+  const u = getOrCreateUser(id);
+
+  const amount = Number(req.body?.amount || 0);
+  if (!Number.isFinite(amount) || amount <= 0) return res.status(400).json({ error: "amount required" });
+
+  u.balance = Number((u.balance + amount).toFixed(2));
+  res.json({ newBalance: u.balance });
+});
+
+// fallback: любые не-API роуты -> index.html
+app.get("*", (req, res) => {
+  if (req.path.startsWith("/api")) return res.status(404).json({ error: "Not Found" });
+  res.sendFile(INDEX_PATH);
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
