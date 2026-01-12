@@ -27,7 +27,7 @@ console.log(
 );
 console.log("INDEX_EXISTS:", fs.existsSync(INDEX_PATH));
 
-app.use(express.static(PUBLIC_DIR)); // статика через express.static [web:22]
+app.use(express.static(PUBLIC_DIR));
 app.get("/", (req, res) => res.sendFile(INDEX_PATH));
 
 // ===== Telegram initData validation =====
@@ -48,7 +48,6 @@ function validateInitData(initData) {
   const calculatedHash = crypto.createHmac("sha256", secretKey).update(dataCheckString).digest("hex");
   if (calculatedHash !== hash) throw new Error("invalid initData hash");
 
-  // auth_date expiration check (рекомендуется) [web:8]
   const authDate = Number(params.get("auth_date") || 0);
   if (!authDate) throw new Error("auth_date missing");
   const now = Math.floor(Date.now() / 1000);
@@ -97,7 +96,7 @@ app.post("/api/me", auth, (req, res) => {
   res.json({ balance: u.balance, inventory: u.inventory });
 });
 
-// Не трогаем: как ты просил, всегда мишка
+// /api/spin не трогаем: всегда мишка
 app.post("/api/spin", auth, (req, res) => {
   const id = String(req.tgUser.id);
   const u = getOrCreateUser(id);
@@ -113,18 +112,17 @@ app.post("/api/promo/apply", auth, (req, res) => {
   const id = String(req.tgUser.id);
   const u = getOrCreateUser(id);
 
-  const codeRaw = String(req.body?.code || "").trim();
-  if (!codeRaw) return res.status(400).json({ error: "Введите промокод" });
+  const code = String(req.body?.code || "").trim();
+  if (!code) return res.status(400).json({ error: "Введите промокод" });
 
-  // промокоды чувствительны к регистру (WheelTon != wheelton)
-  const amount = PROMOS[codeRaw];
+  const amount = PROMOS[code];
   if (!amount) return res.status(400).json({ error: "Промокод не найден" });
 
-  if (u.usedPromos.includes(codeRaw)) {
+  if (u.usedPromos.includes(code)) {
     return res.status(400).json({ error: "Этот промокод уже использован" });
   }
 
-  u.usedPromos.push(codeRaw);
+  u.usedPromos.push(code);
   u.balance = Number((u.balance + amount).toFixed(2));
 
   res.json({ newBalance: u.balance, amount });
@@ -136,7 +134,9 @@ app.post("/api/prize/keep", auth, (req, res) => {
   const u = getOrCreateUser(id);
 
   const prize = req.body?.prize;
-  if (!prize || typeof prize !== "object") return res.status(400).json({ error: "prize required" });
+  if (!prize || typeof prize !== "object") {
+    return res.status(400).json({ error: "prize required" });
+  }
 
   const emoji = String(prize.emoji || "🎁");
   const name = String(prize.name || "Подарок");
@@ -152,17 +152,36 @@ app.post("/api/prize/sell", auth, (req, res) => {
   const u = getOrCreateUser(id);
 
   const prize = req.body?.prize;
-  if (!prize || typeof prize !== "object") return res.status(400).json({ error: "prize required" });
+  if (!prize || typeof prize !== "object") {
+    return res.status(400).json({ error: "prize required" });
+  }
 
   const price = Number(prize.price || 0);
   if (!Number.isFinite(price) || price <= 0) {
     return res.status(400).json({ error: "Этот подарок нельзя продать" });
   }
 
-  // Продажа из модалки (после spin) — просто начисляем цену
-  u.balance = Number((u.balance + price).toFixed(2));
+  // Если idx передан — удаляем из инвентаря
+  const idxRaw = req.body?.idx;
+  if (idxRaw !== undefined && idxRaw !== null && idxRaw !== "") {
+    const idx = Number(idxRaw);
+    if (!Number.isInteger(idx) || idx < 0 || idx >= u.inventory.length) {
+      return res.status(400).json({ error: "Некорректный индекс предмета" });
+    }
 
-  res.json({ newBalance: u.balance });
+    const item = u.inventory[idx];
+    if (!item) return res.status(400).json({ error: "Предмет не найден" });
+
+    // защита: чтобы нельзя было “продать” несуществующий предмет по idx
+    if (String(item.name) !== String(prize.name) || Number(item.price || 0) !== price) {
+      return res.status(400).json({ error: "Предмет не найден" });
+    }
+
+    u.inventory.splice(idx, 1);
+  }
+
+  u.balance = Number((u.balance + price).toFixed(2));
+  res.json({ newBalance: u.balance, inventory: u.inventory });
 });
 
 // ===== Crash sync (общий баланс) =====
