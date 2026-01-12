@@ -19,6 +19,22 @@ if (!ADMIN_CHAT_ID) {
   process.exit(1);
 }
 
+// ✅ Deposit config (Railway Variables)
+const TON_DEPOSIT_ADDRESS = process.env.TON_DEPOSIT_ADDRESS;
+if (!TON_DEPOSIT_ADDRESS) {
+  console.error("❌ TON_DEPOSIT_ADDRESS is not set");
+  process.exit(1);
+}
+
+const TONCENTER_API_KEY = process.env.TONCENTER_API_KEY;
+if (!TONCENTER_API_KEY) {
+  console.error("❌ TONCENTER_API_KEY is not set");
+  process.exit(1);
+}
+
+const TONCENTER_BASE = "https://toncenter.com/api/v2";
+const MIN_DEPOSIT_TON = 0.1;
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -98,6 +114,39 @@ async function sendAdminMessage(text) {
   return data;
 }
 
+// ===== TON Center helper (getTransactions) =====
+async function toncenterGetTransactions(address, limit = 25) {
+  const url = new URL(`${TONCENTER_BASE}/getTransactions`);
+  url.searchParams.set("address", address);
+  url.searchParams.set("limit", String(limit));
+
+  const res = await fetch(url.toString(), {
+    headers: { "X-API-Key": TONCENTER_API_KEY },
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data?.ok === false) {
+    throw new Error(data?.error || `TON Center error`);
+  }
+  return data?.result || [];
+}
+
+// В toncenter иногда комментарий может быть не в in_msg.message.
+// Сейчас делаем "best effort": пробуем message и decoded body (если будет).
+function extractIncomingComment(tx) {
+  const inMsg = tx?.in_msg || {};
+  const msgText = inMsg?.message;
+  if (typeof msgText === "string" && msgText.trim()) return msgText.trim();
+
+  // иногда встречается тело (body) в base64, которое можно логировать и потом допарсить
+  // оставляем как fallback (не ломает логику)
+  if (typeof inMsg?.msg_data?.body === "string" && inMsg.msg_data.body.trim()) {
+    return inMsg.msg_data.body.trim();
+  }
+
+  return "";
+}
+
 // ===== In-memory storage (до БД) =====
 const users = new Map();
 function getOrCreateUser(id) {
@@ -109,6 +158,14 @@ function getOrCreateUser(id) {
     });
   }
   return users.get(id);
+}
+
+// ===== In-memory pending deposits (до БД) =====
+const pendingDeposits = new Map();
+// depositId -> { userId, amount, comment, createdAt, credited }
+
+function makeDepositId() {
+  return crypto.randomBytes(12).toString("hex");
 }
 
 // ===== Promo config =====
@@ -224,7 +281,7 @@ app.post("/api/withdraw/ton", auth, async (req, res) => {
   if (amount < MIN_WITHDRAW) return res.status(400).json({ error: `Минимум ${MIN_WITHDRAW} TON` });
   if (amount > u.balance) return res.status(400).json({ error: "Недостаточно средств" });
 
-  // ✅ списываем сразу
+  // списываем сразу
   u.balance = Number((u.balance - amount).toFixed(2));
 
   const username = req.tgUser?.username ? `@${req.tgUser.username}` : "(no username)";
@@ -240,7 +297,6 @@ app.post("/api/withdraw/ton", auth, async (req, res) => {
   try {
     await sendAdminMessage(text);
   } catch (e) {
-    // если сообщение админу не ушло — можно вернуть деньги обратно
     u.balance = Number((u.balance + amount).toFixed(2));
     return res.status(500).json({ error: e.message || "Ошибка уведомления" });
   }
@@ -258,9 +314,8 @@ app.post("/api/withdraw/gift", auth, async (req, res) => {
     return res.status(400).json({ error: "Некорректный предмет" });
   }
 
-  // ✅ забираем предмет и удаляем из инвентаря
   const item = u.inventory[idx];
-  u.inventory.splice(idx, 1); // удаляем 1 элемент по индексу [web:360]
+  u.inventory.splice(idx, 1);
 
   const username = req.tgUser?.username ? `@${req.tgUser.username}` : "(no username)";
   const fullName = [req.tgUser?.first_name, req.tgUser?.last_name].filter(Boolean).join(" ");
@@ -275,13 +330,93 @@ app.post("/api/withdraw/gift", auth, async (req, res) => {
   try {
     await sendAdminMessage(text);
   } catch (e) {
-    // если админу не отправилось — возвращаем предмет обратно на то же место
     u.inventory.splice(idx, 0, item);
     return res.status(500).json({ error: e.message || "Ошибка уведомления" });
   }
 
   return res.json({ ok: true, inventory: u.inventory });
 });
+
+// ===== Deposit (auto) =====
+app.post("/api/deposit/info", auth, (req, res) => {
+  res.json({ address: TON_DEPOSIT_ADDRESS, minDeposit: MIN_DEPOSIT_TON });
+});
+
+// создаём ожидаемый депозит с уникальным комментом
+app.post("/api/deposit/create", auth, (req, res) => {
+  const userId = String(req.tgUser.id);
+  const amount = Number(req.body?.amount || 0);
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return res.status(400).json({ error: "Некорректная сумма" });
+  }
+  if (amount < MIN_DEPOSIT_TON) {
+    return res.status(400).json({ error: `Минимум ${MIN_DEPOSIT_TON} TON` });
+  }
+
+  const depositId = makeDepositId();
+  const comment = `dep_${userId}_${depositId}`;
+
+  pendingDeposits.set(depositId, {
+    userId,
+    amount: Number(amount.toFixed(2)),
+    comment,
+    createdAt: Date.now(),
+    credited: false,
+  });
+
+  res.json({
+    depositId,
+    address: TON_DEPOSIT_ADDRESS,
+    amount: Number(amount.toFixed(2)),
+    comment,
+  });
+});
+
+// проверяем входящие и начисляем
+app.post("/api/deposit/check", auth, async (req, res) => {
+  const userId = String(req.tgUser.id);
+  const depositId = String(req.body?.depositId || "");
+
+  const dep = pendingDeposits.get(depositId);
+  if (!dep || dep.userId !== userId) return res.status(404).json({ error: "deposit not found" });
+  if (dep.credited) {
+    const u = getOrCreateUser(userId);
+    return res.json({ ok: true, credited: true, newBalance: u.balance });
+  }
+
+  let txs = [];
+  try {
+    txs = await toncenterGetTransactions(TON_DEPOSIT_ADDRESS, 25);
+  } catch (e) {
+    return res.status(500).json({ error: e.message || "toncenter error" });
+  }
+
+  // ищем транзакцию с нашим уникальным комментом
+  const found = txs.find(tx => {
+    const comment = extractIncomingComment(tx);
+    return comment.includes(dep.comment);
+  });
+
+  if (!found) {
+    return res.json({ ok: true, credited: false });
+  }
+
+  // ✅ начисляем баланс
+  const u = getOrCreateUser(userId);
+  u.balance = Number((u.balance + dep.amount).toFixed(2));
+
+  dep.credited = true;
+  pendingDeposits.set(depositId, dep);
+
+  // уведомление админу (не критично)
+  sendAdminMessage(
+    `✅ Депозит зачислен\nID: ${userId}\nСумма: ${dep.amount.toFixed(2)} TON\nDepositId: ${depositId}`
+  ).catch(() => {});
+
+  return res.json({ ok: true, credited: true, newBalance: u.balance });
+});
+
 // ===== Crash sync (общий баланс) =====
 app.post("/api/crash/bet", auth, (req, res) => {
   const id = String(req.tgUser.id);
@@ -315,4 +450,3 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
-
