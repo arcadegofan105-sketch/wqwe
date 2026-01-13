@@ -6,14 +6,15 @@ const MIN_WITHDRAW_TON = 5
 const MIN_DEPOSIT_TON = 0.1
 
 const wheelSectors = [
-	{ emoji: '🧸', name: 'Мишка', price: 0.1 },
-	{ emoji: '🐸', name: 'Пепе', price: 0.0 },
-	{ emoji: '💋', name: 'Губы', price: 0.0 },
-	{ emoji: '📅', name: 'Календарь', price: 1.5 },
-	{ emoji: '🍀', name: 'Клевер', price: 0.0 },
-	{ emoji: '🍑', name: 'Персик', price: 0.0 },
-	{ emoji: '🧸', name: 'Мишка', price: 0.1 },
+  { emoji: '📅', name: 'Календарь', price: 1.5 },
+  { emoji: '🐸', name: 'Пепе', price: 0.0 },
+  { emoji: '💋', name: 'Губы', price: 0.0 },
+  { emoji: '🧸', name: 'Мишка', price: 0.1 },
+  { emoji: '🍀', name: 'Клевер', price: 0.0 },
+  { emoji: '🍑', name: 'Персик', price: 0.0 },
+  { emoji: '🧸', name: 'Мишка', price: 0.1 },
 ]
+
 
 // ===== CUSTOM IMAGES =====
 // Файлы должны лежать рядом с index.html: /epepepepe.webp и /epersok.webp
@@ -800,3 +801,4 @@ window.addEventListener('resize', () => {
 		alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
 	}
 })()
+
