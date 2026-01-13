@@ -15,6 +15,20 @@ const wheelSectors = [
 	{ emoji: '🧸', name: 'Мишка', price: 0.1 },
 ]
 
+// ===== CUSTOM IMAGES =====
+// Файлы должны лежать рядом с index.html: /epepepepe.webp и /epersok.webp
+// ВАЖНО: у тебя в секторах вместо "Персик" написано "Слива", поэтому маппим "Слива".
+const GIFT_IMAGES = {
+	'Пепе': 'epepepepe.webp',
+	'Слива': 'epersok.webp',
+}
+
+function giftVisual(item) {
+	const file = GIFT_IMAGES[item?.name]
+	if (file) return `<span class="gift-icon" style="background-image:url('${file}')"></span>`
+	return item?.emoji || '🎁'
+}
+
 // ===== TELEGRAM =====
 const tg = window.Telegram?.WebApp || null
 const notTelegram = document.getElementById('not-telegram')
@@ -111,7 +125,10 @@ function setLastPrizeText(prize) {
 
 function openModal(prize) {
 	if (!prizeModal) return
-	modalPrizeEmoji.textContent = prize.emoji
+
+	// эмодзи заменяем на картинку, если есть
+	if (modalPrizeEmoji) modalPrizeEmoji.innerHTML = giftVisual(prize)
+
 	modalPrizeName.textContent = prize.name
 	modalPrizePrice.textContent = Number(prize.price || 0).toFixed(2)
 	prizeModal.classList.add('active')
@@ -144,8 +161,14 @@ function renderWheel() {
 	const sectorNodes = wheel.querySelectorAll('.sector')
 	sectorNodes.forEach((node, i) => {
 		const s = wheelSectors[i]
-		node.textContent = s ? s.emoji : '❔'
-		node.title = s ? `${s.name} (${s.price} TON)` : ''
+		if (!s) {
+			node.textContent = '❔'
+			node.title = ''
+			return
+		}
+		// эмодзи заменяем на картинку для 2 подарков
+		node.innerHTML = giftVisual(s)
+		node.title = `${s.name} (${s.price} TON)`
 	})
 }
 
@@ -163,7 +186,7 @@ function renderInventory() {
 			return `
         <div class="inventory-item" data-idx="${idx}">
           <div class="inventory-item-top">
-            <div class="inventory-item-emoji">${item.emoji || '🎁'}</div>
+            <div class="inventory-item-emoji">${giftVisual(item)}</div>
             <div class="inventory-item-price">${price} TON</div>
           </div>
           <div class="inventory-item-name">${item.name || 'Подарок'}</div>
@@ -361,7 +384,7 @@ spinButton?.addEventListener('click', async e => {
 	balance = Number(prizeData.newBalance ?? balance - SPIN_PRICE)
 	updateBalanceUI()
 
-	// ВСЕГДА крутим на мишку (берём первый сектор с name === 'Мишка')
+	// ✅ ВСЕГДА крутим на мишку (берём первый сектор с name === 'Мишка')
 	const bearIndex = wheelSectors.findIndex(s => s?.name === 'Мишка')
 	const sectorIndex = bearIndex >= 0 ? bearIndex : 0
 
@@ -469,13 +492,11 @@ promoApplyBtn?.addEventListener('click', async () => {
 // ✅ DEPOSIT TON (auto)
 depositBtn?.addEventListener('click', async () => {
 	try {
-		// защита на клик (на всякий)
 		if (!isWalletConnected()) {
 			alert('Сначала подключи TON-кошелёк (Connect wallet).')
 			return
 		}
 
-		// получаем minDeposit с сервера (на будущее)
 		let minDeposit = MIN_DEPOSIT_TON
 		try {
 			const info = await depositInfoApi()
@@ -497,29 +518,25 @@ depositBtn?.addEventListener('click', async () => {
 
 		depositBtn.disabled = true
 
-		// 1) создаём депозит на сервере (получаем address + comment)
 		const dep = await depositCreateApi(amountTon)
 
-		// 2) отправляем транзакцию
 		const tx = {
-  validUntil: Math.floor(Date.now() / 1000) + 360,
-  messages: [
-    {
-      address: dep.address,
-      amount: toNanoString(dep.amount),
-      payload: dep.payloadBase64, // <-- ВАЖНО: приходит с /api/deposit/create
-    },
-  ],
-}
+			validUntil: Math.floor(Date.now() / 1000) + 360,
+			messages: [
+				{
+					address: dep.address,
+					amount: toNanoString(dep.amount),
+					payload: dep.payloadBase64,
+				},
+			],
+		}
 
-await tonConnectUI.sendTransaction(tx, {
-  modals: ['before', 'success', 'error'],
-  notifications: ['before', 'success', 'error'],
-  skipRedirectToWallet: 'never',
-})
+		await tonConnectUI.sendTransaction(tx, {
+			modals: ['before', 'success', 'error'],
+			notifications: ['before', 'success', 'error'],
+			skipRedirectToWallet: 'never',
+		})
 
-
-		// 3) поллим сервер, пока не зачислилось
 		for (let i = 0; i < 12; i++) {
 			await sleep(5000)
 			const r = await depositCheckApi(dep.depositId)
@@ -793,7 +810,6 @@ window.addEventListener('resize', () => {
 		drawCrashGraph()
 	}
 
-	// ✅ сразу выставляем состояние кнопки депозита (заблокирована пока нет кошелька)
 	updateDepositButtonState()
 
 	try {
@@ -802,6 +818,3 @@ window.addEventListener('resize', () => {
 		alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
 	}
 })()
-
-
-
