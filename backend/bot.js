@@ -12,17 +12,34 @@ export function startBot() {
   bot.onText(/^\/start(?:\s+.*)?$/, async (msg) => {
     const chatId = msg.chat.id;
 
+    const name =
+      msg.from?.first_name ||
+      (msg.from?.username ? `@${msg.from.username}` : "друг");
+
     const text =
-      "<b>Добро пожаловать в GW!</b>\n\n" +
-      "🎡 Крути <b>Колесо</b> — выбивай подарки и продавай их за TON.\n" +
-      "🚀 Играй в <b>Crash</b> — забирай иксы вовремя.\n" +
-      "🎁 Собирай инвентарь и готовься к новым фишкам.\n\n" +
-      "Жми кнопку ниже и начинай:";
+      `🎉 <b>${name}</b>, ты легенда! 🎉\n\n` +
+      `🎁 Подарки не ждут. Открывай. Выигрывай. Повторяй.\n` +
+      `🎮 GoGift — здесь сюрпризы каждый день.`;
 
     await bot.sendMessage(chatId, text, {
       parse_mode: "HTML",
       reply_markup: {
-        inline_keyboard: [[{ text: "Открыть игру", web_app: { url: WEBAPP_URL } }]],
+        inline_keyboard: [
+          [{ text: "Начать", web_app: { url: WEBAPP_URL } }],
+          [{ text: "Поддержка", url: "https://t.me/modergw" }],
+          [
+            {
+              text: "Публичная оферта",
+              url: "https://telegra.ph/1-Terminy-i-opredeleniya-01-13",
+            },
+          ],
+          [
+            {
+              text: "Политика конфиденциальности",
+              url: "https://telegra.ph/Polzovatelskoe-soglashenie-Publichnaya-oferta-01-13-2",
+            },
+          ],
+        ],
       },
     });
   });
