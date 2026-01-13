@@ -11,16 +11,15 @@ const wheelSectors = [
 	{ emoji: '💋', name: 'Губы', price: 0.0 },
 	{ emoji: '📅', name: 'Календарь', price: 1.5 },
 	{ emoji: '🍀', name: 'Клевер', price: 0.0 },
-	{ emoji: '🍑', name: 'Слива', price: 0.0 },
+	{ emoji: '🍑', name: 'Персик', price: 0.0 },
 	{ emoji: '🧸', name: 'Мишка', price: 0.1 },
 ]
 
 // ===== CUSTOM IMAGES =====
 // Файлы должны лежать рядом с index.html: /epepepepe.webp и /epersok.webp
-// ВАЖНО: у тебя в секторах вместо "Персик" написано "Слива", поэтому маппим "Слива".
 const GIFT_IMAGES = {
-	'Пепе': 'epepepepe.webp',
-	'Слива': 'epersok.webp',
+	Пепе: 'epepepepe.webp',
+	Персик: 'epersok.webp',
 }
 
 function giftVisual(item) {
@@ -107,7 +106,6 @@ let balance = 0
 let inventory = []
 let currentPrize = null
 let isSpinning = false
-let sectorBaseAngles = null
 
 // ===== HELPERS =====
 function updateBalanceUI() {
@@ -166,9 +164,23 @@ function renderWheel() {
 			node.title = ''
 			return
 		}
-		// эмодзи заменяем на картинку для 2 подарков
 		node.innerHTML = giftVisual(s)
 		node.title = `${s.name} (${s.price} TON)`
+	})
+}
+
+function renderPrizesList() {
+	// блоки снизу колеса: .prizes-grid .prize-item
+	const items = document.querySelectorAll('.prizes-grid .prize-item')
+	items.forEach((card, i) => {
+		const s = wheelSectors[i]
+		if (!s) return
+
+		const emojiEl = card.querySelector('.prize-emoji')
+		const nameEl = card.querySelector('.prize-name')
+
+		if (emojiEl) emojiEl.innerHTML = giftVisual(s)
+		if (nameEl) nameEl.textContent = s.name
 	})
 }
 
@@ -207,37 +219,6 @@ function setScreen(name) {
 	navButtons.forEach(btn => {
 		btn.classList.toggle('active', btn.dataset.target === name)
 	})
-}
-
-function computeSectorBaseAngles() {
-	if (!wheel) return
-
-	const prevTransition = wheel.style.transition
-	const prevTransform = wheel.style.transform
-
-	wheel.style.transition = 'none'
-	wheel.style.transform = 'rotate(0deg)'
-	wheel.offsetHeight
-
-	const wheelRect = wheel.getBoundingClientRect()
-	const cx = wheelRect.left + wheelRect.width / 2
-	const cy = wheelRect.top + wheelRect.height / 2
-
-	sectorBaseAngles = []
-	const nodes = wheel.querySelectorAll('.sector')
-	nodes.forEach((node, i) => {
-		const r = node.getBoundingClientRect()
-		const x = r.left + r.width / 2
-		const y = r.top + r.height / 2
-
-		let deg = (Math.atan2(y - cy, x - cx) * 180) / Math.PI
-		deg = (deg + 360) % 360
-		sectorBaseAngles[i] = deg
-	})
-
-	wheel.style.transform = prevTransform || 'rotate(0deg)'
-	wheel.offsetHeight
-	wheel.style.transition = prevTransition
 }
 
 function updateTelegramUserUI() {
@@ -365,8 +346,6 @@ spinButton?.addEventListener('click', async e => {
 		return
 	}
 
-	if (!sectorBaseAngles) computeSectorBaseAngles()
-
 	isSpinning = true
 	spinButton.disabled = true
 
@@ -384,13 +363,17 @@ spinButton?.addEventListener('click', async e => {
 	balance = Number(prizeData.newBalance ?? balance - SPIN_PRICE)
 	updateBalanceUI()
 
-	// ✅ ВСЕГДА крутим на мишку (берём первый сектор с name === 'Мишка')
+	// ✅ ВСЕГДА крутим на мишку (визуально тоже!)
 	const bearIndex = wheelSectors.findIndex(s => s?.name === 'Мишка')
 	const sectorIndex = bearIndex >= 0 ? bearIndex : 0
 
-	const desiredAngle = 270
+	// Математика без DOM (чтобы не было "попало на губы, а приз мишка")
+	const N = wheelSectors.length
+	const step = 360 / N
+	const base = sectorIndex * step + step / 2 // центр сектора
+
+	const desiredAngle = 270 // направление стрелки сверху
 	const current = ((currentRotation % 360) + 360) % 360
-	const base = sectorBaseAngles?.[sectorIndex] ?? 0
 	const delta = (((desiredAngle - base - current) % 360) + 360) % 360
 
 	currentRotation += FULL_ROUNDS * 360 + delta
@@ -791,7 +774,6 @@ function endCrash(cashedOut) {
 crashPlayBtn?.addEventListener('click', startCrash)
 crashCashoutBtn?.addEventListener('click', cashoutCrash)
 window.addEventListener('resize', () => {
-	computeSectorBaseAngles()
 	if (crashCanvas) {
 		initCrashCanvas()
 		drawCrashGraph()
@@ -802,9 +784,9 @@ window.addEventListener('resize', () => {
 ;(async function init() {
 	updateTelegramUserUI()
 	renderWheel()
+	renderPrizesList()
 	setLastPrizeText(null)
 
-	computeSectorBaseAngles()
 	if (crashCanvas) {
 		initCrashCanvas()
 		drawCrashGraph()
