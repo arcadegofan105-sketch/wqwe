@@ -1003,3 +1003,18 @@ body {
   font-size: 13px;
   line-height: 1.35;
 }
+
+/* === NEW: иконки-подарки картинками (вместо эмодзи) === */
+.gift-icon {
+  width: 34px;
+  height: 34px;
+  display: inline-block;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+/* размеры под места, где показываем */
+.prize-emoji .gift-icon { width: 28px; height: 28px; }
+.inventory-item-emoji .gift-icon { width: 32px; height: 32px; }
+.modal-prize-emoji .gift-icon { width: 72px; height: 72px; }
