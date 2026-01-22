@@ -71,6 +71,9 @@ const balanceValueSpan2 = document.getElementById('balance-value-2')
 const balanceValueSpan3 = document.getElementById('balance-value-3')
 const lastPrizeSpan = document.getElementById('last-prize')
 
+const walletStatusBtn = document.getElementById('wallet-status-btn') // ← ДОБАВЬ ЭТУ СТРОКУ
+
+
 const promoInput = document.getElementById('promo-input')
 const promoApplyBtn = document.getElementById('promo-apply')
 
@@ -849,5 +852,6 @@ window.addEventListener('resize', () => {
 		alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
 	}
 })()
+
 
 
