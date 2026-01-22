@@ -281,6 +281,26 @@ function updateWalletStatusUI() {
   walletStatusBtn.innerHTML = `<span>${formatAddress(addr)}</span>`
 }
 
+// меняем зелёную кнопку в модалке депозита
+function updateConnectButtonUI() {
+  if (!connectTonBtn) return
+  const connected = isWalletConnected()
+
+  if (!connected) {
+    connectTonBtn.classList.remove('connect-wallet-bound')
+    connectTonBtn.textContent = 'Подключите TON кошелёк'
+    return
+  }
+
+  const addr = tonConnectUI.account?.address || ''
+  connectTonBtn.classList.add('connect-wallet-bound')
+  connectTonBtn.innerHTML = `
+    <span>${formatAddress(addr)}</span>
+    <span>Изменить</span>
+  `
+}
+
+
 function updateDepositButtonState() {
   if (depositBtn) {
     const connected = isWalletConnected()
@@ -288,7 +308,9 @@ function updateDepositButtonState() {
     depositBtn.title = connected ? '' : 'Сначала подключи TON-кошелёк'
   }
   updateWalletStatusUI()
+  updateConnectButtonUI() // <– добавили вызов
 }
+
 
 tonConnectUI.onStatusChange(() => {
   updateDepositButtonState()
@@ -585,6 +607,7 @@ connectTonBtn?.addEventListener('click', async () => {
   // обновляем текст/вид кнопки после подключения
   updateConnectButtonUI()
 })
+
 
 
 // подтверждение депозита
@@ -917,6 +940,7 @@ window.addEventListener('resize', () => {
 		alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
 	}
 })()
+
 
 
 
