@@ -581,7 +581,11 @@ connectTonBtn?.addEventListener('click', async () => {
   const connected = isWalletConnected()
   if (depositAmountInput) depositAmountInput.disabled = !connected
   if (depositConfirmBtn) depositConfirmBtn.disabled = !connected
+
+  // обновляем текст/вид кнопки после подключения
+  updateConnectButtonUI()
 })
+
 
 // подтверждение депозита
 depositConfirmBtn?.addEventListener('click', async () => {
@@ -913,6 +917,7 @@ window.addEventListener('resize', () => {
 		alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
 	}
 })()
+
 
 
 
