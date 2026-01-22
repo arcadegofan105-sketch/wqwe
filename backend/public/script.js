@@ -779,10 +779,6 @@ function drawCrashGraph() {
   // ракеты больше нет, ничего не вызываем
 }
 
-
-  updateRocketPosition()
-}
-
 function updateCrashMultiplierUI() {
   if (crashMultiplierEl) crashMultiplierEl.textContent = `${crashMultiplier.toFixed(2)}x`
   if (crashBetAmount > 0 && crashPotentialWinEl) {
@@ -823,6 +819,7 @@ function animateCrash() {
   drawCrashGraph()
   crashAnimFrame = requestAnimationFrame(animateCrash)
 }
+
 
 async function startCrash() {
   if (crashState !== 'idle') return
@@ -942,6 +939,7 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
 
 
 
