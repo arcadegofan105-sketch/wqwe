@@ -15,18 +15,16 @@ const wheelSectors = [
   { emoji: '🧸', name: 'Мишка', price: 0.1 },
 ]
 
-
 // ===== CUSTOM IMAGES =====
-// Файлы должны лежать рядом с index.html: /epepepepe.webp и /epersok.webp
 const GIFT_IMAGES = {
-	Пепе: 'epepepepe.webp',
-	Персик: 'epersok.webp',
+  Пепе: 'epepepepe.webp',
+  Персик: 'epersok.webp',
 }
 
 function giftVisual(item) {
-	const file = GIFT_IMAGES[item?.name]
-	if (file) return `<span class="gift-icon" style="background-image:url('${file}')"></span>`
-	return item?.emoji || '🎁'
+  const file = GIFT_IMAGES[item?.name]
+  if (file) return `<span class="gift-icon" style="background-image:url('${file}')"></span>`
+  return item?.emoji || '🎁'
 }
 
 // ===== TELEGRAM =====
@@ -35,18 +33,18 @@ const notTelegram = document.getElementById('not-telegram')
 const appRoot = document.getElementById('app-root')
 
 function showNotTelegram() {
-	if (notTelegram) notTelegram.style.display = 'block'
-	if (appRoot) appRoot.style.display = 'none'
+  if (notTelegram) notTelegram.style.display = 'block'
+  if (appRoot) appRoot.style.display = 'none'
 }
 
 function showApp() {
-	if (notTelegram) notTelegram.style.display = 'none'
-	if (appRoot) appRoot.style.display = 'block'
+  if (notTelegram) notTelegram.style.display = 'none'
+  if (appRoot) appRoot.style.display = 'block'
 }
 
 if (!tg) {
-	showNotTelegram()
-	throw new Error('Telegram WebApp not found')
+  showNotTelegram()
+  throw new Error('Telegram WebApp not found')
 }
 
 tg.ready()
@@ -59,8 +57,8 @@ const telegramUser = tg.initDataUnsafe?.user || null
 
 // ===== TON CONNECT =====
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-	manifestUrl: `${location.origin}/tonconnect-manifest.json`,
-	buttonRootId: 'ton-connect',
+  manifestUrl: `${location.origin}/tonconnect-manifest.json`,
+  buttonRootId: 'ton-connect',
 })
 
 // ===== UI ELEMENTS =====
@@ -71,18 +69,17 @@ const balanceValueSpan2 = document.getElementById('balance-value-2')
 const balanceValueSpan3 = document.getElementById('balance-value-3')
 const lastPrizeSpan = document.getElementById('last-prize')
 
-const walletStatusBtn = document.getElementById('wallet-status-btn') // ← ДОБАВЬ ЭТУ СТРОКУ
-
+const walletStatusBtn = document.getElementById('wallet-status-btn')
 
 const promoInput = document.getElementById('promo-input')
 const promoApplyBtn = document.getElementById('promo-apply')
 
 const navButtons = document.querySelectorAll('.nav-btn')
 const screens = {
-	wheel: document.getElementById('screen-wheel'),
-	crash: document.getElementById('screen-crash'),
-	bonus: document.getElementById('screen-bonus'),
-	profile: document.getElementById('screen-profile'),
+  wheel: document.getElementById('screen-wheel'),
+  crash: document.getElementById('screen-crash'),
+  bonus: document.getElementById('screen-bonus'),
+  profile: document.getElementById('screen-profile'),
 }
 
 const depositBtn = document.getElementById('deposit-btn')
@@ -104,14 +101,13 @@ const withdrawCancelBtn = document.getElementById('withdraw-cancel')
 const withdrawConfirmBtn = document.getElementById('withdraw-confirm')
 const withdrawBalanceHint = document.getElementById('withdraw-balance-hint')
 
-// ✅ Deposit TON modal (новая модалка)
+// ✅ Deposit TON modal
 const depositModal = document.getElementById('deposit-modal')
 const openDepositPlusBtn = document.getElementById('open-deposit-modal')
 const depositAmountInput = document.getElementById('deposit-amount-input')
 const depositConfirmBtn = document.getElementById('deposit-confirm')
 const depositCancelBtn = document.getElementById('deposit-cancel')
 const connectTonBtn = document.getElementById('connect-ton-btn')
-
 
 // ===== STATE =====
 let currentRotation = 0
@@ -122,93 +118,87 @@ let isSpinning = false
 
 // ===== HELPERS =====
 function updateBalanceUI() {
-	const rounded = Number((balance || 0).toFixed(2))
-	if (balanceValueSpan) balanceValueSpan.textContent = String(rounded)
-	if (balanceValueSpan2) balanceValueSpan2.textContent = String(rounded)
-	if (balanceValueSpan3) balanceValueSpan3.textContent = String(rounded)
-	if (withdrawBalanceHint) withdrawBalanceHint.textContent = String(rounded)
+  const rounded = Number((balance || 0).toFixed(2))
+  if (balanceValueSpan) balanceValueSpan.textContent = String(rounded)
+  if (balanceValueSpan2) balanceValueSpan2.textContent = String(rounded)
+  if (balanceValueSpan3) balanceValueSpan3.textContent = String(rounded)
+  if (withdrawBalanceHint) withdrawBalanceHint.textContent = String(rounded)
 }
 
 function setLastPrizeText(prize) {
-	if (!lastPrizeSpan) return
-	lastPrizeSpan.textContent = prize ? `${prize.emoji} ${prize.name}` : '—'
+  if (!lastPrizeSpan) return
+  lastPrizeSpan.textContent = prize ? `${prize.emoji} ${prize.name}` : '—'
 }
 
 function openModal(prize) {
-	if (!prizeModal) return
-
-	// эмодзи заменяем на картинку, если есть
-	if (modalPrizeEmoji) modalPrizeEmoji.innerHTML = giftVisual(prize)
-
-	modalPrizeName.textContent = prize.name
-	modalPrizePrice.textContent = Number(prize.price || 0).toFixed(2)
-	prizeModal.classList.add('active')
+  if (!prizeModal) return
+  if (modalPrizeEmoji) modalPrizeEmoji.innerHTML = giftVisual(prize)
+  modalPrizeName.textContent = prize.name
+  modalPrizePrice.textContent = Number(prize.price || 0).toFixed(2)
+  prizeModal.classList.add('active')
 }
 
 function closeModal() {
-	if (!prizeModal) return
-	prizeModal.classList.remove('active')
+  if (!prizeModal) return
+  prizeModal.classList.remove('active')
 }
 
-// ✅ Withdraw modal helpers
+// Withdraw helpers
 function openWithdrawModal(prefillAmount = '') {
-	if (!withdrawModal) return
-	updateBalanceUI()
-	if (withdrawAmountInput) {
-		withdrawAmountInput.value =
-			prefillAmount !== undefined && prefillAmount !== null ? String(prefillAmount) : ''
-		withdrawAmountInput.focus()
-	}
-	withdrawModal.classList.add('active')
+  if (!withdrawModal) return
+  updateBalanceUI()
+  if (withdrawAmountInput) {
+    withdrawAmountInput.value =
+      prefillAmount !== undefined && prefillAmount !== null ? String(prefillAmount) : ''
+    withdrawAmountInput.focus()
+  }
+  withdrawModal.classList.add('active')
 }
 
 function closeWithdrawModal() {
-	if (!withdrawModal) return
-	withdrawModal.classList.remove('active')
+  if (!withdrawModal) return
+  withdrawModal.classList.remove('active')
 }
 
 function renderWheel() {
-	if (!wheel) return
-	const sectorNodes = wheel.querySelectorAll('.sector')
-	sectorNodes.forEach((node, i) => {
-		const s = wheelSectors[i]
-		if (!s) {
-			node.textContent = '❔'
-			node.title = ''
-			return
-		}
-		node.innerHTML = giftVisual(s)
-		node.title = `${s.name} (${s.price} TON)`
-	})
+  if (!wheel) return
+  const sectorNodes = wheel.querySelectorAll('.sector')
+  sectorNodes.forEach((node, i) => {
+    const s = wheelSectors[i]
+    if (!s) {
+      node.textContent = '❔'
+      node.title = ''
+      return
+    }
+    node.innerHTML = giftVisual(s)
+    node.title = `${s.name} (${s.price} TON)`
+  })
 }
 
 function renderPrizesList() {
-	// блоки снизу колеса: .prizes-grid .prize-item
-	const items = document.querySelectorAll('.prizes-grid .prize-item')
-	items.forEach((card, i) => {
-		const s = wheelSectors[i]
-		if (!s) return
-
-		const emojiEl = card.querySelector('.prize-emoji')
-		const nameEl = card.querySelector('.prize-name')
-
-		if (emojiEl) emojiEl.innerHTML = giftVisual(s)
-		if (nameEl) nameEl.textContent = s.name
-	})
+  const items = document.querySelectorAll('.prizes-grid .prize-item')
+  items.forEach((card, i) => {
+    const s = wheelSectors[i]
+    if (!s) return
+    const emojiEl = card.querySelector('.prize-emoji')
+    const nameEl = card.querySelector('.prize-name')
+    if (emojiEl) emojiEl.innerHTML = giftVisual(s)
+    if (nameEl) nameEl.textContent = s.name
+  })
 }
 
 function renderInventory() {
-	if (!inventoryList) return
+  if (!inventoryList) return
 
-	if (!Array.isArray(inventory) || inventory.length === 0) {
-		inventoryList.innerHTML = `<div class="inventory-empty">У вас пока нет подарков</div>`
-		return
-	}
+  if (!Array.isArray(inventory) || inventory.length === 0) {
+    inventoryList.innerHTML = `<div class="inventory-empty">У вас пока нет подарков</div>`
+    return
+  }
 
-	inventoryList.innerHTML = inventory
-		.map((item, idx) => {
-			const price = Number(item.price || 0).toFixed(2)
-			return `
+  inventoryList.innerHTML = inventory
+    .map((item, idx) => {
+      const price = Number(item.price || 0).toFixed(2)
+      return `
         <div class="inventory-item" data-idx="${idx}">
           <div class="inventory-item-top">
             <div class="inventory-item-emoji">${giftVisual(item)}</div>
@@ -221,37 +211,37 @@ function renderInventory() {
           </div>
         </div>
       `
-		})
-		.join('')
+    })
+    .join('')
 }
 
 function setScreen(name) {
-	Object.keys(screens).forEach(key => {
-		screens[key]?.classList.toggle('active', key === name)
-	})
-	navButtons.forEach(btn => {
-		btn.classList.toggle('active', btn.dataset.target === name)
-	})
+  Object.keys(screens).forEach(key => {
+    screens[key]?.classList.toggle('active', key === name)
+  })
+  navButtons.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.target === name)
+  })
 }
 
 function updateTelegramUserUI() {
-	if (!telegramUser) return
+  if (!telegramUser) return
 
-	const userName = telegramUser.first_name || telegramUser.username || 'User'
-	document
-		.querySelectorAll('.user-name, .profile-name')
-		.forEach(el => (el.textContent = userName))
+  const userName = telegramUser.first_name || telegramUser.username || 'User'
+  document
+    .querySelectorAll('.user-name, .profile-name')
+    .forEach(el => (el.textContent = userName))
 
-	const idEl = document.querySelector('.profile-id')
-	if (idEl) idEl.textContent = `ID: ${telegramUser.id}`
+  const idEl = document.querySelector('.profile-id')
+  if (idEl) idEl.textContent = `ID: ${telegramUser.id}`
 
-	if (telegramUser.photo_url) {
-		document.querySelectorAll('.avatar, .profile-avatar').forEach(avatar => {
-			avatar.style.backgroundImage = `url(${telegramUser.photo_url})`
-			avatar.style.backgroundSize = 'cover'
-			avatar.style.backgroundPosition = 'center'
-		})
-	}
+  if (telegramUser.photo_url) {
+    document.querySelectorAll('.avatar, .profile-avatar').forEach(avatar => {
+      avatar.style.backgroundImage = `url(${telegramUser.photo_url})`
+      avatar.style.backgroundSize = 'cover'
+      avatar.style.backgroundPosition = 'center'
+    })
+  }
 }
 
 // ===== TON CONNECT (deposit lock) =====
@@ -281,7 +271,6 @@ function updateWalletStatusUI() {
   walletStatusBtn.innerHTML = `<span>${formatAddress(addr)}</span>`
 }
 
-// меняем зелёную кнопку в модалке депозита
 function updateConnectButtonUI() {
   if (!connectTonBtn) return
   const connected = isWalletConnected()
@@ -300,7 +289,6 @@ function updateConnectButtonUI() {
   `
 }
 
-
 function updateDepositButtonState() {
   if (depositBtn) {
     const connected = isWalletConnected()
@@ -308,82 +296,80 @@ function updateDepositButtonState() {
     depositBtn.title = connected ? '' : 'Сначала подключи TON-кошелёк'
   }
   updateWalletStatusUI()
-  updateConnectButtonUI() // <– добавили вызов
+  updateConnectButtonUI()
 }
-
 
 tonConnectUI.onStatusChange(() => {
   updateDepositButtonState()
 })
 
-
 // ===== API (initData auth) =====
 async function apiPost(path, body = {}) {
-	const res = await fetch(`${API_URL}${path}`, {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ initData: INIT_DATA, ...body }),
-	})
+  const res = await fetch(`${API_URL}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ initData: INIT_DATA, ...body }),
+  })
 
-	const data = await res.json().catch(() => ({}))
-	if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`)
-	return data
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`)
+  return data
 }
 
 async function fetchUserData() {
-	const data = await apiPost('/me')
-	balance = Number(data.balance || 0)
-	inventory = Array.isArray(data.inventory) ? data.inventory : []
-	updateBalanceUI()
-	renderInventory()
-	return data
+  const data = await apiPost('/me')
+  balance = Number(data.balance || 0)
+  inventory = Array.isArray(data.inventory) ? data.inventory : []
+  updateBalanceUI()
+  renderInventory()
+  return data
 }
 
 async function spinApi() {
-	return apiPost('/spin')
+  return apiPost('/spin')
 }
 
 async function keepPrizeApi(prize) {
-	return apiPost('/prize/keep', { prize })
+  return apiPost('/prize/keep', { prize })
 }
 
 async function sellPrizeApi(prize, idx) {
-	const body = { prize }
-	if (Number.isInteger(idx)) body.idx = idx
-	return apiPost('/prize/sell', body)
+  const body = { prize }
+  if (Number.isInteger(idx)) body.idx = idx
+  return apiPost('/prize/sell', body)
 }
 
 async function applyPromoApi(code) {
-	return apiPost('/promo/apply', { code })
+  return apiPost('/promo/apply', { code })
 }
 
-// ✅ withdraw APIs
+// withdraw APIs
 async function withdrawTonApi(amount) {
-	return apiPost('/withdraw/ton', { amount })
+  return apiPost('/withdraw/ton', { amount })
 }
 
 async function withdrawGiftApi(idx) {
-	return apiPost('/withdraw/gift', { idx })
+  return apiPost('/withdraw/gift', { idx })
 }
 
-// ✅ deposit APIs (auto)
+// deposit APIs
 async function depositInfoApi() {
-	return apiPost('/deposit/info')
+  return apiPost('/deposit/info')
 }
 async function depositCreateApi(amount) {
-	return apiPost('/deposit/create', { amount })
+  return apiPost('/deposit/create', { amount })
 }
 async function depositCheckApi(depositId) {
-	return apiPost('/deposit/check', { depositId })
+  return apiPost('/deposit/check', { depositId })
 }
 
-// ===== deposit helpers =====
+// deposit helpers
 function toNanoString(tonAmount) {
-	return String(Math.round(tonAmount * 1e9))
+  return String(Math.round(tonAmount * 1e9))
 }
 
 function sleep(ms) {
-	return new Promise(r => setTimeout(r, ms))
+  return new Promise(r => setTimeout(r, ms))
 }
 
 // ===== EVENTS =====
@@ -391,11 +377,8 @@ function sleep(ms) {
 walletStatusBtn?.addEventListener('click', () => {
   if (!depositModal) return
   const connected = isWalletConnected()
-
-  // включаем / выключаем поля в модалке
   if (depositAmountInput) depositAmountInput.disabled = !connected
   if (depositConfirmBtn) depositConfirmBtn.disabled = !connected
-
   depositModal.classList.add('active')
 })
 
@@ -432,119 +415,115 @@ spinButton?.addEventListener('click', async e => {
   balance = Number(prizeData.newBalance ?? balance - SPIN_PRICE)
   updateBalanceUI()
 
+  const bearIndex = wheelSectors.findIndex(s => s?.name === 'Мишка')
+  const sectorIndex = bearIndex >= 0 ? bearIndex : 0
 
-	// ✅ ВСЕГДА крутим на мишку (визуально тоже!)
-	const bearIndex = wheelSectors.findIndex(s => s?.name === 'Мишка')
-	const sectorIndex = bearIndex >= 0 ? bearIndex : 0
+  const N = wheelSectors.length
+  const step = 360 / N
+  const base = sectorIndex * step + step / 2
 
-	// Математика без DOM (чтобы не было "попало на губы, а приз мишка")
-	const N = wheelSectors.length
-	const step = 360 / N
-	const base = sectorIndex * step + step / 2 // центр сектора
+  const desiredAngle = 270
+  const current = ((currentRotation % 360) + 360) % 360
+  const delta = (((desiredAngle - base - current) % 360) + 360) % 360
 
-	const desiredAngle = 270 // направление стрелки сверху
-	const current = ((currentRotation % 360) + 360) % 360
-	const delta = (((desiredAngle - base - current) % 360) + 360) % 360
-
-	currentRotation += FULL_ROUNDS * 360 + delta
-	wheel.style.transform = `rotate(${currentRotation.toFixed(3)}deg)`
+  currentRotation += FULL_ROUNDS * 360 + delta
+  wheel.style.transform = `rotate(${currentRotation.toFixed(3)}deg)`
 })
 
 wheel?.addEventListener('transitionend', e => {
-	if (e.propertyName !== 'transform') return
-	if (!isSpinning) return
+  if (e.propertyName !== 'transform') return
+  if (!isSpinning) return
 
-	currentRotation = ((currentRotation % 360) + 360) % 360
-	wheel.style.transition = 'none'
-	wheel.style.transform = `rotate(${currentRotation.toFixed(3)}deg)`
-	wheel.offsetHeight
-	wheel.style.transition = ''
+  currentRotation = ((currentRotation % 360) + 360) % 360
+  wheel.style.transition = 'none'
+  wheel.style.transform = `rotate(${currentRotation.toFixed(3)}deg)`
+  wheel.offsetHeight
+  wheel.style.transition = ''
 
-	setLastPrizeText(currentPrize)
-	openModal(currentPrize)
+  setLastPrizeText(currentPrize)
+  openModal(currentPrize)
 
-	isSpinning = false
+  isSpinning = false
 })
 
 modalSellBtn?.addEventListener('click', async () => {
-	if (!currentPrize) return
-	try {
-		const data = await sellPrizeApi(currentPrize)
-		balance = Number(data.newBalance ?? balance)
-		updateBalanceUI()
-		currentPrize = null
-		closeModal()
-		spinButton.disabled = false
-	} catch (err) {
-		alert(err.message || 'Ошибка продажи')
-	}
+  if (!currentPrize) return
+  try {
+    const data = await sellPrizeApi(currentPrize)
+    balance = Number(data.newBalance ?? balance)
+    updateBalanceUI()
+    currentPrize = null
+    closeModal()
+    spinButton.disabled = false
+  } catch (err) {
+    alert(err.message || 'Ошибка продажи')
+  }
 })
 
 modalKeepBtn?.addEventListener('click', async () => {
-	if (!currentPrize) return
-	try {
-		await keepPrizeApi(currentPrize)
-		await fetchUserData()
-		currentPrize = null
-		closeModal()
-		spinButton.disabled = false
-	} catch (err) {
-		alert(err.message || 'Ошибка сохранения')
-	}
+  if (!currentPrize) return
+  try {
+    await keepPrizeApi(currentPrize)
+    await fetchUserData()
+    currentPrize = null
+    closeModal()
+    spinButton.disabled = false
+  } catch (err) {
+    alert(err.message || 'Ошибка сохранения')
+  }
 })
 
 inventoryList?.addEventListener('click', async e => {
-	const card = e.target.closest('.inventory-item')
-	if (!card) return
+  const card = e.target.closest('.inventory-item')
+  if (!card) return
 
-	const idx = Number(card.dataset.idx)
-	const item = inventory?.[idx]
-	if (!item) return
+  const idx = Number(card.dataset.idx)
+  const item = inventory?.[idx]
+  if (!item) return
 
-	if (e.target.classList.contains('inv-sell')) {
-		try {
-			const data = await sellPrizeApi(item, idx)
-			balance = Number(data.newBalance ?? balance)
-			updateBalanceUI()
-			await fetchUserData()
-		} catch (err) {
-			alert(err.message || 'Ошибка продажи')
-		}
-	}
+  if (e.target.classList.contains('inv-sell')) {
+    try {
+      const data = await sellPrizeApi(item, idx)
+      balance = Number(data.newBalance ?? balance)
+      updateBalanceUI()
+      await fetchUserData()
+    } catch (err) {
+      alert(err.message || 'Ошибка продажи')
+    }
+  }
 
-	if (e.target.classList.contains('inv-withdraw')) {
-		try {
-			const r = await withdrawGiftApi(idx)
-			inventory = Array.isArray(r.inventory) ? r.inventory : inventory
-			renderInventory()
-			alert('Заявка на вывод подарка отправлена админу.')
-		} catch (err) {
-			alert(err.message || 'Ошибка вывода подарка')
-		}
-	}
+  if (e.target.classList.contains('inv-withdraw')) {
+    try {
+      const r = await withdrawGiftApi(idx)
+      inventory = Array.isArray(r.inventory) ? r.inventory : inventory
+      renderInventory()
+      alert('Заявка на вывод подарка отправлена админу.')
+    } catch (err) {
+      alert(err.message || 'Ошибка вывода подарка')
+    }
+  }
 })
 
 promoApplyBtn?.addEventListener('click', async () => {
-	const code = (promoInput?.value || '').trim()
-	if (!code) {
-		alert('Введите промокод')
-		return
-	}
+  const code = (promoInput?.value || '').trim()
+  if (!code) {
+    alert('Введите промокод')
+    return
+  }
 
-	try {
-		const data = await applyPromoApi(code)
-		balance = Number(data.newBalance ?? balance)
-		updateBalanceUI()
-		promoInput.value = ''
-		alert(`Промокод применён: +${Number(data.amount || 0).toFixed(2)} TON`)
-	} catch (err) {
-		alert(err.message || 'Ошибка промокода')
-	}
+  try {
+    const data = await applyPromoApi(code)
+    balance = Number(data.newBalance ?? balance)
+    updateBalanceUI()
+    promoInput.value = ''
+    alert(`Промокод применён: +${Number(data.amount || 0).toFixed(2)} TON`)
+  } catch (err) {
+    alert(err.message || 'Ошибка промокода')
+  }
 })
 
-// ✅ DEPOSIT TON (auto) через модалку
+// DEPOSIT TON
 
-// открыть модалку из профиля (кнопка "Депозит TON")
 depositBtn?.addEventListener('click', () => {
   if (!depositModal) return
   const connected = isWalletConnected()
@@ -553,7 +532,6 @@ depositBtn?.addEventListener('click', () => {
   depositModal.classList.add('active')
 })
 
-// открыть модалку по синей кнопке "+" рядом с балансом
 openDepositPlusBtn?.addEventListener('click', () => {
   if (!depositModal) return
   const connected = isWalletConnected()
@@ -562,13 +540,11 @@ openDepositPlusBtn?.addEventListener('click', () => {
   depositModal.classList.add('active')
 })
 
-// закрыть модалку
 depositCancelBtn?.addEventListener('click', () => {
   if (!depositModal) return
   depositModal.classList.remove('active')
 })
 
-// подключение кошелька из модалки
 connectTonBtn?.addEventListener('click', async () => {
   try {
     await tonConnectUI.openModal()
@@ -577,14 +553,9 @@ connectTonBtn?.addEventListener('click', async () => {
   const connected = isWalletConnected()
   if (depositAmountInput) depositAmountInput.disabled = !connected
   if (depositConfirmBtn) depositConfirmBtn.disabled = !connected
-
-  // обновляем текст/вид кнопки после подключения
   updateConnectButtonUI()
 })
 
-
-
-// подтверждение депозита
 depositConfirmBtn?.addEventListener('click', async () => {
   try {
     if (!isWalletConnected()) {
@@ -651,45 +622,42 @@ depositConfirmBtn?.addEventListener('click', async () => {
   }
 })
 
-
-// ✅ open withdraw TON modal
+// withdraw TON
 withdrawBtn?.addEventListener('click', () => {
-	openWithdrawModal(String(Math.max(MIN_WITHDRAW_TON, 5)))
+  openWithdrawModal(String(Math.max(MIN_WITHDRAW_TON, 5)))
 })
 
 withdrawCancelBtn?.addEventListener('click', () => closeWithdrawModal())
 
 withdrawConfirmBtn?.addEventListener('click', async () => {
-	const raw = String(withdrawAmountInput?.value || '').replace(',', '.').trim()
-	const amount = Number(raw)
+  const raw = String(withdrawAmountInput?.value || '').replace(',', '.').trim()
+  const amount = Number(raw)
 
-	if (!Number.isFinite(amount)) {
-		alert('Введите корректную сумму')
-		return
-	}
-	if (amount < MIN_WITHDRAW_TON) {
-		alert(`Минимум ${MIN_WITHDRAW_TON} TON`)
-		return
-	}
-	if (amount > balance) {
-		alert('Недостаточно средств')
-		return
-	}
+  if (!Number.isFinite(amount)) {
+    alert('Введите корректную сумму')
+    return
+  }
+  if (amount < MIN_WITHDRAW_TON) {
+    alert(`Минимум ${MIN_WITHDRAW_TON} TON`)
+    return
+  }
+  if (amount > balance) {
+    alert('Недостаточно средств')
+    return
+  }
 
-	try {
-		withdrawConfirmBtn.disabled = true
-
-		const r = await withdrawTonApi(amount)
-		balance = Number(r.newBalance ?? balance)
-		updateBalanceUI()
-
-		closeWithdrawModal()
-		alert(`Заявка на вывод ${amount.toFixed(2)} TON отправлена админу.`)
-	} catch (err) {
-		alert(err.message || 'Ошибка заявки на вывод')
-	} finally {
-		withdrawConfirmBtn.disabled = false
-	}
+  try {
+    withdrawConfirmBtn.disabled = true
+    const r = await withdrawTonApi(amount)
+    balance = Number(r.newBalance ?? balance)
+    updateBalanceUI()
+    closeWithdrawModal()
+    alert(`Заявка на вывод ${amount.toFixed(2)} TON отправлена админу.`)
+  } catch (err) {
+    alert(err.message || 'Ошибка заявки на вывод')
+  } finally {
+    withdrawConfirmBtn.disabled = false
+  }
 })
 
 // ===== CRASH (синхронизация с сервером) =====
@@ -702,6 +670,7 @@ const crashPlayBtn = document.getElementById('crash-play-btn')
 const crashCashoutBtn = document.getElementById('crash-cashout-btn')
 const crashCurrentBetEl = document.getElementById('crash-current-bet')
 const crashPotentialWinEl = document.getElementById('crash-potential-win')
+const crashRocketEl = document.getElementById('crash-rocket')
 
 let crashState = 'idle'
 let crashMultiplier = 1.0
@@ -711,213 +680,244 @@ let crashAnimFrame = null
 let crashStartTime = null
 
 function initCrashCanvas() {
-	if (!crashCanvas || !crashCtx) return
-	const dpr = window.devicePixelRatio || 1
-	const rect = crashCanvas.getBoundingClientRect()
-	crashCanvas.width = rect.width * dpr
-	crashCanvas.height = rect.height * dpr
-	crashCtx.setTransform(dpr, 0, 0, dpr, 0, 0)
+  if (!crashCanvas || !crashCtx) return
+  const dpr = window.devicePixelRatio || 1
+  const rect = crashCanvas.getBoundingClientRect()
+  crashCanvas.width = rect.width * dpr
+  crashCanvas.height = rect.height * dpr
+  crashCtx.setTransform(dpr, 0, 0, dpr, 0, 0)
 }
 
 function generateCrashPoint() {
-	const rand = Math.random() * 100
-	if (rand < 99) return 1.01 + Math.random() * 0.4
-	if (rand < 99.9) return 1.41 + Math.random() * 1.59
-	return 3.0 + Math.random() * 7.0
+  const rand = Math.random() * 100
+  if (rand < 99) return 1.01 + Math.random() * 0.4
+  if (rand < 99.9) return 1.41 + Math.random() * 1.59
+  return 3.0 + Math.random() * 7.0
+}
+
+function updateRocketPosition() {
+  if (!crashRocketEl || !crashCanvas) return
+
+  const rect = crashCanvas.getBoundingClientRect()
+  const w = rect.width
+  const h = rect.height
+
+  const maxYMult = Math.max(crashPoint || 2, 2)
+  const t = Math.min((crashMultiplier - 1) / (maxYMult - 1), 1)
+
+  const startX = w * 0.15
+  const endX = w * 0.85
+  const startY = h * 0.75
+  const endY = h * 0.35
+  const cx = w * 0.5
+  const cy = h * 0.15
+
+  const oneMinusT = 1 - t
+  const x =
+    oneMinusT * oneMinusT * startX +
+    2 * oneMinusT * t * cx +
+    t * t * endX
+  const y =
+    oneMinusT * oneMinusT * startY +
+    2 * oneMinusT * t * cy +
+    t * t * endY
+
+  const angle = Math.atan2(cy - y, cx - x)
+
+  const centerX = w / 2
+  const centerY = h * 0.6
+  const dx = x - centerX
+  const dy = y - centerY
+
+  crashRocketEl.style.transform =
+    `translate(-50%, -50%) translate(${dx}px, ${dy}px) rotate(${angle}rad)`
 }
 
 function drawCrashGraph() {
-	if (!crashCtx || !crashCanvas) return
-	const rect = crashCanvas.getBoundingClientRect()
-	const w = rect.width
-	const h = rect.height
+  if (!crashCtx || !crashCanvas) return
+  const rect = crashCanvas.getBoundingClientRect()
+  const w = rect.width
+  const h = rect.height
 
-	crashCtx.clearRect(0, 0, w, h)
+  crashCtx.clearRect(0, 0, w, h)
 
-	const gradient = crashCtx.createLinearGradient(0, 0, w, h)
-	gradient.addColorStop(0, 'rgba(56, 189, 248, 0.05)')
-	gradient.addColorStop(1, 'rgba(139, 92, 246, 0.05)')
-	crashCtx.fillStyle = gradient
-	crashCtx.fillRect(0, 0, w, h)
+  crashCtx.strokeStyle = 'rgba(148, 163, 184, 0.14)'
+  crashCtx.lineWidth = 1
+  for (let i = 0; i <= 4; i++) {
+    const y = (h / 4) * i
+    crashCtx.beginPath()
+    crashCtx.moveTo(0, y)
+    crashCtx.lineTo(w, y)
+    crashCtx.stroke()
+  }
 
-	crashCtx.strokeStyle = 'rgba(148, 163, 184, 0.1)'
-	crashCtx.lineWidth = 1
-	for (let i = 0; i <= 5; i++) {
-		const y = (h / 5) * i
-		crashCtx.beginPath()
-		crashCtx.moveTo(0, y)
-		crashCtx.lineTo(w, y)
-		crashCtx.stroke()
-	}
+  if (crashState === 'playing' || crashState === 'crashed') {
+    const maxYMult = Math.max(crashPoint || 2, 2)
+    const progress = Math.min((crashMultiplier - 1) / (maxYMult - 1), 1)
 
-	if (crashState === 'playing' || crashState === 'crashed') {
-		const maxYMult = Math.max(crashPoint || 2, 2)
-		const progress = Math.min((crashMultiplier - 1) / (maxYMult - 1), 1)
+    crashCtx.strokeStyle =
+      crashState === 'crashed'
+        ? 'rgba(248, 113, 113, 0.6)'
+        : 'rgba(56, 189, 248, 0.6)'
+    crashCtx.lineWidth = 2
+    crashCtx.beginPath()
+    crashCtx.moveTo(0, h)
 
-		crashCtx.strokeStyle = crashState === 'crashed' ? '#ef4444' : '#38bdf8'
-		crashCtx.lineWidth = 3
-		crashCtx.beginPath()
-		crashCtx.moveTo(0, h)
+    for (let i = 0; i <= progress * 100; i++) {
+      const x = (i / 100) * w
+      const t = i / 100
+      const mult = 1 + t * (crashMultiplier - 1)
+      const y = h - ((mult - 1) * h) / Math.max(maxYMult - 1, 0.2)
+      if (i === 0) crashCtx.moveTo(x, y)
+      else crashCtx.lineTo(x, y)
+    }
+    crashCtx.stroke()
+  }
 
-		for (let i = 0; i <= progress * 100; i++) {
-			const x = (i / 100) * w
-			const t = i / 100
-			const mult = 1 + t * (crashMultiplier - 1)
-			const y = h - ((mult - 1) * h) / Math.max(maxYMult - 1, 0.2)
-			if (i === 0) crashCtx.moveTo(x, y)
-			else crashCtx.lineTo(x, y)
-		}
-		crashCtx.stroke()
-	}
+  updateRocketPosition()
 }
 
 function updateCrashMultiplierUI() {
-	if (crashMultiplierEl) crashMultiplierEl.textContent = `${crashMultiplier.toFixed(2)}x`
-	if (crashBetAmount > 0 && crashPotentialWinEl) {
-		crashPotentialWinEl.textContent = `${(crashBetAmount * crashMultiplier).toFixed(2)} TON`
-	}
-	if (crashCurrentBetEl) {
-		crashCurrentBetEl.textContent = crashBetAmount > 0 ? `${crashBetAmount.toFixed(2)} TON` : '—'
-	}
+  if (crashMultiplierEl) crashMultiplierEl.textContent = `${crashMultiplier.toFixed(2)}x`
+  if (crashBetAmount > 0 && crashPotentialWinEl) {
+    crashPotentialWinEl.textContent = `${(crashBetAmount * crashMultiplier).toFixed(2)} TON`
+  }
+  if (crashCurrentBetEl) {
+    crashCurrentBetEl.textContent =
+      crashBetAmount > 0 ? `${crashBetAmount.toFixed(2)} TON` : '—'
+  }
 }
 
 function animateCrash() {
-	if (crashState !== 'playing') return
-	const elapsed = (Date.now() - crashStartTime) / 1000
-	crashMultiplier = 1 + elapsed * 0.2
+  if (crashState !== 'playing') return
+  const elapsed = (Date.now() - crashStartTime) / 1000
+  crashMultiplier = 1 + elapsed * 0.2
 
-	if (crashMultiplier >= crashPoint) {
-		crashMultiplier = crashPoint
-		endCrash(false)
-		return
-	}
+  if (crashMultiplier >= crashPoint) {
+    crashMultiplier = crashPoint
+    endCrash(false)
+    return
+  }
 
-	updateCrashMultiplierUI()
-	drawCrashGraph()
-	crashAnimFrame = requestAnimationFrame(animateCrash)
+  updateCrashMultiplierUI()
+  drawCrashGraph()
+  crashAnimFrame = requestAnimationFrame(animateCrash)
 }
 
 async function startCrash() {
-	if (crashState !== 'idle') return
+  if (crashState !== 'idle') return
 
-	crashBetAmount = parseFloat(crashBetInput?.value || '0')
-	if (isNaN(crashBetAmount) || crashBetAmount < 0.1) {
-		alert('Минимум 0.1 TON')
-		return
-	}
-	if (balance < crashBetAmount) {
-		alert('Недостаточно средств.')
-		return
-	}
+  crashBetAmount = parseFloat(crashBetInput?.value || '0')
+  if (isNaN(crashBetAmount) || crashBetAmount < 0.1) {
+    alert('Минимум 0.1 TON')
+    return
+  }
+  if (balance < crashBetAmount) {
+    alert('Недостаточно средств.')
+    return
+  }
 
-	try {
-		const r = await apiPost('/crash/bet', { amount: crashBetAmount })
-		balance = Number(r.newBalance ?? balance)
-		updateBalanceUI()
-	} catch (err) {
-		alert(err.message || 'Ошибка ставки')
-		return
-	}
+  try {
+    const r = await apiPost('/crash/bet', { amount: crashBetAmount })
+    balance = Number(r.newBalance ?? balance)
+    updateBalanceUI()
+  } catch (err) {
+    alert(err.message || 'Ошибка ставки')
+    return
+  }
 
-	crashPoint = generateCrashPoint()
-	crashMultiplier = 1.0
-	crashState = 'playing'
-	crashStartTime = Date.now()
+  crashPoint = generateCrashPoint()
+  crashMultiplier = 1.0
+  crashState = 'playing'
+  crashStartTime = Date.now()
 
-	if (crashStatusEl) {
-		crashStatusEl.textContent = 'Летим...'
-		crashStatusEl.style.color = '#38bdf8'
-	}
+  if (crashStatusEl) {
+    crashStatusEl.textContent = 'Летим...'
+    crashStatusEl.style.color = '#e5e7eb'
+  }
 
-	if (crashPlayBtn) crashPlayBtn.disabled = true
-	if (crashCashoutBtn) crashCashoutBtn.disabled = false
+  if (crashPlayBtn) crashPlayBtn.disabled = true
+  if (crashCashoutBtn) crashCashoutBtn.disabled = false
 
-	updateCrashMultiplierUI()
-	drawCrashGraph()
-	animateCrash()
+  updateCrashMultiplierUI()
+  drawCrashGraph()
+  animateCrash()
 }
 
 async function cashoutCrash() {
-	if (crashState !== 'playing') return
+  if (crashState !== 'playing') return
 
-	const winAmount = crashBetAmount * crashMultiplier
+  const winAmount = crashBetAmount * crashMultiplier
 
-	try {
-		const r = await apiPost('/crash/cashout', { amount: winAmount })
-		balance = Number(r.newBalance ?? balance)
-		updateBalanceUI()
-		endCrash(true)
-	} catch (err) {
-		alert(err.message || 'Ошибка вывода')
-	}
+  try {
+    const r = await apiPost('/crash/cashout', { amount: winAmount })
+    balance = Number(r.newBalance ?? balance)
+    updateBalanceUI()
+    endCrash(true)
+  } catch (err) {
+    alert(err.message || 'Ошибка вывода')
+  }
 }
 
 function endCrash(cashedOut) {
-	crashState = 'crashed'
-	if (crashAnimFrame) cancelAnimationFrame(crashAnimFrame)
-	crashAnimFrame = null
+  crashState = 'crashed'
+  if (crashAnimFrame) cancelAnimationFrame(crashAnimFrame)
+  crashAnimFrame = null
 
-	if (crashPlayBtn) crashPlayBtn.disabled = false
-	if (crashCashoutBtn) crashCashoutBtn.disabled = true
+  if (crashPlayBtn) crashPlayBtn.disabled = false
+  if (crashCashoutBtn) crashCashoutBtn.disabled = true
 
-	if (crashStatusEl) {
-		crashStatusEl.textContent = cashedOut ? 'Вы забрали!' : 'Бум!'
-		crashStatusEl.style.color = cashedOut ? '#10b981' : '#ef4444'
-	}
+  if (crashStatusEl) {
+    crashStatusEl.textContent = cashedOut ? 'Вы забрали!' : 'Бум!'
+    crashStatusEl.style.color = cashedOut ? '#22c55e' : '#f97373'
+  }
 
-	updateCrashMultiplierUI()
-	drawCrashGraph()
+  updateCrashMultiplierUI()
+  drawCrashGraph()
 
-	setTimeout(() => {
-		crashState = 'idle'
-		crashMultiplier = 1.0
-		crashBetAmount = 0
-		crashPoint = null
+  setTimeout(() => {
+    crashState = 'idle'
+    crashMultiplier = 1.0
+    crashBetAmount = 0
+    crashPoint = null
 
-		if (crashStatusEl) {
-			crashStatusEl.textContent = 'Ожидание...'
-			crashStatusEl.style.color = '#94a3b8'
-		}
-		if (crashMultiplierEl) crashMultiplierEl.textContent = '1.00x'
-		if (crashCurrentBetEl) crashCurrentBetEl.textContent = '—'
-		if (crashPotentialWinEl) crashPotentialWinEl.textContent = '—'
-		drawCrashGraph()
-	}, 2000)
+    if (crashStatusEl) {
+      crashStatusEl.textContent = 'Скоро взлетаем'
+      crashStatusEl.style.color = '#e5e7eb'
+    }
+    if (crashMultiplierEl) crashMultiplierEl.textContent = '1.00x'
+    if (crashCurrentBetEl) crashCurrentBetEl.textContent = '—'
+    if (crashPotentialWinEl) crashPotentialWinEl.textContent = '—'
+    drawCrashGraph()
+  }, 2000)
 }
 
 crashPlayBtn?.addEventListener('click', startCrash)
 crashCashoutBtn?.addEventListener('click', cashoutCrash)
 window.addEventListener('resize', () => {
-	if (crashCanvas) {
-		initCrashCanvas()
-		drawCrashGraph()
-	}
+  if (crashCanvas) {
+    initCrashCanvas()
+    drawCrashGraph()
+  }
 })
 
 // ===== INIT =====
 ;(async function init() {
-	updateTelegramUserUI()
-	renderWheel()
-	renderPrizesList()
-	setLastPrizeText(null)
+  updateTelegramUserUI()
+  renderWheel()
+  renderPrizesList()
+  setLastPrizeText(null)
 
-	if (crashCanvas) {
-		initCrashCanvas()
-		drawCrashGraph()
-	}
+  if (crashCanvas) {
+    initCrashCanvas()
+    drawCrashGraph()
+  }
 
-	updateDepositButtonState()
+  updateDepositButtonState()
 
-	try {
-		await fetchUserData()
-	} catch (err) {
-		alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
-	}
+  try {
+    await fetchUserData()
+  } catch (err) {
+    alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
+  }
 })()
-
-
-
-
-
-
-
