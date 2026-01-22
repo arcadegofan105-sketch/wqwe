@@ -670,7 +670,7 @@ const crashPlayBtn = document.getElementById('crash-play-btn')
 const crashCashoutBtn = document.getElementById('crash-cashout-btn')
 const crashCurrentBetEl = document.getElementById('crash-current-bet')
 const crashPotentialWinEl = document.getElementById('crash-potential-win')
-
+const crashRocketEl = document.getElementById('crash-rocket') // ← вот здесь
 
 let crashState = 'idle'
 let crashMultiplier = 1.0
@@ -935,6 +935,7 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
 
 
 
