@@ -219,23 +219,56 @@
 </section>
       </main>
       <nav class="bottom-nav">
-        <button class="nav-btn active" data-target="wheel">
-          🎰
-          <span>Колесо</span>
-        </button>
-        <button class="nav-btn" data-target="crash">
-          🚀
-          <span>Краш</span>
-        </button>
-        <button class="nav-btn" data-target="bonus">
-          🎁
-          <span>Бонусы</span>
-        </button>
-        <button class="nav-btn" data-target="profile">
-          👤
-          <span>Профиль</span>
-        </button>
-      </nav>
+  <button class="nav-btn active" data-target="wheel">
+    <span class="nav-icon">
+      <!-- Колесо / слот-машина -->
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3" y="5" width="18" height="12" rx="3" ry="3" />
+        <rect x="6" y="8" width="3" height="3" />
+        <rect x="10.5" y="8" width="3" height="3" />
+        <rect x="15" y="8" width="3" height="3" />
+        <path d="M8 18h8" />
+      </svg>
+    </span>
+    <span>Колесо</span>
+  </button>
+
+  <button class="nav-btn" data-target="crash">
+    <span class="nav-icon">
+      <!-- Краш / ракета -->
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 2c3 1 5 4.5 5 8.5 0 3-1.5 5.5-3.5 7.5L12 22l-1.5-4C8.5 16 7 13.5 7 10.5 7 6.5 9 3 12 2z" />
+        <circle cx="12" cy="9" r="2" />
+        <path d="M7 14 4 16M17 14l3 2" />
+      </svg>
+    </span>
+    <span>Краш</span>
+  </button>
+
+  <button class="nav-btn" data-target="bonus">
+    <span class="nav-icon">
+      <!-- Бонусы / подарок -->
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3" y="9" width="18" height="11" rx="2" />
+        <path d="M3 9h18M12 9v11" />
+        <path d="M8.5 6C7 6 6 5 6 3.8 6 3 6.6 2 8 2c1.4 0 2.5 1.1 3 3 .5-1.9 1.6-3 3-3s2 1 2 1.8C16 5 15 6 13.5 6H8.5z" />
+      </svg>
+    </span>
+    <span>Бонусы</span>
+  </button>
+
+  <button class="nav-btn" data-target="profile">
+    <span class="nav-icon">
+      <!-- Профиль / пользователь -->
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="9" r="3.2" />
+        <path d="M5 19.5C5.8 16.5 8.6 15 12 15s6.2 1.5 7 4.5" />
+      </svg>
+    </span>
+    <span>Профиль</span>
+  </button>
+</nav>
+
 
       <!-- Модальное окно для выбора: продать или оставить -->
       <div id="prize-modal" class="modal">
@@ -300,6 +333,7 @@
 
   </body>
 </html>
+
 
 
 
