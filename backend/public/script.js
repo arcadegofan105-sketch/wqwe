@@ -678,6 +678,7 @@ let crashPoint = null
 let crashBetAmount = 0
 let crashAnimFrame = null
 let crashStartTime = null
+let crashTime = 8000 // время полёта до краша, мс
 
 function initCrashCanvas() {
   if (!crashCanvas || !crashCtx) return
@@ -690,9 +691,9 @@ function initCrashCanvas() {
 
 function generateCrashPoint() {
   const rand = Math.random() * 100
-  if (rand < 99) return 1.01 + Math.random() * 0.4
-  if (rand < 99.9) return 1.41 + Math.random() * 1.59
-  return 3.0 + Math.random() * 7.0
+  if (rand < 99) return 1.2 + Math.random() * 0.8
+  if (rand < 99.9) return 2.0 + Math.random() * 2.0
+  return 5.0 + Math.random() * 10.0
 }
 
 function updateRocketPosition() {
@@ -705,12 +706,13 @@ function updateRocketPosition() {
   const maxYMult = Math.max(crashPoint || 2, 2)
   const t = Math.min((crashMultiplier - 1) / (maxYMult - 1), 1)
 
-  const startX = w * 0.15
-  const endX = w * 0.85
+  // вертикальная дуга по центру
+  const startX = w * 0.5
+  const endX = w * 0.5
   const startY = h * 0.75
-  const endY = h * 0.35
+  const endY = h * 0.25
   const cx = w * 0.5
-  const cy = h * 0.15
+  const cy = h * 0.05
 
   const oneMinusT = 1 - t
   const x =
@@ -722,15 +724,12 @@ function updateRocketPosition() {
     2 * oneMinusT * t * cy +
     t * t * endY
 
-  const angle = Math.atan2(cy - y, cx - x)
-
-  const centerX = w / 2
-  const centerY = h * 0.6
-  const dx = x - centerX
-  const dy = y - centerY
+  // ракета всегда «ровно», без поворота
+  const dx = x - w / 2
+  const dy = y - h * 0.6
 
   crashRocketEl.style.transform =
-    `translate(-50%, -50%) translate(${dx}px, ${dy}px) rotate(${angle}rad)`
+    `translate(-50%, -50%) translate(${dx}px, ${dy}px)`
 }
 
 function drawCrashGraph() {
@@ -790,11 +789,25 @@ function updateCrashMultiplierUI() {
 
 function animateCrash() {
   if (crashState !== 'playing') return
-  const elapsed = (Date.now() - crashStartTime) / 1000
-  crashMultiplier = 1 + elapsed * 0.2
+
+  const elapsed = Math.max(0, Date.now() - crashStartTime)
+  const timeProgress = elapsed / crashTime
+
+  if (timeProgress >= 1) {
+    crashMultiplier = crashPoint
+    updateCrashMultiplierUI()
+    drawCrashGraph()
+    endCrash(false)
+    return
+  }
+
+  // экспоненциальный рост как в рефе
+  crashMultiplier = Math.exp(timeProgress * Math.log(crashTime / 1000))
 
   if (crashMultiplier >= crashPoint) {
     crashMultiplier = crashPoint
+    updateCrashMultiplierUI()
+    drawCrashGraph()
     endCrash(false)
     return
   }
@@ -830,6 +843,7 @@ async function startCrash() {
   crashMultiplier = 1.0
   crashState = 'playing'
   crashStartTime = Date.now()
+  crashTime = 8000 // можно потом вынести в конфиг
 
   if (crashStatusEl) {
     crashStatusEl.textContent = 'Летим...'
@@ -921,3 +935,5 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
+
