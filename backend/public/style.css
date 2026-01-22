@@ -830,6 +830,20 @@ body {
 	box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
 }
 
+/* Кнопка TON в модалке, когда кошелёк уже привязан */
+.connect-wallet-bound {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.connect-wallet-bound span:last-child {
+  opacity: 0.8; /* текст "Изменить" чуть потише */
+}
+
+
 .deposit-tabs {
   display: flex;
   gap: 8px;
@@ -1164,6 +1178,7 @@ body {
 .prize-emoji .gift-icon { width: 28px; height: 28px; }
 .inventory-item-emoji .gift-icon { width: 32px; height: 32px; }
 .modal-prize-emoji .gift-icon { width: 72px; height: 72px; }
+
 
 
 
