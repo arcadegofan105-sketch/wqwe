@@ -74,14 +74,33 @@ body {
 }
 
 .balance {
-	display: flex;
-	align-items: center;
-	gap: 4px;
-	padding: 6px 12px;
-	border-radius: 999px;
-	background: rgba(15, 23, 42, 0.65);
-	box-shadow: 0 0 0 1px rgba(94, 234, 212, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.65);
+  box-shadow: 0 0 0 1px rgba(94, 234, 212, 0.5);
 }
+
+.balance-plus-btn {
+  margin-left: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: none;
+  background: #1d4ed8;          /* синий круг как на скрине */
+  color: #e5e7eb;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.8);
+}
+
 
 .balance-label {
 	font-size: 11px;
@@ -1059,4 +1078,5 @@ body {
 .prize-emoji .gift-icon { width: 28px; height: 28px; }
 .inventory-item-emoji .gift-icon { width: 32px; height: 32px; }
 .modal-prize-emoji .gift-icon { width: 72px; height: 72px; }
+
 
