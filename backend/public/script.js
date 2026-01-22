@@ -738,9 +738,11 @@ function drawCrashGraph() {
   const w = rect.width
   const h = rect.height
 
+  // очищаем канвас
   crashCtx.clearRect(0, 0, w, h)
 
-  crashCtx.strokeStyle = 'rgba(148, 163, 184, 0.14)'
+  // более мягкая сетка, не перебивает фон
+  crashCtx.strokeStyle = 'rgba(148, 163, 184, 0.06)'
   crashCtx.lineWidth = 1
   for (let i = 0; i <= 4; i++) {
     const y = (h / 4) * i
@@ -754,10 +756,11 @@ function drawCrashGraph() {
     const maxYMult = Math.max(crashPoint || 2, 2)
     const progress = Math.min((crashMultiplier - 1) / (maxYMult - 1), 1)
 
+    // линия графика чуть прозрачнее
     crashCtx.strokeStyle =
       crashState === 'crashed'
-        ? 'rgba(248, 113, 113, 0.6)'
-        : 'rgba(56, 189, 248, 0.6)'
+        ? 'rgba(248, 113, 113, 0.4)'
+        : 'rgba(56, 189, 248, 0.45)'
     crashCtx.lineWidth = 2
     crashCtx.beginPath()
     crashCtx.moveTo(0, h)
@@ -772,6 +775,10 @@ function drawCrashGraph() {
     }
     crashCtx.stroke()
   }
+
+  // ракеты больше нет, ничего не вызываем
+}
+
 
   updateRocketPosition()
 }
@@ -935,6 +942,7 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
 
 
 
