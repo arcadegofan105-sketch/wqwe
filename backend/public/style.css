@@ -791,6 +791,53 @@ body {
 	box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
 }
 
+.deposit-tabs {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.deposit-tab {
+  flex: 1;
+  padding: 8px 0;
+  border-radius: 12px;
+  border: 1px solid rgba(37, 99, 235, 0.4);
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5e7eb;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.deposit-tab.active {
+  background: rgba(15, 23, 42, 0.9);
+  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.9);
+}
+
+.deposit-body {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.deposit-subtitle {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.deposit-form {
+  margin-top: 10px;
+  width: 100%;
+}
+
+.deposit-label {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 6px;
+  color: #94a3b8;
+}
+
+
 /* Pepe icon (instead of 🐸) */
 .pepe-icon {
 	display: inline-block;
@@ -1078,5 +1125,6 @@ body {
 .prize-emoji .gift-icon { width: 28px; height: 28px; }
 .inventory-item-emoji .gift-icon { width: 32px; height: 32px; }
 .modal-prize-emoji .gift-icon { width: 72px; height: 72px; }
+
 
 
