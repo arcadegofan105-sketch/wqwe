@@ -101,6 +101,15 @@ const withdrawCancelBtn = document.getElementById('withdraw-cancel')
 const withdrawConfirmBtn = document.getElementById('withdraw-confirm')
 const withdrawBalanceHint = document.getElementById('withdraw-balance-hint')
 
+// ✅ Deposit TON modal (новая модалка)
+const depositModal = document.getElementById('deposit-modal')
+const openDepositPlusBtn = document.getElementById('open-deposit-modal')
+const depositAmountInput = document.getElementById('deposit-amount-input')
+const depositConfirmBtn = document.getElementById('deposit-confirm')
+const depositCancelBtn = document.getElementById('deposit-cancel')
+const connectTonBtn = document.getElementById('connect-ton-btn')
+
+
 // ===== STATE =====
 let currentRotation = 0
 let balance = 0
@@ -473,71 +482,110 @@ promoApplyBtn?.addEventListener('click', async () => {
 	}
 })
 
-// ✅ DEPOSIT TON (auto)
-depositBtn?.addEventListener('click', async () => {
-	try {
-		if (!isWalletConnected()) {
-			alert('Сначала подключи TON-кошелёк (Connect wallet).')
-			return
-		}
+// ✅ DEPOSIT TON (auto) через модалку
 
-		let minDeposit = MIN_DEPOSIT_TON
-		try {
-			const info = await depositInfoApi()
-			minDeposit = Number(info.minDeposit ?? MIN_DEPOSIT_TON)
-		} catch (_) {}
-
-		const raw = prompt(`Введите сумму депозита (минимум ${minDeposit} TON):`, String(minDeposit))
-		if (raw === null) return
-
-		const amountTon = Number(String(raw).replace(',', '.').trim())
-		if (!Number.isFinite(amountTon) || amountTon <= 0) {
-			alert('Введите корректную сумму')
-			return
-		}
-		if (amountTon < minDeposit) {
-			alert(`Минимум ${minDeposit} TON`)
-			return
-		}
-
-		depositBtn.disabled = true
-
-		const dep = await depositCreateApi(amountTon)
-
-		const tx = {
-			validUntil: Math.floor(Date.now() / 1000) + 360,
-			messages: [
-				{
-					address: dep.address,
-					amount: toNanoString(dep.amount),
-					payload: dep.payloadBase64,
-				},
-			],
-		}
-
-		await tonConnectUI.sendTransaction(tx, {
-			modals: ['before', 'success', 'error'],
-			notifications: ['before', 'success', 'error'],
-			skipRedirectToWallet: 'never',
-		})
-
-		for (let i = 0; i < 12; i++) {
-			await sleep(5000)
-			const r = await depositCheckApi(dep.depositId)
-			if (r.credited) {
-				await fetchUserData()
-				alert(`Депозит зачислен: +${Number(dep.amount).toFixed(2)} TON`)
-				return
-			}
-		}
-
-		alert('Транзакция отправлена. Если не зачислилось — подожди 1–2 минуты и попробуй ещё раз.')
-	} catch (err) {
-		alert(err.message || 'Ошибка депозита')
-	} finally {
-		updateDepositButtonState()
-	}
+// открыть модалку из профиля (кнопка "Депозит TON")
+depositBtn?.addEventListener('click', () => {
+  if (!depositModal) return
+  const connected = isWalletConnected()
+  if (depositAmountInput) depositAmountInput.disabled = !connected
+  if (depositConfirmBtn) depositConfirmBtn.disabled = !connected
+  depositModal.classList.add('active')
 })
+
+// открыть модалку по синей кнопке "+" рядом с балансом
+openDepositPlusBtn?.addEventListener('click', () => {
+  if (!depositModal) return
+  const connected = isWalletConnected()
+  if (depositAmountInput) depositAmountInput.disabled = !connected
+  if (depositConfirmBtn) depositConfirmBtn.disabled = !connected
+  depositModal.classList.add('active')
+})
+
+// закрыть модалку
+depositCancelBtn?.addEventListener('click', () => {
+  if (!depositModal) return
+  depositModal.classList.remove('active')
+})
+
+// подключение кошелька из модалки
+connectTonBtn?.addEventListener('click', async () => {
+  try {
+    await tonConnectUI.openModal()
+  } catch (_) {}
+
+  const connected = isWalletConnected()
+  if (depositAmountInput) depositAmountInput.disabled = !connected
+  if (depositConfirmBtn) depositConfirmBtn.disabled = !connected
+})
+
+// подтверждение депозита
+depositConfirmBtn?.addEventListener('click', async () => {
+  try {
+    if (!isWalletConnected()) {
+      alert('Сначала подключи TON-кошелёк.')
+      return
+    }
+
+    let minDeposit = MIN_DEPOSIT_TON
+    try {
+      const info = await depositInfoApi()
+      minDeposit = Number(info.minDeposit ?? MIN_DEPOSIT_TON)
+    } catch (_) {}
+
+    const raw = String(depositAmountInput?.value || '').replace(',', '.').trim()
+    const amountTon = Number(raw)
+
+    if (!Number.isFinite(amountTon) || amountTon <= 0) {
+      alert('Введите корректную сумму')
+      return
+    }
+    if (amountTon < minDeposit) {
+      alert(`Минимум ${minDeposit} TON`)
+      return
+    }
+
+    depositConfirmBtn.disabled = true
+
+    const dep = await depositCreateApi(amountTon)
+
+    const tx = {
+      validUntil: Math.floor(Date.now() / 1000) + 360,
+      messages: [
+        {
+          address: dep.address,
+          amount: toNanoString(dep.amount),
+          payload: dep.payloadBase64,
+        },
+      ],
+    }
+
+    await tonConnectUI.sendTransaction(tx, {
+      modals: ['before', 'success', 'error'],
+      notifications: ['before', 'success', 'error'],
+      skipRedirectToWallet: 'never',
+    })
+
+    for (let i = 0; i < 12; i++) {
+      await sleep(5000)
+      const r = await depositCheckApi(dep.depositId)
+      if (r.credited) {
+        await fetchUserData()
+        alert(`Депозит зачислен: +${Number(dep.amount).toFixed(2)} TON`)
+        depositModal.classList.remove('active')
+        return
+      }
+    }
+
+    alert('Транзакция отправлена. Если не зачислилось — подожди 1–2 минуты и попробуй ещё раз.')
+  } catch (err) {
+    alert(err.message || 'Ошибка депозита')
+  } finally {
+    depositConfirmBtn.disabled = false
+    updateDepositButtonState()
+  }
+})
+
 
 // ✅ open withdraw TON modal
 withdrawBtn?.addEventListener('click', () => {
@@ -801,4 +849,5 @@ window.addEventListener('resize', () => {
 		alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
 	}
 })()
+
 
