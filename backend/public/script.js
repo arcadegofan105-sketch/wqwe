@@ -256,22 +256,44 @@ function updateTelegramUserUI() {
 
 // ===== TON CONNECT (deposit lock) =====
 function isWalletConnected() {
-	return Boolean(tonConnectUI?.account?.address)
+  return Boolean(tonConnectUI?.account?.address)
+}
+
+function formatAddress(addr) {
+  if (!addr) return ''
+  return addr.slice(0, 4) + '…' + addr.slice(-3)
+}
+
+function updateWalletStatusUI() {
+  if (!walletStatusBtn) return
+  const connected = isWalletConnected()
+
+  if (!connected) {
+    walletStatusBtn.classList.remove('wallet-status-connected')
+    walletStatusBtn.classList.add('wallet-status-disconnected')
+    walletStatusBtn.textContent = '+'
+    return
+  }
+
+  const addr = tonConnectUI.account?.address || ''
+  walletStatusBtn.classList.remove('wallet-status-disconnected')
+  walletStatusBtn.classList.add('wallet-status-connected')
+  walletStatusBtn.innerHTML = `<span>${formatAddress(addr)}</span>`
 }
 
 function updateDepositButtonState() {
-	if (!depositBtn) return
-	depositBtn.disabled = !isWalletConnected()
-	if (depositBtn.disabled) {
-		depositBtn.title = 'Сначала подключи TON-кошелёк'
-	} else {
-		depositBtn.title = ''
-	}
+  if (depositBtn) {
+    const connected = isWalletConnected()
+    depositBtn.disabled = !connected
+    depositBtn.title = connected ? '' : 'Сначала подключи TON-кошелёк'
+  }
+  updateWalletStatusUI()
 }
 
 tonConnectUI.onStatusChange(() => {
-	updateDepositButtonState()
+  updateDepositButtonState()
 })
+
 
 // ===== API (initData auth) =====
 async function apiPost(path, body = {}) {
@@ -343,6 +365,45 @@ function sleep(ms) {
 }
 
 // ===== EVENTS =====
+// клик по статусу кошелька рядом с балансом
+walletStatusBtn?.addEventListener('click', async () => {
+  const connected = isWalletConnected()
+
+  // если не подключен — открыть окно TonConnect
+  if (!connected) {
+    try {
+      await tonConnectUI.openModal()
+    } catch (_) {}
+    updateDepositButtonState()
+    return
+  }
+
+  // если подключен — простое меню: скопировать или отключить
+  const addr = tonConnectUI.account?.address || ''
+  const short = formatAddress(addr)
+
+  const action = prompt(
+    `Кошелёк ${short}\n\nНапиши:\n1 — скопировать адрес\n2 — отключить кошелёк`,
+    '1'
+  )
+
+  if (action === '1') {
+    try {
+      await navigator.clipboard.writeText(addr)
+      alert('Адрес скопирован.')
+    } catch (_) {
+      alert(addr)
+    }
+  }
+
+  if (action === '2') {
+    try {
+      await tonConnectUI.disconnect()
+    } catch (_) {}
+    updateDepositButtonState()
+  }
+})
+
 navButtons.forEach(btn => {
 	btn.addEventListener('click', () => setScreen(btn.dataset.target))
 })
@@ -852,6 +913,7 @@ window.addEventListener('resize', () => {
 		alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
 	}
 })()
+
 
 
 
