@@ -387,77 +387,51 @@ function sleep(ms) {
 }
 
 // ===== EVENTS =====
-// клик по статусу кошелька рядом с балансом
-walletStatusBtn?.addEventListener('click', async () => {
+// клик по статусу кошелька рядом с балансом: открыть меню пополнения
+walletStatusBtn?.addEventListener('click', () => {
+  if (!depositModal) return
   const connected = isWalletConnected()
 
-  // если не подключен — открыть окно TonConnect
-  if (!connected) {
-    try {
-      await tonConnectUI.openModal()
-    } catch (_) {}
-    updateDepositButtonState()
-    return
-  }
+  // включаем / выключаем поля в модалке
+  if (depositAmountInput) depositAmountInput.disabled = !connected
+  if (depositConfirmBtn) depositConfirmBtn.disabled = !connected
 
-  // если подключен — простое меню: скопировать или отключить
-  const addr = tonConnectUI.account?.address || ''
-  const short = formatAddress(addr)
-
-  const action = prompt(
-    `Кошелёк ${short}\n\nНапиши:\n1 — скопировать адрес\n2 — отключить кошелёк`,
-    '1'
-  )
-
-  if (action === '1') {
-    try {
-      await navigator.clipboard.writeText(addr)
-      alert('Адрес скопирован.')
-    } catch (_) {
-      alert(addr)
-    }
-  }
-
-  if (action === '2') {
-    try {
-      await tonConnectUI.disconnect()
-    } catch (_) {}
-    updateDepositButtonState()
-  }
+  depositModal.classList.add('active')
 })
 
 navButtons.forEach(btn => {
-	btn.addEventListener('click', () => setScreen(btn.dataset.target))
+  btn.addEventListener('click', () => setScreen(btn.dataset.target))
 })
 
 spinButton?.addEventListener('click', async e => {
-	e.preventDefault()
-	e.stopPropagation()
-	if (isSpinning) return
-	if (prizeModal?.classList.contains('active')) return
-	if (withdrawModal?.classList.contains('active')) return
+  e.preventDefault()
+  e.stopPropagation()
+  if (isSpinning) return
+  if (prizeModal?.classList.contains('active')) return
+  if (withdrawModal?.classList.contains('active')) return
 
-	if (balance < SPIN_PRICE) {
-		alert('Недостаточно средств. Нужно минимум 1 TON.')
-		return
-	}
+  if (balance < SPIN_PRICE) {
+    alert('Недостаточно средств. Нужно минимум 1 TON.')
+    return
+  }
 
-	isSpinning = true
-	spinButton.disabled = true
+  isSpinning = true
+  spinButton.disabled = true
 
-	let prizeData = null
-	try {
-		prizeData = await spinApi()
-	} catch (err) {
-		alert(err.message || 'Ошибка при прокрутке')
-		isSpinning = false
-		spinButton.disabled = false
-		return
-	}
+  let prizeData = null
+  try {
+    prizeData = await spinApi()
+  } catch (err) {
+    alert(err.message || 'Ошибка при прокрутке')
+    isSpinning = false
+    spinButton.disabled = false
+    return
+  }
 
-	currentPrize = prizeData.prize
-	balance = Number(prizeData.newBalance ?? balance - SPIN_PRICE)
-	updateBalanceUI()
+  currentPrize = prizeData.prize
+  balance = Number(prizeData.newBalance ?? balance - SPIN_PRICE)
+  updateBalanceUI()
+
 
 	// ✅ ВСЕГДА крутим на мишку (визуально тоже!)
 	const bearIndex = wheelSectors.findIndex(s => s?.name === 'Мишка')
@@ -940,6 +914,7 @@ window.addEventListener('resize', () => {
 		alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
 	}
 })()
+
 
 
 
