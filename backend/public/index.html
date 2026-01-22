@@ -336,6 +336,48 @@
 
 <!-- Ваш основной скрипт -->
 <script src="script.js"></script>
+<!-- Модалка пополнения TON -->
+<div id="deposit-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-title">Пополнение баланса</div>
+
+    <div class="deposit-tabs">
+      <button class="deposit-tab active">TON</button>
+    </div>
+
+    <div class="deposit-body">
+      <div class="deposit-subtitle">Заполните данные</div>
+
+      <button id="connect-ton-btn" class="modal-btn modal-btn-keep" type="button">
+        Подключите TON кошелёк
+      </button>
+
+      <div class="deposit-form">
+        <label class="deposit-label">Сумма пополнения (TON)</label>
+        <input
+          id="deposit-amount-input"
+          class="modal-input"
+          type="number"
+          min="0.1"
+          step="0.01"
+          placeholder="Введите сумму..."
+          disabled
+        />
+      </div>
+    </div>
+
+    <div class="modal-buttons">
+      <button id="deposit-cancel" class="modal-btn modal-btn-sell" type="button">
+        Закрыть
+      </button>
+      <button id="deposit-confirm" class="modal-btn modal-btn-keep" type="button" disabled>
+        Пополнить
+      </button>
+    </div>
+  </div>
+</div>
+
+    
 
   </body>
 </html>
