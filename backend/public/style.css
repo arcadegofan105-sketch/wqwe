@@ -1392,6 +1392,39 @@ body {
   font-weight: 600;
 }
 
+/* === GAME CARDS: КРАШ и КОЛЕСО на главной === */
+
+.info-row-games {
+  margin-bottom: 16px;
+}
+
+.game-card {
+  flex: 1;
+  border: none;
+  padding: 0;
+  background: transparent;
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.75);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+}
+
+.game-card-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 20px;
+}
+
+/* лёгкий эффект клика */
+.game-card:active {
+  transform: scale(0.97);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.9);
+  filter: brightness(0.97);
+}
+
+
 
 
 
