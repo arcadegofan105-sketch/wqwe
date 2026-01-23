@@ -85,7 +85,6 @@ const screens = {
   profile: document.getElementById('screen-profile'),
 }
 
-
 const depositBtn = document.getElementById('deposit-btn')
 const withdrawBtn = document.getElementById('withdraw-btn')
 
@@ -98,14 +97,14 @@ const modalKeepBtn = document.getElementById('modal-keep')
 
 const inventoryList = document.getElementById('inventory-list')
 
-// ✅ Withdraw TON modal
+// Withdraw modal
 const withdrawModal = document.getElementById('withdraw-modal')
 const withdrawAmountInput = document.getElementById('withdraw-amount-input')
 const withdrawCancelBtn = document.getElementById('withdraw-cancel')
 const withdrawConfirmBtn = document.getElementById('withdraw-confirm')
 const withdrawBalanceHint = document.getElementById('withdraw-balance-hint')
 
-// ✅ Deposit TON modal
+// Deposit modal
 const depositModal = document.getElementById('deposit-modal')
 const openDepositPlusBtn = document.getElementById('open-deposit-modal')
 const depositAmountInput = document.getElementById('deposit-amount-input')
@@ -228,30 +227,6 @@ function setScreen(name) {
   })
 }
 
-// ---- ниже, отдельно, вне функции ----
-
-// навигация по вкладкам
-navButtons.forEach(btn => {
-  btn.addEventListener('click', () => setScreen(btn.dataset.target))
-})
-
-// клики по карточкам на главной (Краш / Колесо / Кейсы)
-document.querySelectorAll('[data-home-target]').forEach(card => {
-  card.addEventListener('click', () => {
-    const target = card.getAttribute('data-home-target')
-
-    if (target === 'crash' || target === 'wheel') {
-      setScreen(target)
-      return
-    }
-
-    if (target === 'cases') {
-      alert('Раздел кейсов скоро добавим.')
-    }
-  })
-})
-
-
 function updateTelegramUserUI() {
   if (!telegramUser) return
 
@@ -294,10 +269,9 @@ function updateWalletStatusUI() {
     walletStatusBtn.classList.add('wallet-status-connected')
   }
 
+  // всегда показываем "+"
   walletStatusBtn.textContent = '+'
 }
-
-
 
 function updateConnectButtonUI() {
   if (!connectTonBtn) return
@@ -317,9 +291,8 @@ function updateConnectButtonUI() {
   `
 }
 
-
 function updateDepositButtonState() {
-  // кнопка "Депозит TON" всегда активна, просто меняем подсказку
+  // кнопка "Депозит TON" всегда активна
   if (depositBtn) {
     const connected = isWalletConnected()
     depositBtn.disabled = false
@@ -328,7 +301,6 @@ function updateDepositButtonState() {
   updateWalletStatusUI()
   updateConnectButtonUI()
 }
-
 
 tonConnectUI.onStatusChange(() => {
   updateDepositButtonState()
@@ -408,6 +380,22 @@ function sleep(ms) {
 // навигация по вкладкам
 navButtons.forEach(btn => {
   btn.addEventListener('click', () => setScreen(btn.dataset.target))
+})
+
+// клики по карточкам на главной (Краш / Колесо / Кейсы)
+document.querySelectorAll('[data-home-target]').forEach(card => {
+  card.addEventListener('click', () => {
+    const target = card.getAttribute('data-home-target')
+
+    if (target === 'crash' || target === 'wheel') {
+      setScreen(target)
+      return
+    }
+
+    if (target === 'cases') {
+      alert('Раздел кейсов скоро добавим.')
+    }
+  })
 })
 
 // крутилка
@@ -549,35 +537,17 @@ promoApplyBtn?.addEventListener('click', async () => {
 
 // ===== DEPOSIT TON =====
 
-// единый обработчик для всех депозит‑кнопок
 function openDepositModalFromAnyButton() {
   if (!depositModal) return
   const connected = isWalletConnected()
-  // модалка всегда открывается
   if (depositAmountInput) depositAmountInput.disabled = !connected
   if (depositConfirmBtn) depositConfirmBtn.disabled = !connected
   depositModal.classList.add('active')
 }
 
-// + рядом с балансом
 walletStatusBtn?.addEventListener('click', openDepositModalFromAnyButton)
-
-// "Депозит TON" в профиле
 depositBtn?.addEventListener('click', openDepositModalFromAnyButton)
-
-// доп. плюс‑кнопка (если есть в разметке)
 openDepositPlusBtn?.addEventListener('click', openDepositModalFromAnyButton)
-
-
-
-
-openDepositPlusBtn?.addEventListener('click', () => {
-  if (!depositModal) return
-  const connected = isWalletConnected()
-  if (depositAmountInput) depositAmountInput.disabled = !connected
-  if (depositConfirmBtn) depositConfirmBtn.disabled = !connected
-  depositModal.classList.add('active')
-})
 
 depositCancelBtn?.addEventListener('click', () => {
   if (!depositModal) return
@@ -709,7 +679,6 @@ const crashPlayBtn = document.getElementById('crash-play-btn')
 const crashCashoutBtn = document.getElementById('crash-cashout-btn')
 const crashCurrentBetEl = document.getElementById('crash-current-bet')
 const crashPotentialWinEl = document.getElementById('crash-potential-win')
-const crashRocketEl = document.getElementById('crash-rocket') // ← вот здесь
 
 let crashState = 'idle'
 let crashMultiplier = 1.0
@@ -717,7 +686,7 @@ let crashPoint = null
 let crashBetAmount = 0
 let crashAnimFrame = null
 let crashStartTime = null
-let crashTime = 8000 // время полёта до краша, мс
+let crashTime = 8000 // мс
 
 function initCrashCanvas() {
   if (!crashCanvas || !crashCtx) return
@@ -735,52 +704,14 @@ function generateCrashPoint() {
   return 5.0 + Math.random() * 10.0
 }
 
-function updateRocketPosition() {
-  if (!crashRocketEl || !crashCanvas) return
-
-  const rect = crashCanvas.getBoundingClientRect()
-  const w = rect.width
-  const h = rect.height
-
-  const maxYMult = Math.max(crashPoint || 2, 2)
-  const t = Math.min((crashMultiplier - 1) / (maxYMult - 1), 1)
-
-  // вертикальная дуга по центру
-  const startX = w * 0.5
-  const endX = w * 0.5
-  const startY = h * 0.75
-  const endY = h * 0.25
-  const cx = w * 0.5
-  const cy = h * 0.05
-
-  const oneMinusT = 1 - t
-  const x =
-    oneMinusT * oneMinusT * startX +
-    2 * oneMinusT * t * cx +
-    t * t * endX
-  const y =
-    oneMinusT * oneMinusT * startY +
-    2 * oneMinusT * t * cy +
-    t * t * endY
-
-  // ракета всегда «ровно», без поворота
-  const dx = x - w / 2
-  const dy = y - h * 0.6
-
-  crashRocketEl.style.transform =
-    `translate(-50%, -50%) translate(${dx}px, ${dy}px)`
-}
-
 function drawCrashGraph() {
   if (!crashCtx || !crashCanvas) return
   const rect = crashCanvas.getBoundingClientRect()
   const w = rect.width
   const h = rect.height
 
-  // очищаем канвас
   crashCtx.clearRect(0, 0, w, h)
 
-  // более мягкая сетка, не перебивает фон
   crashCtx.strokeStyle = 'rgba(148, 163, 184, 0.06)'
   crashCtx.lineWidth = 1
   for (let i = 0; i <= 4; i++) {
@@ -795,7 +726,6 @@ function drawCrashGraph() {
     const maxYMult = Math.max(crashPoint || 2, 2)
     const progress = Math.min((crashMultiplier - 1) / (maxYMult - 1), 1)
 
-    // линия графика чуть прозрачнее
     crashCtx.strokeStyle =
       crashState === 'crashed'
         ? 'rgba(248, 113, 113, 0.4)'
@@ -814,8 +744,6 @@ function drawCrashGraph() {
     }
     crashCtx.stroke()
   }
-
-  // ракеты больше нет, ничего не вызываем
 }
 
 function updateCrashMultiplierUI() {
@@ -843,7 +771,6 @@ function animateCrash() {
     return
   }
 
-  // экспоненциальный рост как в рефе
   crashMultiplier = Math.exp(timeProgress * Math.log(crashTime / 1000))
 
   if (crashMultiplier >= crashPoint) {
@@ -858,7 +785,6 @@ function animateCrash() {
   drawCrashGraph()
   crashAnimFrame = requestAnimationFrame(animateCrash)
 }
-
 
 async function startCrash() {
   if (crashState !== 'idle') return
@@ -886,7 +812,7 @@ async function startCrash() {
   crashMultiplier = 1.0
   crashState = 'playing'
   crashStartTime = Date.now()
-  crashTime = 8000 // можно потом вынести в конфиг
+  crashTime = 8000
 
   if (crashStatusEl) {
     crashStatusEl.textContent = 'Летим...'
@@ -978,16 +904,3 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
-
-
-
-
-
-
-
-
-
-
-
-
-
