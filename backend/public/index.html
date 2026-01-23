@@ -131,70 +131,72 @@
           </div>
         </section>
 
-        <!-- Экран КРАШ -->
-        <section id="screen-crash" class="screen">
-          <div class="screen-title">🚀 Краш</div>
-          <div class="screen-subtitle">
-            Выведите деньги до того, как ракета взорвётся!
-          </div>
+     <!-- Экран КРАШ -->
+<section id="screen-crash" class="screen">
+  <div class="screen-title">🚀 Краш</div>
+  <div class="screen-subtitle">
+    Выведите деньги до того, как ракета взорвётся!
+  </div>
 
-          <div class="crash-container">
-            <div class="crash-game-area">
-              <div class="crash-stars crash-stars-back"></div>
-              <div class="crash-stars crash-stars-front"></div>
+  <div class="crash-container">
+    <div class="crash-game-area">
+      <div class="crash-stars crash-stars-back"></div>
+      <div class="crash-stars crash-stars-front"></div>
 
-              <canvas id="crash-canvas"></canvas>
-              <div class="crash-multiplier" id="crash-multiplier">1.00x</div>
-              <div class="crash-status" id="crash-status">Скоро взлетаем</div>
-            </div>
+      <canvas id="crash-canvas"></canvas>
+      <div class="crash-multiplier" id="crash-multiplier">1.00x</div>
+      <div class="crash-status" id="crash-status">Скоро взлетаем</div>
+    </div>
 
-            <button id="crash-play-btn" class="crash-main-btn">
-              Сделать ставку
-            </button>
+    <!-- ОДНА основная кнопка: Сделать ставку / Забрать -->
+    <button id="crash-main-action" class="crash-main-btn">
+      Сделать ставку
+    </button>
 
-            <div class="crash-panel">
-              <div class="crash-bet-block">
-                <div class="crash-bet-label">Ставка (TON)</div>
-                <div class="crash-bet-input-row">
-                  <input
-                    type="number"
-                    id="crash-bet-input"
-                    class="crash-bet-input"
-                    placeholder="0.10"
-                    min="0.1"
-                    step="0.1"
-                    value="1"
-                  />
-                </div>
-              </div>
+    <div class="crash-panel">
+      <div class="crash-bet-block">
+        <div class="crash-bet-label">Ставка (TON)</div>
+        <div class="crash-bet-input-row">
+          <input
+            type="number"
+            id="crash-bet-input"
+            class="crash-bet-input"
+            placeholder="0.10"
+            min="0.1"
+            step="0.1"
+            value="1"
+          />
+        </div>
+      </div>
 
-              <div class="crash-auto-block">
-                <div class="crash-bet-label">Авто-вывод (x)</div>
-                <div class="crash-auto-placeholder">
-                  Скоро добавим
-                </div>
-              </div>
-            </div>
+      <div class="crash-auto-block">
+        <div class="crash-bet-label">Авто-вывод (x)</div>
+        <div class="crash-bet-input-row">
+          <input
+            type="number"
+            id="crash-auto-input"
+            class="crash-bet-input"
+            placeholder="Например: 2.5"
+            min="1.1"
+            step="0.1"
+          />
+        </div>
+      </div>
+    </div>
 
-            <div class="crash-info">
-              <div class="crash-info-item">
-                <span class="crash-info-label">Ваша ставка:</span>
-                <span class="crash-info-value" id="crash-current-bet">—</span>
-              </div>
-              <div class="crash-info-item">
-                <span class="crash-info-label">Потенциальный выигрыш:</span>
-                <span class="crash-info-value" id="crash-potential-win">—</span>
-              </div>
-              <button
-                id="crash-cashout-btn"
-                class="crash-secondary-btn"
-                disabled
-              >
-                Вывести сейчас
-              </button>
-            </div>
-          </div>
-        </section>
+    <div class="crash-info">
+      <div class="crash-info-item">
+        <span class="crash-info-label">Ваша ставка:</span>
+        <span class="crash-info-value" id="crash-current-bet">—</span>
+      </div>
+      <div class="crash-info-item">
+        <span class="crash-info-label">Потенциальный выигрыш:</span>
+        <span class="crash-info-value" id="crash-potential-win">—</span>
+      </div>
+    </div>
+  </div>
+</section>
+
 
         <!-- Экран КЕЙСЫ -->
         <section id="screen-cases" class="screen">
@@ -572,6 +574,7 @@
     <script src="script.js"></script>
   </body>
 </html>
+
 
 
 
