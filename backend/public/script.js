@@ -373,19 +373,13 @@ function sleep(ms) {
 }
 
 // ===== EVENTS =====
-// клик по статусу кошелька рядом с балансом: открыть меню пополнения
-walletStatusBtn?.addEventListener('click', () => {
-  if (!depositModal) return
-  const connected = isWalletConnected()
-  if (depositAmountInput) depositAmountInput.disabled = !connected
-  if (depositConfirmBtn) depositConfirmBtn.disabled = !connected
-  depositModal.classList.add('active')
-})
 
+// навигация по вкладкам
 navButtons.forEach(btn => {
   btn.addEventListener('click', () => setScreen(btn.dataset.target))
 })
 
+// крутилка
 spinButton?.addEventListener('click', async e => {
   e.preventDefault()
   e.stopPropagation()
@@ -522,25 +516,27 @@ promoApplyBtn?.addEventListener('click', async () => {
   }
 })
 
-// DEPOSIT TON
+// ===== DEPOSIT TON =====
 
+// единый обработчик для всех депозит‑кнопок
 function openDepositModalFromAnyButton() {
   if (!depositModal) return
   const connected = isWalletConnected()
-  // модалка всегда открывается, просто блокируем ввод/подтверждение, если нет кошелька
+  // модалка всегда открывается
   if (depositAmountInput) depositAmountInput.disabled = !connected
   if (depositConfirmBtn) depositConfirmBtn.disabled = !connected
   depositModal.classList.add('active')
 }
 
-// клик по + рядом с балансом
+// + рядом с балансом
 walletStatusBtn?.addEventListener('click', openDepositModalFromAnyButton)
 
-// клик по "Депозит TON" в профиле
+// "Депозит TON" в профиле
 depositBtn?.addEventListener('click', openDepositModalFromAnyButton)
 
-// если у тебя ещё есть openDepositPlusBtn в другом месте — тоже на ту же функцию
+// доп. плюс‑кнопка (если есть в разметке)
 openDepositPlusBtn?.addEventListener('click', openDepositModalFromAnyButton)
+
 
 
 
@@ -951,6 +947,7 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
 
 
 
