@@ -24,6 +24,18 @@ export function startBot() {
     await bot.sendMessage(chatId, text, {
       parse_mode: "HTML",
       reply_markup: {
+        // это КЛАВИАТУРА под полем ввода
+        keyboard: [
+          [{ text: "start" }],          // кнопка как на скрине
+        ],
+        resize_keyboard: true,
+        one_time_keyboard: false,
+      },
+    });
+
+    // при желании можно следом отправить и твой inline‑клавиатурный web_app
+    await bot.sendMessage(chatId, "Меню:", {
+      reply_markup: {
         inline_keyboard: [
           [{ text: "Начать", web_app: { url: WEBAPP_URL } }],
           [{ text: "Поддержка", url: "https://t.me/modergw" }],
