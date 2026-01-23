@@ -685,6 +685,7 @@ let crashMultiplier = 1.0
 let crashPoint = null
 let crashBetAmount = 0
 let crashAutoCashoutAt = null     // множитель авто-вывода
+let crashHasCashedOut = false     // игрок уже забрал или нет
 let crashAnimFrame = null
 let crashStartTime = null
 let crashTime = 8000 // мс
@@ -698,11 +699,22 @@ function initCrashCanvas() {
   crashCtx.setTransform(dpr, 0, 0, dpr, 0, 0)
 }
 
+// распределение шансов:
+// ~99%: 1.01–1.8x
+// ~0.91%: 1.8–3.0x
+// ~0.09%: 3.0–7.0x
 function generateCrashPoint() {
   const rand = Math.random() * 100
-  if (rand < 99) return 1.2 + Math.random() * 0.8
-  if (rand < 99.9) return 2.0 + Math.random() * 2.0
-  return 5.0 + Math.random() * 10.0
+
+  if (rand < 99) {
+    return 1.01 + Math.random() * (1.8 - 1.01)
+  }
+
+  if (rand < 99.91) {
+    return 1.8 + Math.random() * (3.0 - 1.8)
+  }
+
+  return 3.0 + Math.random() * (7.0 - 3.0)
 }
 
 function drawCrashGraph() {
@@ -788,8 +800,14 @@ function animateCrash() {
     return
   }
 
-  crashMultiplier = Math.exp(timeProgress * Math.log(crashTime / 1000))
+  // экспоненциальный рост: медленно в начале, быстро к концу
+  const base = 1.7 // можно 1.5–2.0 для настройки агрессии
+  const expProgress =
+    (Math.exp(base * timeProgress) - 1) / (Math.exp(base) - 1)
 
+  crashMultiplier = 1 + (crashPoint - 1) * expProgress
+
+  // защита: не перепрыгнуть точку краша
   if (crashMultiplier >= crashPoint) {
     crashMultiplier = crashPoint
     updateCrashMultiplierUI()
@@ -802,10 +820,11 @@ function animateCrash() {
   if (
     crashAutoCashoutAt &&
     crashMultiplier >= crashAutoCashoutAt &&
-    crashState === 'playing'
+    crashState === 'playing' &&
+    !crashHasCashedOut
   ) {
     cashoutCrash(true)
-    return
+    // график всё равно продолжит анимацию до crashPoint
   }
 
   updateCrashMultiplierUI()
@@ -850,6 +869,7 @@ async function startCrash() {
   crashPoint = generateCrashPoint()
   crashMultiplier = 1.0
   crashState = 'playing'
+  crashHasCashedOut = false
   crashStartTime = Date.now()
   crashTime = 8000
 
@@ -865,6 +885,7 @@ async function startCrash() {
 
 async function cashoutCrash(isAuto = false) {
   if (crashState !== 'playing') return
+  if (crashHasCashedOut) return
 
   const winAmount = crashBetAmount * crashMultiplier
 
@@ -872,7 +893,15 @@ async function cashoutCrash(isAuto = false) {
     const r = await apiPost('/crash/cashout', { amount: winAmount })
     balance = Number(r.newBalance ?? balance)
     updateBalanceUI()
-    endCrash(true, isAuto)
+
+    crashHasCashedOut = true
+
+    if (crashStatusEl) {
+      crashStatusEl.textContent = isAuto ? 'Авто-вывод!' : 'Вы забрали!'
+      crashStatusEl.style.color = '#22c55e'
+    }
+
+    updateCrashButtonUI()
   } catch (err) {
     alert(err.message || 'Ошибка вывода')
   }
@@ -883,14 +912,10 @@ function endCrash(cashedOut, isAuto = false) {
   if (crashAnimFrame) cancelAnimationFrame(crashAnimFrame)
   crashAnimFrame = null
 
-  if (crashStatusEl) {
-    if (cashedOut) {
-      crashStatusEl.textContent = isAuto ? 'Авто-вывод!' : 'Вы забрали!'
-      crashStatusEl.style.color = '#22c55e'
-    } else {
-      crashStatusEl.textContent = 'Бум!'
-      crashStatusEl.style.color = '#f97373'
-    }
+  // если игрок не успел забрать — показываем Бум
+  if (crashStatusEl && !crashHasCashedOut) {
+    crashStatusEl.textContent = 'Бум!'
+    crashStatusEl.style.color = '#f97373'
   }
 
   updateCrashMultiplierUI()
@@ -902,6 +927,7 @@ function endCrash(cashedOut, isAuto = false) {
     crashBetAmount = 0
     crashPoint = null
     crashAutoCashoutAt = null
+    crashHasCashedOut = false
 
     if (crashStatusEl) {
       crashStatusEl.textContent = 'Скоро взлетаем'
@@ -952,4 +978,5 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
 
