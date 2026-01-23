@@ -44,17 +44,26 @@
             Выберите режим: Краш, Колесо или Кейсы.
           </div>
 
-          <div class="info-row">
-            <div class="info-card" data-home-target="crash">
-              <div class="info-label">🚀 Краш</div>
-              <div class="info-value">Умножай ставку, успей вывести.</div>
-            </div>
-            <div class="info-card" data-home-target="wheel">
-              <div class="info-label">🎡 Колесо</div>
-              <div class="info-value">Спин за 1 TON и подарки.</div>
-            </div>
+          <!-- Карточки КРАШ и КОЛЕСО с изображениями -->
+          <div class="info-row info-row-games">
+            <button class="game-card game-card-crash" data-home-target="crash" type="button">
+              <img
+                src="backend/public/images/crashcard.png"
+                alt="Краш"
+                class="game-card-image"
+              />
+            </button>
+
+            <button class="game-card game-card-wheel" data-home-target="wheel" type="button">
+              <img
+                src="backend/public/images/colesocard.png"
+                alt="Колесо"
+                class="game-card-image"
+              />
+            </button>
           </div>
 
+          <!-- Кейсы оставляем как было -->
           <div class="bonus-card" data-home-target="cases">
             <div class="bonus-title">🎁 Кейсы</div>
             <div class="bonus-text">
