@@ -76,11 +76,15 @@ const promoApplyBtn = document.getElementById('promo-apply')
 
 const navButtons = document.querySelectorAll('.nav-btn')
 const screens = {
+  rewards: document.getElementById('screen-rewards'),
+  invite: document.getElementById('screen-invite'),
+  home: document.getElementById('screen-home'),
   wheel: document.getElementById('screen-wheel'),
   crash: document.getElementById('screen-crash'),
   bonus: document.getElementById('screen-bonus'),
   profile: document.getElementById('screen-profile'),
 }
+
 
 const depositBtn = document.getElementById('deposit-btn')
 const withdrawBtn = document.getElementById('withdraw-btn')
@@ -222,6 +226,22 @@ function setScreen(name) {
   navButtons.forEach(btn => {
     btn.classList.toggle('active', btn.dataset.target === name)
   })
+  // клики по карточкам на главной (Краш / Колесо / Кейсы)
+document.querySelectorAll('[data-home-target]').forEach(card => {
+  card.addEventListener('click', () => {
+    const target = card.getAttribute('data-home-target')
+
+    if (target === 'crash' || target === 'wheel') {
+      setScreen(target)
+      return
+    }
+
+    if (target === 'cases') {
+      alert('Раздел кейсов скоро добавим.')
+    }
+  })
+})
+
 }
 
 function updateTelegramUserUI() {
@@ -950,6 +970,7 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
 
 
 
