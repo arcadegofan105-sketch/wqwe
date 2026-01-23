@@ -675,15 +675,16 @@ const crashCtx = crashCanvas ? crashCanvas.getContext('2d') : null
 const crashMultiplierEl = document.getElementById('crash-multiplier')
 const crashStatusEl = document.getElementById('crash-status')
 const crashBetInput = document.getElementById('crash-bet-input')
-const crashPlayBtn = document.getElementById('crash-play-btn')
-const crashCashoutBtn = document.getElementById('crash-cashout-btn')
+const crashAutoInput = document.getElementById('crash-auto-input')
+const crashMainActionBtn = document.getElementById('crash-main-action')
 const crashCurrentBetEl = document.getElementById('crash-current-bet')
 const crashPotentialWinEl = document.getElementById('crash-potential-win')
 
-let crashState = 'idle'
+let crashState = 'idle'           // idle | playing | crashed
 let crashMultiplier = 1.0
 let crashPoint = null
 let crashBetAmount = 0
+let crashAutoCashoutAt = null     // множитель авто-вывода
 let crashAnimFrame = null
 let crashStartTime = null
 let crashTime = 8000 // мс
@@ -746,6 +747,21 @@ function drawCrashGraph() {
   }
 }
 
+function updateCrashButtonUI() {
+  if (!crashMainActionBtn) return
+
+  if (crashState === 'idle') {
+    crashMainActionBtn.textContent = 'Сделать ставку'
+    crashMainActionBtn.disabled = false
+  } else if (crashState === 'playing') {
+    crashMainActionBtn.textContent = 'Забрать'
+    crashMainActionBtn.disabled = false
+  } else {
+    crashMainActionBtn.textContent = 'Раунд завершён'
+    crashMainActionBtn.disabled = true
+  }
+}
+
 function updateCrashMultiplierUI() {
   if (crashMultiplierEl) crashMultiplierEl.textContent = `${crashMultiplier.toFixed(2)}x`
   if (crashBetAmount > 0 && crashPotentialWinEl) {
@@ -755,6 +771,7 @@ function updateCrashMultiplierUI() {
     crashCurrentBetEl.textContent =
       crashBetAmount > 0 ? `${crashBetAmount.toFixed(2)} TON` : '—'
   }
+  updateCrashButtonUI()
 }
 
 function animateCrash() {
@@ -781,6 +798,16 @@ function animateCrash() {
     return
   }
 
+  // авто-вывод
+  if (
+    crashAutoCashoutAt &&
+    crashMultiplier >= crashAutoCashoutAt &&
+    crashState === 'playing'
+  ) {
+    cashoutCrash(true)
+    return
+  }
+
   updateCrashMultiplierUI()
   drawCrashGraph()
   crashAnimFrame = requestAnimationFrame(animateCrash)
@@ -797,6 +824,18 @@ async function startCrash() {
   if (balance < crashBetAmount) {
     alert('Недостаточно средств.')
     return
+  }
+
+  // авто-вывод
+  const rawAuto = String(crashAutoInput?.value || '').replace(',', '.').trim()
+  crashAutoCashoutAt = null
+  if (rawAuto) {
+    const val = Number(rawAuto)
+    if (!Number.isFinite(val) || val < 1.1) {
+      alert('Авто-вывод: введите число не меньше 1.1')
+      return
+    }
+    crashAutoCashoutAt = val
   }
 
   try {
@@ -819,15 +858,12 @@ async function startCrash() {
     crashStatusEl.style.color = '#e5e7eb'
   }
 
-  if (crashPlayBtn) crashPlayBtn.disabled = true
-  if (crashCashoutBtn) crashCashoutBtn.disabled = false
-
   updateCrashMultiplierUI()
   drawCrashGraph()
   animateCrash()
 }
 
-async function cashoutCrash() {
+async function cashoutCrash(isAuto = false) {
   if (crashState !== 'playing') return
 
   const winAmount = crashBetAmount * crashMultiplier
@@ -836,23 +872,25 @@ async function cashoutCrash() {
     const r = await apiPost('/crash/cashout', { amount: winAmount })
     balance = Number(r.newBalance ?? balance)
     updateBalanceUI()
-    endCrash(true)
+    endCrash(true, isAuto)
   } catch (err) {
     alert(err.message || 'Ошибка вывода')
   }
 }
 
-function endCrash(cashedOut) {
+function endCrash(cashedOut, isAuto = false) {
   crashState = 'crashed'
   if (crashAnimFrame) cancelAnimationFrame(crashAnimFrame)
   crashAnimFrame = null
 
-  if (crashPlayBtn) crashPlayBtn.disabled = false
-  if (crashCashoutBtn) crashCashoutBtn.disabled = true
-
   if (crashStatusEl) {
-    crashStatusEl.textContent = cashedOut ? 'Вы забрали!' : 'Бум!'
-    crashStatusEl.style.color = cashedOut ? '#22c55e' : '#f97373'
+    if (cashedOut) {
+      crashStatusEl.textContent = isAuto ? 'Авто-вывод!' : 'Вы забрали!'
+      crashStatusEl.style.color = '#22c55e'
+    } else {
+      crashStatusEl.textContent = 'Бум!'
+      crashStatusEl.style.color = '#f97373'
+    }
   }
 
   updateCrashMultiplierUI()
@@ -863,6 +901,7 @@ function endCrash(cashedOut) {
     crashMultiplier = 1.0
     crashBetAmount = 0
     crashPoint = null
+    crashAutoCashoutAt = null
 
     if (crashStatusEl) {
       crashStatusEl.textContent = 'Скоро взлетаем'
@@ -872,17 +911,26 @@ function endCrash(cashedOut) {
     if (crashCurrentBetEl) crashCurrentBetEl.textContent = '—'
     if (crashPotentialWinEl) crashPotentialWinEl.textContent = '—'
     drawCrashGraph()
+    updateCrashButtonUI()
   }, 2000)
 }
 
-crashPlayBtn?.addEventListener('click', startCrash)
-crashCashoutBtn?.addEventListener('click', cashoutCrash)
+// одна кнопка: Сделать ставку / Забрать
+crashMainActionBtn?.addEventListener('click', () => {
+  if (crashState === 'idle') {
+    startCrash()
+  } else if (crashState === 'playing') {
+    cashoutCrash(false)
+  }
+})
+
 window.addEventListener('resize', () => {
   if (crashCanvas) {
     initCrashCanvas()
     drawCrashGraph()
   }
 })
+
 
 // ===== INIT =====
 ;(async function init() {
@@ -904,3 +952,4 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
