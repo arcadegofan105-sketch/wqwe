@@ -266,9 +266,9 @@ function updateWalletStatusUI() {
     walletStatusBtn.classList.add('wallet-status-connected')
   }
 
-  // и в подключенном, и в неподключенном состоянии показываем "+"
   walletStatusBtn.textContent = '+'
 }
+
 
 
 function updateConnectButtonUI() {
@@ -288,6 +288,7 @@ function updateConnectButtonUI() {
     <span>Изменить</span>
   `
 }
+
 
 function updateDepositButtonState() {
   // кнопка "Депозит TON" всегда активна, просто меняем подсказку
@@ -949,6 +950,7 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
 
 
 
