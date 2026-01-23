@@ -24,34 +24,18 @@ export function startBot() {
     await bot.sendMessage(chatId, text, {
       parse_mode: "HTML",
       reply_markup: {
-        // это КЛАВИАТУРА под полем ввода
+        // reply‑клавиатура: одна кнопка в ряду → она слева,
+        // one_time_keyboard: false → не исчезает после нажатия
         keyboard: [
-          [{ text: "start" }],          // кнопка как на скрине
+          [
+            {
+              text: "start",
+              web_app: { url: WEBAPP_URL }, // открывает твой Mini App
+            },
+          ],
         ],
         resize_keyboard: true,
         one_time_keyboard: false,
-      },
-    });
-
-    // при желании можно следом отправить и твой inline‑клавиатурный web_app
-    await bot.sendMessage(chatId, "Меню:", {
-      reply_markup: {
-        inline_keyboard: [
-          [{ text: "Начать", web_app: { url: WEBAPP_URL } }],
-          [{ text: "Поддержка", url: "https://t.me/modergw" }],
-          [
-            {
-              text: "Публичная оферта",
-              url: "https://telegra.ph/1-Terminy-i-opredeleniya-01-13",
-            },
-          ],
-          [
-            {
-              text: "Политика конфиденциальности",
-              url: "https://telegra.ph/Polzovatelskoe-soglashenie-Publichnaya-oferta-01-13-2",
-            },
-          ],
-        ],
       },
     });
   });
