@@ -1395,29 +1395,12 @@ body {
 /* === GAME CARDS: КРАШ и КОЛЕСО на главной === */
 
 .info-row-games {
-  position: relative;
+  display: flex;
+  gap: 8px;
   margin-bottom: 16px;
 }
 
-/* частицы вокруг карточек */
-.info-row-games::after {
-  content: "";
-  position: absolute;
-  inset: -8px;
-  pointer-events: none;
-  background-image:
-    radial-gradient(3px 3px at 10% 20%, rgba(248, 250, 252, 0.6) 0, transparent 60%),
-    radial-gradient(2px 2px at 80% 40%, rgba(56, 189, 248, 0.5) 0, transparent 60%),
-    radial-gradient(2px 2px at 40% 80%, rgba(251, 191, 36, 0.6) 0, transparent 60%);
-  opacity: 0.6;
-  animation: infoSparkle 10s linear infinite;
-}
-
-@keyframes infoSparkle {
-  0%   { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-5%, -5%, 0); }
-}
-
+/* сама карточка */
 .game-card {
   position: relative;
   flex: 1;
@@ -1431,7 +1414,7 @@ body {
   transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
 }
 
-/* подсветка под конкретными режимами */
+/* подсветка под режимами */
 .game-card-crash::before,
 .game-card-wheel::before {
   content: "";
@@ -1457,6 +1440,48 @@ body {
   opacity: 1;
 }
 
+/* "летающая" частица вокруг КРАШ */
+.game-card-crash::after {
+  content: "";
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.9), transparent 60%);
+  opacity: 0.8;
+  pointer-events: none;
+  animation: crashOrb 5s linear infinite;
+}
+
+/* "летающая" частица вокруг КОЛЕСА */
+.game-card-wheel::after {
+  content: "";
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.9), transparent 60%);
+  opacity: 0.85;
+  pointer-events: none;
+  animation: wheelOrb 6s linear infinite;
+}
+
+@keyframes crashOrb {
+  0%   { transform: translate(10%, 10%); }
+  25%  { transform: translate(70%, -10%); }
+  50%  { transform: translate(90%, 40%); }
+  75%  { transform: translate(30%, 90%); }
+  100% { transform: translate(10%, 10%); }
+}
+
+@keyframes wheelOrb {
+  0%   { transform: translate(60%, 0%); }
+  25%  { transform: translate(90%, 60%); }
+  50%  { transform: translate(40%, 100%); }
+  75%  { transform: translate(0%, 40%); }
+  100% { transform: translate(60%, 0%); }
+}
+
 .game-card-image {
   width: 100%;
   height: auto;
@@ -1464,12 +1489,13 @@ body {
   border-radius: 20px;
 }
 
-/* лёгкий эффект клика */
+/* эффект клика */
 .game-card:active {
   transform: translateY(1px) scale(0.97);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.9);
   filter: brightness(0.97);
 }
+
 
 
 
