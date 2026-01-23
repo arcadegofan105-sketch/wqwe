@@ -15,6 +15,43 @@ const wheelSectors = [
   { emoji: '🧸', name: 'Мишка', price: 0.1 },
 ]
 
+// ===== CASES CONFIG =====
+const casePrices = {
+  newyear: 0.1,
+  crypto: 0.5,
+  onlynft: 1,
+  genesis: 5,
+  elite: 10,
+}
+
+const caseRewards = {
+  newyear: [
+    { emoji: '🧸', name: 'Мишка', price: 0.3 },
+    { emoji: '🐸', name: 'Пепе', price: 0.5 },
+    { emoji: '💋', name: 'Губы', price: 0.2 },
+  ],
+  crypto: [
+    { emoji: '📅', name: 'Календарь', price: 1.0 },
+    { emoji: '🍀', name: 'Клевер', price: 0.8 },
+    { emoji: '🧸', name: 'Мишка', price: 1.2 },
+  ],
+  onlynft: [
+    { emoji: '🐸', name: 'Пепе', price: 2.0 },
+    { emoji: '💋', name: 'Губы', price: 1.5 },
+    { emoji: '🍑', name: 'Персик', price: 2.5 },
+  ],
+  genesis: [
+    { emoji: '🧸', name: 'Мишка', price: 4 },
+    { emoji: '🐸', name: 'Пепе', price: 5 },
+    { emoji: '💋', name: 'Губы', price: 6 },
+  ],
+  elite: [
+    { emoji: '🧸', name: 'Мишка', price: 9 },
+    { emoji: '🐸', name: 'Пепе', price: 10 },
+    { emoji: '💋', name: 'Губы', price: 12 },
+  ],
+}
+
 // ===== CUSTOM IMAGES =====
 const GIFT_IMAGES = {
   Пепе: 'epepepepe.webp',
@@ -23,7 +60,9 @@ const GIFT_IMAGES = {
 
 function giftVisual(item) {
   const file = GIFT_IMAGES[item?.name]
-  if (file) return `<span class="gift-icon" style="background-image:url('${file}')"></span>`
+  if (file) {
+    return `<span class="gift-icon" style="background-image:url('${file}')"></span>`
+  }
   return item?.emoji || '🎁'
 }
 
@@ -83,6 +122,8 @@ const screens = {
   crash: document.getElementById('screen-crash'),
   bonus: document.getElementById('screen-bonus'),
   profile: document.getElementById('screen-profile'),
+  cases: document.getElementById('screen-cases'),
+  'case-open': document.getElementById('screen-case-open'),
 }
 
 const depositBtn = document.getElementById('deposit-btn')
@@ -112,12 +153,23 @@ const depositConfirmBtn = document.getElementById('deposit-confirm')
 const depositCancelBtn = document.getElementById('deposit-cancel')
 const connectTonBtn = document.getElementById('connect-ton-btn')
 
+// ----- CASES UI -----
+const screenCases = document.getElementById('screen-cases')
+const screenCaseOpen = document.getElementById('screen-case-open')
+const caseCards = document.querySelectorAll('.case-card')
+const caseOpenTitle = document.getElementById('case-open-title')
+const caseOpenImage = document.getElementById('case-open-image')
+const caseOpenPriceSpan = document.getElementById('case-open-price')
+const caseOpenSpinBtn = document.getElementById('case-open-spin')
+const caseOpenRewardsList = document.getElementById('case-open-rewards-list')
+
 // ===== STATE =====
 let currentRotation = 0
 let balance = 0
 let inventory = []
 let currentPrize = null
 let isSpinning = false
+let currentCaseType = null
 
 // ===== HELPERS =====
 function updateBalanceUI() {
@@ -269,7 +321,6 @@ function updateWalletStatusUI() {
     walletStatusBtn.classList.add('wallet-status-connected')
   }
 
-  // всегда показываем "+"
   walletStatusBtn.textContent = '+'
 }
 
@@ -292,7 +343,6 @@ function updateConnectButtonUI() {
 }
 
 function updateDepositButtonState() {
-  // кнопка "Депозит TON" всегда активна
   if (depositBtn) {
     const connected = isWalletConnected()
     depositBtn.disabled = false
@@ -387,13 +437,9 @@ document.querySelectorAll('[data-home-target]').forEach(card => {
   card.addEventListener('click', () => {
     const target = card.getAttribute('data-home-target')
 
-    if (target === 'crash' || target === 'wheel') {
+    if (target === 'crash' || target === 'wheel' || target === 'cases') {
       setScreen(target)
       return
-    }
-
-    if (target === 'cases') {
-      alert('Раздел кейсов скоро добавим.')
     }
   })
 })
@@ -532,6 +578,89 @@ promoApplyBtn?.addEventListener('click', async () => {
     alert(`Промокод применён: +${Number(data.amount || 0).toFixed(2)} TON`)
   } catch (err) {
     alert(err.message || 'Ошибка промокода')
+  }
+})
+
+// ===== CASES LOGIC =====
+
+function openCasePage(caseType) {
+  currentCaseType = caseType
+
+  const price = casePrices[caseType] ?? 0
+  if (caseOpenPriceSpan) caseOpenPriceSpan.textContent = price.toFixed(2)
+
+  if (caseOpenTitle) {
+    const card = document.querySelector(`.case-card[data-case-type="${caseType}"]`)
+    const nameEl = card?.querySelector('.case-name')
+    caseOpenTitle.textContent = nameEl ? nameEl.textContent : 'Case'
+  }
+
+  if (caseOpenImage) {
+    caseOpenImage.style.backgroundImage = ''
+    caseOpenImage.className = 'case-open-image'
+    caseOpenImage.classList.add(`case-image-${caseType}`)
+  }
+
+  if (caseOpenRewardsList) {
+    const rewards = caseRewards[caseType] || []
+    caseOpenRewardsList.innerHTML = rewards
+      .map(r => {
+        return `
+          <div class="case-open-reward-item">
+            <div class="case-open-reward-emoji">${giftVisual(r)}</div>
+            <div class="case-open-reward-name">${r.name} (${Number(r.price).toFixed(2)} TON)</div>
+          </div>
+        `
+      })
+      .join('')
+  }
+
+  setScreen('case-open')
+}
+
+caseCards.forEach(card => {
+  card.addEventListener('click', () => {
+    const type = card.getAttribute('data-case-type')
+    if (!type) return
+    openCasePage(type)
+  })
+})
+
+caseOpenSpinBtn?.addEventListener('click', async () => {
+  if (!currentCaseType) return
+
+  const price = casePrices[currentCaseType] ?? 0
+  if (balance < price) {
+    alert(`Недостаточно средств. Нужно ${price.toFixed(2)} TON.`)
+    return
+  }
+
+  try {
+    const rewards = caseRewards[currentCaseType] || []
+    if (!rewards.length) {
+      alert('У этого кейса пока нет наград.')
+      return
+    }
+
+    const prize = rewards[Math.floor(Math.random() * rewards.length)]
+
+    balance = Number(balance - price)
+    updateBalanceUI()
+
+    currentPrize = {
+      emoji: prize.emoji,
+      name: prize.name,
+      price: prize.price,
+    }
+
+    setLastPrizeText(currentPrize)
+    openModal(currentPrize)
+
+    try {
+      await fetchUserData()
+    } catch (_) {}
+  } catch (err) {
+    alert(err.message || 'Ошибка открытия кейса')
   }
 })
 
