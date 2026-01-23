@@ -261,15 +261,15 @@ function updateWalletStatusUI() {
   if (!connected) {
     walletStatusBtn.classList.remove('wallet-status-connected')
     walletStatusBtn.classList.add('wallet-status-disconnected')
-    walletStatusBtn.textContent = '+'
-    return
+  } else {
+    walletStatusBtn.classList.remove('wallet-status-disconnected')
+    walletStatusBtn.classList.add('wallet-status-connected')
   }
 
-  const addr = tonConnectUI.account?.address || ''
-  walletStatusBtn.classList.remove('wallet-status-disconnected')
-  walletStatusBtn.classList.add('wallet-status-connected')
-  walletStatusBtn.innerHTML = `<span>${formatAddress(addr)}</span>`
+  // и в подключенном, и в неподключенном состоянии показываем "+"
+  walletStatusBtn.textContent = '+'
 }
+
 
 function updateConnectButtonUI() {
   if (!connectTonBtn) return
@@ -527,10 +527,12 @@ promoApplyBtn?.addEventListener('click', async () => {
 depositBtn?.addEventListener('click', () => {
   if (!depositModal) return
   const connected = isWalletConnected()
+  // модалка открывается всегда, просто блокируем ввод/кнопку, если не подключен
   if (depositAmountInput) depositAmountInput.disabled = !connected
   if (depositConfirmBtn) depositConfirmBtn.disabled = !connected
   depositModal.classList.add('active')
 })
+
 
 openDepositPlusBtn?.addEventListener('click', () => {
   if (!depositModal) return
@@ -939,6 +941,7 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
 
 
 
