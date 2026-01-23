@@ -226,7 +226,16 @@ function setScreen(name) {
   navButtons.forEach(btn => {
     btn.classList.toggle('active', btn.dataset.target === name)
   })
-  // клики по карточкам на главной (Краш / Колесо / Кейсы)
+}
+
+// ---- ниже, отдельно, вне функции ----
+
+// навигация по вкладкам
+navButtons.forEach(btn => {
+  btn.addEventListener('click', () => setScreen(btn.dataset.target))
+})
+
+// клики по карточкам на главной (Краш / Колесо / Кейсы)
 document.querySelectorAll('[data-home-target]').forEach(card => {
   card.addEventListener('click', () => {
     const target = card.getAttribute('data-home-target')
@@ -242,7 +251,6 @@ document.querySelectorAll('[data-home-target]').forEach(card => {
   })
 })
 
-}
 
 function updateTelegramUserUI() {
   if (!telegramUser) return
@@ -970,6 +978,7 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
 
 
 
