@@ -524,14 +524,24 @@ promoApplyBtn?.addEventListener('click', async () => {
 
 // DEPOSIT TON
 
-depositBtn?.addEventListener('click', () => {
+function openDepositModalFromAnyButton() {
   if (!depositModal) return
   const connected = isWalletConnected()
-  // модалка открывается всегда, просто блокируем ввод/кнопку, если не подключен
+  // модалка всегда открывается, просто блокируем ввод/подтверждение, если нет кошелька
   if (depositAmountInput) depositAmountInput.disabled = !connected
   if (depositConfirmBtn) depositConfirmBtn.disabled = !connected
   depositModal.classList.add('active')
-})
+}
+
+// клик по + рядом с балансом
+walletStatusBtn?.addEventListener('click', openDepositModalFromAnyButton)
+
+// клик по "Депозит TON" в профиле
+depositBtn?.addEventListener('click', openDepositModalFromAnyButton)
+
+// если у тебя ещё есть openDepositPlusBtn в другом месте — тоже на ту же функцию
+openDepositPlusBtn?.addEventListener('click', openDepositModalFromAnyButton)
+
 
 
 openDepositPlusBtn?.addEventListener('click', () => {
@@ -941,6 +951,7 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
 
 
 
