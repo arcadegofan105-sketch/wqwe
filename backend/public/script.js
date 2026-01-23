@@ -290,14 +290,16 @@ function updateConnectButtonUI() {
 }
 
 function updateDepositButtonState() {
+  // кнопка "Депозит TON" всегда активна, просто меняем подсказку
   if (depositBtn) {
     const connected = isWalletConnected()
-    depositBtn.disabled = !connected
-    depositBtn.title = connected ? '' : 'Сначала подключи TON-кошелёк'
+    depositBtn.disabled = false
+    depositBtn.title = connected ? '' : 'Сначала подключи TON-кошелёк в модалке'
   }
   updateWalletStatusUI()
   updateConnectButtonUI()
 }
+
 
 tonConnectUI.onStatusChange(() => {
   updateDepositButtonState()
@@ -947,6 +949,7 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
 
 
 
