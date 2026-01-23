@@ -1,0 +1,40 @@
+СПИСОК НАЗВАНИЙ ФАЙЛОВ ДЛЯ ПОДАРКОВ
+====================================
+
+Сохраните скриншоты подарков в ЭТУ папку с такими названиями:
+
+1. heart_locket.png
+2. plush_pepe.png
+3. heroic_helmet.png
+4. mighty_arm.png
+5. ion_gem.png
+6. durovs_cap.png
+7. nail_bracelet.png
+8. perfume_bottle.png
+9. magic_potion.png
+10. mini_oscar.png
+11. astral_shard.png
+12. artisan_brick.png
+13. gem_signet.png
+14. sharp_tongue.png
+15. moon_pendant.png
+16. lunar_snake.png
+17. holiday_drink.png
+18. record_player.png
+19. joyful_bundle.png
+20. restless_jar.png
+21. big_year.png
+22. light_sword.png
+23. jingle_bells.png
+24. eternal_candle.png
+25. skull_flower.png
+26. sakura_flower.png
+
+Правила:
+- Все буквы маленькие
+- Пробелы → подчеркивания (_)
+- Апострофы удаляются
+- Расширение: .png или .jpg
+
+
+
