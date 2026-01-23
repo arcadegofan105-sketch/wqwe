@@ -58,7 +58,7 @@
           <div class="bonus-card" data-home-target="cases">
             <div class="bonus-title">🎁 Кейсы</div>
             <div class="bonus-text">
-              Раздел кейсов скоро появится. Открывайте боксы и выбивайте редкие призы.
+              Открывайте кейсы за TON и выбивайте редкие призы.
             </div>
           </div>
         </section>
@@ -191,6 +191,83 @@
               >
                 Вывести сейчас
               </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Экран КЕЙСЫ -->
+        <section id="screen-cases" class="screen">
+          <div class="screen-title">🎁 Кейсы</div>
+          <div class="screen-subtitle">
+            Открывайте кейсы за TON и получайте подарки.
+          </div>
+
+          <div class="cases-grid">
+            <div class="case-card" data-case-type="newyear">
+              <div class="case-image case-image-newyear"></div>
+              <div class="case-info">
+                <div class="case-name">NewYear case</div>
+                <div class="case-price">0.1 TON</div>
+              </div>
+            </div>
+
+            <div class="case-card" data-case-type="crypto">
+              <div class="case-image case-image-crypto"></div>
+              <div class="case-info">
+                <div class="case-name">Crypto case</div>
+                <div class="case-price">0.5 TON</div>
+              </div>
+            </div>
+
+            <div class="case-card" data-case-type="onlynft">
+              <div class="case-image case-image-onlynft"></div>
+              <div class="case-info">
+                <div class="case-name">ONLY NFT case</div>
+                <div class="case-price">1 TON</div>
+              </div>
+            </div>
+
+            <div class="case-card" data-case-type="genesis">
+              <div class="case-image case-image-genesis"></div>
+              <div class="case-info">
+                <div class="case-name">Genesis case</div>
+                <div class="case-price">5 TON</div>
+              </div>
+            </div>
+
+            <div class="case-card" data-case-type="elite">
+              <div class="case-image case-image-elite"></div>
+              <div class="case-info">
+                <div class="case-name">Elite case</div>
+                <div class="case-price">10 TON</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Экран ОТКРЫТИЯ ОДНОГО КЕЙСА -->
+        <section id="screen-case-open" class="screen">
+          <div class="screen-title" id="case-open-title">Case</div>
+          <div class="screen-subtitle">
+            Нажмите "Открыть", чтобы получить случайный подарок.
+          </div>
+
+          <div class="case-open-card">
+            <div class="case-open-image" id="case-open-image"></div>
+
+            <div class="case-open-price">
+              Цена: <span id="case-open-price">0</span> TON
+            </div>
+
+            <button id="case-open-spin" class="action-btn action-green" type="button">
+              Открыть кейс
+            </button>
+          </div>
+
+          <div class="case-open-rewards">
+            <div class="case-open-rewards-title">Содержимое кейса</div>
+            <div id="case-open-rewards-list" class="case-open-rewards-list">
+              <!-- сюда JS подставит список подарков -->
             </div>
           </div>
         </section>
