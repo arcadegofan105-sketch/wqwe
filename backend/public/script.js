@@ -663,11 +663,17 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
     closeWithdrawModal()
     alert(`Заявка на вывод ${amount.toFixed(2)} TON отправлена админу.`)
   } catch (err) {
-    alert(err.message || 'Ошибка заявки на вывод')
+    const msg = String(err.message || '')
+    if (msg.includes('Прежде чем вывести')) {
+      alert('Прежде чем вывести, нужно сделать минимальное пополнение 1 TON')
+    } else {
+      alert(msg || 'Ошибка заявки на вывод')
+    }
   } finally {
     withdrawConfirmBtn.disabled = false
   }
 })
+
 
 // ===== CRASH (синхронизация с сервером) =====
 const crashCanvas = document.getElementById('crash-canvas')
@@ -978,5 +984,6 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
 
 
