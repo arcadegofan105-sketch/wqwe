@@ -967,6 +967,7 @@ function animateCrash() {
   crashAnimFrame = requestAnimationFrame(animateCrash)
 }
 
+
 async function startCrash() {
   if (crashState !== 'idle') return
 
@@ -991,7 +992,7 @@ async function startCrash() {
     crashAutoCashoutAt = val
   }
 
-  try {
+   try {
     const r = await apiPost('/crash/bet', { amount: crashBetAmount })
     balance = Number(r.newBalance ?? balance)
     updateBalanceUI()
@@ -1005,12 +1006,31 @@ async function startCrash() {
   crashState = 'playing'
   crashHasCashedOut = false
   crashStartTime = Date.now()
-  crashTime = 8000
+
+  // 🔥 Подстраиваем время раунда под точку краша,
+  // чтобы экспонента визуально шла одинаково
+  const baseTimeMs = 8000    // базовое время для краша примерно до 2.0x
+  const basePoint = 2.0
+
+  // отношение того, насколько далеко точка краша от 1x
+  const ratio = (crashPoint - 1) / (basePoint - 1)
+  crashTime = baseTimeMs * ratio
+
+  // ограничим длительность, чтобы не было слишком коротких/длинных раундов
+  const minMs = 4000
+  const maxMs = 12000
+  crashTime = Math.max(minMs, Math.min(maxMs, crashTime))
 
   if (crashStatusEl) {
     crashStatusEl.textContent = 'Летим...'
     crashStatusEl.style.color = '#e5e7eb'
   }
+
+  updateCrashMultiplierUI()
+  drawCrashGraph()
+  animateCrash()
+}
+
 
   updateCrashMultiplierUI()
   drawCrashGraph()
@@ -1109,3 +1129,4 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
