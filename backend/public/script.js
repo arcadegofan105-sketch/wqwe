@@ -1032,11 +1032,6 @@ async function startCrash() {
 }
 
 
-  updateCrashMultiplierUI()
-  drawCrashGraph()
-  animateCrash()
-}
-
 async function cashoutCrash(isAuto = false) {
   if (crashState !== 'playing') return
   if (crashHasCashedOut) return
@@ -1129,4 +1124,5 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
 
