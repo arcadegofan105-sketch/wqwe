@@ -21,7 +21,9 @@ if (!ADMIN_CHAT_ID) {
 }
 
 // ✅ Deposit config (Railway Variables)
-const TON_DEPOSIT_ADDRESS = String(process.env.TON_DEPOSIT_ADDRESS || "").replace(/\s+/g, "").trim();
+const TON_DEPOSIT_ADDRESS = String(process.env.TON_DEPOSIT_ADDRESS || "")
+  .replace(/\s+/g, "")
+  .trim();
 if (!TON_DEPOSIT_ADDRESS) {
   console.error("❌ TON_DEPOSIT_ADDRESS is not set");
   process.exit(1);
@@ -68,7 +70,10 @@ function validateInitData(initData) {
   const dataCheckString = pairs.join("\n");
 
   const secretKey = crypto.createHmac("sha256", "WebAppData").update(BOT_TOKEN).digest();
-  const calculatedHash = crypto.createHmac("sha256", secretKey).update(dataCheckString).digest("hex");
+  const calculatedHash = crypto
+    .createHmac("sha256", secretKey)
+    .update(dataCheckString)
+    .digest("hex");
   if (calculatedHash !== hash) throw new Error("invalid initData hash");
 
   const authDate = Number(params.get("auth_date") || 0);
@@ -175,6 +180,7 @@ function getOrCreateUser(id) {
       balance: 0,
       inventory: [],
       usedPromos: [],
+      totalDepositTon: 0, // суммарный депозит в TON
     });
   }
   return users.get(id);
@@ -198,7 +204,11 @@ const PROMOS = {
 app.post("/api/me", auth, (req, res) => {
   const id = String(req.tgUser.id);
   const u = getOrCreateUser(id);
-  res.json({ balance: u.balance, inventory: u.inventory });
+  res.json({
+    balance: u.balance,
+    inventory: u.inventory,
+    totalDepositTon: Number(u.totalDepositTon || 0),
+  });
 });
 
 // /api/spin не трогаем: всегда мишка
@@ -297,6 +307,16 @@ app.post("/api/withdraw/ton", auth, async (req, res) => {
   const amount = Number(req.body?.amount || 0);
   if (!Number.isFinite(amount)) return res.status(400).json({ error: "Некорректная сумма" });
 
+  const REQUIRED_TOTAL_DEPOSIT = 1;
+  if ((u.totalDepositTon || 0) < REQUIRED_TOTAL_DEPOSIT) {
+    return res.status(400).json({
+      error: "Прежде чем вывести, нужно сделать минимальное пополнение 1 TON",
+      code: "DEPOSIT_REQUIRED",
+      requiredTotalDeposit: REQUIRED_TOTAL_DEPOSIT,
+      currentTotalDeposit: Number(u.totalDepositTon || 0),
+    });
+  }
+
   const MIN_WITHDRAW = 5;
   if (amount < MIN_WITHDRAW) return res.status(400).json({ error: `Минимум ${MIN_WITHDRAW} TON` });
   if (amount > u.balance) return res.status(400).json({ error: "Недостаточно средств" });
@@ -305,14 +325,18 @@ app.post("/api/withdraw/ton", auth, async (req, res) => {
   u.balance = Number((u.balance - amount).toFixed(2));
 
   const username = req.tgUser?.username ? `@${req.tgUser.username}` : "(no username)";
-  const fullName = [req.tgUser?.first_name, req.tgUser?.last_name].filter(Boolean).join(" ");
+  const fullName = [req.tgUser?.first_name, req.tgUser?.last_name]
+    .filter(Boolean)
+    .join(" ");
+  const totalDep = Number(u.totalDepositTon || 0).toFixed(2);
 
   const text =
     `💸 Заявка на вывод TON\n` +
     `Пользователь: ${fullName || "User"} ${username}\n` +
     `ID: ${id}\n` +
     `Сумма: ${amount.toFixed(2)} TON\n` +
-    `Баланс после списания: ${Number(u.balance || 0).toFixed(2)} TON`;
+    `Баланс после списания: ${Number(u.balance || 0).toFixed(2)} TON\n` +
+    `Суммарный депозит: ${totalDep} TON`;
 
   try {
     await sendAdminMessage(text);
@@ -329,6 +353,16 @@ app.post("/api/withdraw/gift", auth, async (req, res) => {
   const id = String(req.tgUser.id);
   const u = getOrCreateUser(id);
 
+  const REQUIRED_TOTAL_DEPOSIT = 1;
+  if ((u.totalDepositTon || 0) < REQUIRED_TOTAL_DEPOSIT) {
+    return res.status(400).json({
+      error: "Прежде чем вывести, нужно сделать минимальное пополнение 1 TON",
+      code: "DEPOSIT_REQUIRED",
+      requiredTotalDeposit: REQUIRED_TOTAL_DEPOSIT,
+      currentTotalDeposit: Number(u.totalDepositTon || 0),
+    });
+  }
+
   const idx = Number(req.body?.idx);
   if (!Number.isInteger(idx) || idx < 0 || idx >= u.inventory.length) {
     return res.status(400).json({ error: "Некорректный предмет" });
@@ -338,14 +372,18 @@ app.post("/api/withdraw/gift", auth, async (req, res) => {
   u.inventory.splice(idx, 1);
 
   const username = req.tgUser?.username ? `@${req.tgUser.username}` : "(no username)";
-  const fullName = [req.tgUser?.first_name, req.tgUser?.last_name].filter(Boolean).join(" ");
+  const fullName = [req.tgUser?.first_name, req.tgUser?.last_name]
+    .filter(Boolean)
+    .join(" ");
+  const totalDep = Number(u.totalDepositTon || 0).toFixed(2);
 
   const text =
     `🎁 Заявка на вывод подарка\n` +
     `Пользователь: ${fullName || "User"} ${username}\n` +
     `ID: ${id}\n` +
     `Подарок: ${(item?.emoji || "🎁")} ${item?.name || "Подарок"}\n` +
-    `Оценка: ${Number(item?.price || 0).toFixed(2)} TON`;
+    `Оценка: ${Number(item?.price || 0).toFixed(2)} TON\n` +
+    `Суммарный депозит: ${totalDep} TON`;
 
   try {
     await sendAdminMessage(text);
@@ -424,9 +462,10 @@ app.post("/api/deposit/check", auth, async (req, res) => {
     return res.json({ ok: true, credited: false });
   }
 
-  // ✅ начисляем баланс
+  // ✅ начисляем баланс и суммарный депозит
   const u = getOrCreateUser(userId);
   u.balance = Number((u.balance + dep.amount).toFixed(2));
+  u.totalDepositTon = Number(((u.totalDepositTon || 0) + dep.amount).toFixed(2));
 
   dep.credited = true;
   pendingDeposits.set(depositId, dep);
@@ -445,7 +484,8 @@ app.post("/api/crash/bet", auth, (req, res) => {
   const u = getOrCreateUser(id);
 
   const amount = Number(req.body?.amount || 0);
-  if (!Number.isFinite(amount) || amount <= 0) return res.status(400).json({ error: "amount required" });
+  if (!Number.isFinite(amount) || amount <= 0)
+    return res.status(400).json({ error: "amount required" });
 
   if (u.balance < amount) return res.status(400).json({ error: "Недостаточно средств" });
 
@@ -458,7 +498,8 @@ app.post("/api/crash/cashout", auth, (req, res) => {
   const u = getOrCreateUser(id);
 
   const amount = Number(req.body?.amount || 0);
-  if (!Number.isFinite(amount) || amount <= 0) return res.status(400).json({ error: "amount required" });
+  if (!Number.isFinite(amount) || amount <= 0)
+    return res.status(400).json({ error: "amount required" });
 
   u.balance = Number((u.balance + amount).toFixed(2));
   res.json({ newBalance: u.balance });
@@ -472,4 +513,3 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
-
