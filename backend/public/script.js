@@ -83,7 +83,15 @@ const screens = {
   crash: document.getElementById('screen-crash'),
   bonus: document.getElementById('screen-bonus'),
   profile: document.getElementById('screen-profile'),
+  admin: document.getElementById('screen-admin'),
 }
+
+const adminNavBtn = document.getElementById('admin-nav-btn')
+const adminUsersSummaryBtn = document.getElementById('admin-users-summary-btn')
+const adminTgIdInput = document.getElementById('admin-tg-id-input')
+const adminAmountInput = document.getElementById('admin-amount-input')
+const adminAdjustBalanceBtn = document.getElementById('admin-adjust-balance-btn')
+const adminResultBox = document.getElementById('admin-result')
 
 const depositBtn = document.getElementById('deposit-btn')
 const withdrawBtn = document.getElementById('withdraw-btn')
@@ -118,6 +126,7 @@ let balance = 0
 let inventory = []
 let currentPrize = null
 let isSpinning = false
+let isAdminFlag = false // выставляется после /api/me
 
 // ===== HELPERS =====
 function updateBalanceUI() {
@@ -152,7 +161,9 @@ function openWithdrawModal(prefillAmount = '') {
   updateBalanceUI()
   if (withdrawAmountInput) {
     withdrawAmountInput.value =
-      prefillAmount !== undefined && prefillAmount !== null ? String(prefillAmount) : ''
+      prefillAmount !== undefined && prefillAmount !== null
+        ? String(prefillAmount)
+        : ''
     withdrawAmountInput.focus()
   }
   withdrawModal.classList.add('active')
@@ -194,7 +205,8 @@ function renderInventory() {
   if (!inventoryList) return
 
   if (!Array.isArray(inventory) || inventory.length === 0) {
-    inventoryList.innerHTML = `<div class="inventory-empty">У вас пока нет подарков</div>`
+    inventoryList.innerHTML =
+      `<div class="inventory-empty">У вас пока нет подарков</div>`
     return
   }
 
@@ -220,7 +232,8 @@ function renderInventory() {
 
 function setScreen(name) {
   Object.keys(screens).forEach(key => {
-    screens[key]?.classList.toggle('active', key === name)
+    if (!screens[key]) return
+    screens[key].classList.toggle('active', key === name)
   })
   navButtons.forEach(btn => {
     btn.classList.toggle('active', btn.dataset.target === name)
@@ -247,6 +260,100 @@ function updateTelegramUserUI() {
   }
 }
 
+// ===== ADMIN HELPERS =====
+function isAdmin() {
+  // Если бэк из /api/me отдаёт isAdmin — используем его
+  if (typeof isAdminFlag === 'boolean') return isAdminFlag
+
+  // Фоллбэк: сравнить с ADMIN_CHAT_ID, если ты захочешь пробросить его в window.
+  // По умолчанию просто false.
+  return false
+}
+
+function setupAdminUI() {
+  const admin = isAdmin()
+
+  if (!admin) {
+    // скрыть кнопку и экран
+    if (adminNavBtn) adminNavBtn.style.display = 'none'
+    if (screens.admin) screens.admin.style.display = 'none'
+    return
+  }
+
+  if (adminNavBtn) adminNavBtn.style.display = ''
+  if (screens.admin) screens.admin.style.display = ''
+
+  // обработчик "Список пользователей"
+  adminUsersSummaryBtn?.addEventListener('click', async () => {
+    if (adminResultBox) {
+      adminResultBox.textContent = 'Отправляем запрос...'
+      adminResultBox.classList.remove('error')
+    }
+    try {
+      const r = await apiPost('/admin/users/summary')
+      if (adminResultBox) {
+        adminResultBox.textContent =
+          'Список пользователей отправлен в Telegram. Кол-во: ' +
+          (r.usersCount ?? 0)
+      }
+      alert('Список пользователей отправлен в Telegram.')
+    } catch (err) {
+      if (adminResultBox) {
+        adminResultBox.textContent = err.message || 'Ошибка запроса'
+        adminResultBox.classList.add('error')
+      }
+      alert(err.message || 'Ошибка запроса')
+    }
+  })
+
+  // обработчик "Изменить баланс"
+  adminAdjustBalanceBtn?.addEventListener('click', async () => {
+    const tgId = (adminTgIdInput?.value || '').trim()
+    const rawAmount = String(adminAmountInput?.value || '')
+      .replace(',', '.')
+      .trim()
+    const amount = Number(rawAmount)
+
+    if (!tgId) {
+      alert('Укажи tg_id пользователя')
+      return
+    }
+    if (!Number.isFinite(amount) || amount === 0) {
+      alert('Укажи ненулевую сумму (можно отрицательную)')
+      return
+    }
+
+    if (adminResultBox) {
+      adminResultBox.textContent = 'Применяем изменение баланса...'
+      adminResultBox.classList.remove('error')
+    }
+
+    try {
+      const r = await apiPost('/admin/adjust-balance', {
+        tgId,
+        amount,
+      })
+      if (adminResultBox) {
+        adminResultBox.textContent =
+          `Новый баланс пользователя ${tgId}: ` +
+          Number(r.newBalance || 0).toFixed(2) +
+          ' TON'
+      }
+      alert(
+        `Баланс изменён. Новый баланс: ${Number(r.newBalance || 0).toFixed(
+          2,
+        )} TON`,
+      )
+    } catch (err) {
+      if (adminResultBox) {
+        adminResultBox.textContent = err.message || 'Ошибка изменения баланса'
+        adminResultBox.classList.add('error')
+      }
+      alert(err.message || 'Ошибка изменения баланса')
+    }
+  })
+}
+
 // ===== TON CONNECT (deposit lock) =====
 function isWalletConnected() {
   return Boolean(tonConnectUI?.account?.address)
@@ -269,7 +376,6 @@ function updateWalletStatusUI() {
     walletStatusBtn.classList.add('wallet-status-connected')
   }
 
-  // всегда показываем "+"
   walletStatusBtn.textContent = '+'
 }
 
@@ -292,7 +398,6 @@ function updateConnectButtonUI() {
 }
 
 function updateDepositButtonState() {
-  // кнопка "Депозит TON" всегда активна
   if (depositBtn) {
     const connected = isWalletConnected()
     depositBtn.disabled = false
@@ -325,6 +430,16 @@ async function fetchUserData() {
   inventory = Array.isArray(data.inventory) ? data.inventory : []
   updateBalanceUI()
   renderInventory()
+
+  // признак админа, если есть
+  if (typeof data.isAdmin === 'boolean') {
+    isAdminFlag = data.isAdmin
+  } else if (telegramUser && data.adminId) {
+    // если захочешь с бэка прислать adminId
+    isAdminFlag = String(telegramUser.id) === String(data.adminId)
+  }
+
+  setupAdminUI()
   return data
 }
 
@@ -527,7 +642,6 @@ promoApplyBtn?.addEventListener('click', async () => {
   try {
     const data = await applyPromoApi(code)
 
-    // Денежный промокод (старое поведение)
     if (data.type === 'balance' || typeof data.amount === 'number') {
       balance = Number(data.newBalance ?? balance)
       updateBalanceUI()
@@ -536,13 +650,10 @@ promoApplyBtn?.addEventListener('click', async () => {
       return
     }
 
-    // Промокод на подарок "Мишка"
     if (data.type === 'gift' && data.prize) {
-      // Обновляем инвентарь сразу, чтобы не ждать перезахода
       if (Array.isArray(data.inventory)) {
         inventory = data.inventory
       } else {
-        // на всякий случай, если вернётся только prize
         inventory = [...(inventory || []), data.prize]
       }
       renderInventory()
@@ -551,7 +662,6 @@ promoApplyBtn?.addEventListener('click', async () => {
       return
     }
 
-    // fallback
     alert('Промокод применён')
     promoInput.value = ''
   } catch (err) {
@@ -559,9 +669,7 @@ promoApplyBtn?.addEventListener('click', async () => {
   }
 })
 
-
 // ===== DEPOSIT TON =====
-
 function openDepositModalFromAnyButton() {
   if (!depositModal) return
   const connected = isWalletConnected()
@@ -647,7 +755,9 @@ depositConfirmBtn?.addEventListener('click', async () => {
       }
     }
 
-    alert('Транзакция отправлена. Если не зачислилось — подожди 1–2 минуты и попробуй ещё раз.')
+    alert(
+      'Транзакция отправлена. Если не зачислилось — подожди 1–2 минуты и попробуй ещё раз.',
+    )
   } catch (err) {
     alert(err.message || 'Ошибка депозита')
   } finally {
@@ -699,7 +809,6 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
   }
 })
 
-
 // ===== CRASH (синхронизация с сервером) =====
 const crashCanvas = document.getElementById('crash-canvas')
 const crashCtx = crashCanvas ? crashCanvas.getContext('2d') : null
@@ -711,12 +820,12 @@ const crashMainActionBtn = document.getElementById('crash-main-action')
 const crashCurrentBetEl = document.getElementById('crash-current-bet')
 const crashPotentialWinEl = document.getElementById('crash-potential-win')
 
-let crashState = 'idle'           // idle | playing | crashed
+let crashState = 'idle' // idle | playing | crashed
 let crashMultiplier = 1.0
 let crashPoint = null
 let crashBetAmount = 0
-let crashAutoCashoutAt = null     // множитель авто-вывода
-let crashHasCashedOut = false     // игрок уже забрал или нет
+let crashAutoCashoutAt = null
+let crashHasCashedOut = false
 let crashAnimFrame = null
 let crashStartTime = null
 let crashTime = 8000 // мс
@@ -730,10 +839,6 @@ function initCrashCanvas() {
   crashCtx.setTransform(dpr, 0, 0, dpr, 0, 0)
 }
 
-// распределение шансов:
-// ~99%: 1.01–1.8x
-// ~0.91%: 1.8–3.0x
-// ~0.09%: 3.0–7.0x
 function generateCrashPoint() {
   const rand = Math.random() * 100
 
@@ -806,9 +911,12 @@ function updateCrashButtonUI() {
 }
 
 function updateCrashMultiplierUI() {
-  if (crashMultiplierEl) crashMultiplierEl.textContent = `${crashMultiplier.toFixed(2)}x`
+  if (crashMultiplierEl)
+    crashMultiplierEl.textContent = `${crashMultiplier.toFixed(2)}x`
   if (crashBetAmount > 0 && crashPotentialWinEl) {
-    crashPotentialWinEl.textContent = `${(crashBetAmount * crashMultiplier).toFixed(2)} TON`
+    crashPotentialWinEl.textContent = `${(
+      crashBetAmount * crashMultiplier
+    ).toFixed(2)} TON`
   }
   if (crashCurrentBetEl) {
     crashCurrentBetEl.textContent =
@@ -831,14 +939,12 @@ function animateCrash() {
     return
   }
 
-  // экспоненциальный рост: медленно в начале, быстро к концу
-  const base = 1.7 // можно 1.5–2.0 для настройки агрессии
+  const base = 1.7
   const expProgress =
     (Math.exp(base * timeProgress) - 1) / (Math.exp(base) - 1)
 
   crashMultiplier = 1 + (crashPoint - 1) * expProgress
 
-  // защита: не перепрыгнуть точку краша
   if (crashMultiplier >= crashPoint) {
     crashMultiplier = crashPoint
     updateCrashMultiplierUI()
@@ -847,7 +953,6 @@ function animateCrash() {
     return
   }
 
-  // авто-вывод
   if (
     crashAutoCashoutAt &&
     crashMultiplier >= crashAutoCashoutAt &&
@@ -855,7 +960,6 @@ function animateCrash() {
     !crashHasCashedOut
   ) {
     cashoutCrash(true)
-    // график всё равно продолжит анимацию до crashPoint
   }
 
   updateCrashMultiplierUI()
@@ -876,7 +980,6 @@ async function startCrash() {
     return
   }
 
-  // авто-вывод
   const rawAuto = String(crashAutoInput?.value || '').replace(',', '.').trim()
   crashAutoCashoutAt = null
   if (rawAuto) {
@@ -938,12 +1041,11 @@ async function cashoutCrash(isAuto = false) {
   }
 }
 
-function endCrash(cashedOut, isAuto = false) {
+function endCrash() {
   crashState = 'crashed'
   if (crashAnimFrame) cancelAnimationFrame(crashAnimFrame)
   crashAnimFrame = null
 
-  // если игрок не успел забрать — показываем Бум
   if (crashStatusEl && !crashHasCashedOut) {
     crashStatusEl.textContent = 'Бум!'
     crashStatusEl.style.color = '#f97373'
@@ -972,7 +1074,6 @@ function endCrash(cashedOut, isAuto = false) {
   }, 2000)
 }
 
-// одна кнопка: Сделать ставку / Забрать
 crashMainActionBtn?.addEventListener('click', () => {
   if (crashState === 'idle') {
     startCrash()
@@ -987,7 +1088,6 @@ window.addEventListener('resize', () => {
     drawCrashGraph()
   }
 })
-
 
 // ===== INIT =====
 ;(async function init() {
@@ -1009,7 +1109,3 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
-
-
-
-
