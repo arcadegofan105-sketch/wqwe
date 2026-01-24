@@ -198,6 +198,7 @@ function makeDepositId() {
 const PROMOS = {
   Free05: 0.5,
   Admintestcodesss: 50,
+  Giftbear: 'GIFT_BEAR', // промокод на подарок "Мишка"
 };
 
 // ===== API =====
@@ -230,18 +231,37 @@ app.post("/api/promo/apply", auth, (req, res) => {
   const code = String(req.body?.code || "").trim();
   if (!code) return res.status(400).json({ error: "Введите промокод" });
 
-  const amount = PROMOS[code];
-  if (!amount) return res.status(400).json({ error: "Промокод не найден" });
+  const promo = PROMOS[code];
+  if (!promo) return res.status(400).json({ error: "Промокод не найден" });
 
   if (u.usedPromos.includes(code)) {
     return res.status(400).json({ error: "Этот промокод уже использован" });
   }
 
   u.usedPromos.push(code);
-  u.balance = Number((u.balance + amount).toFixed(2));
 
-  res.json({ newBalance: u.balance, amount });
+  // Денежные промо (число)
+  if (typeof promo === "number") {
+    const amount = promo;
+    u.balance = Number((u.balance + amount).toFixed(2));
+    return res.json({ type: "balance", newBalance: u.balance, amount });
+  }
+
+  // Промо на подарок "Мишка"
+  if (promo === "GIFT_BEAR") {
+    const prize = {
+      emoji: "🧸",
+      name: "Мишка",
+      price: 0.1,
+    };
+    u.inventory.push(prize);
+    return res.json({ type: "gift", prize, inventory: u.inventory });
+  }
+
+  // На всякий случай fallback
+  return res.status(400).json({ error: "Некорректный промокод" });
 });
+
 
 // ===== Prize keep/sell =====
 app.post("/api/prize/keep", auth, (req, res) => {
@@ -513,3 +533,4 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
