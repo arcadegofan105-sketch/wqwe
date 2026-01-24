@@ -44,18 +44,24 @@
             Выберите режим: Краш, Колесо или Кейсы.
           </div>
 
-          <!-- Карточки КРАШ и КОЛЕСО с изображениями -->
           <div class="info-row info-row-games">
-            <button class="game-card game-card-crash" data-home-target="crash" type="button">
+            <button
+              class="game-card game-card-crash"
+              data-home-target="crash"
+              type="button"
+            >
               <img src="crashcard.png" alt="Краш" class="game-card-image" />
             </button>
 
-            <button class="game-card game-card-wheel" data-home-target="wheel" type="button">
+            <button
+              class="game-card game-card-wheel"
+              data-home-target="wheel"
+              type="button"
+            >
               <img src="colesocard.png" alt="Колесо" class="game-card-image" />
             </button>
           </div>
 
-          <!-- Кейсы оставляем как было -->
           <div class="bonus-card" data-home-target="cases">
             <div class="bonus-title">🎁 Кейсы</div>
             <div class="bonus-text">
@@ -131,72 +137,70 @@
           </div>
         </section>
 
-     <!-- Экран КРАШ -->
-<section id="screen-crash" class="screen">
-  <div class="screen-title">🚀 Краш</div>
-  <div class="screen-subtitle">
-    Выведите деньги до того, как ракета взорвётся!
-  </div>
+        <!-- Экран КРАШ -->
+        <section id="screen-crash" class="screen">
+          <div class="screen-title">🚀 Краш</div>
+          <div class="screen-subtitle">
+            Выведите деньги до того, как ракета взорвётся!
+          </div>
 
-  <div class="crash-container">
-    <div class="crash-game-area">
-      <div class="crash-stars crash-stars-back"></div>
-      <div class="crash-stars crash-stars-front"></div>
+          <div class="crash-container">
+            <div class="crash-game-area">
+              <div class="crash-stars crash-stars-back"></div>
+              <div class="crash-stars crash-stars-front"></div>
 
-      <canvas id="crash-canvas"></canvas>
-      <div class="crash-multiplier" id="crash-multiplier">1.00x</div>
-      <div class="crash-status" id="crash-status">Скоро взлетаем</div>
-    </div>
+              <canvas id="crash-canvas"></canvas>
+              <div class="crash-multiplier" id="crash-multiplier">1.00x</div>
+              <div class="crash-status" id="crash-status">Скоро взлетаем</div>
+            </div>
 
-    <!-- ОДНА основная кнопка: Сделать ставку / Забрать -->
-    <button id="crash-main-action" class="crash-main-btn">
-      Сделать ставку
-    </button>
+            <button id="crash-main-action" class="crash-main-btn">
+              Сделать ставку
+            </button>
 
-    <div class="crash-panel">
-      <div class="crash-bet-block">
-        <div class="crash-bet-label">Ставка (TON)</div>
-        <div class="crash-bet-input-row">
-          <input
-            type="number"
-            id="crash-bet-input"
-            class="crash-bet-input"
-            placeholder="0.10"
-            min="0.1"
-            step="0.1"
-            value="1"
-          />
-        </div>
-      </div>
+            <div class="crash-panel">
+              <div class="crash-bet-block">
+                <div class="crash-bet-label">Ставка (TON)</div>
+                <div class="crash-bet-input-row">
+                  <input
+                    type="number"
+                    id="crash-bet-input"
+                    class="crash-bet-input"
+                    placeholder="0.10"
+                    min="0.1"
+                    step="0.1"
+                    value="1"
+                  />
+                </div>
+              </div>
 
-      <div class="crash-auto-block">
-        <div class="crash-bet-label">Авто-вывод (x)</div>
-        <div class="crash-bet-input-row">
-          <input
-            type="number"
-            id="crash-auto-input"
-            class="crash-bet-input"
-            placeholder="Например: 2.5"
-            min="1.1"
-            step="0.1"
-          />
-        </div>
-      </div>
-    </div>
+              <div class="crash-auto-block">
+                <div class="crash-bet-label">Авто-вывод (x)</div>
+                <div class="crash-bet-input-row">
+                  <input
+                    type="number"
+                    id="crash-auto-input"
+                    class="crash-bet-input"
+                    placeholder="Например: 2.5"
+                    min="1.1"
+                    step="0.1"
+                  />
+                </div>
+              </div>
+            </div>
 
-    <div class="crash-info">
-      <div class="crash-info-item">
-        <span class="crash-info-label">Ваша ставка:</span>
-        <span class="crash-info-value" id="crash-current-bet">—</span>
-      </div>
-      <div class="crash-info-item">
-        <span class="crash-info-label">Потенциальный выигрыш:</span>
-        <span class="crash-info-value" id="crash-potential-win">—</span>
-      </div>
-    </div>
-  </div>
-</section>
-
+            <div class="crash-info">
+              <div class="crash-info-item">
+                <span class="crash-info-label">Ваша ставка:</span>
+                <span class="crash-info-value" id="crash-current-bet">—</span>
+              </div>
+              <div class="crash-info-item">
+                <span class="crash-info-label">Потенциальный выигрыш:</span>
+                <span class="crash-info-value" id="crash-potential-win">—</span>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <!-- Экран КЕЙСЫ -->
         <section id="screen-cases" class="screen">
@@ -262,7 +266,11 @@
               Цена: <span id="case-open-price">0</span> TON
             </div>
 
-            <button id="case-open-spin" class="action-btn action-green" type="button">
+            <button
+              id="case-open-spin"
+              class="action-btn action-green"
+              type="button"
+            >
               Открыть кейс
             </button>
           </div>
@@ -394,6 +402,63 @@
             </div>
           </div>
         </section>
+
+        <!-- Экран АДМИНКА -->
+        <section id="screen-admin" class="screen">
+          <div class="screen-title">Админка</div>
+          <div class="screen-subtitle">
+            Управление пользователями и балансами.
+          </div>
+
+          <div class="admin-block">
+            <div class="admin-block-title">Список пользователей</div>
+            <div class="admin-block-text">
+              Отправить в Telegram список последних пользователей.
+            </div>
+            <button
+              id="admin-users-summary-btn"
+              class="action-btn action-blue"
+              type="button"
+            >
+              Получить список
+            </button>
+          </div>
+
+          <div class="admin-block">
+            <div class="admin-block-title">Изменить баланс пользователя</div>
+            <div class="admin-block-text">
+              Укажите Telegram ID пользователя и величину изменения баланса.
+              Можно вводить как положительные, так и отрицательные значения.
+            </div>
+
+            <div class="promo-block">
+              <input
+                id="admin-tg-id-input"
+                type="text"
+                placeholder="tg_id пользователя"
+              />
+            </div>
+
+            <div class="promo-block">
+              <input
+                id="admin-amount-input"
+                type="number"
+                step="0.01"
+                placeholder="Сумма (например 10 или -5)"
+              />
+            </div>
+
+            <button
+              id="admin-adjust-balance-btn"
+              class="action-btn action-green"
+              type="button"
+            >
+              Изменить баланс
+            </button>
+
+            <div id="admin-result" class="admin-result"></div>
+          </div>
+        </section>
       </main>
 
       <nav class="bottom-nav">
@@ -452,6 +517,19 @@
             </svg>
           </span>
           <span>Профиль</span>
+        </button>
+
+        <!-- Кнопка админки (будет скрываться для не-админов в script.js) -->
+        <button class="nav-btn" data-target="admin" id="admin-nav-btn">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M12 2 4 6v5c0 4.4 3.1 8.5 8 9 4.9-.5 8-4.6 8-9V6l-8-4z"
+              />
+              <circle cx="12" cy="11" r="3" />
+            </svg>
+          </span>
+          <span>Admin</span>
         </button>
       </nav>
 
@@ -574,7 +652,3 @@
     <script src="script.js"></script>
   </body>
 </html>
-
-
-
-
