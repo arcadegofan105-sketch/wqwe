@@ -526,14 +526,39 @@ promoApplyBtn?.addEventListener('click', async () => {
 
   try {
     const data = await applyPromoApi(code)
-    balance = Number(data.newBalance ?? balance)
-    updateBalanceUI()
+
+    // Денежный промокод (старое поведение)
+    if (data.type === 'balance' || typeof data.amount === 'number') {
+      balance = Number(data.newBalance ?? balance)
+      updateBalanceUI()
+      promoInput.value = ''
+      alert(`Промокод применён: +${Number(data.amount || 0).toFixed(2)} TON`)
+      return
+    }
+
+    // Промокод на подарок "Мишка"
+    if (data.type === 'gift' && data.prize) {
+      // Обновляем инвентарь сразу, чтобы не ждать перезахода
+      if (Array.isArray(data.inventory)) {
+        inventory = data.inventory
+      } else {
+        // на всякий случай, если вернётся только prize
+        inventory = [...(inventory || []), data.prize]
+      }
+      renderInventory()
+      promoInput.value = ''
+      alert('Промокод применён: Мишка зачислен в инвентарь.')
+      return
+    }
+
+    // fallback
+    alert('Промокод применён')
     promoInput.value = ''
-    alert(`Промокод применён: +${Number(data.amount || 0).toFixed(2)} TON`)
   } catch (err) {
     alert(err.message || 'Ошибка промокода')
   }
 })
+
 
 // ===== DEPOSIT TON =====
 
@@ -984,6 +1009,7 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
 
 
 
