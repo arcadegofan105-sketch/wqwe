@@ -297,11 +297,29 @@ app.post('/api/admin/users/summary', auth, async (req, res) => {
       ].join(' | ')
     })
 
-    const text =
-      '📊 Список пользователей (последние 50):\n\n' +
-      lines.join('\n')
+    const header = '📊 Список пользователей (последние 50):\n\n'
+const fullText = header + lines.join('\n')
 
-    await sendAdminMessage(text)
+// лимит Telegram ~4096 символов, возьмём запасом 3500
+const CHUNK_SIZE = 3500
+
+if (fullText.length <= CHUNK_SIZE) {
+  await sendAdminMessage(fullText)
+} else {
+  let chunk = header
+  for (const line of lines) {
+    // если текущий чанк переполнится – отправляем и начинаем новый
+    if ((chunk + line + '\n').length > CHUNK_SIZE) {
+      await sendAdminMessage(chunk)
+      chunk = ''
+    }
+    chunk += line + '\n'
+  }
+  if (chunk.trim().length > 0) {
+    await sendAdminMessage(chunk)
+  }
+}
+
 
     res.json({ ok: true, usersCount: usersRows.length })
   } catch (e) {
@@ -698,4 +716,5 @@ app.get('*', (req, res) => {
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, '0.0.0.0', () => console.log('✅ Listening on', PORT))
+
 
