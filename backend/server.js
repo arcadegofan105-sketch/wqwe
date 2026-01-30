@@ -250,7 +250,6 @@ app.post('/api/me', auth, (req, res) => {
   u.balance = Number(dbUser.balance || 0)
   u.totalDepositTon = Number(dbUser.total_deposit_ton || 0)
 
-  // админ – тот, чей tg id совпадает с ADMIN_CHAT_ID
   const isAdmin = String(id) === String(ADMIN_CHAT_ID)
 
   res.json({
@@ -258,10 +257,12 @@ app.post('/api/me', auth, (req, res) => {
     inventory: u.inventory,
     totalDepositTon: Number(u.totalDepositTon || 0),
     visitsCount: dbUser.visits_count,
-    stars: Number(u.stars || 0), // новое поле
+    stars: Number(u.stars || 0),
     isAdmin,
-    adminId: ADMIN_CHAT_ID, // опционально, но может пригодиться
+    adminId: ADMIN_CHAT_ID,
   })
+}) // ← вот этого блока не хватает
+
 
 
 
@@ -760,6 +761,7 @@ app.get('*', (req, res) => {
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, '0.0.0.0', () => console.log('✅ Listening on', PORT))
+
 
 
 
