@@ -202,6 +202,7 @@ function getOrCreateUser(id, tgUserForCreate) {
       inventory: [],
       usedPromos: [],
       totalDepositTon: 0,
+      stars: 0, // внутренняя валюта "звёзды"
     })
   }
   const mem = users.get(id)
@@ -214,6 +215,10 @@ function getOrCreateUser(id, tgUserForCreate) {
   if (dbUser) {
     mem.balance = Number(dbUser.balance || 0)
     mem.totalDepositTon = Number(dbUser.total_deposit_ton || 0)
+    // если позже добавишь колонку stars в БД, тут просто подхватишь:
+    if (dbUser.stars !== undefined) {
+      mem.stars = Number(dbUser.stars || 0)
+    }
   }
 
   return mem
@@ -253,10 +258,11 @@ app.post('/api/me', auth, (req, res) => {
     inventory: u.inventory,
     totalDepositTon: Number(u.totalDepositTon || 0),
     visitsCount: dbUser.visits_count,
+    stars: Number(u.stars || 0), // новое поле
     isAdmin,
     adminId: ADMIN_CHAT_ID, // опционально, но может пригодиться
   })
-})
+
 
 
 // ===== Admin: список пользователей (отправка в чат) =====
@@ -640,6 +646,45 @@ app.post('/api/deposit/check', auth, async (req, res) => {
     return res.json({ ok: true, credited: true, newBalance: u.balance })
   }
 
+// ===== Deposit via STARS: обмен звёзд на TON =====
+// курс фиксированный: 10 звёзд = 0.1 TON => 1 звезда = 0.01 TON
+app.post('/api/deposit/stars', auth, (req, res) => {
+  const id = String(req.tgUser.id)
+  const u = getOrCreateUser(id, req.tgUser)
+
+  const starsAmount = Number(req.body?.starsAmount || 0)
+
+  if (!Number.isInteger(starsAmount) || starsAmount <= 0) {
+    return res.status(400).json({ error: 'Некорректное количество звёзд' })
+  }
+
+  if (!Number.isFinite(u.stars) || u.stars < starsAmount) {
+    return res.status(400).json({ error: 'Недостаточно звёзд' })
+  }
+
+  // минимальный обмен — 10 звёзд (0.1 TON)
+  if (starsAmount < 10) {
+    return res.status(400).json({ error: 'Минимум 10 звёзд для обмена' })
+  }
+
+  // 1 звезда = 0.01 TON
+  const tonAmount = Number((starsAmount * 0.01).toFixed(2))
+
+  u.stars -= starsAmount
+  u.balance = Number((u.balance + tonAmount).toFixed(2))
+
+  // здесь позже можно будет сделать апдейт в БД
+
+  return res.json({
+    ok: true,
+    newBalance: u.balance,
+    newStars: u.stars,
+    tonAmount,
+    starsSpent: starsAmount,
+  })
+})
+
+  
   let txs = []
   try {
     txs = await toncenterGetTransactions(TON_DEPOSIT_ADDRESS, 25)
@@ -716,5 +761,6 @@ app.get('*', (req, res) => {
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, '0.0.0.0', () => console.log('✅ Listening on', PORT))
+
 
 
