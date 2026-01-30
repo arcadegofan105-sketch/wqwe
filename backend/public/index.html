@@ -600,36 +600,71 @@
         </div>
       </div>
 
-      <div id="deposit-modal" class="modal">
+       <div id="deposit-modal" class="modal">
         <div class="modal-content">
           <div class="modal-title">Пополнение баланса</div>
 
           <div class="deposit-tabs">
-            <button class="deposit-tab active">TON</button>
+            <button class="deposit-tab active" data-deposit-type="ton">
+              TON
+            </button>
+            <button class="deposit-tab" data-deposit-type="stars">
+              ⭐ Звёзды
+            </button>
           </div>
 
           <div class="deposit-body">
-            <div class="deposit-subtitle">Заполните данные</div>
+            <!-- Блок для TON -->
+            <div class="deposit-ton-block">
+              <div class="deposit-subtitle">TON кошелёк</div>
 
-            <button
-              id="connect-ton-btn"
-              class="modal-btn modal-btn-keep"
-              type="button"
-            >
-              Подключите TON кошелёк
-            </button>
+              <button
+                id="connect-ton-btn"
+                class="modal-btn modal-btn-keep"
+                type="button"
+              >
+                Подключите TON кошелёк
+              </button>
 
-            <div class="deposit-form">
-              <label class="deposit-label">Сумма пополнения (TON)</label>
-              <input
-                id="deposit-amount-input"
-                class="modal-input"
-                type="number"
-                min="0.1"
-                step="0.01"
-                placeholder="Введите сумму..."
-                disabled
-              />
+              <div class="deposit-form">
+                <label class="deposit-label">Сумма пополнения (TON)</label>
+                <input
+                  id="deposit-amount-input"
+                  class="modal-input"
+                  type="number"
+                  min="0.1"
+                  step="0.01"
+                  placeholder="Введите сумму..."
+                  disabled
+                />
+              </div>
+            </div>
+
+            <!-- Блок для звёзд -->
+            <div class="deposit-stars-block" style="display: none;">
+              <div class="deposit-subtitle">Обмен звёзд на TON</div>
+
+              <div class="deposit-form">
+                <label class="deposit-label">
+                  Сколько звёзд обменять (10⭐ = 0.1 TON)
+                </label>
+                <input
+                  id="deposit-stars-input"
+                  class="modal-input"
+                  type="number"
+                  min="10"
+                  step="10"
+                  placeholder="Например: 100"
+                />
+              </div>
+
+              <div class="modal-hint">
+                Ваши звёзды: <span id="stars-balance-hint">0</span> ⭐
+              </div>
+
+              <div class="modal-hint" id="stars-to-ton-hint">
+                Это будет 0 TON
+              </div>
             </div>
           </div>
 
@@ -647,7 +682,7 @@
               type="button"
               disabled
             >
-              Пополнить
+              Подтвердить
             </button>
           </div>
         </div>
@@ -659,4 +694,5 @@
     <script src="script.js"></script>
   </body>
 </html>
+
 
