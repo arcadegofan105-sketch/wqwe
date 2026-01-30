@@ -120,13 +120,22 @@ const depositConfirmBtn = document.getElementById('deposit-confirm')
 const depositCancelBtn = document.getElementById('deposit-cancel')
 const connectTonBtn = document.getElementById('connect-ton-btn')
 
+// вкладки депозита и звёзды
+const depositTabs = document.querySelectorAll('.deposit-tab')
+const depositTonBlock = document.querySelector('.deposit-ton-block')
+const depositStarsBlock = document.querySelector('.deposit-stars-block')
+const depositStarsInput = document.getElementById('deposit-stars-input')
+const starsBalanceHint = document.getElementById('stars-balance-hint')
+const starsToTonHint = document.getElementById('stars-to-ton-hint')
+
 // ===== STATE =====
 let currentRotation = 0
 let balance = 0
 let inventory = []
 let currentPrize = null
 let isSpinning = false
-let isAdminFlag = false // выставляется после /api/me
+let isAdminFlag = false
+let starsBalance = 0
 
 // ===== HELPERS =====
 function updateBalanceUI() {
@@ -178,8 +187,8 @@ function renderWheel() {
   if (!wheel) return
   const sectorNodes = wheel.querySelectorAll('.sector')
   const N = wheelSectors.length
-  const angleStep = 140 / (N - 1) // дуга около 140°
-  const startAngle = -70 // от -70° до +70°
+  const angleStep = 140 / (N - 1)
+  const startAngle = -70
 
   sectorNodes.forEach((node, i) => {
     const s = wheelSectors[i]
@@ -195,7 +204,6 @@ function renderWheel() {
     node.style.transform = `rotate(${angle}deg) translateY(-6%)`
   })
 }
-
 
 function renderPrizesList() {
   const items = document.querySelectorAll('.prizes-grid .prize-item')
@@ -270,11 +278,7 @@ function updateTelegramUserUI() {
 
 // ===== ADMIN HELPERS =====
 function isAdmin() {
-  // Если бэк из /api/me отдаёт isAdmin — используем его
   if (typeof isAdminFlag === 'boolean') return isAdminFlag
-
-  // Фоллбэк: сравнить с ADMIN_CHAT_ID, если ты захочешь пробросить его в window.
-  // По умолчанию просто false.
   return false
 }
 
@@ -282,7 +286,6 @@ function setupAdminUI() {
   const admin = isAdmin()
 
   if (!admin) {
-    // скрыть кнопку и экран
     if (adminNavBtn) adminNavBtn.style.display = 'none'
     if (screens.admin) screens.admin.style.display = 'none'
     return
@@ -291,7 +294,6 @@ function setupAdminUI() {
   if (adminNavBtn) adminNavBtn.style.display = ''
   if (screens.admin) screens.admin.style.display = ''
 
-  // обработчик "Список пользователей"
   adminUsersSummaryBtn?.addEventListener('click', async () => {
     if (adminResultBox) {
       adminResultBox.textContent = 'Отправляем запрос...'
@@ -314,7 +316,6 @@ function setupAdminUI() {
     }
   })
 
-  // обработчик "Изменить баланс"
   adminAdjustBalanceBtn?.addEventListener('click', async () => {
     const tgId = (adminTgIdInput?.value || '').trim()
     const rawAmount = String(adminAmountInput?.value || '')
@@ -435,15 +436,18 @@ async function apiPost(path, body = {}) {
 async function fetchUserData() {
   const data = await apiPost('/me')
   balance = Number(data.balance || 0)
+  starsBalance = Number(data.stars || 0)
   inventory = Array.isArray(data.inventory) ? data.inventory : []
   updateBalanceUI()
   renderInventory()
 
-  // признак админа, если есть
+  if (starsBalanceHint) {
+    starsBalanceHint.textContent = String(starsBalance)
+  }
+
   if (typeof data.isAdmin === 'boolean') {
     isAdminFlag = data.isAdmin
   } else if (telegramUser && data.adminId) {
-    // если захочешь с бэка прислать adminId
     isAdminFlag = String(telegramUser.id) === String(data.adminId)
   }
 
@@ -488,6 +492,9 @@ async function depositCreateApi(amount) {
 async function depositCheckApi(depositId) {
   return apiPost('/deposit/check', { depositId })
 }
+async function depositStarsApi(starsAmount) {
+  return apiPost('/deposit/stars', { starsAmount })
+}
 
 // deposit helpers
 function toNanoString(tonAmount) {
@@ -505,7 +512,7 @@ navButtons.forEach(btn => {
   btn.addEventListener('click', () => setScreen(btn.dataset.target))
 })
 
-// клики по карточкам на главной (Краш / Колесо / Кейсы)
+// клики по карточкам на главной
 document.querySelectorAll('[data-home-target]').forEach(card => {
   card.addEventListener('click', () => {
     const target = card.getAttribute('data-home-target')
@@ -521,7 +528,7 @@ document.querySelectorAll('[data-home-target]').forEach(card => {
   })
 })
 
-// крутилка с плавным ease-out и рандомной длительностью
+// крутилка
 spinButton?.addEventListener('click', async e => {
   e.preventDefault()
   e.stopPropagation()
@@ -551,8 +558,6 @@ spinButton?.addEventListener('click', async e => {
   balance = Number(prizeData.newBalance ?? balance - SPIN_PRICE)
   updateBalanceUI()
 
-  // по-хорошему тут надо вычислять sectorIndex по currentPrize,
-  // но пока оставим Мишку как выигрышный сектор
   const bearIndex = wheelSectors.findIndex(s => s?.name === 'Мишка')
   const sectorIndex = bearIndex >= 0 ? bearIndex : 0
 
@@ -564,12 +569,10 @@ spinButton?.addEventListener('click', async e => {
   const current = ((currentRotation % 360) + 360) % 360
   const delta = (((desiredAngle - base - current) % 360) + 360) % 360
 
-  // добавляем немного рандома к кол-ву оборотов
   const extraRounds = FULL_ROUNDS + Math.random() * 1.5
   currentRotation += extraRounds * 360 + delta
 
-  // длительность зависит от числа оборотов
-  const duration = 2.8 + extraRounds * 0.3 // примерно 3–4 сек
+  const duration = 2.8 + extraRounds * 0.3
   wheel.style.transition = `transform ${duration.toFixed(2)}s cubic-bezier(0.08, 0.72, 0.12, 0.99)`
   wheel.style.transform = `rotate(${currentRotation.toFixed(3)}deg)`
 })
@@ -578,14 +581,10 @@ wheel?.addEventListener('transitionend', e => {
   if (e.propertyName !== 'transform') return
   if (!isSpinning) return
 
-  // фиксируем угол в диапазоне 0–360
   currentRotation = ((currentRotation % 360) + 360) % 360
 
-  // убираем transition, чтобы не было лишней анимации при фиксе
   wheel.style.transition = 'none'
   wheel.style.transform = `rotate(${currentRotation.toFixed(3)}deg)`
-  // форсим reflow
-  // eslint-disable-next-line no-unused-expressions
   wheel.offsetHeight
   wheel.style.transition = ''
 
@@ -595,7 +594,6 @@ wheel?.addEventListener('transitionend', e => {
   isSpinning = false
   spinButton.disabled = false
 })
-
 
 modalSellBtn?.addEventListener('click', async () => {
   if (!currentPrize) return
@@ -692,12 +690,66 @@ promoApplyBtn?.addEventListener('click', async () => {
   }
 })
 
-// ===== DEPOSIT TON =====
+// ===== DEPOSIT (TON + ЗВЁЗДЫ) =====
+function getActiveDepositType() {
+  const active = document.querySelector('.deposit-tab.active')
+  return active?.dataset.depositType || 'ton'
+}
+
+depositTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    depositTabs.forEach(t => t.classList.remove('active'))
+    tab.classList.add('active')
+
+    const type = tab.dataset.depositType
+    if (type === 'ton') {
+      if (depositTonBlock) depositTonBlock.style.display = ''
+      if (depositStarsBlock) depositStarsBlock.style.display = 'none'
+      if (depositConfirmBtn) {
+        const connected = isWalletConnected()
+        depositConfirmBtn.disabled = !connected
+      }
+    } else {
+      if (depositTonBlock) depositTonBlock.style.display = 'none'
+      if (depositStarsBlock) depositStarsBlock.style.display = ''
+      if (depositConfirmBtn) depositConfirmBtn.disabled = false
+
+      if (starsBalanceHint) starsBalanceHint.textContent = String(starsBalance)
+      if (depositStarsInput) {
+        const raw = String(depositStarsInput.value || '').trim()
+        const stars = Number(raw)
+        const ton = Number(((stars || 0) * 0.01).toFixed(2))
+        if (starsToTonHint) {
+          starsToTonHint.textContent = `Это будет ${ton} TON`
+        }
+      }
+    }
+  })
+})
+
+depositStarsInput?.addEventListener('input', () => {
+  const raw = String(depositStarsInput.value || '').replace(',', '.').trim()
+  const stars = Number(raw)
+  const ton = Number(((stars || 0) * 0.01).toFixed(2))
+  if (starsToTonHint) {
+    starsToTonHint.textContent = `Это будет ${ton} TON`
+  }
+})
+
 function openDepositModalFromAnyButton() {
   if (!depositModal) return
+
+  const type = getActiveDepositType()
   const connected = isWalletConnected()
-  if (depositAmountInput) depositAmountInput.disabled = !connected
-  if (depositConfirmBtn) depositConfirmBtn.disabled = !connected
+
+  if (type === 'ton') {
+    if (depositAmountInput) depositAmountInput.disabled = !connected
+    if (depositConfirmBtn) depositConfirmBtn.disabled = !connected
+  } else {
+    if (depositConfirmBtn) depositConfirmBtn.disabled = false
+  }
+
+  if (starsBalanceHint) starsBalanceHint.textContent = String(starsBalance)
   depositModal.classList.add('active')
 }
 
@@ -717,11 +769,57 @@ connectTonBtn?.addEventListener('click', async () => {
 
   const connected = isWalletConnected()
   if (depositAmountInput) depositAmountInput.disabled = !connected
-  if (depositConfirmBtn) depositConfirmBtn.disabled = !connected
+  if (depositConfirmBtn && getActiveDepositType() === 'ton') {
+    depositConfirmBtn.disabled = !connected
+  }
   updateConnectButtonUI()
 })
 
 depositConfirmBtn?.addEventListener('click', async () => {
+  const type = getActiveDepositType()
+
+  if (type === 'stars') {
+    try {
+      const rawStars = String(depositStarsInput?.value || '')
+        .replace(',', '.')
+        .trim()
+      const starsAmount = Number(rawStars)
+
+      if (!Number.isInteger(starsAmount) || starsAmount <= 0) {
+        alert('Введите корректное количество звёзд')
+        return
+      }
+      if (starsAmount < 10) {
+        alert('Минимум 10 звёзд для обмена')
+        return
+      }
+      if (starsAmount > starsBalance) {
+        alert('У вас недостаточно звёзд')
+        return
+      }
+
+      depositConfirmBtn.disabled = true
+
+      const r = await depositStarsApi(starsAmount)
+      balance = Number(r.newBalance ?? balance)
+      starsBalance = Number(r.newStars ?? starsBalance)
+      updateBalanceUI()
+
+      if (starsBalanceHint) starsBalanceHint.textContent = String(starsBalance)
+      if (depositStarsInput) depositStarsInput.value = ''
+      if (starsToTonHint) starsToTonHint.textContent = 'Это будет 0 TON'
+
+      const ton = Number((starsAmount * 0.01).toFixed(2))
+      alert(`Обмен завершён: ${starsAmount}⭐ → ${ton} TON`)
+      depositModal.classList.remove('active')
+    } catch (err) {
+      alert(err.message || 'Ошибка обмена звёзд')
+    } finally {
+      depositConfirmBtn.disabled = false
+    }
+    return
+  }
+
   try {
     if (!isWalletConnected()) {
       alert('Сначала подключи TON-кошелёк.')
@@ -832,7 +930,7 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
   }
 })
 
-// ===== CRASH (синхронизация с сервером) =====
+// ===== CRASH =====
 const crashCanvas = document.getElementById('crash-canvas')
 const crashCtx = crashCanvas ? crashCanvas.getContext('2d') : null
 const crashMultiplierEl = document.getElementById('crash-multiplier')
@@ -843,7 +941,7 @@ const crashMainActionBtn = document.getElementById('crash-main-action')
 const crashCurrentBetEl = document.getElementById('crash-current-bet')
 const crashPotentialWinEl = document.getElementById('crash-potential-win')
 
-let crashState = 'idle' // idle | playing | crashed
+let crashState = 'idle'
 let crashMultiplier = 1.0
 let crashPoint = null
 let crashBetAmount = 0
@@ -851,7 +949,7 @@ let crashAutoCashoutAt = null
 let crashHasCashedOut = false
 let crashAnimFrame = null
 let crashStartTime = null
-let crashTime = 8000 // мс
+let crashTime = 8000
 
 function initCrashCanvas() {
   if (!crashCanvas || !crashCtx) return
@@ -990,7 +1088,6 @@ function animateCrash() {
   crashAnimFrame = requestAnimationFrame(animateCrash)
 }
 
-
 async function startCrash() {
   if (crashState !== 'idle') return
 
@@ -1015,7 +1112,7 @@ async function startCrash() {
     crashAutoCashoutAt = val
   }
 
-   try {
+  try {
     const r = await apiPost('/crash/bet', { amount: crashBetAmount })
     balance = Number(r.newBalance ?? balance)
     updateBalanceUI()
@@ -1030,19 +1127,12 @@ async function startCrash() {
   crashHasCashedOut = false
   crashStartTime = Date.now()
 
-  // 🔥 Подстраиваем время раунда под точку краша,
-  // чтобы экспонента визуально шла одинаково
-  const baseTimeMs = 8000    // базовое время для краша примерно до 2.0x
+  const baseTimeMs = 8000
   const basePoint = 2.0
-
-  // отношение того, насколько далеко точка краша от 1x
   const ratio = (crashPoint - 1) / (basePoint - 1)
-  crashTime = baseTimeMs * ratio
-
-  // ограничим длительность, чтобы не было слишком коротких/длинных раундов
   const minMs = 4000
   const maxMs = 12000
-  crashTime = Math.max(minMs, Math.min(maxMs, crashTime))
+  crashTime = Math.max(minMs, Math.min(maxMs, baseTimeMs * ratio))
 
   if (crashStatusEl) {
     crashStatusEl.textContent = 'Летим...'
@@ -1053,7 +1143,6 @@ async function startCrash() {
   drawCrashGraph()
   animateCrash()
 }
-
 
 async function cashoutCrash(isAuto = false) {
   if (crashState !== 'playing') return
@@ -1147,6 +1236,3 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
-
-
-
