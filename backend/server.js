@@ -646,45 +646,6 @@ app.post('/api/deposit/check', auth, async (req, res) => {
     return res.json({ ok: true, credited: true, newBalance: u.balance })
   }
 
-// ===== Deposit via STARS: обмен звёзд на TON =====
-// курс фиксированный: 10 звёзд = 0.1 TON => 1 звезда = 0.01 TON
-app.post('/api/deposit/stars', auth, (req, res) => {
-  const id = String(req.tgUser.id)
-  const u = getOrCreateUser(id, req.tgUser)
-
-  const starsAmount = Number(req.body?.starsAmount || 0)
-
-  if (!Number.isInteger(starsAmount) || starsAmount <= 0) {
-    return res.status(400).json({ error: 'Некорректное количество звёзд' })
-  }
-
-  if (!Number.isFinite(u.stars) || u.stars < starsAmount) {
-    return res.status(400).json({ error: 'Недостаточно звёзд' })
-  }
-
-  // минимальный обмен — 10 звёзд (0.1 TON)
-  if (starsAmount < 10) {
-    return res.status(400).json({ error: 'Минимум 10 звёзд для обмена' })
-  }
-
-  // 1 звезда = 0.01 TON
-  const tonAmount = Number((starsAmount * 0.01).toFixed(2))
-
-  u.stars -= starsAmount
-  u.balance = Number((u.balance + tonAmount).toFixed(2))
-
-  // здесь позже можно будет сделать апдейт в БД
-
-  return res.json({
-    ok: true,
-    newBalance: u.balance,
-    newStars: u.stars,
-    tonAmount,
-    starsSpent: starsAmount,
-  })
-})
-
-  
   let txs = []
   try {
     txs = await toncenterGetTransactions(TON_DEPOSIT_ADDRESS, 25)
@@ -720,6 +681,44 @@ app.post('/api/deposit/stars', auth, (req, res) => {
   ).catch(() => {})
 
   return res.json({ ok: true, credited: true, newBalance: u.balance })
+})
+// ← здесь ЗАКРЫЛИ /api/deposit/check
+
+
+// ===== Deposit via STARS: обмен звёзд на TON =====
+// курс фиксированный: 10 звёзд = 0.1 TON => 1 звезда = 0.01 TON
+app.post('/api/deposit/stars', auth, (req, res) => {
+  const id = String(req.tgUser.id)
+  const u = getOrCreateUser(id, req.tgUser)
+
+  const starsAmount = Number(req.body?.starsAmount || 0)
+
+  if (!Number.isInteger(starsAmount) || starsAmount <= 0) {
+    return res.status(400).json({ error: 'Некорректное количество звёзд' })
+  }
+
+  if (!Number.isFinite(u.stars) || u.stars < starsAmount) {
+    return res.status(400).json({ error: 'Недостаточно звёзд' })
+  }
+
+  // минимальный обмен — 10 звёзд (0.1 TON)
+  if (starsAmount < 10) {
+    return res.status(400).json({ error: 'Минимум 10 звёзд для обмена' })
+  }
+
+  // 1 звезда = 0.01 TON
+  const tonAmount = Number((starsAmount * 0.01).toFixed(2))
+
+  u.stars -= starsAmount
+  u.balance = Number((u.balance + tonAmount).toFixed(2))
+
+  return res.json({
+    ok: true,
+    newBalance: u.balance,
+    newStars: u.stars,
+    tonAmount,
+    starsSpent: starsAmount,
+  })
 })
 
 // ===== Crash sync (общий баланс) =====
@@ -761,6 +760,7 @@ app.get('*', (req, res) => {
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, '0.0.0.0', () => console.log('✅ Listening on', PORT))
+
 
 
 
