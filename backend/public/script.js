@@ -177,6 +177,10 @@ function closeWithdrawModal() {
 function renderWheel() {
   if (!wheel) return
   const sectorNodes = wheel.querySelectorAll('.sector')
+  const N = wheelSectors.length
+  const angleStep = 140 / (N - 1) // дуга около 140°
+  const startAngle = -70 // от -70° до +70°
+
   sectorNodes.forEach((node, i) => {
     const s = wheelSectors[i]
     if (!s) {
@@ -186,8 +190,12 @@ function renderWheel() {
     }
     node.innerHTML = giftVisual(s)
     node.title = `${s.name} (${s.price} TON)`
+
+    const angle = startAngle + i * angleStep
+    node.style.transform = `rotate(${angle}deg) translateY(-6%)`
   })
 }
+
 
 function renderPrizesList() {
   const items = document.querySelectorAll('.prizes-grid .prize-item')
@@ -513,7 +521,7 @@ document.querySelectorAll('[data-home-target]').forEach(card => {
   })
 })
 
-// крутилка
+// крутилка с плавным ease-out и рандомной длительностью
 spinButton?.addEventListener('click', async e => {
   e.preventDefault()
   e.stopPropagation()
@@ -543,6 +551,8 @@ spinButton?.addEventListener('click', async e => {
   balance = Number(prizeData.newBalance ?? balance - SPIN_PRICE)
   updateBalanceUI()
 
+  // по-хорошему тут надо вычислять sectorIndex по currentPrize,
+  // но пока оставим Мишку как выигрышный сектор
   const bearIndex = wheelSectors.findIndex(s => s?.name === 'Мишка')
   const sectorIndex = bearIndex >= 0 ? bearIndex : 0
 
@@ -554,7 +564,13 @@ spinButton?.addEventListener('click', async e => {
   const current = ((currentRotation % 360) + 360) % 360
   const delta = (((desiredAngle - base - current) % 360) + 360) % 360
 
-  currentRotation += FULL_ROUNDS * 360 + delta
+  // добавляем немного рандома к кол-ву оборотов
+  const extraRounds = FULL_ROUNDS + Math.random() * 1.5
+  currentRotation += extraRounds * 360 + delta
+
+  // длительность зависит от числа оборотов
+  const duration = 2.8 + extraRounds * 0.3 // примерно 3–4 сек
+  wheel.style.transition = `transform ${duration.toFixed(2)}s cubic-bezier(0.08, 0.72, 0.12, 0.99)`
   wheel.style.transform = `rotate(${currentRotation.toFixed(3)}deg)`
 })
 
@@ -562,9 +578,14 @@ wheel?.addEventListener('transitionend', e => {
   if (e.propertyName !== 'transform') return
   if (!isSpinning) return
 
+  // фиксируем угол в диапазоне 0–360
   currentRotation = ((currentRotation % 360) + 360) % 360
+
+  // убираем transition, чтобы не было лишней анимации при фиксе
   wheel.style.transition = 'none'
   wheel.style.transform = `rotate(${currentRotation.toFixed(3)}deg)`
+  // форсим reflow
+  // eslint-disable-next-line no-unused-expressions
   wheel.offsetHeight
   wheel.style.transition = ''
 
@@ -572,7 +593,9 @@ wheel?.addEventListener('transitionend', e => {
   openModal(currentPrize)
 
   isSpinning = false
+  spinButton.disabled = false
 })
+
 
 modalSellBtn?.addEventListener('click', async () => {
   if (!currentPrize) return
@@ -1124,5 +1147,6 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
 
 
