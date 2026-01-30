@@ -70,29 +70,36 @@
           </div>
         </section>
 
-        <!-- Экран КОЛЕСО -->
+                <!-- Экран КОЛЕСО -->
         <section id="screen-wheel" class="screen">
           <div class="screen-title">Колесо фортуны</div>
           <div class="screen-subtitle">Каждый спин стоит 1 TON</div>
 
           <div class="wheel-wrapper">
-            <div class="wheel-arrow">▼</div>
-            <div id="wheel" class="wheel">
-              <div class="sector" data-index="0">🧸</div>
-              <div class="sector" data-index="1">🐸</div>
-              <div class="sector" data-index="2">💋</div>
-              <div class="sector" data-index="3">📅</div>
-              <div class="sector" data-index="4">🍀</div>
-              <div class="sector" data-index="5">🍑</div>
-              <div class="sector" data-index="6">🧸</div>
+            <div class="wheel-arrow"></div>
+
+            <!-- Арка, которая обрезает нижнюю часть круга -->
+            <div class="wheel-arc">
+              <div id="wheel" class="wheel">
+                <div class="sector" data-index="0">🧸</div>
+                <div class="sector" data-index="1">🐸</div>
+                <div class="sector" data-index="2">💋</div>
+                <div class="sector" data-index="3">📅</div>
+                <div class="sector" data-index="4">🍀</div>
+                <div class="sector" data-index="5">🍑</div>
+                <div class="sector" data-index="6">🧸</div>
+              </div>
             </div>
+
+            <!-- Нижняя панель с кнопкой, как «пульт» -->
             <div class="wheel-center">
               <button id="spin-button" class="spin-button" type="button">
-                Крутить
-                <div class="spin-subtitle">Цена: 1 TON</div>
+                <span class="spin-title">Крутить</span>
+                <span class="spin-subtitle">Цена: 1 TON</span>
               </button>
             </div>
           </div>
+
 
           <div class="info-row">
             <div class="info-card">
@@ -652,3 +659,4 @@
     <script src="script.js"></script>
   </body>
 </html>
+
