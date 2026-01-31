@@ -201,7 +201,9 @@ function renderWheel() {
     node.title = `${s.name} (${s.price} TON)`
 
     const angle = startAngle + i * angleStep
-    node.style.transform = `rotate(${angle}deg) translateY(-6%)`
+node.dataset.angle = angle
+node.style.transform = `rotate(${angle}deg)`
+
   })
 }
 
@@ -570,13 +572,28 @@ spinButton?.addEventListener('click', async e => {
   const delta = (((desiredAngle - base - current) % 360) + 360) % 360
 
   const extraRounds = FULL_ROUNDS + Math.random() * 1.5
-  currentRotation += extraRounds * 360 + delta
-
+  const totalRotation = extraRounds * 360 + delta
   const duration = 2.8 + extraRounds * 0.3
-  wheel.style.transition = `transform ${duration.toFixed(2)}s cubic-bezier(0.08, 0.72, 0.12, 0.99)`
-wheel.style.transform = `translate(-50%, -50%) rotate(${currentRotation.toFixed(3)}deg)`
 
+  const sectors = wheel.querySelectorAll('.sector')
+  sectors.forEach(node => {
+    const currentAngle = parseFloat(node.dataset.angle || '0')
+    const newAngle = currentAngle + totalRotation
+    node.dataset.angle = newAngle
+    node.style.transition = `transform ${duration.toFixed(2)}s cubic-bezier(0.08, 0.72, 0.12, 0.99)`
+    node.style.transform = `rotate(${newAngle}deg)`
+  })
+
+  currentRotation = (currentRotation + totalRotation) % 360
+
+  setTimeout(() => {
+    setLastPrizeText(currentPrize)
+    openModal(currentPrize)
+    isSpinning = false
+    spinButton.disabled = false
+  }, duration * 1000)
 })
+
 
 wheel?.addEventListener('transitionend', e => {
   if (e.propertyName !== 'transform') return
@@ -1239,5 +1256,6 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
 
 
