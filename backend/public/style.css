@@ -269,12 +269,12 @@ body {
 /* карточки‑секторы по дуге */
 .sector {
   position: absolute;
-  top: 8%;
+  top: 4%;
   left: 50%;
-  transform-origin: 50% 200%; /* центр вращения ниже карточки */
-  width: 80px;
-  height: 110px;
-  border-radius: 18px;
+  transform-origin: 50% 210%;
+  width: 96px;           /* было 80px */
+  height: 118px;         /* можно 110–120 подбирать */
+  border-radius: 22px;   /* сильнее скруглить, чтобы сглаживались стыки */
   background: radial-gradient(circle at 20% 0, #1f2937, #020617);
   box-shadow: 0 12px 24px rgba(15, 23, 42, 0.85);
   display: flex;
@@ -282,6 +282,7 @@ body {
   justify-content: center;
   font-size: 34px;
 }
+
 
 /* активный сектор под стрелкой */
 .sector-active {
@@ -1506,6 +1507,7 @@ body {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.9);
   filter: brightness(0.97);
 }
+
 
 
 
