@@ -242,18 +242,19 @@ body {
 /* само колесо — большой круг, центр смещён вниз */
 .wheel {
   position: absolute;
-  width: 140%;
-  height: 280%;
+  width: 160%;
+  height: 260%;
   left: 50%;
-  bottom: -60%;
+  bottom: -45%; /* было -60% или -55% */
   transform: translateX(-50%) rotate(0deg);
   border-radius: 50%;
   background: radial-gradient(circle at 50% 35%, #111827 0, #020617 65%);
   box-shadow:
     0 0 0 1px rgba(148, 163, 184, 0.7),
     0 28px 80px rgba(15, 23, 42, 0.9);
-  transition: transform 0.2s linear; /* реальное время задаём из JS */
+  transition: transform 0.2s linear;
 }
+
 
 /* карточки‑секторы по дуге */
 .sector {
@@ -1495,6 +1496,7 @@ body {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.9);
   filter: brightness(0.97);
 }
+
 
 
 
