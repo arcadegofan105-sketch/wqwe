@@ -250,21 +250,19 @@ body {
   overflow: hidden;
 }
 
-/* само колесо — большой круг, центр смещён вниз */
+/* контейнер для секторов, сам фон не крутится */
 .wheel {
   position: absolute;
   width: 140%;
   height: 140%;
   left: 50%;
-  top: 80%; /* центр колеса ниже середины прямоугольника */
-  transform: translate(-50%, -50%) rotate(0deg);
+  top: 80%;
+  transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 35%, #111827 0, #020617 65%);
-  box-shadow:
-    0 0 0 1px rgba(148, 163, 184, 0.7),
-    0 28px 80px rgba(15, 23, 42, 0.9);
-  transition: transform 0.2s linear;
+  background: transparent;
+  box-shadow: none;
 }
+
 
 
 
@@ -1508,6 +1506,7 @@ body {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.9);
   filter: brightness(0.97);
 }
+
 
 
 
