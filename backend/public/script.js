@@ -574,7 +574,8 @@ spinButton?.addEventListener('click', async e => {
 
   const duration = 2.8 + extraRounds * 0.3
   wheel.style.transition = `transform ${duration.toFixed(2)}s cubic-bezier(0.08, 0.72, 0.12, 0.99)`
-  wheel.style.transform = `translateX(-50%) rotate(${currentRotation.toFixed(3)}deg)`
+wheel.style.transform = `translate(-50%, -50%) rotate(${currentRotation.toFixed(3)}deg)`
+
 })
 
 wheel?.addEventListener('transitionend', e => {
@@ -584,9 +585,10 @@ wheel?.addEventListener('transitionend', e => {
   currentRotation = ((currentRotation % 360) + 360) % 360
 
   wheel.style.transition = 'none'
-  wheel.style.transform = `translateX(-50%) rotate(${currentRotation.toFixed(3)}deg)`
-  wheel.offsetHeight
-  wheel.style.transition = ''
+wheel.style.transform = `translate(-50%, -50%) rotate(${currentRotation.toFixed(3)}deg)`
+wheel.offsetHeight
+wheel.style.transition = ''
+
 
   setLastPrizeText(currentPrize)
   openModal(currentPrize)
@@ -1237,4 +1239,5 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
 
