@@ -256,7 +256,7 @@ body {
   width: 140%;
   height: 140%;
   left: 50%;
-  top: 80%;
+  top: 65%;
   transform: translate(-50%, -50%);
   border-radius: 50%;
   background: transparent;
@@ -1506,6 +1506,7 @@ body {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.9);
   filter: brightness(0.97);
 }
+
 
 
 
