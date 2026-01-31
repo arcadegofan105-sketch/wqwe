@@ -190,25 +190,22 @@ function renderWheel() {
   if (!wheel) return
   const sectorNodes = wheel.querySelectorAll('.sector')
   const N = wheelSectors.length
-const angleStep = 360 / N
-const startAngle = -90  // верх под стрелкой
+  const angleStep = 360 / N
+  const startAngle = -90 // верх под стрелкой
 
-sectorNodes.forEach((node, i) => {
-  const s = wheelSectors[i % N]
-  if (!s) return
+  sectorNodes.forEach((node, i) => {
+    const s = wheelSectors[i % N]
+    if (!s) return
 
-  node.innerHTML = giftVisual(s)
-  node.title = `${s.name} (${s.price} TON)`
+    node.innerHTML = giftVisual(s)
+    node.title = `${s.name} (${s.price} TON)`
 
-  const angle = startAngle + i * angleStep
-  node.dataset.angle = angle
-  node.style.transform = `rotate(${angle}deg)`
-})
-
-  
-
+    const angle = startAngle + i * angleStep
+    node.dataset.angle = angle
+    node.style.transform = `rotate(${angle}deg)`
   })
 }
+
 
 function renderPrizesList() {
   const items = document.querySelectorAll('.prizes-grid .prize-item')
@@ -1259,6 +1256,7 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
 
 
 
