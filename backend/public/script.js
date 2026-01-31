@@ -14,11 +14,8 @@ const wheelSectors = [
   { emoji: '🍑', name: 'Персик',    price: 0.0 },
   { emoji: '🧸', name: 'Мишка',     price: 0.1 },
   { emoji: '🐸', name: 'Пепе',      price: 0.0 },
-  { emoji: '💋', name: 'Губы',      price: 0.0 },
-  { emoji: '🧸', name: 'Мишка',     price: 0.1 },
-  { emoji: '🍀', name: 'Клевер',    price: 0.0 },
-  { emoji: '🍑', name: 'Персик',    price: 0.0 },
 ]
+
 
 
 // ===== CUSTOM IMAGES =====
@@ -193,22 +190,22 @@ function renderWheel() {
   if (!wheel) return
   const sectorNodes = wheel.querySelectorAll('.sector')
   const N = wheelSectors.length
-  const angleStep = 140 / (N - 1)
-  const startAngle = -70
+const angleStep = 360 / N
+const startAngle = -90  // верх под стрелкой
 
-  sectorNodes.forEach((node, i) => {
-    const s = wheelSectors[i]
-    if (!s) {
-      node.textContent = '❔'
-      node.title = ''
-      return
-    }
-    node.innerHTML = giftVisual(s)
-    node.title = `${s.name} (${s.price} TON)`
+sectorNodes.forEach((node, i) => {
+  const s = wheelSectors[i % N]
+  if (!s) return
 
-    const angle = startAngle + i * angleStep
-node.dataset.angle = angle
-node.style.transform = `rotate(${angle}deg)`
+  node.innerHTML = giftVisual(s)
+  node.title = `${s.name} (${s.price} TON)`
+
+  const angle = startAngle + i * angleStep
+  node.dataset.angle = angle
+  node.style.transform = `rotate(${angle}deg)`
+})
+
+  
 
   })
 }
@@ -1262,6 +1259,7 @@ window.addEventListener('resize', () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
 
 
 
