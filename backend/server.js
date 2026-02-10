@@ -75,7 +75,7 @@ app.use(express.static(PUBLIC_DIR));
 app.get("/", (req, res) => res.sendFile(INDEX_PATH));
 
 // ===== Telegram initData validation =====
-// Telegram Mini Apps: verify initData via HMAC WebAppData [web:24]
+// Telegram Mini Apps: verify initData via HMAC WebAppData
 function validateInitData(initData) {
   if (!initData || typeof initData !== "string") throw new Error("initData required");
 
@@ -240,7 +240,7 @@ app.post("/api/me", auth, (req, res) => {
   });
 });
 
-// spin: всегда "мишka", цена 1 TON
+// spin: всегда "мишка", цена 1 TON
 app.post("/api/spin", auth, (req, res) => {
   const tgId = String(req.tgUser.id);
   touchUserVisit(req.tgUser);
@@ -254,6 +254,43 @@ app.post("/api/spin", auth, (req, res) => {
   updateUserBalance(tgId, newBalance);
 
   res.json({ prize: { emoji: "🧸", name: "Мишка", price: 0.1 }, newBalance });
+});
+
+// ===== CASES =====
+// Открытие кейса на сервере (реальное списание с баланса)
+const CASES = {
+  newyear: { title: "Календарь", priceTon: 0.1 },
+  onlynft: { title: "Классический", priceTon: 1.0 },
+  crypto: { title: "Все или ничего", priceTon: 0.5 },
+};
+
+// Пока по ТЗ: всегда падает Мишка
+app.post("/api/cases/open", auth, (req, res) => {
+  const tgId = String(req.tgUser.id);
+  touchUserVisit(req.tgUser);
+
+  const caseType = String(req.body?.caseType || "").trim();
+  const cfg = CASES[caseType];
+  if (!cfg) return res.status(400).json({ error: "Некорректный кейс" });
+
+  const user = mustGetUser(tgId);
+  const balance = safeNumber(user.balance, 0);
+  const price = safeNumber(cfg.priceTon, 0);
+
+  if (balance < price) return res.status(400).json({ error: "Недостаточно средств" });
+
+  const newBalance = Number((balance - price).toFixed(2));
+  updateUserBalance(tgId, newBalance);
+
+  const prize = { emoji: "🧸", name: "Мишка", price: 0.1 };
+  return res.json({
+    ok: true,
+    caseType,
+    caseTitle: cfg.title,
+    priceTon: price,
+    prize,
+    newBalance,
+  });
 });
 
 // promo apply (from DB)
@@ -316,10 +353,12 @@ app.post("/api/prize/sell", auth, (req, res) => {
   if (!prize || typeof prize !== "object") return res.status(400).json({ error: "prize required" });
 
   const price = safeNumber(prize.price, 0);
-  if (!Number.isFinite(price) || price <= 0) return res.status(400).json({ error: "Этот подарок нельзя продать" });
+  if (!Number.isFinite(price) || price <= 0)
+    return res.status(400).json({ error: "Этот подарок нельзя продать" });
 
   const idxRaw = req.body?.idx;
-  if (idxRaw === undefined || idxRaw === null || idxRaw === "") return res.status(400).json({ error: "idx required" });
+  if (idxRaw === undefined || idxRaw === null || idxRaw === "")
+    return res.status(400).json({ error: "idx required" });
 
   const idx = Number(idxRaw);
   if (!Number.isInteger(idx) || idx < 0) return res.status(400).json({ error: "Некорректный индекс предмета" });
