@@ -859,7 +859,7 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
   }
 })
 
-// ===== CRASH (sync with server) =====
+// ===== CRASH (logic + canvas animation: rocket -> moon) =====
 const crashCanvas = document.getElementById('crash-canvas')
 const crashCtx = crashCanvas ? crashCanvas.getContext('2d') : null
 const crashMultiplierEl = document.getElementById('crash-multiplier')
@@ -873,70 +873,232 @@ const crashPotentialWinEl = document.getElementById('crash-potential-win')
 let crashState = 'idle' // idle | playing | crashed
 let crashMultiplier = 1.0
 let crashPoint = null
+
 let crashBetAmount = 0
 let crashAutoCashoutAt = null
 let crashHasCashedOut = false
+
 let crashAnimFrame = null
 let crashStartTime = null
-let crashTime = 8000
+
+// Скорость роста НЕ зависит от crashPoint, иначе палится
+// m(t) = exp(k*t)
+let crashK = 0.28
+
+// визуальные состояния
+let crashImpact = null // {x,y,ts}
+let crashShake = 0     // 0..1
+
+function clamp(v, a, b) {
+  return Math.max(a, Math.min(b, v))
+}
 
 function initCrashCanvas() {
   if (!crashCanvas || !crashCtx) return
-  const dpr = window.devicePixelRatio || 1
+  const dpr = Math.min(window.devicePixelRatio || 1, 2)
   const rect = crashCanvas.getBoundingClientRect()
-  crashCanvas.width = rect.width * dpr
-  crashCanvas.height = rect.height * dpr
+  crashCanvas.width = Math.max(1, Math.floor(rect.width * dpr))
+  crashCanvas.height = Math.max(1, Math.floor(rect.height * dpr))
   crashCtx.setTransform(dpr, 0, 0, dpr, 0, 0)
 }
 
 function generateCrashPoint() {
   const rand = Math.random() * 100
-
   if (rand < 99) return 1.01 + Math.random() * (1.8 - 1.01)
   if (rand < 99.91) return 1.8 + Math.random() * (3.0 - 1.8)
   return 3.0 + Math.random() * (7.0 - 3.0)
 }
 
-function drawCrashGraph() {
-  if (!crashCtx || !crashCanvas) return
+function getSceneSize() {
   const rect = crashCanvas.getBoundingClientRect()
-  const w = rect.width
-  const h = rect.height
+  return { w: rect.width, h: rect.height }
+}
 
-  crashCtx.clearRect(0, 0, w, h)
+function moonPos(w, h) {
+  return { x: w * 0.78, y: h * 0.26, r: Math.min(w, h) * 0.14 }
+}
 
-  crashCtx.strokeStyle = 'rgba(148, 163, 184, 0.06)'
-  crashCtx.lineWidth = 1
-  for (let i = 0; i <= 4; i++) {
-    const y = (h / 4) * i
-    crashCtx.beginPath()
-    crashCtx.moveTo(0, y)
-    crashCtx.lineTo(w, y)
-    crashCtx.stroke()
-  }
+// квадратичная траектория
+function pathPoint(p, w, h) {
+  const a = { x: w * 0.18, y: h * 0.78 }
+  const c = { x: w * 0.42, y: h * 0.18 }
+  const b = { x: w * 0.72, y: h * 0.32 }
+  const t = clamp(p, 0, 1)
+  const x = (1 - t) * (1 - t) * a.x + 2 * (1 - t) * t * c.x + t * t * b.x
+  const y = (1 - t) * (1 - t) * a.y + 2 * (1 - t) * t * c.y + t * t * b.y
+  return { x, y }
+}
 
-  if (crashState === 'playing' || crashState === 'crashed') {
-    const maxYMult = Math.max(crashPoint || 2, 2)
-    const progress = Math.min((crashMultiplier - 1) / (maxYMult - 1), 1)
+function pathTangentAng(p, w, h) {
+  const a = { x: w * 0.18, y: h * 0.78 }
+  const c = { x: w * 0.42, y: h * 0.18 }
+  const b = { x: w * 0.72, y: h * 0.32 }
+  const t = clamp(p, 0, 1)
+  const dx = 2 * (1 - t) * (c.x - a.x) + 2 * t * (b.x - c.x)
+  const dy = 2 * (1 - t) * (c.y - a.y) + 2 * t * (b.y - c.y)
+  return Math.atan2(dy, dx)
+}
 
-    crashCtx.strokeStyle =
-      crashState === 'crashed' ? 'rgba(248, 113, 113, 0.4)' : 'rgba(56, 189, 248, 0.45)'
-    crashCtx.lineWidth = 2
-    crashCtx.beginPath()
-    crashCtx.moveTo(0, h)
-
-    for (let i = 0; i <= progress * 100; i++) {
-      const x = (i / 100) * w
-      const t = i / 100
-      const mult = 1 + t * (crashMultiplier - 1)
-      const y = h - ((mult - 1) * h) / Math.max(maxYMult - 1, 0.2)
-      if (i === 0) crashCtx.moveTo(x, y)
-      else crashCtx.lineTo(x, y)
-    }
-    crashCtx.stroke()
+// ---------- particles ----------
+const particles = []
+function spawnExplosion(x, y) {
+  const n = 46
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * Math.PI * 2
+    const sp = 80 + Math.random() * 220
+    particles.push({
+      x,
+      y,
+      vx: Math.cos(a) * sp,
+      vy: Math.sin(a) * sp,
+      life: 0,
+      max: 0.7 + Math.random() * 0.7,
+      size: 1.5 + Math.random() * 2.8,
+      hue: 35 + Math.random() * 25,
+    })
   }
 }
 
+function stepParticles(dt) {
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const p = particles[i]
+    p.life += dt
+    const t = p.life / p.max
+    if (t >= 1) {
+      particles.splice(i, 1)
+      continue
+    }
+    p.vx *= 0.985
+    p.vy = p.vy * 0.985 + 120 * dt
+    p.x += p.vx * dt
+    p.y += p.vy * dt
+  }
+}
+
+function drawParticles(ctx) {
+  for (const p of particles) {
+    const t = p.life / p.max
+    const alpha = (1 - t) * 0.9
+    ctx.fillStyle = `hsla(${p.hue}, 95%, 60%, ${alpha})`
+    ctx.beginPath()
+    ctx.arc(p.x, p.y, p.size * (1 + t * 0.4), 0, Math.PI * 2)
+    ctx.fill()
+  }
+}
+
+// ---------- draw ----------
+function drawMoon(ctx, w, h) {
+  const m = moonPos(w, h)
+  const g = ctx.createRadialGradient(
+    m.x - m.r * 0.3, m.y - m.r * 0.3, m.r * 0.2,
+    m.x, m.y, m.r
+  )
+  g.addColorStop(0, 'rgba(226,232,240,0.95)')
+  g.addColorStop(0.6, 'rgba(148,163,184,0.9)')
+  g.addColorStop(1, 'rgba(15,23,42,0.9)')
+
+  ctx.fillStyle = g
+  ctx.beginPath()
+  ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2)
+  ctx.fill()
+
+  ctx.globalAlpha = 0.25
+  ctx.fillStyle = '#0f172a'
+  const cr = [
+    { x: m.x - m.r * 0.25, y: m.y + m.r * 0.05, r: m.r * 0.18 },
+    { x: m.x + m.r * 0.18, y: m.y - m.r * 0.15, r: m.r * 0.12 },
+    { x: m.x + m.r * 0.05, y: m.y + m.r * 0.22, r: m.r * 0.09 },
+  ]
+  for (const c of cr) {
+    ctx.beginPath()
+    ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2)
+    ctx.fill()
+  }
+  ctx.globalAlpha = 1
+}
+
+function drawPath(ctx, w, h, p) {
+  ctx.save()
+  ctx.lineWidth = 2
+  ctx.strokeStyle = 'rgba(56,189,248,0.22)'
+  ctx.beginPath()
+  const steps = 60
+  for (let i = 0; i <= steps; i++) {
+    const t = (i / steps) * clamp(p, 0, 1)
+    const pt = pathPoint(t, w, h)
+    if (i === 0) ctx.moveTo(pt.x, pt.y)
+    else ctx.lineTo(pt.x, pt.y)
+  }
+  ctx.stroke()
+  ctx.lineWidth = 4
+  ctx.strokeStyle = 'rgba(56,189,248,0.10)'
+  ctx.stroke()
+  ctx.restore()
+}
+
+function drawRocket(ctx, x, y, ang, flamePower) {
+  ctx.save()
+  ctx.translate(x, y)
+  ctx.rotate(ang)
+
+  // корпус
+  ctx.fillStyle = '#e5e7eb'
+  ctx.strokeStyle = 'rgba(15,23,42,0.8)'
+  ctx.lineWidth = 1.2
+
+  ctx.beginPath()
+  ctx.moveTo(18, 0)
+  ctx.quadraticCurveTo(6, -12, -12, -8)
+  ctx.lineTo(-16, 0)
+  ctx.lineTo(-12, 8)
+  ctx.quadraticCurveTo(6, 12, 18, 0)
+  ctx.closePath()
+  ctx.fill()
+  ctx.stroke()
+
+  // окно
+  ctx.fillStyle = 'rgba(56,189,248,0.9)'
+  ctx.beginPath()
+  ctx.arc(2, 0, 4, 0, Math.PI * 2)
+  ctx.fill()
+
+  // крылья
+  ctx.fillStyle = '#94a3b8'
+  ctx.beginPath()
+  ctx.moveTo(-8, -6)
+  ctx.lineTo(-20, -14)
+  ctx.lineTo(-12, -2)
+  ctx.closePath()
+  ctx.fill()
+  ctx.beginPath()
+  ctx.moveTo(-8, 6)
+  ctx.lineTo(-20, 14)
+  ctx.lineTo(-12, 2)
+  ctx.closePath()
+  ctx.fill()
+
+  // огонь
+  const fp = clamp(flamePower, 0, 1)
+  if (fp > 0.02) {
+    const len = 14 + fp * 18
+    const wid = 5 + fp * 5
+    const grad = ctx.createRadialGradient(-18 - len * 0.2, 0, 2, -18 - len, 0, len)
+    grad.addColorStop(0, 'rgba(251,191,36,0.95)')
+    grad.addColorStop(0.5, 'rgba(249,115,22,0.7)')
+    grad.addColorStop(1, 'rgba(239,68,68,0)')
+    ctx.fillStyle = grad
+    ctx.beginPath()
+    ctx.moveTo(-16, 0)
+    ctx.quadraticCurveTo(-16 - len, -wid, -16 - len * 1.2, 0)
+    ctx.quadraticCurveTo(-16 - len, wid, -16, 0)
+    ctx.closePath()
+    ctx.fill()
+  }
+
+  ctx.restore()
+}
+
+// ---------- UI ----------
 function updateCrashButtonUI() {
   if (!crashMainActionBtn) return
   if (crashState === 'idle') {
@@ -956,43 +1118,78 @@ function updateCrashMultiplierUI() {
   if (crashBetAmount > 0 && crashPotentialWinEl) {
     crashPotentialWinEl.textContent = `${(crashBetAmount * crashMultiplier).toFixed(2)} TON`
   }
-  if (crashCurrentBetEl) crashCurrentBetEl.textContent = crashBetAmount > 0 ? `${crashBetAmount.toFixed(2)} TON` : '—'
+  if (crashCurrentBetEl) {
+    crashCurrentBetEl.textContent = crashBetAmount > 0 ? `${crashBetAmount.toFixed(2)} TON` : '—'
+  }
   updateCrashButtonUI()
 }
 
-function animateCrash() {
+function setCrashStatus(text, color) {
+  if (!crashStatusEl) return
+  crashStatusEl.textContent = text
+  crashStatusEl.style.color = color || '#e5e7eb'
+}
+
+// ---------- logic ----------
+function stepCrashMultiplier() {
+  const t = Math.max(0, Date.now() - crashStartTime) / 1000
+  crashMultiplier = Math.exp(crashK * t)
+  if (!Number.isFinite(crashMultiplier) || crashMultiplier < 1) crashMultiplier = 1
+}
+
+async function cashoutCrash(isAuto = false) {
   if (crashState !== 'playing') return
+  if (crashHasCashedOut) return
 
-  const elapsed = Math.max(0, Date.now() - crashStartTime)
-  const timeProgress = elapsed / crashTime
+  const winAmount = crashBetAmount * crashMultiplier
 
-  if (timeProgress >= 1) {
-    crashMultiplier = crashPoint
-    updateCrashMultiplierUI()
-    drawCrashGraph()
-    endCrash()
-    return
+  try {
+    const r = await apiPost('/crash/cashout', { amount: winAmount })
+    balance = Number(r.newBalance ?? balance)
+    updateBalanceUI()
+
+    crashHasCashedOut = true
+    setCrashStatus(isAuto ? 'Авто-вывод!' : 'Вы забрали!', '#22c55e')
+    updateCrashButtonUI()
+  } catch (err) {
+    alert(err.message || 'Ошибка вывода')
   }
+}
 
-  const base = 1.7
-  const expProgress = (Math.exp(base * timeProgress) - 1) / (Math.exp(base) - 1)
-  crashMultiplier = 1 + (crashPoint - 1) * expProgress
+function crashBoomIntoMoon() {
+  if (!crashCanvas) return
+  const { w, h } = getSceneSize()
+  const m = moonPos(w, h)
+  const ix = m.x - m.r * 0.55
+  const iy = m.y + m.r * 0.25
+  crashImpact = { x: ix, y: iy, ts: performance.now() }
+  crashShake = 1
+  spawnExplosion(ix, iy)
+  if (!crashHasCashedOut) setCrashStatus('Врезались в луну!', '#f97373')
+}
 
-  if (crashMultiplier >= crashPoint) {
-    crashMultiplier = crashPoint
-    updateCrashMultiplierUI()
-    drawCrashGraph()
-    endCrash()
-    return
-  }
+function endCrash() {
+  crashState = 'crashed'
+  updateCrashButtonUI()
 
-  if (crashAutoCashoutAt && crashMultiplier >= crashAutoCashoutAt && !crashHasCashedOut) {
-    cashoutCrash(true)
-  }
+  setTimeout(() => {
+    crashState = 'idle'
+    crashMultiplier = 1.0
+    crashBetAmount = 0
+    crashPoint = null
+    crashAutoCashoutAt = null
+    crashHasCashedOut = false
+    crashImpact = null
+    crashShake = 0
 
-  updateCrashMultiplierUI()
-  drawCrashGraph()
-  crashAnimFrame = requestAnimationFrame(animateCrash)
+    setCrashStatus('Скоро взлетаем', '#e5e7eb')
+    if (crashMultiplierEl) crashMultiplierEl.textContent = '1.00x'
+    if (crashCurrentBetEl) crashCurrentBetEl.textContent = '—'
+    if (crashPotentialWinEl) crashPotentialWinEl.textContent = '—'
+    updateCrashButtonUI()
+
+    startCrashRenderLoop()
+  }, 2000)
 }
 
 async function startCrash() {
@@ -1033,84 +1230,128 @@ async function startCrash() {
   crashState = 'playing'
   crashHasCashedOut = false
   crashStartTime = Date.now()
-  crashTime = 8000
+  crashImpact = null
+  crashShake = 0
 
-  if (crashStatusEl) {
-    crashStatusEl.textContent = 'Летим...'
-    crashStatusEl.style.color = '#e5e7eb'
-  }
-
+  setCrashStatus('Летим...', '#e5e7eb')
   updateCrashMultiplierUI()
-  drawCrashGraph()
-  animateCrash()
+  startCrashRenderLoop()
 }
 
-async function cashoutCrash(isAuto = false) {
-  if (crashState !== 'playing') return
-  if (crashHasCashedOut) return
+// ---------- render loop ----------
+let lastFrameTs = 0
+function startCrashRenderLoop() {
+  if (!crashCanvas || !crashCtx) return
+  initCrashCanvas() // <— добавили, чтобы размеры всегда были валидные
 
-  const winAmount = crashBetAmount * crashMultiplier
-
-  try {
-    const r = await apiPost('/crash/cashout', { amount: winAmount })
-    balance = Number(r.newBalance ?? balance)
-    updateBalanceUI()
-
-    crashHasCashedOut = true
-    if (crashStatusEl) {
-      crashStatusEl.textContent = isAuto ? 'Авто-вывод!' : 'Вы забрали!'
-      crashStatusEl.style.color = '#22c55e'
-    }
-    updateCrashButtonUI()
-  } catch (err) {
-    alert(err.message || 'Ошибка вывода')
-  }
-}
-
-function endCrash() {
-  crashState = 'crashed'
   if (crashAnimFrame) cancelAnimationFrame(crashAnimFrame)
-  crashAnimFrame = null
-
-  if (crashStatusEl && !crashHasCashedOut) {
-    crashStatusEl.textContent = 'Бум!'
-    crashStatusEl.style.color = '#f97373'
-  }
-
-  updateCrashMultiplierUI()
-  drawCrashGraph()
-
-  setTimeout(() => {
-    crashState = 'idle'
-    crashMultiplier = 1.0
-    crashBetAmount = 0
-    crashPoint = null
-    crashAutoCashoutAt = null
-    crashHasCashedOut = false
-
-    if (crashStatusEl) {
-      crashStatusEl.textContent = 'Скоро взлетаем'
-      crashStatusEl.style.color = '#e5e7eb'
-    }
-    if (crashMultiplierEl) crashMultiplierEl.textContent = '1.00x'
-    if (crashCurrentBetEl) crashCurrentBetEl.textContent = '—'
-    if (crashPotentialWinEl) crashPotentialWinEl.textContent = '—'
-    drawCrashGraph()
-    updateCrashButtonUI()
-  }, 2000)
+  lastFrameTs = 0
+  crashAnimFrame = requestAnimationFrame(renderCrash)
 }
 
+
+function renderCrash(ts) {
+  if (!crashCtx || !crashCanvas) return
+
+  // 1) логика каждый кадр
+  if (crashState === 'playing') {
+    stepCrashMultiplier()
+
+    if (crashAutoCashoutAt && crashMultiplier >= crashAutoCashoutAt && !crashHasCashedOut) {
+      cashoutCrash(true)
+    }
+
+    if (crashPoint && crashMultiplier >= crashPoint) {
+      crashMultiplier = crashPoint
+      updateCrashMultiplierUI()
+      crashBoomIntoMoon()
+      endCrash()
+    } else {
+      updateCrashMultiplierUI()
+    }
+  }
+
+  // 2) dt
+  const dt = clamp((ts - lastFrameTs) / 1000 || 0, 0, 0.05)
+  lastFrameTs = ts
+
+  const { w, h } = getSceneSize()
+
+  if (crashShake > 0) crashShake = Math.max(0, crashShake - dt * 4)
+
+  crashCtx.save()
+  if (crashShake > 0.001) {
+    const mag = crashShake * 6
+    crashCtx.translate((Math.random() - 0.5) * mag, (Math.random() - 0.5) * mag)
+  }
+
+  crashCtx.clearRect(0, 0, w, h)
+
+  // легкая туманность
+  const fog = crashCtx.createRadialGradient(w * 0.25, h * 0.85, 10, w * 0.25, h * 0.85, h * 0.9)
+  fog.addColorStop(0, 'rgba(99,102,241,0.10)')
+  fog.addColorStop(1, 'rgba(2,6,23,0)')
+  crashCtx.fillStyle = fog
+  crashCtx.fillRect(0, 0, w, h)
+
+  drawMoon(crashCtx, w, h)
+
+  // прогресс полета из текущего multiplier
+  let p = 0
+  if (crashState === 'playing' || crashState === 'crashed') {
+    const t = Math.log(Math.max(crashMultiplier, 1)) / crashK
+    p = clamp(t / 10, 0, 1)
+  }
+
+  drawPath(crashCtx, w, h, p)
+
+  if (crashState === 'playing') {
+    const pt = pathPoint(p, w, h)
+    const ang = pathTangentAng(p, w, h)
+    const flame = 0.4 + 0.6 * Math.min(1, (crashMultiplier - 1) / 2)
+    drawRocket(crashCtx, pt.x, pt.y, ang, flame)
+  }
+
+  if (crashState === 'crashed' && crashImpact) {
+    const t = (performance.now() - crashImpact.ts) / 1000
+    const a = Math.max(0, 1 - t / 0.5)
+    if (a > 0) {
+      crashCtx.globalAlpha = a
+      crashCtx.fillStyle = 'rgba(251,191,36,0.8)'
+      crashCtx.beginPath()
+      crashCtx.arc(crashImpact.x, crashImpact.y, 18 + t * 120, 0, Math.PI * 2)
+      crashCtx.fill()
+      crashCtx.globalAlpha = 1
+    }
+  }
+
+  stepParticles(dt)
+  drawParticles(crashCtx)
+
+  crashCtx.restore()
+
+  const needMore =
+    crashState === 'playing' ||
+    crashState === 'crashed' ||
+    particles.length > 0 ||
+    crashShake > 0.001
+
+  if (needMore) crashAnimFrame = requestAnimationFrame(renderCrash)
+}
+
+// ---------- controls ----------
 crashMainActionBtn?.addEventListener('click', () => {
   if (crashState === 'idle') startCrash()
   else if (crashState === 'playing') cashoutCrash(false)
 })
 
 window.addEventListener('resize', () => {
-  if (crashCanvas) {
-    initCrashCanvas()
-    drawCrashGraph()
-  }
+  if (!crashCanvas) return
+  initCrashCanvas()
+  startCrashRenderLoop()
 })
+
+
 
 // ===== ADMIN EVENTS =====
 adminPromoType?.addEventListener('change', () => {
@@ -1247,9 +1488,10 @@ adminAdjApply?.addEventListener('click', async () => {
   setLastPrizeText(null)
 
   if (crashCanvas) {
-    initCrashCanvas()
-    drawCrashGraph()
-  }
+  initCrashCanvas()
+  startCrashRenderLoop()
+}
+
 
   updateDepositButtonState()
 
@@ -1264,3 +1506,4 @@ adminAdjApply?.addEventListener('click', async () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
