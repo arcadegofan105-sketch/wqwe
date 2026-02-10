@@ -29,28 +29,14 @@ function giftVisual(item) {
 
 // ===== TELEGRAM =====
 const tg = window.Telegram?.WebApp || null
-const notTelegram = document.getElementById('not-telegram')
-const appRoot = document.getElementById('app-root')
-
-function showNotTelegram() {
-  if (notTelegram) notTelegram.style.display = 'block'
-  if (appRoot) appRoot.style.display = 'none'
-}
-
-function showApp() {
-  if (notTelegram) notTelegram.style.display = 'none'
-  if (appRoot) appRoot.style.display = 'block'
-}
-
 if (!tg) {
-  showNotTelegram()
+  alert('Открой приложение через Telegram.')
   throw new Error('Telegram WebApp not found')
 }
 
 tg.ready()
 tg.expand()
 document.body.style.backgroundColor = tg.themeParams?.bg_color || '#02051a'
-showApp()
 
 const INIT_DATA = tg.initData
 const telegramUser = tg.initDataUnsafe?.user || null
@@ -83,6 +69,7 @@ const screens = {
   crash: document.getElementById('screen-crash'),
   bonus: document.getElementById('screen-bonus'),
   profile: document.getElementById('screen-profile'),
+  admin: document.getElementById('screen-admin'),
 }
 
 const depositBtn = document.getElementById('deposit-btn')
@@ -106,11 +93,36 @@ const withdrawBalanceHint = document.getElementById('withdraw-balance-hint')
 
 // Deposit modal
 const depositModal = document.getElementById('deposit-modal')
-const openDepositPlusBtn = document.getElementById('open-deposit-modal')
 const depositAmountInput = document.getElementById('deposit-amount-input')
 const depositConfirmBtn = document.getElementById('deposit-confirm')
 const depositCancelBtn = document.getElementById('deposit-cancel')
 const connectTonBtn = document.getElementById('connect-ton-btn')
+
+// Admin UI
+const adminNavBtn = document.getElementById('admin-nav-btn')
+
+const adminPromoType = document.getElementById('admin-promo-type')
+const adminPromoCode = document.getElementById('admin-promo-code')
+const adminPromoAmount = document.getElementById('admin-promo-amount')
+const adminPromoMaxUses = document.getElementById('admin-promo-maxuses')
+const adminPromoCreateBtn = document.getElementById('admin-promo-create')
+const adminPromosList = document.getElementById('admin-promos-list')
+const adminPromosRefresh = document.getElementById('admin-promos-refresh')
+
+const adminStatsBox = document.getElementById('admin-stats')
+const adminStatsRefresh = document.getElementById('admin-stats-refresh')
+
+const adminUsersQ = document.getElementById('admin-users-q')
+const adminUsersSearch = document.getElementById('admin-users-search')
+const adminUsersGrid = document.getElementById('admin-users-grid')
+const adminPrev = document.getElementById('admin-prev')
+const adminNext = document.getElementById('admin-next')
+const adminPageInfo = document.getElementById('admin-page-info')
+
+const adminAdjTgId = document.getElementById('admin-adj-tgid')
+const adminAdjDelta = document.getElementById('admin-adj-delta')
+const adminAdjApply = document.getElementById('admin-adj-apply')
+const adminAdjResult = document.getElementById('admin-adj-result')
 
 // ===== STATE =====
 let currentRotation = 0
@@ -118,6 +130,13 @@ let balance = 0
 let inventory = []
 let currentPrize = null
 let isSpinning = false
+let isAdmin = false
+
+const adminState = {
+  q: '',
+  page: 1,
+  pages: 1,
+}
 
 // ===== HELPERS =====
 function updateBalanceUI() {
@@ -136,8 +155,8 @@ function setLastPrizeText(prize) {
 function openModal(prize) {
   if (!prizeModal) return
   if (modalPrizeEmoji) modalPrizeEmoji.innerHTML = giftVisual(prize)
-  modalPrizeName.textContent = prize.name
-  modalPrizePrice.textContent = Number(prize.price || 0).toFixed(2)
+  if (modalPrizeName) modalPrizeName.textContent = prize.name
+  if (modalPrizePrice) modalPrizePrice.textContent = Number(prize.price || 0).toFixed(2)
   prizeModal.classList.add('active')
 }
 
@@ -231,9 +250,7 @@ function updateTelegramUserUI() {
   if (!telegramUser) return
 
   const userName = telegramUser.first_name || telegramUser.username || 'User'
-  document
-    .querySelectorAll('.user-name, .profile-name')
-    .forEach(el => (el.textContent = userName))
+  document.querySelectorAll('.user-name, .profile-name').forEach(el => (el.textContent = userName))
 
   const idEl = document.querySelector('.profile-id')
   if (idEl) idEl.textContent = `ID: ${telegramUser.id}`
@@ -247,7 +264,7 @@ function updateTelegramUserUI() {
   }
 }
 
-// ===== TON CONNECT (deposit lock) =====
+// ===== TON CONNECT =====
 function isWalletConnected() {
   return Boolean(tonConnectUI?.account?.address)
 }
@@ -269,7 +286,6 @@ function updateWalletStatusUI() {
     walletStatusBtn.classList.add('wallet-status-connected')
   }
 
-  // всегда показываем "+"
   walletStatusBtn.textContent = '+'
 }
 
@@ -292,7 +308,6 @@ function updateConnectButtonUI() {
 }
 
 function updateDepositButtonState() {
-  // кнопка "Депозит TON" всегда активна
   if (depositBtn) {
     const connected = isWalletConnected()
     depositBtn.disabled = false
@@ -319,10 +334,15 @@ async function apiPost(path, body = {}) {
   return data
 }
 
+// user
 async function fetchUserData() {
   const data = await apiPost('/me')
   balance = Number(data.balance || 0)
   inventory = Array.isArray(data.inventory) ? data.inventory : []
+  isAdmin = Boolean(data.isAdmin)
+
+  if (adminNavBtn) adminNavBtn.style.display = isAdmin ? '' : 'none'
+
   updateBalanceUI()
   renderInventory()
   return data
@@ -366,6 +386,26 @@ async function depositCheckApi(depositId) {
   return apiPost('/deposit/check', { depositId })
 }
 
+// admin APIs
+async function adminStatsApi() {
+  return apiPost('/admin/stats')
+}
+async function adminUsersApi({ q, page }) {
+  return apiPost('/admin/users', { q, page })
+}
+async function adminPromoCreateApi(payload) {
+  return apiPost('/admin/promo/create', payload)
+}
+async function adminPromoListApi() {
+  return apiPost('/admin/promo/list')
+}
+async function adminPromoDeleteApi(code) {
+  return apiPost('/admin/promo/delete', { code })
+}
+async function adminAdjustBalanceApi(tgId, delta) {
+  return apiPost('/admin/user/adjust-balance', { tgId, delta })
+}
+
 // deposit helpers
 function toNanoString(tonAmount) {
   return String(Math.round(tonAmount * 1e9))
@@ -375,11 +415,138 @@ function sleep(ms) {
   return new Promise(r => setTimeout(r, ms))
 }
 
+function escapeHtml(s) {
+  return String(s || '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;')
+}
+
+// ===== ADMIN RENDER =====
+function renderAdminStats(stats) {
+  if (!adminStatsBox) return
+  if (!stats) {
+    adminStatsBox.textContent = '—'
+    return
+  }
+  const usersCount = Number(stats.usersCount || 0)
+  const totalBalance = Number(stats.totalBalance || 0).toFixed(2)
+  const totalDeposits = Number(stats.totalDeposits || 0).toFixed(2)
+
+  adminStatsBox.innerHTML =
+    `Пользователей: <b>${usersCount}</b><br/>` +
+    `Сумма балансов: <b>${totalBalance}</b> TON<br/>` +
+    `Сумма депозитов: <b>${totalDeposits}</b> TON`
+}
+
+function renderAdminPromos(items) {
+  if (!adminPromosList) return
+  if (!Array.isArray(items) || items.length === 0) {
+    adminPromosList.textContent = 'Промокодов нет'
+    return
+  }
+
+  adminPromosList.innerHTML = items
+    .map(p => {
+      const code = escapeHtml(p.code)
+      const type = p.type === 'balance' ? 'TON' : 'Gift'
+      const value =
+        p.type === 'balance'
+          ? `${Number(p.amount || 0).toFixed(2)} TON`
+          : `${escapeHtml(p.gift_name || 'Мишка')}`
+      const used = `${Number(p.used_count || 0)}/${Number(p.max_uses || 0)}`
+      const active = Number(p.is_active || 0) ? 'активен' : 'выкл'
+
+      return `
+        <div class="admin-promo-item">
+          <div class="admin-promo-left">
+            <div class="admin-promo-code">${code}</div>
+            <div class="admin-promo-meta">${type}: ${value} • uses: ${used} • ${active}</div>
+          </div>
+          <div class="admin-promo-actions">
+            <button class="admin-mini-btn admin-mini-danger" data-del-promo="${code}" type="button">Удалить</button>
+          </div>
+        </div>
+      `
+    })
+    .join('')
+}
+
+function renderAdminUsersGrid(items) {
+  if (!adminUsersGrid) return
+  if (!Array.isArray(items) || items.length === 0) {
+    adminUsersGrid.innerHTML = `<div class="inventory-empty">Ничего не найдено</div>`
+    return
+  }
+
+  adminUsersGrid.innerHTML = items
+    .map(u => {
+      const tgId = escapeHtml(u.tg_id)
+      const username = u.username ? `@${escapeHtml(u.username)}` : '(no username)'
+      const name = [u.first_name, u.last_name].filter(Boolean).join(' ')
+      const full = escapeHtml(name || 'User')
+      const bal = Number(u.balance || 0).toFixed(2)
+      const dep = Number(u.total_deposit_ton || 0).toFixed(2)
+
+      const lastSeen = u.last_seen_at ? new Date(Number(u.last_seen_at)).toLocaleString() : '—'
+
+      return `
+        <div class="admin-user-card">
+          <div class="admin-user-top">
+            <div class="admin-user-name">${full} ${username}</div>
+            <div class="admin-user-balance">${bal} TON</div>
+          </div>
+          <div class="admin-user-meta">
+            ID: ${tgId}<br/>
+            Deposit: ${dep} TON<br/>
+            Last seen: ${escapeHtml(lastSeen)}
+          </div>
+        </div>
+      `
+    })
+    .join('')
+}
+
+function renderAdminPager() {
+  if (!adminPageInfo) return
+  adminPageInfo.textContent = `${adminState.page} / ${adminState.pages}`
+  if (adminPrev) adminPrev.disabled = adminState.page <= 1
+  if (adminNext) adminNext.disabled = adminState.page >= adminState.pages
+}
+
+async function loadAdminUsers() {
+  if (!isAdmin) return
+  const r = await adminUsersApi({ q: adminState.q, page: adminState.page })
+  const items = Array.isArray(r.items) ? r.items : []
+  adminState.pages = Number(r.pages || 1) || 1
+  adminState.page = Number(r.page || adminState.page) || 1
+  renderAdminUsersGrid(items)
+  renderAdminPager()
+}
+
+async function loadAdminStats() {
+  if (!isAdmin) return
+  const stats = await adminStatsApi()
+  renderAdminStats(stats)
+}
+
+async function loadAdminPromos() {
+  if (!isAdmin) return
+  const r = await adminPromoListApi()
+  renderAdminPromos(r.items || [])
+}
+
 // ===== EVENTS =====
 
 // навигация по вкладкам
 navButtons.forEach(btn => {
-  btn.addEventListener('click', () => setScreen(btn.dataset.target))
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.target
+    if (target === 'admin' && !isAdmin) return
+    setScreen(target)
+  })
 })
 
 // клики по карточкам на главной (Краш / Колесо / Кейсы)
@@ -468,6 +635,7 @@ modalSellBtn?.addEventListener('click', async () => {
     currentPrize = null
     closeModal()
     spinButton.disabled = false
+    await fetchUserData()
   } catch (err) {
     alert(err.message || 'Ошибка продажи')
   }
@@ -527,41 +695,33 @@ promoApplyBtn?.addEventListener('click', async () => {
   try {
     const data = await applyPromoApi(code)
 
-    // Денежный промокод (старое поведение)
     if (data.type === 'balance' || typeof data.amount === 'number') {
       balance = Number(data.newBalance ?? balance)
       updateBalanceUI()
       promoInput.value = ''
       alert(`Промокод применён: +${Number(data.amount || 0).toFixed(2)} TON`)
+      await fetchUserData()
       return
     }
 
-    // Промокод на подарок "Мишка"
     if (data.type === 'gift' && data.prize) {
-      // Обновляем инвентарь сразу, чтобы не ждать перезахода
-      if (Array.isArray(data.inventory)) {
-        inventory = data.inventory
-      } else {
-        // на всякий случай, если вернётся только prize
-        inventory = [...(inventory || []), data.prize]
-      }
+      if (Array.isArray(data.inventory)) inventory = data.inventory
       renderInventory()
       promoInput.value = ''
-      alert('Промокод применён: Мишка зачислен в инвентарь.')
+      alert('Промокод применён: подарок зачислен в инвентарь.')
+      await fetchUserData()
       return
     }
 
-    // fallback
     alert('Промокод применён')
     promoInput.value = ''
+    await fetchUserData()
   } catch (err) {
     alert(err.message || 'Ошибка промокода')
   }
 })
 
-
 // ===== DEPOSIT TON =====
-
 function openDepositModalFromAnyButton() {
   if (!depositModal) return
   const connected = isWalletConnected()
@@ -572,7 +732,6 @@ function openDepositModalFromAnyButton() {
 
 walletStatusBtn?.addEventListener('click', openDepositModalFromAnyButton)
 depositBtn?.addEventListener('click', openDepositModalFromAnyButton)
-openDepositPlusBtn?.addEventListener('click', openDepositModalFromAnyButton)
 
 depositCancelBtn?.addEventListener('click', () => {
   if (!depositModal) return
@@ -687,9 +846,10 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
     updateBalanceUI()
     closeWithdrawModal()
     alert(`Заявка на вывод ${amount.toFixed(2)} TON отправлена админу.`)
+    await fetchUserData()
   } catch (err) {
     const msg = String(err.message || '')
-    if (msg.includes('Прежде чем вывести')) {
+    if (msg.includes('минимальное пополнение')) {
       alert('Прежде чем вывести, нужно сделать минимальное пополнение 1 TON')
     } else {
       alert(msg || 'Ошибка заявки на вывод')
@@ -699,8 +859,7 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
   }
 })
 
-
-// ===== CRASH (синхронизация с сервером) =====
+// ===== CRASH (sync with server) =====
 const crashCanvas = document.getElementById('crash-canvas')
 const crashCtx = crashCanvas ? crashCanvas.getContext('2d') : null
 const crashMultiplierEl = document.getElementById('crash-multiplier')
@@ -711,15 +870,15 @@ const crashMainActionBtn = document.getElementById('crash-main-action')
 const crashCurrentBetEl = document.getElementById('crash-current-bet')
 const crashPotentialWinEl = document.getElementById('crash-potential-win')
 
-let crashState = 'idle'           // idle | playing | crashed
+let crashState = 'idle' // idle | playing | crashed
 let crashMultiplier = 1.0
 let crashPoint = null
 let crashBetAmount = 0
-let crashAutoCashoutAt = null     // множитель авто-вывода
-let crashHasCashedOut = false     // игрок уже забрал или нет
+let crashAutoCashoutAt = null
+let crashHasCashedOut = false
 let crashAnimFrame = null
 let crashStartTime = null
-let crashTime = 8000 // мс
+let crashTime = 8000
 
 function initCrashCanvas() {
   if (!crashCanvas || !crashCtx) return
@@ -730,21 +889,11 @@ function initCrashCanvas() {
   crashCtx.setTransform(dpr, 0, 0, dpr, 0, 0)
 }
 
-// распределение шансов:
-// ~99%: 1.01–1.8x
-// ~0.91%: 1.8–3.0x
-// ~0.09%: 3.0–7.0x
 function generateCrashPoint() {
   const rand = Math.random() * 100
 
-  if (rand < 99) {
-    return 1.01 + Math.random() * (1.8 - 1.01)
-  }
-
-  if (rand < 99.91) {
-    return 1.8 + Math.random() * (3.0 - 1.8)
-  }
-
+  if (rand < 99) return 1.01 + Math.random() * (1.8 - 1.01)
+  if (rand < 99.91) return 1.8 + Math.random() * (3.0 - 1.8)
   return 3.0 + Math.random() * (7.0 - 3.0)
 }
 
@@ -771,9 +920,7 @@ function drawCrashGraph() {
     const progress = Math.min((crashMultiplier - 1) / (maxYMult - 1), 1)
 
     crashCtx.strokeStyle =
-      crashState === 'crashed'
-        ? 'rgba(248, 113, 113, 0.4)'
-        : 'rgba(56, 189, 248, 0.45)'
+      crashState === 'crashed' ? 'rgba(248, 113, 113, 0.4)' : 'rgba(56, 189, 248, 0.45)'
     crashCtx.lineWidth = 2
     crashCtx.beginPath()
     crashCtx.moveTo(0, h)
@@ -792,7 +939,6 @@ function drawCrashGraph() {
 
 function updateCrashButtonUI() {
   if (!crashMainActionBtn) return
-
   if (crashState === 'idle') {
     crashMainActionBtn.textContent = 'Сделать ставку'
     crashMainActionBtn.disabled = false
@@ -810,10 +956,7 @@ function updateCrashMultiplierUI() {
   if (crashBetAmount > 0 && crashPotentialWinEl) {
     crashPotentialWinEl.textContent = `${(crashBetAmount * crashMultiplier).toFixed(2)} TON`
   }
-  if (crashCurrentBetEl) {
-    crashCurrentBetEl.textContent =
-      crashBetAmount > 0 ? `${crashBetAmount.toFixed(2)} TON` : '—'
-  }
+  if (crashCurrentBetEl) crashCurrentBetEl.textContent = crashBetAmount > 0 ? `${crashBetAmount.toFixed(2)} TON` : '—'
   updateCrashButtonUI()
 }
 
@@ -827,35 +970,24 @@ function animateCrash() {
     crashMultiplier = crashPoint
     updateCrashMultiplierUI()
     drawCrashGraph()
-    endCrash(false)
+    endCrash()
     return
   }
 
-  // экспоненциальный рост: медленно в начале, быстро к концу
-  const base = 1.7 // можно 1.5–2.0 для настройки агрессии
-  const expProgress =
-    (Math.exp(base * timeProgress) - 1) / (Math.exp(base) - 1)
-
+  const base = 1.7
+  const expProgress = (Math.exp(base * timeProgress) - 1) / (Math.exp(base) - 1)
   crashMultiplier = 1 + (crashPoint - 1) * expProgress
 
-  // защита: не перепрыгнуть точку краша
   if (crashMultiplier >= crashPoint) {
     crashMultiplier = crashPoint
     updateCrashMultiplierUI()
     drawCrashGraph()
-    endCrash(false)
+    endCrash()
     return
   }
 
-  // авто-вывод
-  if (
-    crashAutoCashoutAt &&
-    crashMultiplier >= crashAutoCashoutAt &&
-    crashState === 'playing' &&
-    !crashHasCashedOut
-  ) {
+  if (crashAutoCashoutAt && crashMultiplier >= crashAutoCashoutAt && !crashHasCashedOut) {
     cashoutCrash(true)
-    // график всё равно продолжит анимацию до crashPoint
   }
 
   updateCrashMultiplierUI()
@@ -876,7 +1008,6 @@ async function startCrash() {
     return
   }
 
-  // авто-вывод
   const rawAuto = String(crashAutoInput?.value || '').replace(',', '.').trim()
   crashAutoCashoutAt = null
   if (rawAuto) {
@@ -926,24 +1057,21 @@ async function cashoutCrash(isAuto = false) {
     updateBalanceUI()
 
     crashHasCashedOut = true
-
     if (crashStatusEl) {
       crashStatusEl.textContent = isAuto ? 'Авто-вывод!' : 'Вы забрали!'
       crashStatusEl.style.color = '#22c55e'
     }
-
     updateCrashButtonUI()
   } catch (err) {
     alert(err.message || 'Ошибка вывода')
   }
 }
 
-function endCrash(cashedOut, isAuto = false) {
+function endCrash() {
   crashState = 'crashed'
   if (crashAnimFrame) cancelAnimationFrame(crashAnimFrame)
   crashAnimFrame = null
 
-  // если игрок не успел забрать — показываем Бум
   if (crashStatusEl && !crashHasCashedOut) {
     crashStatusEl.textContent = 'Бум!'
     crashStatusEl.style.color = '#f97373'
@@ -972,13 +1100,9 @@ function endCrash(cashedOut, isAuto = false) {
   }, 2000)
 }
 
-// одна кнопка: Сделать ставку / Забрать
 crashMainActionBtn?.addEventListener('click', () => {
-  if (crashState === 'idle') {
-    startCrash()
-  } else if (crashState === 'playing') {
-    cashoutCrash(false)
-  }
+  if (crashState === 'idle') startCrash()
+  else if (crashState === 'playing') cashoutCrash(false)
 })
 
 window.addEventListener('resize', () => {
@@ -988,6 +1112,132 @@ window.addEventListener('resize', () => {
   }
 })
 
+// ===== ADMIN EVENTS =====
+adminPromoType?.addEventListener('change', () => {
+  const t = String(adminPromoType.value || '')
+  if (!adminPromoAmount) return
+  adminPromoAmount.disabled = t !== 'balance'
+})
+
+adminPromoCreateBtn?.addEventListener('click', async () => {
+  if (!isAdmin) return
+
+  const type = String(adminPromoType?.value || 'gift')
+  const code = String(adminPromoCode?.value || '').trim()
+  const maxUses = Number(adminPromoMaxUses?.value || 1)
+
+  if (!code) {
+    alert('Введите code')
+    return
+  }
+  if (!Number.isInteger(maxUses) || maxUses < 1) {
+    alert('maxUses должен быть >= 1')
+    return
+  }
+
+  try {
+    adminPromoCreateBtn.disabled = true
+    if (type === 'balance') {
+      const amount = Number(String(adminPromoAmount?.value || '').replace(',', '.'))
+      if (!Number.isFinite(amount) || amount <= 0) {
+        alert('Введите сумму TON > 0')
+        return
+      }
+      await adminPromoCreateApi({ type: 'balance', code, amount, maxUses })
+    } else {
+      await adminPromoCreateApi({ type: 'gift', code, giftName: 'Мишка', maxUses })
+    }
+
+    if (adminPromoCode) adminPromoCode.value = ''
+    if (adminPromoAmount) adminPromoAmount.value = ''
+    await loadAdminPromos()
+    alert('Промокод создан')
+  } catch (e) {
+    alert(e.message || 'Ошибка создания промокода')
+  } finally {
+    adminPromoCreateBtn.disabled = false
+  }
+})
+
+adminPromosRefresh?.addEventListener('click', async () => {
+  try {
+    await loadAdminPromos()
+  } catch (e) {
+    alert(e.message || 'Ошибка')
+  }
+})
+
+adminPromosList?.addEventListener('click', async e => {
+  const btn = e.target.closest('[data-del-promo]')
+  if (!btn) return
+  const code = btn.getAttribute('data-del-promo')
+  if (!code) return
+  if (!confirm(`Удалить промокод ${code}?`)) return
+
+  try {
+    await adminPromoDeleteApi(code)
+    await loadAdminPromos()
+  } catch (e) {
+    alert(e.message || 'Ошибка удаления')
+  }
+})
+
+adminStatsRefresh?.addEventListener('click', async () => {
+  try {
+    await loadAdminStats()
+  } catch (e) {
+    alert(e.message || 'Ошибка')
+  }
+})
+
+adminUsersSearch?.addEventListener('click', async () => {
+  adminState.q = String(adminUsersQ?.value || '').trim()
+  adminState.page = 1
+  try {
+    await loadAdminUsers()
+  } catch (e) {
+    alert(e.message || 'Ошибка')
+  }
+})
+
+adminPrev?.addEventListener('click', async () => {
+  if (adminState.page <= 1) return
+  adminState.page -= 1
+  await loadAdminUsers().catch(e => alert(e.message || 'Ошибка'))
+})
+
+adminNext?.addEventListener('click', async () => {
+  if (adminState.page >= adminState.pages) return
+  adminState.page += 1
+  await loadAdminUsers().catch(e => alert(e.message || 'Ошибка'))
+})
+
+adminAdjApply?.addEventListener('click', async () => {
+  if (!isAdmin) return
+  const tgId = String(adminAdjTgId?.value || '').trim()
+  const delta = Number(String(adminAdjDelta?.value || '').replace(',', '.'))
+
+  if (!tgId) {
+    alert('Введите tg_id')
+    return
+  }
+  if (!Number.isFinite(delta) || delta === 0) {
+    alert('Введите delta (например +1 или -1)')
+    return
+  }
+
+  try {
+    adminAdjApply.disabled = true
+    const r = await adminAdjustBalanceApi(tgId, delta)
+    if (adminAdjResult) adminAdjResult.textContent = `OK. Новый баланс: ${Number(r.newBalance || 0).toFixed(2)} TON`
+    await loadAdminStats()
+  } catch (e) {
+    if (adminAdjResult) adminAdjResult.textContent = ''
+    alert(e.message || 'Ошибка')
+  } finally {
+    adminAdjApply.disabled = false
+  }
+})
 
 // ===== INIT =====
 ;(async function init() {
@@ -1005,11 +1255,12 @@ window.addEventListener('resize', () => {
 
   try {
     await fetchUserData()
+
+    // если админ — подгружаем админ-данные один раз
+    if (isAdmin) {
+      await Promise.allSettled([loadAdminStats(), loadAdminPromos(), loadAdminUsers()])
+    }
   } catch (err) {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
-
-
-
-
