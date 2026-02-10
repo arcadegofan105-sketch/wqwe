@@ -26,20 +26,33 @@ const CASES = {
     title: 'Календарь',
     priceTon: 0.1,
     imageSelector: '.case-image-newyear',
+    contents: [
+      { emoji: '📅', name: 'Календарь', price: 1.5 },
+      { emoji: '🧸', name: 'Мишка', price: 0.1 },
+    ],
   },
   onlynft: {
     id: 'onlynft',
     title: 'Классический',
     priceTon: 1.0,
     imageSelector: '.case-image-onlynft',
+    contents: [
+      { emoji: '🐸', name: 'Пепе', price: 0.0 },
+      { emoji: '🧸', name: 'Мишка', price: 0.1 },
+    ],
   },
   crypto: {
     id: 'crypto',
     title: 'Все или ничего',
     priceTon: 0.5,
     imageSelector: '.case-image-crypto',
+    contents: [
+      { emoji: '🍑', name: 'Персик', price: 0.0 },
+      { emoji: '🧸', name: 'Мишка', price: 0.1 },
+    ],
   },
 }
+
 
 const CASES_ALWAYS_PRIZE = { emoji: '🧸', name: 'Мишка', price: 0.1 }
 
@@ -165,6 +178,55 @@ const caseOpenImageEl = document.getElementById('case-open-image')
 const caseOpenPriceEl = document.getElementById('case-open-price')
 const caseOpenSpinBtn = document.getElementById('case-open-spin')
 const caseOpenRewardsListEl = document.getElementById('case-open-rewards-list')
+
+// Case open animation UI
+const caseAnimOverlay = document.getElementById('case-anim-overlay')
+const caseAnimTrack = document.getElementById('case-anim-track')
+
+function setCaseAnimVisible(v) {
+  if (!caseAnimOverlay) return
+  caseAnimOverlay.classList.toggle('active', !!v)
+}
+
+function makeAnimItemHTML(prize) {
+  const v = giftVisual(prize)
+  const isIcon = String(v).includes('gift-icon')
+  return `<div class="case-anim-item">${isIcon ? v : `<div class="emoji">${v}</div>`}</div>`
+}
+
+// рулетка-анимация (простая и надежная)
+async function playCaseOpenAnimation({ pool, winner }) {
+  if (!caseAnimTrack || !caseAnimOverlay) return
+
+  const base = Array.isArray(pool) && pool.length ? pool : [winner]
+  const items = []
+  for (let i = 0; i < 28; i++) items.push(base[i % base.length])
+  items[items.length - 6] = winner // победитель ближе к концу
+
+  caseAnimTrack.innerHTML = items.map(makeAnimItemHTML).join('')
+  caseAnimTrack.style.transition = 'none'
+  caseAnimTrack.style.transform = 'translateX(0px)'
+
+  setCaseAnimVisible(true)
+
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))
+
+  const itemW = 96
+  const gap = 22
+  const step = itemW + gap
+
+  const winIndex = items.length - 6
+  const target = -(winIndex * step)
+  const jitter = -Math.round(step * 0.35 + Math.random() * step * 0.25)
+  const finalX = target + jitter
+
+  caseAnimTrack.style.transition = 'transform 2.6s cubic-bezier(.08,.82,.12,1)'
+  caseAnimTrack.style.transform = `translateX(${finalX}px)`
+
+  await new Promise(r => setTimeout(r, 2700))
+  setCaseAnimVisible(false)
+}
+
 
 // ===== STATE =====
 let currentRotation = 0
@@ -344,11 +406,12 @@ function renderCaseRewardsList(cfg) {
     return
   }
 
-  // раз "всегда мишка" — показываем содержимое как мишку
-  caseOpenRewardsListEl.innerHTML = `
-    <div class="case-reward-item">${giftVisual(CASES_ALWAYS_PRIZE)} <span>Мишка</span></div>
-  `
+  const items = Array.isArray(cfg.contents) ? cfg.contents : [CASES_ALWAYS_PRIZE]
+  caseOpenRewardsListEl.innerHTML = items
+    .map(it => `<div class="case-reward-item">${giftVisual(it)} <span>${it.name}</span></div>`)
+    .join('')
 }
+
 
 function openCase(caseType) {
   const cfg = CASES[caseType]
@@ -708,14 +771,21 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
 
   caseOpenSpinBtn.disabled = true
   try {
-    const r = await openCaseApi(selectedCaseType)
+    // 1) сервер списывает и возвращает приз
+    const r = await apiPost('/cases/open', { caseType: selectedCaseType })
 
     balance = Number(r.newBalance ?? balance)
     updateBalanceUI()
 
-    currentPrize = r.prize || CASES_ALWAYS_PRIZE
-    currentPrizeIdx = null
+    const prize = r.prize || CASES_ALWAYS_PRIZE
 
+    // 2) анимация (крутит содержимое кейса)
+    const pool = Array.isArray(cfg.contents) && cfg.contents.length ? cfg.contents : [prize]
+    await playCaseOpenAnimation({ pool, winner: prize })
+
+    // 3) показываем результат
+    currentPrize = prize
+    currentPrizeIdx = null
     setLastPrizeText(currentPrize)
     openModal(currentPrize)
   } catch (e) {
@@ -724,6 +794,7 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
     caseOpenSpinBtn.disabled = false
   }
 })
+
 
 // крутилка
 spinButton?.addEventListener('click', async e => {
@@ -1692,3 +1763,4 @@ async function init() {
 }
 
 init()
+
