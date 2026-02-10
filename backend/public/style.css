@@ -1642,3 +1642,72 @@ body {
 		grid-template-columns: 1fr;
 	}
 }
+
+.case-anim-overlay{
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.55);
+  backdrop-filter: blur(6px);
+  z-index: 9999;
+}
+.case-anim-overlay.active{ display:flex; }
+
+.case-anim-window{
+  width: min(560px, 92vw);
+  padding: 18px;
+  border-radius: 22px;
+  background: #0b1020;
+  box-shadow: 0 16px 60px rgba(0,0,0,.55);
+  border: 1px solid rgba(255,255,255,.06);
+  position: relative;
+}
+
+.case-anim-pointer{
+  position:absolute;
+  right: 26px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0; height: 0;
+  border-top: 14px solid transparent;
+  border-bottom: 14px solid transparent;
+  border-left: 20px solid rgba(255,255,255,.92);
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
+}
+
+.case-anim-track{
+  display:flex;
+  gap: 22px;
+  align-items:center;
+  will-change: transform;
+  transform: translateX(0);
+  padding: 10px 40px;
+  overflow: hidden;
+}
+
+.case-anim-item{
+  width: 96px;
+  height: 96px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius: 18px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.06);
+  flex: 0 0 auto;
+}
+
+.case-anim-item .gift-icon{
+  width: 72px;
+  height: 72px;
+  border-radius: 16px;
+  background-size: cover;
+  background-position:center;
+}
+
+.case-anim-item .emoji{
+  font-size: 54px;
+}
+
