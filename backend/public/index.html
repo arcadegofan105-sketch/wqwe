@@ -40,9 +40,7 @@
         <!-- Главная: вход в режимы -->
         <section id="screen-home" class="screen active">
           <div class="screen-title">Главная</div>
-          <div class="screen-subtitle">
-            Выберите режим: Краш, Колесо или Кейсы.
-          </div>
+          <div class="screen-subtitle">Выберите режим: Краш, Колесо или Кейсы.</div>
 
           <!-- Карточки КРАШ и КОЛЕСО с изображениями -->
           <div class="info-row info-row-games">
@@ -80,6 +78,7 @@
               <div class="sector" data-index="5">🍑</div>
               <div class="sector" data-index="6">🧸</div>
             </div>
+
             <div class="wheel-center">
               <button id="spin-button" class="spin-button" type="button">
                 Крутить
@@ -91,9 +90,7 @@
           <div class="info-row">
             <div class="info-card">
               <div class="info-label">Ваш баланс</div>
-              <div class="info-value">
-                <span id="balance-value-2">5</span> TON
-              </div>
+              <div class="info-value"><span id="balance-value-2">5</span> TON</div>
             </div>
             <div class="info-card">
               <div class="info-label">Последний выигрыш</div>
@@ -131,72 +128,69 @@
           </div>
         </section>
 
-     <!-- Экран КРАШ -->
-<section id="screen-crash" class="screen">
-  <div class="screen-title">🚀 Краш</div>
-  <div class="screen-subtitle">
-    Выведите деньги до того, как ракета взорвётся!
-  </div>
+        <!-- Экран КРАШ -->
+        <section id="screen-crash" class="screen">
+          <div class="screen-title">🚀 Краш</div>
+          <div class="screen-subtitle">
+            Выведите деньги до того, как ракета взорвётся!
+          </div>
 
-  <div class="crash-container">
-    <div class="crash-game-area">
-      <div class="crash-stars crash-stars-back"></div>
-      <div class="crash-stars crash-stars-front"></div>
+          <div class="crash-container">
+            <div class="crash-game-area">
+              <div class="crash-stars crash-stars-back"></div>
+              <div class="crash-stars crash-stars-front"></div>
 
-      <canvas id="crash-canvas"></canvas>
-      <div class="crash-multiplier" id="crash-multiplier">1.00x</div>
-      <div class="crash-status" id="crash-status">Скоро взлетаем</div>
-    </div>
+              <canvas id="crash-canvas"></canvas>
+              <div class="crash-multiplier" id="crash-multiplier">1.00x</div>
+              <div class="crash-status" id="crash-status">Скоро взлетаем</div>
+            </div>
 
-    <!-- ОДНА основная кнопка: Сделать ставку / Забрать -->
-    <button id="crash-main-action" class="crash-main-btn">
-      Сделать ставку
-    </button>
+            <!-- ОДНА основная кнопка: Сделать ставку / Забрать -->
+            <button id="crash-main-action" class="crash-main-btn">Сделать ставку</button>
 
-    <div class="crash-panel">
-      <div class="crash-bet-block">
-        <div class="crash-bet-label">Ставка (TON)</div>
-        <div class="crash-bet-input-row">
-          <input
-            type="number"
-            id="crash-bet-input"
-            class="crash-bet-input"
-            placeholder="0.10"
-            min="0.1"
-            step="0.1"
-            value="1"
-          />
-        </div>
-      </div>
+            <div class="crash-panel">
+              <div class="crash-bet-block">
+                <div class="crash-bet-label">Ставка (TON)</div>
+                <div class="crash-bet-input-row">
+                  <input
+                    type="number"
+                    id="crash-bet-input"
+                    class="crash-bet-input"
+                    placeholder="0.10"
+                    min="0.1"
+                    step="0.1"
+                    value="1"
+                  />
+                </div>
+              </div>
 
-      <div class="crash-auto-block">
-        <div class="crash-bet-label">Авто-вывод (x)</div>
-        <div class="crash-bet-input-row">
-          <input
-            type="number"
-            id="crash-auto-input"
-            class="crash-bet-input"
-            placeholder="Например: 2.5"
-            min="1.1"
-            step="0.1"
-          />
-        </div>
-      </div>
-    </div>
+              <div class="crash-auto-block">
+                <div class="crash-bet-label">Авто-вывод (x)</div>
+                <div class="crash-bet-input-row">
+                  <input
+                    type="number"
+                    id="crash-auto-input"
+                    class="crash-bet-input"
+                    placeholder="Например: 2.5"
+                    min="1.1"
+                    step="0.1"
+                  />
+                </div>
+              </div>
+            </div>
 
-    <div class="crash-info">
-      <div class="crash-info-item">
-        <span class="crash-info-label">Ваша ставка:</span>
-        <span class="crash-info-value" id="crash-current-bet">—</span>
-      </div>
-      <div class="crash-info-item">
-        <span class="crash-info-label">Потенциальный выигрыш:</span>
-        <span class="crash-info-value" id="crash-potential-win">—</span>
-      </div>
-    </div>
-  </div>
-</section>
-
+            <div class="crash-info">
+              <div class="crash-info-item">
+                <span class="crash-info-label">Ваша ставка:</span>
+                <span class="crash-info-value" id="crash-current-bet">—</span>
+              </div>
+              <div class="crash-info-item">
+                <span class="crash-info-label">Потенциальный выигрыш:</span>
+                <span class="crash-info-value" id="crash-potential-win">—</span>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <!-- Экран КЕЙСЫ -->
         <section id="screen-cases" class="screen">
@@ -258,9 +252,7 @@
           <div class="case-open-card">
             <div class="case-open-image" id="case-open-image"></div>
 
-            <div class="case-open-price">
-              Цена: <span id="case-open-price">0</span> TON
-            </div>
+            <div class="case-open-price">Цена: <span id="case-open-price">0</span> TON</div>
 
             <button id="case-open-spin" class="action-btn action-green" type="button">
               Открыть кейс
@@ -269,9 +261,7 @@
 
           <div class="case-open-rewards">
             <div class="case-open-rewards-title">Содержимое кейса</div>
-            <div id="case-open-rewards-list" class="case-open-rewards-list">
-              <!-- сюда JS подставит список подарков -->
-            </div>
+            <div id="case-open-rewards-list" class="case-open-rewards-list"></div>
           </div>
         </section>
 
@@ -299,16 +289,10 @@
 
           <div class="bonus-card">
             <div class="bonus-title">Ваша пригласительная ссылка</div>
-            <div class="bonus-text" id="invite-link-text">
-              Скоро добавим генерацию ссылки.
-            </div>
+            <div class="bonus-text" id="invite-link-text">Скоро добавим генерацию ссылки.</div>
           </div>
 
-          <button
-            class="action-btn action-blue"
-            id="invite-copy-btn"
-            type="button"
-          >
+          <button class="action-btn action-blue" id="invite-copy-btn" type="button">
             Скопировать ссылку (скоро)
           </button>
         </section>
@@ -321,19 +305,14 @@
           </div>
 
           <div class="promo-block">
-            <input
-              id="promo-input"
-              type="text"
-              placeholder="Введите промокод"
-            />
+            <input id="promo-input" type="text" placeholder="Введите промокод" />
             <button id="promo-apply">Активировать</button>
           </div>
 
           <div class="bonus-card">
             <div class="bonus-title">Раздел промокоды</div>
             <div class="bonus-text">
-              В данном разделе можно будет ввести промокод, промокоды будут
-              публиковаться в тг‑канале.
+              В данном разделе можно будет ввести промокод, промокоды будут публиковаться в тг‑канале.
             </div>
           </div>
         </section>
@@ -358,17 +337,12 @@
             </div>
 
             <div class="profile-balance-bottom">
-              <button id="deposit-btn" class="action-btn action-green">
-                Депозит TON
-              </button>
-              <button id="withdraw-btn" class="action-btn action-blue">
-                Вывод TON
-              </button>
+              <button id="deposit-btn" class="action-btn action-green">Депозит TON</button>
+              <button id="withdraw-btn" class="action-btn action-blue">Вывод TON</button>
             </div>
 
             <div class="wallet-note">
-              Прежде чем пополнять баланс, нужно сначала привязать (подключить)
-              кошелёк.
+              Прежде чем пополнять баланс, нужно сначала привязать (подключить) кошелёк.
             </div>
 
             <div id="ton-connect" style="margin-top: 10px;"></div>
@@ -376,22 +350,112 @@
             <div class="inventory-section">
               <div class="inventory-title">Инвентарь подарков</div>
               <div id="inventory-list" class="inventory-list">
-                <div class="inventory-empty">
-                  У вас пока нет подарков
-                </div>
+                <div class="inventory-empty">У вас пока нет подарков</div>
               </div>
             </div>
 
             <div class="ref-card">
               <div class="ref-title">Реферальная программа</div>
               <div class="ref-text">
-                Делимся частью дохода с активными игроками. Ниже можно будет
-                создать свой промокод для друзей.
+                Делимся частью дохода с активными игроками. Ниже можно будет создать свой промокод для друзей.
               </div>
               <button class="action-btn action-outline" disabled>
                 Создать промокод (скоро)
               </button>
             </div>
+          </div>
+        </section>
+
+        <!-- Экран АДМИН -->
+        <section id="screen-admin" class="screen">
+          <div class="screen-title">Админ-панель</div>
+          <div class="screen-subtitle">Доступ только для администратора.</div>
+
+          <!-- 1) Промокоды -->
+          <div class="bonus-card">
+            <div class="bonus-title">Промокоды</div>
+
+            <div class="promo-admin-row">
+              <select id="admin-promo-type">
+                <option value="gift">На мишку</option>
+                <option value="balance">На TON</option>
+              </select>
+              <input id="admin-promo-code" type="text" placeholder="PROMO123" />
+            </div>
+
+            <div class="promo-admin-row">
+              <input
+                id="admin-promo-amount"
+                type="number"
+                step="0.01"
+                placeholder="Сумма TON (если TON)"
+              />
+              <input
+                id="admin-promo-maxuses"
+                type="number"
+                step="1"
+                min="1"
+                value="1"
+                placeholder="Max uses"
+              />
+            </div>
+
+            <button id="admin-promo-create" class="action-btn action-green" type="button">
+              Создать промокод
+            </button>
+
+            <div style="height: 10px;"></div>
+
+            <div id="admin-promos-list" class="admin-promos-list">—</div>
+
+            <button id="admin-promos-refresh" class="action-btn action-blue" type="button">
+              Обновить список
+            </button>
+          </div>
+
+          <!-- 2) Статистика -->
+          <div class="bonus-card">
+            <div class="bonus-title">Статистика</div>
+            <div class="admin-stats" id="admin-stats">—</div>
+            <button id="admin-stats-refresh" class="action-btn action-blue" type="button">
+              Обновить
+            </button>
+          </div>
+
+          <!-- 3) Пользователи -->
+          <div class="bonus-card">
+            <div class="bonus-title">Пользователи</div>
+
+            <div class="promo-admin-row">
+              <input id="admin-users-q" type="text" placeholder="@username или ID" />
+              <button id="admin-users-search" class="action-btn action-blue" type="button">
+                Поиск
+              </button>
+            </div>
+
+            <div class="admin-users-grid" id="admin-users-grid"></div>
+
+            <div class="admin-pager">
+              <button id="admin-prev" class="action-btn action-outline" type="button">←</button>
+              <div id="admin-page-info">1 / 1</div>
+              <button id="admin-next" class="action-btn action-outline" type="button">→</button>
+            </div>
+          </div>
+
+          <!-- 4) Корректировка баланса -->
+          <div class="bonus-card">
+            <div class="bonus-title">Выдать / снять TON</div>
+
+            <div class="promo-admin-row">
+              <input id="admin-adj-tgid" type="text" placeholder="tg_id (число)" />
+              <input id="admin-adj-delta" type="number" step="0.01" placeholder="+1 или -1" />
+            </div>
+
+            <button id="admin-adj-apply" class="action-btn action-green" type="button">
+              Применить
+            </button>
+
+            <div class="admin-stats" id="admin-adj-result"></div>
           </div>
         </section>
       </main>
@@ -453,6 +517,16 @@
           </span>
           <span>Профиль</span>
         </button>
+
+        <button class="nav-btn" data-target="admin" id="admin-nav-btn" style="display:none;">
+          <span class="nav-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3l8 4v6c0 5-3.5 8-8 8s-8-3-8-8V7l8-4z" />
+              <path d="M9 12l2 2 4-5" />
+            </svg>
+          </span>
+          <span>Админ</span>
+        </button>
       </nav>
 
       <!-- Модалки -->
@@ -467,12 +541,8 @@
             Стоимость: <span id="modal-prize-price">15</span> TON
           </div>
           <div class="modal-buttons">
-            <button id="modal-sell" class="modal-btn modal-btn-sell">
-              Продать
-            </button>
-            <button id="modal-keep" class="modal-btn modal-btn-keep">
-              Оставить
-            </button>
+            <button id="modal-sell" class="modal-btn modal-btn-sell">Продать</button>
+            <button id="modal-keep" class="modal-btn modal-btn-keep">Оставить</button>
           </div>
         </div>
       </div>
@@ -497,18 +567,10 @@
           </div>
 
           <div class="modal-buttons">
-            <button
-              id="withdraw-cancel"
-              class="modal-btn modal-btn-sell"
-              type="button"
-            >
+            <button id="withdraw-cancel" class="modal-btn modal-btn-sell" type="button">
               Отмена
             </button>
-            <button
-              id="withdraw-confirm"
-              class="modal-btn modal-btn-keep"
-              type="button"
-            >
+            <button id="withdraw-confirm" class="modal-btn modal-btn-keep" type="button">
               Подтвердить
             </button>
           </div>
@@ -526,11 +588,7 @@
           <div class="deposit-body">
             <div class="deposit-subtitle">Заполните данные</div>
 
-            <button
-              id="connect-ton-btn"
-              class="modal-btn modal-btn-keep"
-              type="button"
-            >
+            <button id="connect-ton-btn" class="modal-btn modal-btn-keep" type="button">
               Подключите TON кошелёк
             </button>
 
@@ -549,11 +607,7 @@
           </div>
 
           <div class="modal-buttons">
-            <button
-              id="deposit-cancel"
-              class="modal-btn modal-btn-sell"
-              type="button"
-            >
+            <button id="deposit-cancel" class="modal-btn modal-btn-sell" type="button">
               Закрыть
             </button>
             <button
@@ -574,7 +628,3 @@
     <script src="script.js"></script>
   </body>
 </html>
-
-
-
-
