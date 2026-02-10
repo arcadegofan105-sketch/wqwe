@@ -1572,7 +1572,7 @@ function renderCrash(ts) {
   let p = 0
   if (crashState === 'playing' || crashState === 'crashed') {
     const t = Math.log(Math.max(crashMultiplier, 1)) / crashK
-    p = clamp(t / 10, 0, 1)
+    p = clamp(t / 12, 0, 1)
   }
 
   drawPath(crashCtx, w, h, p)
@@ -1777,6 +1777,7 @@ async function init() {
 }
 
 init()
+
 
 
 
