@@ -6,7 +6,7 @@ const MIN_WITHDRAW_TON = 5
 const MIN_DEPOSIT_TON = 0.1
 
 // TODO: поставь username своего бота без "@", например: GiftWheelsBot
-const BOT_USERNAME = 'YOUR_BOT_USERNAME'
+const BOT_USERNAME = 'GiftWheels_bot'
 
 const wheelSectors = [
   { emoji: '📅', name: 'Календарь', price: 1.5 },
@@ -1558,3 +1558,4 @@ adminAdjApply?.addEventListener('click', async () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
