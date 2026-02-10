@@ -20,7 +20,6 @@ const wheelSectors = [
 
 // ===== CASES CONFIG =====
 // По твоей идее: "крутится кейс и всегда мишка" — делаем выдачу всегда Мишка.
-// Пока без сервера /api/cases/open (потом подключим).
 const CASES = {
   newyear: {
     id: 'newyear',
@@ -466,6 +465,11 @@ async function spinApi() {
   return apiPost('/spin')
 }
 
+// ✅ NEW: open case via server
+async function openCaseApi(caseType) {
+  return apiPost('/cases/open', { caseType })
+}
+
 async function keepPrizeApi(prize) {
   return apiPost('/prize/keep', { prize })
 }
@@ -694,7 +698,7 @@ caseCards.forEach(card => {
   })
 })
 
-// Открыть кейс
+// ✅ Открыть кейс (через сервер /api/cases/open)
 caseOpenSpinBtn?.addEventListener('click', async () => {
   const cfg = CASES[selectedCaseType]
   if (!cfg) return
@@ -702,22 +706,20 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
   if (prizeModal?.classList.contains('active')) return
   if (withdrawModal?.classList.contains('active')) return
 
-  if (balance < Number(cfg.priceTon || 0)) {
-    alert('Недостаточно средств.')
-    return
-  }
-
   caseOpenSpinBtn.disabled = true
   try {
-    // ВРЕМЕННО: списание на клиенте; потом перенесём на сервер /api/cases/open
-    balance = Number((balance - Number(cfg.priceTon || 0)).toFixed(6))
+    const r = await openCaseApi(selectedCaseType)
+
+    balance = Number(r.newBalance ?? balance)
     updateBalanceUI()
 
-    currentPrize = CASES_ALWAYS_PRIZE
+    currentPrize = r.prize || CASES_ALWAYS_PRIZE
     currentPrizeIdx = null
 
     setLastPrizeText(currentPrize)
     openModal(currentPrize)
+  } catch (e) {
+    alert(e.message || 'Ошибка открытия кейса')
   } finally {
     caseOpenSpinBtn.disabled = false
   }
