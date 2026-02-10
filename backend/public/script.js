@@ -5,7 +5,7 @@ const FULL_ROUNDS = 5
 const MIN_WITHDRAW_TON = 5
 const MIN_DEPOSIT_TON = 0.1
 
-// TODO: поставь username своего бота без "@", например: GiftWheelsBot
+// TODO: username -> GiftWheelsBot
 const BOT_USERNAME = 'GiftWheels_bot'
 
 const wheelSectors = [
@@ -17,6 +17,32 @@ const wheelSectors = [
   { emoji: '🍑', name: 'Персик', price: 0.0 },
   { emoji: '🧸', name: 'Мишка', price: 0.1 },
 ]
+
+// ===== CASES CONFIG =====
+// По твоей идее: "крутится кейс и всегда мишка" — делаем выдачу всегда Мишка.
+// Пока без сервера /api/cases/open (потом подключим).
+const CASES = {
+  newyear: {
+    id: 'newyear',
+    title: 'Календарь',
+    priceTon: 0.1,
+    imageSelector: '.case-image-newyear',
+  },
+  onlynft: {
+    id: 'onlynft',
+    title: 'Классический',
+    priceTon: 1.0,
+    imageSelector: '.case-image-onlynft',
+  },
+  crypto: {
+    id: 'crypto',
+    title: 'Все или ничего',
+    priceTon: 0.5,
+    imageSelector: '.case-image-crypto',
+  },
+}
+
+const CASES_ALWAYS_PRIZE = { emoji: '🧸', name: 'Мишка', price: 0.1 }
 
 // ===== CUSTOM IMAGES =====
 const GIFT_IMAGES = {
@@ -70,6 +96,8 @@ const screens = {
   home: document.getElementById('screen-home'),
   wheel: document.getElementById('screen-wheel'),
   crash: document.getElementById('screen-crash'),
+  cases: document.getElementById('screen-cases'),
+  caseOpen: document.getElementById('screen-case-open'),
   bonus: document.getElementById('screen-bonus'),
   profile: document.getElementById('screen-profile'),
   admin: document.getElementById('screen-admin'),
@@ -131,6 +159,14 @@ const adminAdjResult = document.getElementById('admin-adj-result')
 const inviteLinkText = document.getElementById('invite-link-text')
 const inviteCopyBtn = document.getElementById('invite-copy-btn')
 
+// Cases UI
+const caseCards = document.querySelectorAll('#screen-cases .case-card')
+const caseOpenTitleEl = document.getElementById('case-open-title')
+const caseOpenImageEl = document.getElementById('case-open-image')
+const caseOpenPriceEl = document.getElementById('case-open-price')
+const caseOpenSpinBtn = document.getElementById('case-open-spin')
+const caseOpenRewardsListEl = document.getElementById('case-open-rewards-list')
+
 // ===== STATE =====
 let currentRotation = 0
 let balance = 0
@@ -139,6 +175,8 @@ let currentPrize = null
 let currentPrizeIdx = null
 let isSpinning = false
 let isAdmin = false
+
+let selectedCaseType = null
 
 const adminState = {
   q: '',
@@ -282,24 +320,63 @@ function buildInviteLink() {
 
 function updateInviteUI() {
   const link = buildInviteLink()
-  if (inviteLinkText) {
-    inviteLinkText.textContent = link || 'Укажи BOT_USERNAME в script.js'
-  }
+  if (inviteLinkText) inviteLinkText.textContent = link || 'Укажи BOT_USERNAME в script.js'
 }
 
 inviteCopyBtn?.addEventListener('click', async () => {
   const link = buildInviteLink()
   if (!link) {
-    alert('Ссылка недоступна: проверь BOT_USERNAME')
+    alert('Сначала укажи BOT_USERNAME в script.js')
     return
   }
   try {
     await navigator.clipboard.writeText(link)
     alert('Ссылка скопирована')
   } catch (e) {
-    alert('Не удалось скопировать автоматически. Скопируй вручную из текста.')
+    alert('Не удалось скопировать ссылку (попробуй вручную).')
   }
 })
+
+// ===== CASES HELPERS =====
+function renderCaseRewardsList(cfg) {
+  if (!caseOpenRewardsListEl) return
+  if (!cfg) {
+    caseOpenRewardsListEl.innerHTML = ''
+    return
+  }
+
+  // раз "всегда мишка" — показываем содержимое как мишку
+  caseOpenRewardsListEl.innerHTML = `
+    <div class="case-reward-item">${giftVisual(CASES_ALWAYS_PRIZE)} <span>Мишка</span></div>
+  `
+}
+
+function openCase(caseType) {
+  const cfg = CASES[caseType]
+  if (!cfg) {
+    alert('Этот кейс скоро добавим.')
+    return
+  }
+
+  selectedCaseType = caseType
+
+  if (caseOpenTitleEl) caseOpenTitleEl.textContent = cfg.title
+  if (caseOpenPriceEl) caseOpenPriceEl.textContent = Number(cfg.priceTon || 0).toFixed(2)
+
+  // подтягиваем классы изображения из карточки, чтобы было "как в списке"
+  if (caseOpenImageEl) {
+    const img = document.querySelector(`#screen-cases .case-card[data-case-type="${caseType}"] .case-image`)
+    if (img?.className) {
+      // заменим base-class, чтобы CSS мог отличать open-image при необходимости
+      caseOpenImageEl.className = img.className.replace('case-image', 'case-open-image')
+    } else {
+      caseOpenImageEl.className = 'case-open-image'
+    }
+  }
+
+  renderCaseRewardsList(cfg)
+  setScreen('caseOpen')
+}
 
 // ===== TON CONNECT =====
 function isWalletConnected() {
@@ -597,9 +674,53 @@ document.querySelectorAll('[data-home-target]').forEach(card => {
     }
 
     if (target === 'cases') {
-      alert('Раздел кейсов скоро добавим.')
+      setScreen('cases')
+      return
     }
   })
+})
+
+// Кейсы: клик по карточке -> экран открытия
+caseCards.forEach(card => {
+  card.addEventListener('click', () => {
+    const type = card.getAttribute('data-case-type')
+
+    if (!['newyear', 'onlynft', 'crypto'].includes(type)) {
+      alert('Этот кейс скоро добавим.')
+      return
+    }
+
+    openCase(type)
+  })
+})
+
+// Открыть кейс
+caseOpenSpinBtn?.addEventListener('click', async () => {
+  const cfg = CASES[selectedCaseType]
+  if (!cfg) return
+
+  if (prizeModal?.classList.contains('active')) return
+  if (withdrawModal?.classList.contains('active')) return
+
+  if (balance < Number(cfg.priceTon || 0)) {
+    alert('Недостаточно средств.')
+    return
+  }
+
+  caseOpenSpinBtn.disabled = true
+  try {
+    // ВРЕМЕННО: списание на клиенте; потом перенесём на сервер /api/cases/open
+    balance = Number((balance - Number(cfg.priceTon || 0)).toFixed(6))
+    updateBalanceUI()
+
+    currentPrize = CASES_ALWAYS_PRIZE
+    currentPrizeIdx = null
+
+    setLastPrizeText(currentPrize)
+    openModal(currentPrize)
+  } finally {
+    caseOpenSpinBtn.disabled = false
+  }
 })
 
 // крутилка
@@ -633,6 +754,7 @@ spinButton?.addEventListener('click', async e => {
   balance = Number(prizeData.newBalance ?? balance - SPIN_PRICE)
   updateBalanceUI()
 
+  // Сейчас у тебя намеренно всегда крутится на мишку:
   const bearIndex = wheelSectors.findIndex(s => s?.name === 'Мишка')
   const sectorIndex = bearIndex >= 0 ? bearIndex : 0
 
@@ -667,10 +789,10 @@ wheel?.addEventListener('transitionend', e => {
 modalSellBtn?.addEventListener('click', async () => {
   if (!currentPrize) return
   try {
-    // Если сервер не дал idx — сначала keep, затем продаем по idx (сервер требует idx).
+    // Если сервер не дал idx — сначала кладем приз в инвентарь, потом продаем по idx
     if (!Number.isInteger(currentPrizeIdx)) {
       await keepPrizeApi(currentPrize)
-      const me = await fetchUserData()
+      const me = await fetchUserData() // обновит inventory
       const i = (me.inventory || inventory || []).findIndex(it => it?.name === currentPrize.name)
       currentPrizeIdx = i >= 0 ? i : null
     }
@@ -683,6 +805,7 @@ modalSellBtn?.addEventListener('click', async () => {
     const data = await sellPrizeApi(currentPrize, currentPrizeIdx)
     balance = Number(data.newBalance ?? balance)
     updateBalanceUI()
+
     currentPrize = null
     currentPrizeIdx = null
     closeModal()
@@ -842,25 +965,25 @@ depositConfirmBtn?.addEventListener('click', async () => {
       ],
     }
 
-    // ---- TonConnect statuses (без CSS) ----
-    alert('Ожидаем подтверждение в кошельке…')
-
+    // ---- TonConnect statuses (как было у тебя) ----
+    alert('Подтверди транзакцию в кошельке...')
     let requestSent = false
+
     await tonConnectUI.sendTransaction(tx, {
       modals: ['before', 'success', 'error'],
       notifications: ['before', 'success', 'error'],
-      // В твоём коде было 'never'. Оставим без принудительных редиректов.
-      // Если захочешь открывать кошелек автоматом — поменяем стратегию.
       skipRedirectToWallet: 'never',
       onRequestSent: () => {
         requestSent = true
-        alert('Транзакция отправлена. Ищу подтверждение в сети…')
+        alert('Запрос отправлен в кошелёк. Подтверди транзакцию.')
       },
     })
 
-    if (!requestSent) alert('Транзакция отправлена. Ищу подтверждение в сети…')
+    if (!requestSent) {
+      alert('Ожидаем подтверждение... (если кошелёк не открылся — открой вручную)')
+    }
+    // ---------------------------------------------
 
-    // ---- Поиск подтверждения ----
     for (let i = 0; i < 12; i++) {
       await sleep(5000)
       const r = await depositCheckApi(dep.depositId)
@@ -872,7 +995,7 @@ depositConfirmBtn?.addEventListener('click', async () => {
       }
     }
 
-    alert('Не найдено в сети/не зачислилось. Подожди 1–2 минуты и нажми “Пополнить” ещё раз.')
+    alert('Транзакция отправлена. Если не зачислилось — подожди 1–2 минуты и попробуй ещё раз.')
   } catch (err) {
     alert(err.message || 'Ошибка депозита')
   } finally {
@@ -925,7 +1048,7 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
   }
 })
 
-// ===== CRASH (logic + canvas animation rocket - moon) =====
+// ===== CRASH (logic + canvas animation: rocket -> moon) =====
 const crashCanvas = document.getElementById('crash-canvas')
 const crashCtx = crashCanvas ? crashCanvas.getContext('2d') : null
 const crashMultiplierEl = document.getElementById('crash-multiplier')
@@ -939,15 +1062,21 @@ const crashPotentialWinEl = document.getElementById('crash-potential-win')
 let crashState = 'idle' // idle | playing | crashed
 let crashMultiplier = 1.0
 let crashPoint = null
+
 let crashBetAmount = 0
 let crashAutoCashoutAt = null
 let crashHasCashedOut = false
+
 let crashAnimFrame = null
 let crashStartTime = null
 
+// Скорость роста НЕ зависит от crashPoint, иначе палится
+// m(t) = exp(k*t)
 let crashK = 0.28
+
+// визуальные состояния
 let crashImpact = null // {x,y,ts}
-let crashShake = 0
+let crashShake = 0 // 0..1
 
 function clamp(v, a, b) {
   return Math.max(a, Math.min(b, v))
@@ -978,6 +1107,7 @@ function moonPos(w, h) {
   return { x: w * 0.78, y: h * 0.26, r: Math.min(w, h) * 0.14 }
 }
 
+// квадратичная траектория
 function pathPoint(p, w, h) {
   const a = { x: w * 0.18, y: h * 0.78 }
   const c = { x: w * 0.42, y: h * 0.18 }
@@ -998,7 +1128,7 @@ function pathTangentAng(p, w, h) {
   return Math.atan2(dy, dx)
 }
 
-// particles
+// ---------- particles ----------
 const particles = []
 function spawnExplosion(x, y) {
   const n = 46
@@ -1045,16 +1175,10 @@ function drawParticles(ctx) {
   }
 }
 
+// ---------- draw ----------
 function drawMoon(ctx, w, h) {
   const m = moonPos(w, h)
-  const g = ctx.createRadialGradient(
-    m.x - m.r * 0.3,
-    m.y - m.r * 0.3,
-    m.r * 0.2,
-    m.x,
-    m.y,
-    m.r
-  )
+  const g = ctx.createRadialGradient(m.x - m.r * 0.3, m.y - m.r * 0.3, m.r * 0.2, m.x, m.y, m.r)
   g.addColorStop(0, 'rgba(226,232,240,0.95)')
   g.addColorStop(0.6, 'rgba(148,163,184,0.9)')
   g.addColorStop(1, 'rgba(15,23,42,0.9)')
@@ -1103,6 +1227,7 @@ function drawRocket(ctx, x, y, ang, flamePower) {
   ctx.translate(x, y)
   ctx.rotate(ang)
 
+  // корпус
   ctx.fillStyle = '#e5e7eb'
   ctx.strokeStyle = 'rgba(15,23,42,0.8)'
   ctx.lineWidth = 1.2
@@ -1117,11 +1242,13 @@ function drawRocket(ctx, x, y, ang, flamePower) {
   ctx.fill()
   ctx.stroke()
 
+  // окно
   ctx.fillStyle = 'rgba(56,189,248,0.9)'
   ctx.beginPath()
   ctx.arc(2, 0, 4, 0, Math.PI * 2)
   ctx.fill()
 
+  // крылья
   ctx.fillStyle = '#94a3b8'
   ctx.beginPath()
   ctx.moveTo(-8, -6)
@@ -1129,7 +1256,6 @@ function drawRocket(ctx, x, y, ang, flamePower) {
   ctx.lineTo(-12, -2)
   ctx.closePath()
   ctx.fill()
-
   ctx.beginPath()
   ctx.moveTo(-8, 6)
   ctx.lineTo(-20, 14)
@@ -1137,6 +1263,7 @@ function drawRocket(ctx, x, y, ang, flamePower) {
   ctx.closePath()
   ctx.fill()
 
+  // огонь
   const fp = clamp(flamePower, 0, 1)
   if (fp > 0.02) {
     const len = 14 + fp * 18
@@ -1157,6 +1284,7 @@ function drawRocket(ctx, x, y, ang, flamePower) {
   ctx.restore()
 }
 
+// ---------- UI ----------
 function updateCrashButtonUI() {
   if (!crashMainActionBtn) return
   if (crashState === 'idle') {
@@ -1188,6 +1316,7 @@ function setCrashStatus(text, color) {
   crashStatusEl.style.color = color || '#e5e7eb'
 }
 
+// ---------- logic ----------
 function stepCrashMultiplier() {
   const t = Math.max(0, Date.now() - crashStartTime) / 1000
   crashMultiplier = Math.exp(crashK * t)
@@ -1295,11 +1424,12 @@ async function startCrash() {
   startCrashRenderLoop()
 }
 
-// render loop
+// ---------- render loop ----------
 let lastFrameTs = 0
 function startCrashRenderLoop() {
   if (!crashCanvas || !crashCtx) return
   initCrashCanvas()
+
   if (crashAnimFrame) cancelAnimationFrame(crashAnimFrame)
   lastFrameTs = 0
   crashAnimFrame = requestAnimationFrame(renderCrash)
@@ -1342,6 +1472,7 @@ function renderCrash(ts) {
 
   crashCtx.clearRect(0, 0, w, h)
 
+  // легкая туманность
   const fog = crashCtx.createRadialGradient(w * 0.25, h * 0.85, 10, w * 0.25, h * 0.85, h * 0.9)
   fog.addColorStop(0, 'rgba(99,102,241,0.10)')
   fog.addColorStop(1, 'rgba(2,6,23,0)')
@@ -1350,6 +1481,7 @@ function renderCrash(ts) {
 
   drawMoon(crashCtx, w, h)
 
+  // прогресс полета из текущего multiplier
   let p = 0
   if (crashState === 'playing' || crashState === 'crashed') {
     const t = Math.log(Math.max(crashMultiplier, 1)) / crashK
@@ -1384,15 +1516,11 @@ function renderCrash(ts) {
   crashCtx.restore()
 
   const needMore =
-    crashState === 'playing' ||
-    crashState === 'crashed' ||
-    particles.length > 0 ||
-    crashShake > 0.001
-
+    crashState === 'playing' || crashState === 'crashed' || particles.length > 0 || crashShake > 0.001
   if (needMore) crashAnimFrame = requestAnimationFrame(renderCrash)
 }
 
-// controls
+// ---------- controls ----------
 crashMainActionBtn?.addEventListener('click', () => {
   if (crashState === 'idle') startCrash()
   else if (crashState === 'playing') cashoutCrash(false)
@@ -1406,20 +1534,19 @@ window.addEventListener('resize', () => {
 
 // ===== ADMIN EVENTS =====
 adminPromoType?.addEventListener('change', () => {
-  const t = String(adminPromoType.value || '')
+  const t = String(adminPromoType.value || 'gift')
   if (!adminPromoAmount) return
   adminPromoAmount.disabled = t !== 'balance'
 })
 
 adminPromoCreateBtn?.addEventListener('click', async () => {
   if (!isAdmin) return
-
   const type = String(adminPromoType?.value || 'gift')
   const code = String(adminPromoCode?.value || '').trim()
   const maxUses = Number(adminPromoMaxUses?.value || 1)
 
   if (!code) {
-    alert('Введите code')
+    alert('Введите код')
     return
   }
   if (!Number.isInteger(maxUses) || maxUses < 1) {
@@ -1429,10 +1556,11 @@ adminPromoCreateBtn?.addEventListener('click', async () => {
 
   try {
     adminPromoCreateBtn.disabled = true
+
     if (type === 'balance') {
       const amount = Number(String(adminPromoAmount?.value || '').replace(',', '.'))
       if (!Number.isFinite(amount) || amount <= 0) {
-        alert('Введите сумму TON > 0')
+        alert('Сумма TON должна быть > 0')
         return
       }
       await adminPromoCreateApi({ type: 'balance', code, amount, maxUses })
@@ -1465,7 +1593,6 @@ adminPromosList?.addEventListener('click', async e => {
   const code = btn.getAttribute('data-del-promo')
   if (!code) return
   if (!confirm(`Удалить промокод ${code}?`)) return
-
   try {
     await adminPromoDeleteApi(code)
     await loadAdminPromos()
@@ -1495,13 +1622,21 @@ adminUsersSearch?.addEventListener('click', async () => {
 adminPrev?.addEventListener('click', async () => {
   if (adminState.page <= 1) return
   adminState.page -= 1
-  await loadAdminUsers().catch(e => alert(e.message || 'Ошибка'))
+  try {
+    await loadAdminUsers()
+  } catch (e) {
+    alert(e.message || 'Ошибка')
+  }
 })
 
 adminNext?.addEventListener('click', async () => {
   if (adminState.page >= adminState.pages) return
   adminState.page += 1
-  await loadAdminUsers().catch(e => alert(e.message || 'Ошибка'))
+  try {
+    await loadAdminUsers()
+  } catch (e) {
+    alert(e.message || 'Ошибка')
+  }
 })
 
 adminAdjApply?.addEventListener('click', async () => {
@@ -1521,11 +1656,10 @@ adminAdjApply?.addEventListener('click', async () => {
   try {
     adminAdjApply.disabled = true
     const r = await adminAdjustBalanceApi(tgId, delta)
-    if (adminAdjResult)
-      adminAdjResult.textContent = `OK. Новый баланс: ${Number(r.newBalance || 0).toFixed(2)} TON`
+    if (adminAdjResult) adminAdjResult.textContent = `OK. New balance: ${Number(r.newBalance || 0).toFixed(2)} TON`
     await loadAdminStats()
   } catch (e) {
-    if (adminAdjResult) adminAdjResult.textContent = ''
+    if (adminAdjResult) adminAdjResult.textContent = e.message || 'Ошибка'
     alert(e.message || 'Ошибка')
   } finally {
     adminAdjApply.disabled = false
@@ -1533,12 +1667,11 @@ adminAdjApply?.addEventListener('click', async () => {
 })
 
 // ===== INIT =====
-;(async function init() {
+async function init() {
   updateTelegramUserUI()
   renderWheel()
   renderPrizesList()
   setLastPrizeText(null)
-
   updateInviteUI()
 
   if (crashCanvas) {
@@ -1550,12 +1683,10 @@ adminAdjApply?.addEventListener('click', async () => {
 
   try {
     await fetchUserData()
-
-    if (isAdmin) {
-      await Promise.allSettled([loadAdminStats(), loadAdminPromos(), loadAdminUsers()])
-    }
+    if (isAdmin) await Promise.allSettled([loadAdminStats(), loadAdminPromos(), loadAdminUsers()])
   } catch (err) {
-    alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
+    alert(err.message || 'Unknown error')
   }
-})()
+}
 
+init()
