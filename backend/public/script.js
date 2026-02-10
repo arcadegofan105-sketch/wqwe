@@ -129,6 +129,7 @@ let currentRotation = 0
 let balance = 0
 let inventory = []
 let currentPrize = null
+let currentPrizeIdx = null
 let isSpinning = false
 let isAdmin = false
 
@@ -592,6 +593,7 @@ spinButton?.addEventListener('click', async e => {
   }
 
   currentPrize = prizeData.prize
+  currentPrizeIdx = Number.isInteger(prizeData.idx) ? prizeData.idx : null
   balance = Number(prizeData.newBalance ?? balance - SPIN_PRICE)
   updateBalanceUI()
 
@@ -629,10 +631,25 @@ wheel?.addEventListener('transitionend', e => {
 modalSellBtn?.addEventListener('click', async () => {
   if (!currentPrize) return
   try {
-    const data = await sellPrizeApi(currentPrize)
+    // Если сервер не дал idx — сначала кладем приз в инвентарь, потом продаем по idx
+    if (!Number.isInteger(currentPrizeIdx)) {
+      await keepPrizeApi(currentPrize)
+      const me = await fetchUserData() // обновит inventory
+      const i = (me.inventory || inventory || []).findIndex(it => it?.name === currentPrize.name)
+      currentPrizeIdx = i >= 0 ? i : null
+    }
+
+    if (!Number.isInteger(currentPrizeIdx)) {
+      alert('Не удалось определить idx предмета. Обнови страницу/попробуй ещё раз.')
+      return
+    }
+
+    const data = await sellPrizeApi(currentPrize, currentPrizeIdx)
     balance = Number(data.newBalance ?? balance)
     updateBalanceUI()
+
     currentPrize = null
+    currentPrizeIdx = null
     closeModal()
     spinButton.disabled = false
     await fetchUserData()
@@ -641,12 +658,14 @@ modalSellBtn?.addEventListener('click', async () => {
   }
 })
 
+
 modalKeepBtn?.addEventListener('click', async () => {
   if (!currentPrize) return
   try {
     await keepPrizeApi(currentPrize)
     await fetchUserData()
     currentPrize = null
+    currentPrizeIdx = null
     closeModal()
     spinButton.disabled = false
   } catch (err) {
@@ -1506,4 +1525,5 @@ adminAdjApply?.addEventListener('click', async () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
+
 
