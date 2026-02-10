@@ -5,6 +5,9 @@ const FULL_ROUNDS = 5
 const MIN_WITHDRAW_TON = 5
 const MIN_DEPOSIT_TON = 0.1
 
+// TODO: поставь username своего бота без "@", например: GiftWheelsBot
+const BOT_USERNAME = 'YOUR_BOT_USERNAME'
+
 const wheelSectors = [
   { emoji: '📅', name: 'Календарь', price: 1.5 },
   { emoji: '🐸', name: 'Пепе', price: 0.0 },
@@ -123,6 +126,10 @@ const adminAdjTgId = document.getElementById('admin-adj-tgid')
 const adminAdjDelta = document.getElementById('admin-adj-delta')
 const adminAdjApply = document.getElementById('admin-adj-apply')
 const adminAdjResult = document.getElementById('admin-adj-result')
+
+// Invite UI
+const inviteLinkText = document.getElementById('invite-link-text')
+const inviteCopyBtn = document.getElementById('invite-copy-btn')
 
 // ===== STATE =====
 let currentRotation = 0
@@ -264,6 +271,35 @@ function updateTelegramUserUI() {
     })
   }
 }
+
+// ===== INVITE =====
+function buildInviteLink() {
+  const myId = telegramUser?.id
+  if (!myId) return null
+  if (!BOT_USERNAME || BOT_USERNAME === 'YOUR_BOT_USERNAME') return null
+  return `https://t.me/${BOT_USERNAME}?startapp=${myId}`
+}
+
+function updateInviteUI() {
+  const link = buildInviteLink()
+  if (inviteLinkText) {
+    inviteLinkText.textContent = link || 'Укажи BOT_USERNAME в script.js'
+  }
+}
+
+inviteCopyBtn?.addEventListener('click', async () => {
+  const link = buildInviteLink()
+  if (!link) {
+    alert('Ссылка недоступна: проверь BOT_USERNAME')
+    return
+  }
+  try {
+    await navigator.clipboard.writeText(link)
+    alert('Ссылка скопирована')
+  } catch (e) {
+    alert('Не удалось скопировать автоматически. Скопируй вручную из текста.')
+  }
+})
 
 // ===== TON CONNECT =====
 function isWalletConnected() {
@@ -631,10 +667,10 @@ wheel?.addEventListener('transitionend', e => {
 modalSellBtn?.addEventListener('click', async () => {
   if (!currentPrize) return
   try {
-    // Если сервер не дал idx — сначала кладем приз в инвентарь, потом продаем по idx
+    // Если сервер не дал idx — сначала keep, затем продаем по idx (сервер требует idx).
     if (!Number.isInteger(currentPrizeIdx)) {
       await keepPrizeApi(currentPrize)
-      const me = await fetchUserData() // обновит inventory
+      const me = await fetchUserData()
       const i = (me.inventory || inventory || []).findIndex(it => it?.name === currentPrize.name)
       currentPrizeIdx = i >= 0 ? i : null
     }
@@ -647,7 +683,6 @@ modalSellBtn?.addEventListener('click', async () => {
     const data = await sellPrizeApi(currentPrize, currentPrizeIdx)
     balance = Number(data.newBalance ?? balance)
     updateBalanceUI()
-
     currentPrize = null
     currentPrizeIdx = null
     closeModal()
@@ -657,7 +692,6 @@ modalSellBtn?.addEventListener('click', async () => {
     alert(err.message || 'Ошибка продажи')
   }
 })
-
 
 modalKeepBtn?.addEventListener('click', async () => {
   if (!currentPrize) return
@@ -808,12 +842,25 @@ depositConfirmBtn?.addEventListener('click', async () => {
       ],
     }
 
+    // ---- TonConnect statuses (без CSS) ----
+    alert('Ожидаем подтверждение в кошельке…')
+
+    let requestSent = false
     await tonConnectUI.sendTransaction(tx, {
       modals: ['before', 'success', 'error'],
       notifications: ['before', 'success', 'error'],
+      // В твоём коде было 'never'. Оставим без принудительных редиректов.
+      // Если захочешь открывать кошелек автоматом — поменяем стратегию.
       skipRedirectToWallet: 'never',
+      onRequestSent: () => {
+        requestSent = true
+        alert('Транзакция отправлена. Ищу подтверждение в сети…')
+      },
     })
 
+    if (!requestSent) alert('Транзакция отправлена. Ищу подтверждение в сети…')
+
+    // ---- Поиск подтверждения ----
     for (let i = 0; i < 12; i++) {
       await sleep(5000)
       const r = await depositCheckApi(dep.depositId)
@@ -825,7 +872,7 @@ depositConfirmBtn?.addEventListener('click', async () => {
       }
     }
 
-    alert('Транзакция отправлена. Если не зачислилось — подожди 1–2 минуты и попробуй ещё раз.')
+    alert('Не найдено в сети/не зачислилось. Подожди 1–2 минуты и нажми “Пополнить” ещё раз.')
   } catch (err) {
     alert(err.message || 'Ошибка депозита')
   } finally {
@@ -878,7 +925,7 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
   }
 })
 
-// ===== CRASH (logic + canvas animation: rocket -> moon) =====
+// ===== CRASH (logic + canvas animation rocket - moon) =====
 const crashCanvas = document.getElementById('crash-canvas')
 const crashCtx = crashCanvas ? crashCanvas.getContext('2d') : null
 const crashMultiplierEl = document.getElementById('crash-multiplier')
@@ -892,21 +939,15 @@ const crashPotentialWinEl = document.getElementById('crash-potential-win')
 let crashState = 'idle' // idle | playing | crashed
 let crashMultiplier = 1.0
 let crashPoint = null
-
 let crashBetAmount = 0
 let crashAutoCashoutAt = null
 let crashHasCashedOut = false
-
 let crashAnimFrame = null
 let crashStartTime = null
 
-// Скорость роста НЕ зависит от crashPoint, иначе палится
-// m(t) = exp(k*t)
 let crashK = 0.28
-
-// визуальные состояния
 let crashImpact = null // {x,y,ts}
-let crashShake = 0     // 0..1
+let crashShake = 0
 
 function clamp(v, a, b) {
   return Math.max(a, Math.min(b, v))
@@ -937,7 +978,6 @@ function moonPos(w, h) {
   return { x: w * 0.78, y: h * 0.26, r: Math.min(w, h) * 0.14 }
 }
 
-// квадратичная траектория
 function pathPoint(p, w, h) {
   const a = { x: w * 0.18, y: h * 0.78 }
   const c = { x: w * 0.42, y: h * 0.18 }
@@ -958,7 +998,7 @@ function pathTangentAng(p, w, h) {
   return Math.atan2(dy, dx)
 }
 
-// ---------- particles ----------
+// particles
 const particles = []
 function spawnExplosion(x, y) {
   const n = 46
@@ -1005,12 +1045,15 @@ function drawParticles(ctx) {
   }
 }
 
-// ---------- draw ----------
 function drawMoon(ctx, w, h) {
   const m = moonPos(w, h)
   const g = ctx.createRadialGradient(
-    m.x - m.r * 0.3, m.y - m.r * 0.3, m.r * 0.2,
-    m.x, m.y, m.r
+    m.x - m.r * 0.3,
+    m.y - m.r * 0.3,
+    m.r * 0.2,
+    m.x,
+    m.y,
+    m.r
   )
   g.addColorStop(0, 'rgba(226,232,240,0.95)')
   g.addColorStop(0.6, 'rgba(148,163,184,0.9)')
@@ -1060,7 +1103,6 @@ function drawRocket(ctx, x, y, ang, flamePower) {
   ctx.translate(x, y)
   ctx.rotate(ang)
 
-  // корпус
   ctx.fillStyle = '#e5e7eb'
   ctx.strokeStyle = 'rgba(15,23,42,0.8)'
   ctx.lineWidth = 1.2
@@ -1075,13 +1117,11 @@ function drawRocket(ctx, x, y, ang, flamePower) {
   ctx.fill()
   ctx.stroke()
 
-  // окно
   ctx.fillStyle = 'rgba(56,189,248,0.9)'
   ctx.beginPath()
   ctx.arc(2, 0, 4, 0, Math.PI * 2)
   ctx.fill()
 
-  // крылья
   ctx.fillStyle = '#94a3b8'
   ctx.beginPath()
   ctx.moveTo(-8, -6)
@@ -1089,6 +1129,7 @@ function drawRocket(ctx, x, y, ang, flamePower) {
   ctx.lineTo(-12, -2)
   ctx.closePath()
   ctx.fill()
+
   ctx.beginPath()
   ctx.moveTo(-8, 6)
   ctx.lineTo(-20, 14)
@@ -1096,7 +1137,6 @@ function drawRocket(ctx, x, y, ang, flamePower) {
   ctx.closePath()
   ctx.fill()
 
-  // огонь
   const fp = clamp(flamePower, 0, 1)
   if (fp > 0.02) {
     const len = 14 + fp * 18
@@ -1117,7 +1157,6 @@ function drawRocket(ctx, x, y, ang, flamePower) {
   ctx.restore()
 }
 
-// ---------- UI ----------
 function updateCrashButtonUI() {
   if (!crashMainActionBtn) return
   if (crashState === 'idle') {
@@ -1149,7 +1188,6 @@ function setCrashStatus(text, color) {
   crashStatusEl.style.color = color || '#e5e7eb'
 }
 
-// ---------- logic ----------
 function stepCrashMultiplier() {
   const t = Math.max(0, Date.now() - crashStartTime) / 1000
   crashMultiplier = Math.exp(crashK * t)
@@ -1257,17 +1295,15 @@ async function startCrash() {
   startCrashRenderLoop()
 }
 
-// ---------- render loop ----------
+// render loop
 let lastFrameTs = 0
 function startCrashRenderLoop() {
   if (!crashCanvas || !crashCtx) return
-  initCrashCanvas() // <— добавили, чтобы размеры всегда были валидные
-
+  initCrashCanvas()
   if (crashAnimFrame) cancelAnimationFrame(crashAnimFrame)
   lastFrameTs = 0
   crashAnimFrame = requestAnimationFrame(renderCrash)
 }
-
 
 function renderCrash(ts) {
   if (!crashCtx || !crashCanvas) return
@@ -1306,7 +1342,6 @@ function renderCrash(ts) {
 
   crashCtx.clearRect(0, 0, w, h)
 
-  // легкая туманность
   const fog = crashCtx.createRadialGradient(w * 0.25, h * 0.85, 10, w * 0.25, h * 0.85, h * 0.9)
   fog.addColorStop(0, 'rgba(99,102,241,0.10)')
   fog.addColorStop(1, 'rgba(2,6,23,0)')
@@ -1315,7 +1350,6 @@ function renderCrash(ts) {
 
   drawMoon(crashCtx, w, h)
 
-  // прогресс полета из текущего multiplier
   let p = 0
   if (crashState === 'playing' || crashState === 'crashed') {
     const t = Math.log(Math.max(crashMultiplier, 1)) / crashK
@@ -1358,7 +1392,7 @@ function renderCrash(ts) {
   if (needMore) crashAnimFrame = requestAnimationFrame(renderCrash)
 }
 
-// ---------- controls ----------
+// controls
 crashMainActionBtn?.addEventListener('click', () => {
   if (crashState === 'idle') startCrash()
   else if (crashState === 'playing') cashoutCrash(false)
@@ -1369,8 +1403,6 @@ window.addEventListener('resize', () => {
   initCrashCanvas()
   startCrashRenderLoop()
 })
-
-
 
 // ===== ADMIN EVENTS =====
 adminPromoType?.addEventListener('change', () => {
@@ -1489,7 +1521,8 @@ adminAdjApply?.addEventListener('click', async () => {
   try {
     adminAdjApply.disabled = true
     const r = await adminAdjustBalanceApi(tgId, delta)
-    if (adminAdjResult) adminAdjResult.textContent = `OK. Новый баланс: ${Number(r.newBalance || 0).toFixed(2)} TON`
+    if (adminAdjResult)
+      adminAdjResult.textContent = `OK. Новый баланс: ${Number(r.newBalance || 0).toFixed(2)} TON`
     await loadAdminStats()
   } catch (e) {
     if (adminAdjResult) adminAdjResult.textContent = ''
@@ -1506,18 +1539,18 @@ adminAdjApply?.addEventListener('click', async () => {
   renderPrizesList()
   setLastPrizeText(null)
 
-  if (crashCanvas) {
-  initCrashCanvas()
-  startCrashRenderLoop()
-}
+  updateInviteUI()
 
+  if (crashCanvas) {
+    initCrashCanvas()
+    startCrashRenderLoop()
+  }
 
   updateDepositButtonState()
 
   try {
     await fetchUserData()
 
-    // если админ — подгружаем админ-данные один раз
     if (isAdmin) {
       await Promise.allSettled([loadAdminStats(), loadAdminPromos(), loadAdminUsers()])
     }
@@ -1525,5 +1558,3 @@ adminAdjApply?.addEventListener('click', async () => {
     alert('Ошибка авторизации/сервера: ' + (err.message || 'unknown'))
   }
 })()
-
-
