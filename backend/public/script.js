@@ -1145,7 +1145,7 @@ let crashStartTime = null
 
 // Скорость роста НЕ зависит от crashPoint, иначе палится
 // m(t) = exp(k*t)
-let crashK = 0.28
+let crashK = 0.15
 
 // визуальные состояния
 let crashImpact = null // {x,y,ts}
@@ -1166,10 +1166,24 @@ function initCrashCanvas() {
 
 function generateCrashPoint() {
   const rand = Math.random() * 100
-  if (rand < 99) return 1.01 + Math.random() * (1.8 - 1.01)
-  if (rand < 99.91) return 1.8 + Math.random() * (3.0 - 1.8)
-  return 3.0 + Math.random() * (7.0 - 3.0)
-}
+
+  // 80% — совсем низкие (1.01–1.09)
+  if (rand < 80) {
+    return 1.01 + Math.random() * (1.09 - 1.01)
+  }
+
+  // 19% — низкие (1.09–1.8)
+  if (rand < 99) {
+    return 1.09 + Math.random() * (1.8 - 1.09)
+  }
+
+  // 1% — средние (1.8–4.0)
+  if (rand < 96) {
+    return 1.8 + Math.random() * (4.0 - 1.8)
+  }
+
+
+
 
 function getSceneSize() {
   const rect = crashCanvas.getBoundingClientRect()
@@ -1763,5 +1777,6 @@ async function init() {
 }
 
 init()
+
 
 
