@@ -5,20 +5,39 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import { beginCell, Cell } from "@ton/core";
 
+import {
+  touchUserVisit,
+  getUserByTgId,
+  updateUserBalance,
+  updateUserBalanceAndDeposit,
+  listInventory,
+  addInventoryItem,
+  removeInventoryItemByIndexNewestFirst,
+  getStats,
+  listUsersPaged,
+  createPromo,
+  listPromos,
+  deletePromo,
+  redeemPromo,
+} from "./db.js";
+
 const app = express();
 app.use(express.json());
 
+// ===== ENV =====
 const BOT_TOKEN = process.env.BOT_TOKEN;
 if (!BOT_TOKEN) {
   console.error("❌ BOT_TOKEN is not set");
   process.exit(1);
 }
 
-const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID; // 7995955451
+const ADMIN_CHAT_ID = process.env.ADMIN_CHAT_ID; // куда слать уведомления (заявки)
 if (!ADMIN_CHAT_ID) {
   console.error("❌ ADMIN_CHAT_ID is not set");
   process.exit(1);
 }
+
+const ADMIN_TG_ID = String(process.env.ADMIN_TG_ID || "").trim(); // кто видит админку/админ API
 
 // ✅ Deposit config (Railway Variables)
 const TON_DEPOSIT_ADDRESS = String(process.env.TON_DEPOSIT_ADDRESS || "")
@@ -38,10 +57,10 @@ if (!TONCENTER_API_KEY) {
 const TONCENTER_BASE = "https://toncenter.com/api/v2";
 const MIN_DEPOSIT_TON = 0.1;
 
+// ===== STATIC =====
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// фронт лежит в backend/public
 const PUBLIC_DIR = path.join(__dirname, "public");
 const INDEX_PATH = path.join(PUBLIC_DIR, "index.html");
 
@@ -56,6 +75,7 @@ app.use(express.static(PUBLIC_DIR));
 app.get("/", (req, res) => res.sendFile(INDEX_PATH));
 
 // ===== Telegram initData validation =====
+// Telegram Mini Apps: verify initData via HMAC WebAppData [web:24]
 function validateInitData(initData) {
   if (!initData || typeof initData !== "string") throw new Error("initData required");
 
@@ -69,11 +89,16 @@ function validateInitData(initData) {
   pairs.sort();
   const dataCheckString = pairs.join("\n");
 
-  const secretKey = crypto.createHmac("sha256", "WebAppData").update(BOT_TOKEN).digest();
+  const secretKey = crypto
+    .createHmac("sha256", "WebAppData")
+    .update(BOT_TOKEN)
+    .digest();
+
   const calculatedHash = crypto
     .createHmac("sha256", secretKey)
     .update(dataCheckString)
     .digest("hex");
+
   if (calculatedHash !== hash) throw new Error("invalid initData hash");
 
   const authDate = Number(params.get("auth_date") || 0);
@@ -96,6 +121,13 @@ function auth(req, res, next) {
   } catch (e) {
     res.status(401).json({ error: e.message || "unauthorized" });
   }
+}
+
+function requireAdmin(req, res, next) {
+  if (!ADMIN_TG_ID) return res.status(500).json({ error: "ADMIN_TG_ID is not set" });
+  const id = String(req.tgUser?.id || "");
+  if (id !== ADMIN_TG_ID) return res.status(403).json({ error: "forbidden" });
+  next();
 }
 
 // ===== Telegram notify helper (sendMessage) =====
@@ -139,8 +171,12 @@ async function toncenterGetTransactions(address, limit = 25) {
 
 // ===== Deposit payload helpers (BOC comment) =====
 function makeCommentPayloadBase64(text) {
-  // Text comment: op=0 (32 bits) + UTF-8 string
-  return beginCell().storeUint(0, 32).storeStringTail(text).endCell().toBoc().toString("base64");
+  return beginCell()
+    .storeUint(0, 32)
+    .storeStringTail(text)
+    .endCell()
+    .toBoc()
+    .toString("base64");
 }
 
 function tryDecodeCommentFromBodyBase64(bodyBase64) {
@@ -155,8 +191,6 @@ function tryDecodeCommentFromBodyBase64(bodyBase64) {
   }
 }
 
-// В toncenter иногда комментарий может быть не в in_msg.message.
-// Правильно: msg_data.body = base64 BOC, который надо декодить.
 function extractIncomingComment(tx) {
   const inMsg = tx?.in_msg || {};
 
@@ -172,21 +206,7 @@ function extractIncomingComment(tx) {
   return "";
 }
 
-// ===== In-memory storage (до БД) =====
-const users = new Map();
-function getOrCreateUser(id) {
-  if (!users.has(id)) {
-    users.set(id, {
-      balance: 0,
-      inventory: [],
-      usedPromos: [],
-      totalDepositTon: 0, // суммарный депозит в TON
-    });
-  }
-  return users.get(id);
-}
-
-// ===== In-memory pending deposits (до БД) =====
+// ===== In-memory pending deposits (ok for MVP) =====
 const pendingDeposits = new Map();
 // depositId -> { userId, amount, comment, createdAt, credited }
 
@@ -194,243 +214,246 @@ function makeDepositId() {
   return crypto.randomBytes(12).toString("hex");
 }
 
-// ===== Promo config =====
-const PROMOS = {
-  Free05: 0.5,
-  Admintestcodesss: 50,
-  Giftbear: 'GIFT_BEAR', // промокод на подарок "Мишка"
-};
+// ===== Helpers =====
+function mustGetUser(tgId) {
+  const user = getUserByTgId(tgId);
+  if (!user) throw new Error("user not found");
+  return user;
+}
+
+function safeNumber(x, def = 0) {
+  const n = Number(x);
+  return Number.isFinite(n) ? n : def;
+}
 
 // ===== API =====
 app.post("/api/me", auth, (req, res) => {
-  const id = String(req.tgUser.id);
-  const u = getOrCreateUser(id);
+  const tgUser = req.tgUser;
+  const u = touchUserVisit(tgUser);
+  const inventory = listInventory(tgUser.id);
+
   res.json({
-    balance: u.balance,
-    inventory: u.inventory,
-    totalDepositTon: Number(u.totalDepositTon || 0),
+    balance: safeNumber(u.balance, 0),
+    inventory,
+    totalDepositTon: safeNumber(u.total_deposit_ton, 0),
+    isAdmin: String(tgUser.id) === ADMIN_TG_ID,
   });
 });
 
-// /api/spin не трогаем: всегда мишка
+// spin: всегда "мишka", цена 1 TON
 app.post("/api/spin", auth, (req, res) => {
-  const id = String(req.tgUser.id);
-  const u = getOrCreateUser(id);
+  const tgId = String(req.tgUser.id);
+  touchUserVisit(req.tgUser);
 
-  if (u.balance < 1) return res.status(400).json({ error: "Недостаточно средств" });
-  u.balance = Number((u.balance - 1).toFixed(2));
+  const user = mustGetUser(tgId);
+  const balance = safeNumber(user.balance, 0);
 
-  res.json({ prize: { emoji: "🧸", name: "Мишка", price: 0.1 }, newBalance: u.balance });
+  if (balance < 1) return res.status(400).json({ error: "Недостаточно средств" });
+
+  const newBalance = Number((balance - 1).toFixed(2));
+  updateUserBalance(tgId, newBalance);
+
+  res.json({ prize: { emoji: "🧸", name: "Мишка", price: 0.1 }, newBalance });
 });
 
-// ===== Promo apply =====
+// promo apply (from DB)
 app.post("/api/promo/apply", auth, (req, res) => {
-  const id = String(req.tgUser.id);
-  const u = getOrCreateUser(id);
+  const tgId = String(req.tgUser.id);
+  touchUserVisit(req.tgUser);
 
   const code = String(req.body?.code || "").trim();
   if (!code) return res.status(400).json({ error: "Введите промокод" });
 
-  const promo = PROMOS[code];
-  if (!promo) return res.status(400).json({ error: "Промокод не найден" });
+  try {
+    const promo = redeemPromo(tgId, code);
 
-  if (u.usedPromos.includes(code)) {
-    return res.status(400).json({ error: "Этот промокод уже использован" });
+    if (promo.type === "balance") {
+      const user = mustGetUser(tgId);
+      const amount = safeNumber(promo.amount, 0);
+      const newBalance = Number((safeNumber(user.balance, 0) + amount).toFixed(2));
+      updateUserBalance(tgId, newBalance);
+      return res.json({ type: "balance", newBalance, amount });
+    }
+
+    if (promo.type === "gift") {
+      const prize = { emoji: "🧸", name: promo.gift_name || "Мишка", price: 0.1 };
+      addInventoryItem(tgId, prize);
+      const inventory = listInventory(tgId);
+      return res.json({ type: "gift", prize, inventory });
+    }
+
+    return res.status(400).json({ error: "Некорректный промокод" });
+  } catch (e) {
+    return res.status(400).json({ error: e.message || "Ошибка промокода" });
   }
-
-  u.usedPromos.push(code);
-
-  // Денежные промо (число)
-  if (typeof promo === "number") {
-    const amount = promo;
-    u.balance = Number((u.balance + amount).toFixed(2));
-    return res.json({ type: "balance", newBalance: u.balance, amount });
-  }
-
-  // Промо на подарок "Мишка"
-  if (promo === "GIFT_BEAR") {
-    const prize = {
-      emoji: "🧸",
-      name: "Мишка",
-      price: 0.1,
-    };
-    u.inventory.push(prize);
-    return res.json({ type: "gift", prize, inventory: u.inventory });
-  }
-
-  // На всякий случай fallback
-  return res.status(400).json({ error: "Некорректный промокод" });
 });
 
-
-// ===== Prize keep/sell =====
+// prize keep
 app.post("/api/prize/keep", auth, (req, res) => {
-  const id = String(req.tgUser.id);
-  const u = getOrCreateUser(id);
+  const tgId = String(req.tgUser.id);
+  touchUserVisit(req.tgUser);
 
   const prize = req.body?.prize;
-  if (!prize || typeof prize !== "object") {
-    return res.status(400).json({ error: "prize required" });
-  }
+  if (!prize || typeof prize !== "object") return res.status(400).json({ error: "prize required" });
 
-  const emoji = String(prize.emoji || "🎁");
-  const name = String(prize.name || "Подарок");
-  const price = Number(prize.price || 0);
+  const item = {
+    emoji: String(prize.emoji || "🎁"),
+    name: String(prize.name || "Подарок"),
+    price: safeNumber(prize.price, 0),
+  };
 
-  u.inventory.push({ emoji, name, price });
-
-  res.json({ ok: true, inventory: u.inventory });
+  addInventoryItem(tgId, item);
+  const inventory = listInventory(tgId);
+  res.json({ ok: true, inventory });
 });
 
+// prize sell (by idx from newest-first list)
 app.post("/api/prize/sell", auth, (req, res) => {
-  const id = String(req.tgUser.id);
-  const u = getOrCreateUser(id);
+  const tgId = String(req.tgUser.id);
+  touchUserVisit(req.tgUser);
 
   const prize = req.body?.prize;
-  if (!prize || typeof prize !== "object") {
-    return res.status(400).json({ error: "prize required" });
-  }
+  if (!prize || typeof prize !== "object") return res.status(400).json({ error: "prize required" });
 
-  const price = Number(prize.price || 0);
-  if (!Number.isFinite(price) || price <= 0) {
-    return res.status(400).json({ error: "Этот подарок нельзя продать" });
-  }
+  const price = safeNumber(prize.price, 0);
+  if (!Number.isFinite(price) || price <= 0) return res.status(400).json({ error: "Этот подарок нельзя продать" });
 
-  // Если idx передан — удаляем из инвентаря
   const idxRaw = req.body?.idx;
-  if (idxRaw !== undefined && idxRaw !== null && idxRaw !== "") {
-    const idx = Number(idxRaw);
-    if (!Number.isInteger(idx) || idx < 0 || idx >= u.inventory.length) {
-      return res.status(400).json({ error: "Некорректный индекс предмета" });
-    }
+  if (idxRaw === undefined || idxRaw === null || idxRaw === "") return res.status(400).json({ error: "idx required" });
 
-    const item = u.inventory[idx];
-    if (!item) return res.status(400).json({ error: "Предмет не найден" });
+  const idx = Number(idxRaw);
+  if (!Number.isInteger(idx) || idx < 0) return res.status(400).json({ error: "Некорректный индекс предмета" });
 
-    // защита: чтобы нельзя было “продать” несуществующий предмет по idx
-    if (String(item.name) !== String(prize.name) || Number(item.price || 0) !== price) {
-      return res.status(400).json({ error: "Предмет не найден" });
-    }
+  const removed = removeInventoryItemByIndexNewestFirst(tgId, idx);
+  if (!removed) return res.status(400).json({ error: "Предмет не найден" });
 
-    u.inventory.splice(idx, 1);
+  // защита от подмены
+  if (String(removed.name) !== String(prize.name) || Number(removed.price || 0) !== price) {
+    addInventoryItem(tgId, removed); // rollback
+    return res.status(400).json({ error: "Предмет не найден" });
   }
 
-  u.balance = Number((u.balance + price).toFixed(2));
-  res.json({ newBalance: u.balance, inventory: u.inventory });
+  const user = mustGetUser(tgId);
+  const newBalance = Number((safeNumber(user.balance, 0) + price).toFixed(2));
+  updateUserBalance(tgId, newBalance);
+
+  const inventory = listInventory(tgId);
+  res.json({ newBalance, inventory });
 });
 
-// ===== Withdraw TON (списываем + заявка админу) =====
+// withdraw TON
 app.post("/api/withdraw/ton", auth, async (req, res) => {
-  const id = String(req.tgUser.id);
-  const u = getOrCreateUser(id);
+  const tgId = String(req.tgUser.id);
+  const tgUser = req.tgUser;
+  touchUserVisit(tgUser);
 
-  const amount = Number(req.body?.amount || 0);
+  const amount = safeNumber(req.body?.amount, 0);
   if (!Number.isFinite(amount)) return res.status(400).json({ error: "Некорректная сумма" });
 
+  const user = mustGetUser(tgId);
+
   const REQUIRED_TOTAL_DEPOSIT = 1;
-  if ((u.totalDepositTon || 0) < REQUIRED_TOTAL_DEPOSIT) {
+  if (safeNumber(user.total_deposit_ton, 0) < REQUIRED_TOTAL_DEPOSIT) {
     return res.status(400).json({
       error: "Прежде чем вывести, нужно сделать минимальное пополнение 1 TON",
       code: "DEPOSIT_REQUIRED",
       requiredTotalDeposit: REQUIRED_TOTAL_DEPOSIT,
-      currentTotalDeposit: Number(u.totalDepositTon || 0),
+      currentTotalDeposit: safeNumber(user.total_deposit_ton, 0),
     });
   }
 
   const MIN_WITHDRAW = 5;
   if (amount < MIN_WITHDRAW) return res.status(400).json({ error: `Минимум ${MIN_WITHDRAW} TON` });
-  if (amount > u.balance) return res.status(400).json({ error: "Недостаточно средств" });
 
-  // списываем сразу
-  u.balance = Number((u.balance - amount).toFixed(2));
+  const balance = safeNumber(user.balance, 0);
+  if (amount > balance) return res.status(400).json({ error: "Недостаточно средств" });
 
-  const username = req.tgUser?.username ? `@${req.tgUser.username}` : "(no username)";
-  const fullName = [req.tgUser?.first_name, req.tgUser?.last_name]
-    .filter(Boolean)
-    .join(" ");
-  const totalDep = Number(u.totalDepositTon || 0).toFixed(2);
+  const newBalance = Number((balance - amount).toFixed(2));
+  updateUserBalance(tgId, newBalance);
+
+  const username = tgUser?.username ? `@${tgUser.username}` : "(no username)";
+  const fullName = [tgUser?.first_name, tgUser?.last_name].filter(Boolean).join(" ");
+  const totalDep = safeNumber(user.total_deposit_ton, 0).toFixed(2);
 
   const text =
     `💸 Заявка на вывод TON\n` +
     `Пользователь: ${fullName || "User"} ${username}\n` +
-    `ID: ${id}\n` +
+    `ID: ${tgId}\n` +
     `Сумма: ${amount.toFixed(2)} TON\n` +
-    `Баланс после списания: ${Number(u.balance || 0).toFixed(2)} TON\n` +
+    `Баланс после списания: ${newBalance.toFixed(2)} TON\n` +
     `Суммарный депозит: ${totalDep} TON`;
 
   try {
     await sendAdminMessage(text);
   } catch (e) {
-    u.balance = Number((u.balance + amount).toFixed(2));
+    // rollback
+    updateUserBalance(tgId, balance);
     return res.status(500).json({ error: e.message || "Ошибка уведомления" });
   }
 
-  return res.json({ ok: true, newBalance: u.balance });
+  return res.json({ ok: true, newBalance });
 });
 
-// ===== Withdraw Gift (удаляем из инвентаря + заявка админу) =====
+// withdraw gift (by idx)
 app.post("/api/withdraw/gift", auth, async (req, res) => {
-  const id = String(req.tgUser.id);
-  const u = getOrCreateUser(id);
+  const tgId = String(req.tgUser.id);
+  const tgUser = req.tgUser;
+  touchUserVisit(tgUser);
+
+  const user = mustGetUser(tgId);
 
   const REQUIRED_TOTAL_DEPOSIT = 1;
-  if ((u.totalDepositTon || 0) < REQUIRED_TOTAL_DEPOSIT) {
+  if (safeNumber(user.total_deposit_ton, 0) < REQUIRED_TOTAL_DEPOSIT) {
     return res.status(400).json({
       error: "Прежде чем вывести, нужно сделать минимальное пополнение 1 TON",
       code: "DEPOSIT_REQUIRED",
       requiredTotalDeposit: REQUIRED_TOTAL_DEPOSIT,
-      currentTotalDeposit: Number(u.totalDepositTon || 0),
+      currentTotalDeposit: safeNumber(user.total_deposit_ton, 0),
     });
   }
 
   const idx = Number(req.body?.idx);
-  if (!Number.isInteger(idx) || idx < 0 || idx >= u.inventory.length) {
-    return res.status(400).json({ error: "Некорректный предмет" });
-  }
+  if (!Number.isInteger(idx) || idx < 0) return res.status(400).json({ error: "Некорректный предмет" });
 
-  const item = u.inventory[idx];
-  u.inventory.splice(idx, 1);
+  const item = removeInventoryItemByIndexNewestFirst(tgId, idx);
+  if (!item) return res.status(400).json({ error: "Некорректный предмет" });
 
-  const username = req.tgUser?.username ? `@${req.tgUser.username}` : "(no username)";
-  const fullName = [req.tgUser?.first_name, req.tgUser?.last_name]
-    .filter(Boolean)
-    .join(" ");
-  const totalDep = Number(u.totalDepositTon || 0).toFixed(2);
+  const username = tgUser?.username ? `@${tgUser.username}` : "(no username)";
+  const fullName = [tgUser?.first_name, tgUser?.last_name].filter(Boolean).join(" ");
+  const totalDep = safeNumber(user.total_deposit_ton, 0).toFixed(2);
 
   const text =
     `🎁 Заявка на вывод подарка\n` +
     `Пользователь: ${fullName || "User"} ${username}\n` +
-    `ID: ${id}\n` +
+    `ID: ${tgId}\n` +
     `Подарок: ${(item?.emoji || "🎁")} ${item?.name || "Подарок"}\n` +
-    `Оценка: ${Number(item?.price || 0).toFixed(2)} TON\n` +
+    `Оценка: ${safeNumber(item?.price, 0).toFixed(2)} TON\n` +
     `Суммарный депозит: ${totalDep} TON`;
 
   try {
     await sendAdminMessage(text);
   } catch (e) {
-    u.inventory.splice(idx, 0, item);
+    addInventoryItem(tgId, item); // rollback
     return res.status(500).json({ error: e.message || "Ошибка уведомления" });
   }
 
-  return res.json({ ok: true, inventory: u.inventory });
+  const inventory = listInventory(tgId);
+  return res.json({ ok: true, inventory });
 });
 
-// ===== Deposit (auto) =====
+// deposit info
 app.post("/api/deposit/info", auth, (req, res) => {
   res.json({ address: TON_DEPOSIT_ADDRESS, minDeposit: MIN_DEPOSIT_TON });
 });
 
-// создаём ожидаемый депозит с уникальным комментом + payloadBase64 (BOC)
+// deposit create
 app.post("/api/deposit/create", auth, (req, res) => {
   const userId = String(req.tgUser.id);
-  const amount = Number(req.body?.amount || 0);
+  touchUserVisit(req.tgUser);
 
-  if (!Number.isFinite(amount) || amount <= 0) {
-    return res.status(400).json({ error: "Некорректная сумма" });
-  }
-  if (amount < MIN_DEPOSIT_TON) {
-    return res.status(400).json({ error: `Минимум ${MIN_DEPOSIT_TON} TON` });
-  }
+  const amount = safeNumber(req.body?.amount, 0);
+  if (!Number.isFinite(amount) || amount <= 0) return res.status(400).json({ error: "Некорректная сумма" });
+  if (amount < MIN_DEPOSIT_TON) return res.status(400).json({ error: `Минимум ${MIN_DEPOSIT_TON} TON` });
 
   const depositId = makeDepositId();
   const comment = `dep_${userId}_${depositId}`;
@@ -453,16 +476,19 @@ app.post("/api/deposit/create", auth, (req, res) => {
   });
 });
 
-// проверяем входящие и начисляем
+// deposit check
 app.post("/api/deposit/check", auth, async (req, res) => {
   const userId = String(req.tgUser.id);
-  const depositId = String(req.body?.depositId || "");
+  touchUserVisit(req.tgUser);
 
+  const depositId = String(req.body?.depositId || "");
   const dep = pendingDeposits.get(depositId);
+
   if (!dep || dep.userId !== userId) return res.status(404).json({ error: "deposit not found" });
+
   if (dep.credited) {
-    const u = getOrCreateUser(userId);
-    return res.json({ ok: true, credited: true, newBalance: u.balance });
+    const user = mustGetUser(userId);
+    return res.json({ ok: true, credited: true, newBalance: safeNumber(user.balance, 0) });
   }
 
   let txs = [];
@@ -472,7 +498,6 @@ app.post("/api/deposit/check", auth, async (req, res) => {
     return res.status(500).json({ error: e.message || "toncenter error" });
   }
 
-  // ищем транзакцию с нашим уникальным комментом (после BOC decode)
   const found = txs.find((tx) => {
     const comment = extractIncomingComment(tx);
     return typeof comment === "string" && comment.includes(dep.comment);
@@ -482,47 +507,116 @@ app.post("/api/deposit/check", auth, async (req, res) => {
     return res.json({ ok: true, credited: false });
   }
 
-  // ✅ начисляем баланс и суммарный депозит
-  const u = getOrCreateUser(userId);
-  u.balance = Number((u.balance + dep.amount).toFixed(2));
-  u.totalDepositTon = Number(((u.totalDepositTon || 0) + dep.amount).toFixed(2));
+  // credit (SQLite)
+  const user = mustGetUser(userId);
+
+  const newBalance = Number((safeNumber(user.balance, 0) + dep.amount).toFixed(2));
+  const newTotalDeposit = Number((safeNumber(user.total_deposit_ton, 0) + dep.amount).toFixed(2));
+
+  updateUserBalanceAndDeposit(userId, { balance: newBalance, totalDepositTon: newTotalDeposit });
 
   dep.credited = true;
   pendingDeposits.set(depositId, dep);
 
-  // уведомление админу (не критично)
   sendAdminMessage(
     `✅ Депозит зачислен\nID: ${userId}\nСумма: ${dep.amount.toFixed(2)} TON\nDepositId: ${depositId}`
   ).catch(() => {});
 
-  return res.json({ ok: true, credited: true, newBalance: u.balance });
+  return res.json({ ok: true, credited: true, newBalance });
 });
 
-// ===== Crash sync (общий баланс) =====
+// crash bet
 app.post("/api/crash/bet", auth, (req, res) => {
-  const id = String(req.tgUser.id);
-  const u = getOrCreateUser(id);
+  const tgId = String(req.tgUser.id);
+  touchUserVisit(req.tgUser);
 
-  const amount = Number(req.body?.amount || 0);
-  if (!Number.isFinite(amount) || amount <= 0)
-    return res.status(400).json({ error: "amount required" });
+  const amount = safeNumber(req.body?.amount, 0);
+  if (!Number.isFinite(amount) || amount <= 0) return res.status(400).json({ error: "amount required" });
 
-  if (u.balance < amount) return res.status(400).json({ error: "Недостаточно средств" });
+  const user = mustGetUser(tgId);
+  const balance = safeNumber(user.balance, 0);
 
-  u.balance = Number((u.balance - amount).toFixed(2));
-  res.json({ newBalance: u.balance });
+  if (balance < amount) return res.status(400).json({ error: "Недостаточно средств" });
+
+  const newBalance = Number((balance - amount).toFixed(2));
+  updateUserBalance(tgId, newBalance);
+
+  res.json({ newBalance });
 });
 
+// crash cashout
 app.post("/api/crash/cashout", auth, (req, res) => {
-  const id = String(req.tgUser.id);
-  const u = getOrCreateUser(id);
+  const tgId = String(req.tgUser.id);
+  touchUserVisit(req.tgUser);
 
-  const amount = Number(req.body?.amount || 0);
-  if (!Number.isFinite(amount) || amount <= 0)
-    return res.status(400).json({ error: "amount required" });
+  const amount = safeNumber(req.body?.amount, 0);
+  if (!Number.isFinite(amount) || amount <= 0) return res.status(400).json({ error: "amount required" });
 
-  u.balance = Number((u.balance + amount).toFixed(2));
-  res.json({ newBalance: u.balance });
+  const user = mustGetUser(tgId);
+  const newBalance = Number((safeNumber(user.balance, 0) + amount).toFixed(2));
+  updateUserBalance(tgId, newBalance);
+
+  res.json({ newBalance });
+});
+
+// ===== ADMIN API =====
+app.post("/api/admin/stats", auth, requireAdmin, (req, res) => {
+  res.json(getStats());
+});
+
+app.post("/api/admin/users", auth, requireAdmin, (req, res) => {
+  const q = String(req.body?.q || "");
+  const page = Number(req.body?.page || 1);
+  res.json(listUsersPaged({ q, page, limit: 20 }));
+});
+
+// adjust balance: delta can be +1 / -1 etc
+app.post("/api/admin/user/adjust-balance", auth, requireAdmin, (req, res) => {
+  const tgId = String(req.body?.tgId || "").trim();
+  const delta = safeNumber(req.body?.delta, NaN);
+
+  if (!tgId) return res.status(400).json({ error: "tgId required" });
+  if (!Number.isFinite(delta) || delta === 0) return res.status(400).json({ error: "delta invalid" });
+
+  // ensure user exists
+  const user = getUserByTgId(tgId);
+  if (!user) return res.status(404).json({ error: "user not found" });
+
+  const newBalance = Number((safeNumber(user.balance, 0) + delta).toFixed(2));
+  updateUserBalance(tgId, newBalance);
+
+  res.json({ ok: true, tgId, newBalance });
+});
+
+app.post("/api/admin/promo/create", auth, requireAdmin, (req, res) => {
+  const type = String(req.body?.type || "").trim(); // balance | gift
+  const code = String(req.body?.code || "").trim();
+  const maxUses = Number(req.body?.maxUses || 1);
+
+  if (!code) return res.status(400).json({ error: "code required" });
+  if (!["balance", "gift"].includes(type)) return res.status(400).json({ error: "type invalid" });
+
+  if (type === "balance") {
+    const amount = safeNumber(req.body?.amount, NaN);
+    if (!Number.isFinite(amount) || amount <= 0) return res.status(400).json({ error: "amount invalid" });
+    createPromo({ code, type, amount, maxUses });
+  } else {
+    const giftName = String(req.body?.giftName || "Мишка");
+    createPromo({ code, type, giftName, maxUses });
+  }
+
+  res.json({ ok: true });
+});
+
+app.post("/api/admin/promo/list", auth, requireAdmin, (req, res) => {
+  res.json({ items: listPromos() });
+});
+
+app.post("/api/admin/promo/delete", auth, requireAdmin, (req, res) => {
+  const code = String(req.body?.code || "").trim();
+  if (!code) return res.status(400).json({ error: "code required" });
+  deletePromo(code);
+  res.json({ ok: true });
 });
 
 // fallback: любые не-API роуты -> index.html
@@ -533,4 +627,3 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
-
