@@ -1178,17 +1178,14 @@ function generateCrashPoint() {
   }
 
   // 1% — средние (1.8–4.0)
-  if (rand < 96) {
-    return 1.8 + Math.random() * (4.0 - 1.8)
-  }
-
-
-
+  return 1.8 + Math.random() * (4.0 - 1.8)
+} // ← вот этой скобки не хватало
 
 function getSceneSize() {
   const rect = crashCanvas.getBoundingClientRect()
   return { w: rect.width, h: rect.height }
 }
+
 
 function moonPos(w, h) {
   return { x: w * 0.78, y: h * 0.26, r: Math.min(w, h) * 0.14 }
@@ -1777,6 +1774,7 @@ async function init() {
 }
 
 init()
+
 
 
 
