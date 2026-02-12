@@ -60,6 +60,11 @@
               Открывайте кейсы за TON и выбивайте редкие призы.
             </div>
           </div>
+          <div class="bonus-card" data-home-target="minecraft">
+  <div class="bonus-title">⛏️ Minecraft Slot</div>
+  <div class="bonus-text">Открыть майнкрафт-слот</div>
+</div>
+
         </section>
 
         <!-- Экран КОЛЕСО -->
@@ -192,6 +197,30 @@
           </div>
         </section>
 
+        <!-- Экран MINECRAFT SLOT -->
+<section id="screen-minecraft" class="screen">
+  <div class="screen-title">⛏️ Minecraft Slot</div>
+  <div class="screen-subtitle">Демо: просто крутит картинки</div>
+
+  <div class="mc-board">
+    <div id="mc-grid" class="mc-grid"></div>
+  </div>
+
+  <div class="mc-actions">
+    <button id="mc-spin-btn" class="action-btn action-green" type="button">
+      Spin
+    </button>
+  </div>
+
+  <div class="info-row">
+    <div class="info-card">
+      <div class="info-label">Последний выигрыш</div>
+      <div class="info-value"><span id="mc-lastwin">0</span> TON</div>
+    </div>
+  </div>
+</section>
+
+        
         <!-- Экран КЕЙСЫ -->
         <section id="screen-cases" class="screen">
           <div class="screen-title">🎁 Кейсы</div>
@@ -624,8 +653,10 @@
     </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-    <script src="script.js"></script>
+<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+<script src="minecraft.js"></script>
+<script src="script.js"></script>
+
     <!-- CASE OPEN ANIMATION OVERLAY -->
 <div id="case-anim-overlay" class="case-anim-overlay">
   <div class="case-anim-window">
@@ -636,4 +667,5 @@
 
   </body>
 </html>
+
 
