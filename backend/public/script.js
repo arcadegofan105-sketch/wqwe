@@ -113,6 +113,8 @@ const screens = {
   bonus: document.getElementById('screen-bonus'),
   profile: document.getElementById('screen-profile'),
   admin: document.getElementById('screen-admin'),
+  minecraft: document.getElementById('screen-minecraft'),
+
 }
 
 const depositBtn = document.getElementById('deposit-btn')
@@ -740,10 +742,16 @@ document.querySelectorAll('[data-home-target]').forEach(card => {
       return
     }
 
-    if (target === 'cases') {
+        if (target === 'cases') {
       setScreen('cases')
       return
     }
+
+    if (target === 'minecraft') {
+      setScreen('minecraft')
+      return
+    }
+
   })
 })
 
@@ -1774,6 +1782,7 @@ async function init() {
 }
 
 init()
+
 
 
 
