@@ -16,10 +16,13 @@ export function startBot() {
       msg.from?.first_name ||
       (msg.from?.username ? `@${msg.from.username}` : "друг");
 
-    const text =
-      `🎉 <b>${name}</b>, ты легенда! 🎉\n\n` +
-      `🎁 Подарки не ждут. Открывай. Выигрывай. Повторяй.\n` +
-      `🎮 GiftWheels — здесь сюрпризы каждый день.`;
+    const safeName = escapeHtml(name);
+
+const text =
+  `🎉 <b>${safeName}</b>, ты легенда! 🎉\n\n` +
+  `🎁 Подарки не ждут. Открывай. Выигрывай. Повторяй.\n` +
+  `🎮 GiftWheels — здесь сюрпризы каждый день.`;
+
 
     await bot.sendMessage(chatId, text, {
       parse_mode: "HTML",
