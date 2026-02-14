@@ -139,7 +139,6 @@ async function sendAdminMessage(text) {
     body: JSON.stringify({
       chat_id: ADMIN_CHAT_ID,
       text,
-      parse_mode: "HTML",
       disable_web_page_preview: true,
     }),
   });
@@ -666,3 +665,4 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
