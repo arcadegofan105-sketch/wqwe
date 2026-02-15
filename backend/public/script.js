@@ -246,7 +246,7 @@ await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))
   caseAnimTrack.style.transition = 'transform 2.6s cubic-bezier(.08,.82,.12,1)'
   caseAnimTrack.style.transform = `translateX(${finalX}px)`
 
-  await new Promise(r => setTimeout(r, 2700))
+  await new Promise(r => setTimeout(r, 6000))
   setCaseAnimVisible(false)
 }
 
@@ -1985,6 +1985,7 @@ async function init() {
 }
 
 init()
+
 
 
 
