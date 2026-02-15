@@ -195,6 +195,12 @@ body {
 	margin-bottom: 16px;
 }
 
+@property --wheel-rot {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0deg;
+}
+
 /* WHEEL */
 
 .wheel-wrapper {
@@ -227,7 +233,7 @@ body {
 	  --wheel-rot: 0deg;
   transform: rotate(var(--wheel-rot));
 	
-	transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+	transition: --wheel-rot 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
 	box-shadow: 0 0 30px rgba(56, 189, 248, 0.25);
 }
 
@@ -2069,6 +2075,7 @@ body {
   transform: rotate(calc(-1 * var(--wheel-rot)));
   transform-origin: center;
 }
+
 
 
 
