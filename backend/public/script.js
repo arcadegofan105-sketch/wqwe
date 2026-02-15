@@ -244,10 +244,10 @@ async function playCaseOpenAnimation({ pool, winner }) {
   const jitter = -Math.round(step * 0.35 + Math.random() * step * 0.25)
   const finalX = target + jitter
 
-  caseAnimTrack.style.transition = 'transform 2.6s cubic-bezier(.08,.82,.12,1)'
+  caseAnimTrack.style.transition = 'transform 5.6s cubic-bezier(.08,.82,.12,1)'
   caseAnimTrack.style.transform = `translateX(${finalX}px)`
 
-  await new Promise(r => setTimeout(r, 6000))
+  await new Promise(r => setTimeout(r, 3600))
 
   console.log('[caseAnim] end-hide') // <-- ВОТ СЮДА (прямо перед скрытием)
   setCaseAnimVisible(false)
@@ -1989,6 +1989,7 @@ async function init() {
 }
 
 init()
+
 
 
 
