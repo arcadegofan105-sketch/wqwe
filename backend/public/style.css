@@ -373,6 +373,13 @@ body {
   background-position: center;
 }
 
+/* Календарь (Deskcelend.png) выглядит мелким из-за пустых полей — увеличиваем только его */
+#wheel .sector .gift-icon[style*="Deskcelend.png"],
+.wheel-prizes .wheel-prize-emoji .gift-icon[style*="Deskcelend.png"]{
+  background-size: 135% 135%;
+}
+
+
 .wheel-center{
   position: absolute;
   inset: 30%;
@@ -2118,6 +2125,7 @@ body {
   transform: rotate(calc(-1 * var(--wheel-rot)));
   transform-origin: center;
 }
+
 
 
 
