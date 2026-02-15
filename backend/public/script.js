@@ -337,8 +337,8 @@ function renderPrizesList() {
     { idx: 0, title: "Desk Celendar", priceText: "5 TON" },
     { idx: 2, title: "lightsword", priceText: "7 TON" },
     { idx: 4, title: "Hexpot", priceText: "10 TON" },
-    { idx: 5, title: "Precious Peach", priceText: "500 TON" },
     { idx: 6, title: "bear", priceText: "0.1 TON" },
+{ idx: 5, title: "Precious Peach", priceText: "500 TON" },
   ]
 
   const cards = document.querySelectorAll(".wheel-prizes-grid .wheel-prize-card")
@@ -1827,6 +1827,7 @@ async function init() {
 }
 
 init()
+
 
 
 
