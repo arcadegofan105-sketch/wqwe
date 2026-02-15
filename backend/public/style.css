@@ -1920,7 +1920,9 @@ body {
   box-shadow: 0 16px 60px rgba(0,0,0,.55);
   border: 1px solid rgba(255,255,255,.06);
   position: relative;
+  overflow: hidden; /* <-- добавь */
 }
+
 
 .case-anim-pointer{
   position: absolute;
@@ -1945,8 +1947,9 @@ body {
   will-change: transform;
   transform: translateX(0);
   padding: 10px 40px;
-  overflow: hidden;
+  overflow: visible; /* важно */
 }
+
 
 .case-anim-item{
   width: 96px;
@@ -2198,6 +2201,7 @@ body {
   height: min(380px, 52vh);      /* меньше по высоте, но адаптивно */
   border-radius: 22px;
 }
+
 
 
 
