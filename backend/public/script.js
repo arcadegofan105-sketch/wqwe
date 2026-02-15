@@ -97,8 +97,10 @@ const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
 const wheel = document.getElementById('wheel')
 
 function setWheelIconsUpright(angleDeg) {
-  document.documentElement.style.setProperty('--wheel-rot', `${angleDeg}deg`)
+  if (!wheel) return
+  wheel.style.setProperty("--wheel-rot", `${angleDeg}deg`)
 }
+
 
 const spinButton = document.getElementById('spin-button')
 const balanceValueSpan = document.getElementById('balance-value')
@@ -303,22 +305,31 @@ function closeWithdrawModal() {
 
 function renderWheel() {
   if (!wheel) return
-  const sectorNodes = wheel.querySelectorAll('.sector')
+
+  const sectorNodes = wheel.querySelectorAll(".sector")
   sectorNodes.forEach((node, i) => {
     const s = wheelSectors[i]
+
+    let inner = node.querySelector(".sector-inner")
+    if (!inner) {
+      inner = document.createElement("span")
+      inner.className = "sector-inner"
+      node.textContent = ""
+      node.appendChild(inner)
+    }
+
     if (!s) {
-      node.textContent = '❔'
-      node.title = ''
+      inner.innerHTML = ""
+      node.title = ""
       return
     }
-    node.innerHTML = giftVisual(s)
+
+    inner.innerHTML = giftVisual(s) // ВАЖНО: обновляем ТОЛЬКО inner
     node.title = `${s.name} (${s.price} TON)`
   })
 }
 
 function renderPrizesList() {
-  // 7 карточек в списке — в нужном тебе порядке (как на фото).
-  // idx = индекс сектора в wheelSectors (на колесе), title/priceText = только отображение в списке.
   const DISPLAY = [
     { idx: 3, title: "bear", priceText: "0.1 TON" },
     { idx: 1, title: "PEPE", priceText: "10000 TON" },
@@ -326,25 +337,25 @@ function renderPrizesList() {
     { idx: 2, title: "lightsword", priceText: "7 TON" },
     { idx: 4, title: "Hexpot", priceText: "10 TON" },
     { idx: 5, title: "Precious Peach", priceText: "500 TON" },
-    { idx: 6, title: "bear", priceText: "0.1 TON" }, // повтор мишки, т.к. сектор 🧸 есть второй раз
-  ];
+    { idx: 6, title: "bear", priceText: "0.1 TON" },
+  ]
 
-  const cards = document.querySelectorAll(".wheel-prizes-grid .wheel-prize-card");
+  const cards = document.querySelectorAll(".wheel-prizes-grid .wheel-prize-card")
   cards.forEach((card, i) => {
-    const d = DISPLAY[i];
-    if (!d) return;
+    const d = DISPLAY[i]
+    if (!d) return
 
-    const s = wheelSectors[d.idx];
-    if (!s) return;
+    const s = wheelSectors[d.idx]
+    if (!s) return
 
-    const emojiEl = card.querySelector(".prize-emoji");
-    const nameEl = card.querySelector(".prize-name");
-    const priceTextEl = card.querySelector(".wheel-prize-price-text");
+    const emojiEl = card.querySelector(".prize-emoji")
+    const nameEl = card.querySelector(".prize-name")
+    const priceTextEl = card.querySelector(".wheel-prize-price-text")
 
-    if (emojiEl) emojiEl.innerHTML = giftVisual(s); // тут будут твои webp/иконки
-    if (nameEl) nameEl.textContent = d.title;       // тут твои новые названия (bear/PEPE/...)
-    if (priceTextEl) priceTextEl.textContent = d.priceText; // цена под подарком
-  });
+    if (emojiEl) emojiEl.innerHTML = giftVisual(s)
+    if (nameEl) nameEl.textContent = d.title
+    if (priceTextEl) priceTextEl.textContent = d.priceText
+  })
 }
 
 
@@ -878,8 +889,8 @@ spinButton?.addEventListener('click', async e => {
   const delta = (((desiredAngle - base - current) % 360) + 360) % 360
 
   currentRotation += FULL_ROUNDS * 360 + delta
-  wheel.style.transform = `rotate(${currentRotation.toFixed(3)}deg)`
-  setWheelIconsUpright(currentRotation);
+setWheelIconsUpright(currentRotation)
+
 })
 
 wheel?.addEventListener('transitionend', e => {
@@ -887,11 +898,11 @@ wheel?.addEventListener('transitionend', e => {
   if (!isSpinning) return
 
   currentRotation = ((currentRotation % 360) + 360) % 360
-  wheel.style.transition = 'none'
-  wheel.style.transform = `rotate(${currentRotation.toFixed(3)}deg)`
-  setWheelIconsUpright(currentRotation);
-  wheel.offsetHeight
-  wheel.style.transition = ''
+wheel.style.transition = 'none'
+setWheelIconsUpright(currentRotation)
+wheel.offsetHeight
+wheel.style.transition = ''
+
 
   setLastPrizeText(currentPrize)
   openModal(currentPrize)
@@ -1814,6 +1825,7 @@ async function init() {
 }
 
 init()
+
 
 
 
