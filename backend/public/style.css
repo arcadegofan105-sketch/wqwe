@@ -227,6 +227,44 @@ body {
 	box-shadow: 0 0 30px rgba(56, 189, 248, 0.25);
 }
 
+/* ===== wheel dividers (7 slices) ===== */
+.wheel {
+	position: relative;
+	overflow: hidden;
+}
+
+/* Линии-разделители */
+.wheel::after {
+	content: '';
+	position: absolute;
+	inset: 6px;               /* чтобы не залезало на border: 6px */
+	border-radius: 50%;
+	pointer-events: none;
+	z-index: 2;
+
+	/* 7 секторов: 360/7 = 51.4286deg */
+	background: repeating-conic-gradient(
+		from -90deg,
+		rgba(148, 163, 184, 0.85) 0deg 1.2deg, /* толщина линии */
+		rgba(0, 0, 0, 0) 1.2deg 51.4286deg
+	);
+
+	/* чуть мягче */
+	filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.18));
+	opacity: 0.9;
+}
+
+/* Иконки поверх линий */
+.sector {
+	z-index: 3;
+}
+
+/* Центр поверх линий (чтобы линии не лезли на кнопку) */
+.wheel-center {
+	z-index: 4;
+}
+
+
 .sector {
 	position: absolute;
 	width: 50%;
@@ -1772,5 +1810,6 @@ body {
 #mc-spin-btn {
   flex: 1;
 }
+
 
 
