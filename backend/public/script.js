@@ -1178,7 +1178,13 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
 // ===== CRASH (logic + canvas animation: rocket -> moon) =====
 const crashCanvas = document.getElementById('crash-canvas')
 const crashCtx = crashCanvas ? crashCanvas.getContext('2d') : null
+
 const rocketVideo = document.getElementById('rocket-video')
+
+// offscreen canvas для вырезания чёрного фона (chroma key)
+const rocketKeyCanvas = document.createElement('canvas')
+const rocketKeyCtx = rocketKeyCanvas.getContext('2d', { willReadFrequently: true })
+
 const crashMultiplierEl = document.getElementById('crash-multiplier')
 const crashStatusEl = document.getElementById('crash-status')
 const crashBetInput = document.getElementById('crash-bet-input')
@@ -1230,7 +1236,6 @@ async function ensureRocketVideoPlaying() {
   }
 }
 
-
 function generateCrashPoint() {
   const rand = Math.random() * 100
 
@@ -1246,13 +1251,12 @@ function generateCrashPoint() {
 
   // 1% — средние (1.8–4.0)
   return 1.8 + Math.random() * (4.0 - 1.8)
-} // ← вот этой скобки не хватало
+}
 
 function getSceneSize() {
   const rect = crashCanvas.getBoundingClientRect()
   return { w: rect.width, h: rect.height }
 }
-
 
 function moonPos(w, h) {
   return { x: w * 0.78, y: h * 0.26, r: Math.min(w, h) * 0.14 }
@@ -1373,12 +1377,12 @@ function drawPath(ctx, w, h, p) {
   ctx.restore()
 }
 
+// (можно оставить старую векторную ракету — она больше не используется)
 function drawRocket(ctx, x, y, ang, flamePower) {
   ctx.save()
   ctx.translate(x, y)
   ctx.rotate(ang)
 
-  // корпус
   ctx.fillStyle = '#e5e7eb'
   ctx.strokeStyle = 'rgba(15,23,42,0.8)'
   ctx.lineWidth = 1.2
@@ -1393,13 +1397,11 @@ function drawRocket(ctx, x, y, ang, flamePower) {
   ctx.fill()
   ctx.stroke()
 
-  // окно
   ctx.fillStyle = 'rgba(56,189,248,0.9)'
   ctx.beginPath()
   ctx.arc(2, 0, 4, 0, Math.PI * 2)
   ctx.fill()
 
-  // крылья
   ctx.fillStyle = '#94a3b8'
   ctx.beginPath()
   ctx.moveTo(-8, -6)
@@ -1414,7 +1416,6 @@ function drawRocket(ctx, x, y, ang, flamePower) {
   ctx.closePath()
   ctx.fill()
 
-  // огонь
   const fp = clamp(flamePower, 0, 1)
   if (fp > 0.02) {
     const len = 14 + fp * 18
@@ -1435,19 +1436,42 @@ function drawRocket(ctx, x, y, ang, flamePower) {
   ctx.restore()
 }
 
+// Видео-ракета: больше + небольшой наклон вправо + вырезание чёрного фона
 function drawRocketVideo(ctx, x, y, ang, size = 56) {
-  if (!rocketVideo || rocketVideo.readyState < 2) return
+  if (!rocketVideo || rocketVideo.readyState < 2 || !rocketKeyCtx) return
 
-  const w = size * 1.6
-  const h = size * 1.0
+  const vw = rocketVideo.videoWidth
+  const vh = rocketVideo.videoHeight
+  if (!vw || !vh) return
+
+  // 1) кадр видео -> offscreen canvas
+  rocketKeyCanvas.width = vw
+  rocketKeyCanvas.height = vh
+  rocketKeyCtx.clearRect(0, 0, vw, vh)
+  rocketKeyCtx.drawImage(rocketVideo, 0, 0, vw, vh)
+
+  // 2) вырезаем "почти чёрный" фон (MP4 без прозрачности)
+  const frame = rocketKeyCtx.getImageData(0, 0, vw, vh)
+  const d = frame.data
+  const threshold = 45 // 25..70; если съедает ракету — уменьши
+
+  for (let i = 0; i < d.length; i += 4) {
+    const r = d[i], g = d[i + 1], b = d[i + 2]
+    if (r <= threshold && g <= threshold && b <= threshold) d[i + 3] = 0
+  }
+  rocketKeyCtx.putImageData(frame, 0, 0)
+
+  // 3) рисуем на основной canvas (увеличение + наклон)
+  const w = size * 2.0
+  const h = size * 1.25
+  const extraTilt = 0.12 // ~7 градусов вправо
 
   ctx.save()
   ctx.translate(x, y)
-  ctx.rotate(ang)
-  ctx.drawImage(rocketVideo, -w / 2, -h / 2, w, h)
+  ctx.rotate(ang + extraTilt)
+  ctx.drawImage(rocketKeyCanvas, -w / 2, -h / 2, w, h)
   ctx.restore()
 }
-
 
 // ---------- UI ----------
 function updateCrashButtonUI() {
@@ -1656,13 +1680,10 @@ function renderCrash(ts) {
   drawPath(crashCtx, w, h, p)
 
   if (crashState === 'playing') {
-  const pt = pathPoint(p, w, h)
-  const ang = pathTangentAng(p, w, h)
-
-  // size можно привязать к multiplier, если хочешь “ускорение/приближение”
-  drawRocketVideo(crashCtx, pt.x, pt.y, ang, 56)
-}
-
+    const pt = pathPoint(p, w, h)
+    const ang = pathTangentAng(p, w, h)
+    drawRocketVideo(crashCtx, pt.x, pt.y, ang, 56)
+  }
 
   if (crashState === 'crashed' && crashImpact) {
     const t = (performance.now() - crashImpact.ts) / 1000
@@ -1694,12 +1715,12 @@ crashMainActionBtn?.addEventListener('click', async () => {
   else if (crashState === 'playing') cashoutCrash(false)
 })
 
-
 window.addEventListener('resize', () => {
   if (!crashCanvas) return
   initCrashCanvas()
   startCrashRenderLoop()
 })
+
 
 // ===== ADMIN EVENTS =====
 adminPromoType?.addEventListener('change', () => {
@@ -1859,6 +1880,7 @@ async function init() {
 }
 
 init()
+
 
 
 
