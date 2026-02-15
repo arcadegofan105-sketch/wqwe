@@ -1227,7 +1227,7 @@ body {
 	position: absolute;
 	top: 37%;
 	left: 50%;
-	transform: translateX(-50%);
+	transform: translateX(-50%) rotate(8deg);
 	padding: 6px 14px;
 	border-radius: 999px;
 	background: rgba(15, 23, 42, 0.7);
@@ -1934,9 +1934,11 @@ body {
 
   border-left: 14px solid transparent;
   border-right: 14px solid transparent;
-  border-bottom: 20px solid rgba(255,255,255,.92);
-
-  filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
+  border-bottom: 22px solid rgba(40, 16, 60, 0.95); /* тёмный фиолетовый */
+filter:
+  drop-shadow(0 10px 18px rgba(0,0,0,0.55))
+  drop-shadow(0 0 10px rgba(168, 85, 247, 0.18)); /* лёгкий фиолетовый glow */
+;
 }
 
 
@@ -2201,6 +2203,7 @@ body {
   height: min(380px, 52vh);      /* меньше по высоте, но адаптивно */
   border-radius: 22px;
 }
+
 
 
 
