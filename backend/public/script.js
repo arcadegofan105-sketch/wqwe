@@ -11,9 +11,9 @@ const BOT_USERNAME = 'GiftWheels_bot'
 const wheelSectors = [
   { emoji: '📅', name: 'Календарь', price: 1.5 },
   { emoji: '🐸', name: 'Пепе', price: 0.0 },
-  { emoji: '💋', name: 'Губы', price: 0.0 },
+  { emoji: "🗡️", name: "lightsword", price: 0.0 },
   { emoji: '🧸', name: 'Мишка', price: 0.1 },
-  { emoji: '🍀', name: 'Клевер', price: 0.0 },
+  { emoji: "🧪", name: "Hexpot", price: 0.0 },
   { emoji: '🍑', name: 'Персик', price: 0.0 },
   { emoji: '🧸', name: 'Мишка', price: 0.1 },
 ]
@@ -56,17 +56,22 @@ const CASES = {
 
 const CASES_ALWAYS_PRIZE = { emoji: '🧸', name: 'Мишка', price: 0.1 }
 
-// ===== CUSTOM IMAGES =====
+// CUSTOM IMAGES
 const GIFT_IMAGES = {
-  Пепе: 'epepepepe.webp',
-  Персик: 'epersok.webp',
-}
+  "Пепе": "epepepepe.webp",
+  "Персик": "epersok.webp",
+
+  // новые подарки
+  "Hexpot": "Hexpot (1).webp",
+  "lightsword": "lightsword.webp",
+};
 
 function giftVisual(item) {
-  const file = GIFT_IMAGES[item?.name]
-  if (file) return `<span class="gift-icon" style="background-image:url('${file}')"></span>`
-  return item?.emoji || '🎁'
+  const file = GIFT_IMAGES[item?.name];
+  if (file) return `<span class="gift-icon" style="background-image:url('${file}')"></span>`;
+  return item?.emoji || "";
 }
+
 
 // ===== TELEGRAM =====
 const tg = window.Telegram?.WebApp || null
@@ -1782,6 +1787,7 @@ async function init() {
 }
 
 init()
+
 
 
 
