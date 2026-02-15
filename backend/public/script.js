@@ -312,16 +312,36 @@ function renderWheel() {
 }
 
 function renderPrizesList() {
-  const items = document.querySelectorAll('.prizes-grid .prize-item')
-  items.forEach((card, i) => {
-    const s = wheelSectors[i]
-    if (!s) return
-    const emojiEl = card.querySelector('.prize-emoji')
-    const nameEl = card.querySelector('.prize-name')
-    if (emojiEl) emojiEl.innerHTML = giftVisual(s)
-    if (nameEl) nameEl.textContent = s.name
-  })
+  // 7 карточек в списке — в нужном тебе порядке (как на фото).
+  // idx = индекс сектора в wheelSectors (на колесе), title/priceText = только отображение в списке.
+  const DISPLAY = [
+    { idx: 0, title: "bear", priceText: "0.1 TON" },
+    { idx: 1, title: "PEPE", priceText: "10000 TON" },
+    { idx: 3, title: "Desk Celendar", priceText: "5 TON" },
+    { idx: 2, title: "lightsword", priceText: "7 TON" },
+    { idx: 4, title: "Hexpot", priceText: "10 TON" },
+    { idx: 5, title: "Precious Peach", priceText: "500 TON" },
+    { idx: 6, title: "bear", priceText: "0.1 TON" }, // повтор мишки, т.к. сектор 🧸 есть второй раз
+  ];
+
+  const cards = document.querySelectorAll(".wheel-prizes-grid .wheel-prize-card");
+  cards.forEach((card, i) => {
+    const d = DISPLAY[i];
+    if (!d) return;
+
+    const s = wheelSectors[d.idx];
+    if (!s) return;
+
+    const emojiEl = card.querySelector(".prize-emoji");
+    const nameEl = card.querySelector(".prize-name");
+    const priceTextEl = card.querySelector(".wheel-prize-price-text");
+
+    if (emojiEl) emojiEl.innerHTML = giftVisual(s); // тут будут твои webp/иконки
+    if (nameEl) nameEl.textContent = d.title;       // тут твои новые названия (bear/PEPE/...)
+    if (priceTextEl) priceTextEl.textContent = d.priceText; // цена под подарком
+  });
 }
+
 
 function renderInventory() {
   if (!inventoryList) return
@@ -1787,6 +1807,7 @@ async function init() {
 }
 
 init()
+
 
 
 
