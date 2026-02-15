@@ -1482,9 +1482,9 @@ function drawRocketVideo(ctx, x, y, ang, size = 56) {
   rocketKeyCtx.putImageData(frame, 0, 0)
 
   // 3) рисуем на основной canvas (увеличение + наклон)
-  const w = size * 2.35   // было 2.0 → больше
-  const h = size * 1.45   // было 1.25 → больше
-  const extraTilt = 0.20  // было 0.12 → сильнее вправо (~11.5°)
+  const w = size * 2.85   // было 2.0 → больше
+  const h = size * 1.75   // было 1.25 → больше
+  const extraTilt = 0.25  // было 0.12 → сильнее вправо (~11.5°)
 
 
   ctx.save()
@@ -1901,6 +1901,7 @@ async function init() {
 }
 
 init()
+
 
 
 
