@@ -95,6 +95,11 @@ const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
 
 // ===== UI ELEMENTS =====
 const wheel = document.getElementById('wheel')
+
+function setWheelIconsUpright(angleDeg) {
+  document.documentElement.style.setProperty('--wheel-rot', `${angleDeg}deg`)
+}
+
 const spinButton = document.getElementById('spin-button')
 const balanceValueSpan = document.getElementById('balance-value')
 const balanceValueSpan2 = document.getElementById('balance-value-2')
@@ -874,6 +879,7 @@ spinButton?.addEventListener('click', async e => {
 
   currentRotation += FULL_ROUNDS * 360 + delta
   wheel.style.transform = `rotate(${currentRotation.toFixed(3)}deg)`
+  setWheelIconsUpright(currentRotation);
 })
 
 wheel?.addEventListener('transitionend', e => {
@@ -883,6 +889,7 @@ wheel?.addEventListener('transitionend', e => {
   currentRotation = ((currentRotation % 360) + 360) % 360
   wheel.style.transition = 'none'
   wheel.style.transform = `rotate(${currentRotation.toFixed(3)}deg)`
+  setWheelIconsUpright(currentRotation);
   wheel.offsetHeight
   wheel.style.transition = ''
 
@@ -1807,6 +1814,7 @@ async function init() {
 }
 
 init()
+
 
 
 
