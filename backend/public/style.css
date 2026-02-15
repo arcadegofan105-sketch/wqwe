@@ -201,19 +201,22 @@ body {
   initial-value: 0deg;
 }
 
-/* ===== WHEEL (готовый блок v2: сектора + тонкие границы) ===== */
+/* ===== WHEEL (v3: ровные сектора + ровные границы, без перекоса) ===== */
 
-/* ВАЖНО: чтобы анимация кастомного угла работала как надо */
 @property --wheel-rot {
   syntax: "<angle>";
   inherits: true;
   initial-value: 0deg;
 }
 
-/* Настройки размеров */
+/* Настройки размеров + математика секторов */
 :root{
-  --wheel-icon-box: 68px;   /* размер "плашки" под подарок */
-  --wheel-icon-size: 46px;  /* размер самой иконки */
+  --wheel-icon-box: 68px;
+  --wheel-icon-size: 46px;
+
+  --wheel-sectors: 7;
+  --wheel-step: calc(360deg / var(--wheel-sectors));
+  --wheel-start: -90deg; /* “12 часов” */
 }
 
 .wheel-wrapper{
@@ -249,41 +252,44 @@ body {
   transform: rotate(var(--wheel-rot));
   transition: --wheel-rot 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
 
-  /* Реальные 7 секторов + чуть объёма */
+  /* 7 ровных секторов (без ручных градусов) */
   background:
-    radial-gradient(circle, rgba(2,6,23,0.10) 0 38%, rgba(2,6,23,0.55) 70%, rgba(2,6,23,0.92) 100%),
+    radial-gradient(circle,
+      rgba(2,6,23,0.10) 0 38%,
+      rgba(2,6,23,0.55) 70%,
+      rgba(2,6,23,0.92) 100%
+    ),
     conic-gradient(
-      from -90deg,
-      rgba(56,189,248,0.12) 0 51.4286deg,
-      rgba(34,197,94,0.10) 51.4286deg 102.8572deg,
-      rgba(168,85,247,0.10) 102.8572deg 154.2858deg,
-      rgba(251,191,36,0.10) 154.2858deg 205.7144deg,
-      rgba(59,130,246,0.10) 205.7144deg 257.1430deg,
-      rgba(244,63,94,0.08) 257.1430deg 308.5716deg,
-      rgba(16,185,129,0.10) 308.5716deg 360deg
+      from var(--wheel-start),
+      rgba(56,189,248,0.12) 0 var(--wheel-step),
+      rgba(34,197,94,0.10) 0 calc(var(--wheel-step) * 2),
+      rgba(168,85,247,0.10) 0 calc(var(--wheel-step) * 3),
+      rgba(251,191,36,0.10) 0 calc(var(--wheel-step) * 4),
+      rgba(59,130,246,0.10) 0 calc(var(--wheel-step) * 5),
+      rgba(244,63,94,0.08) 0 calc(var(--wheel-step) * 6),
+      rgba(16,185,129,0.10) 0 calc(var(--wheel-step) * 7)
     );
 }
 
-/* ===== границы между 7 секторами (тонкие линии) ===== */
+/* Границы между секторами (ровные) */
 .wheel::after{
   content:'';
   position:absolute;
-  inset: 8px;
+  inset: 10px;
   border-radius:50%;
   pointer-events:none;
   z-index:2;
   opacity: 0.95;
 
-  /* каждые 51.4286deg рисуем очень тонкую линию */
   background: repeating-conic-gradient(
-    from -90deg,
-    rgba(226,232,240,0.78) 0 0.85deg,
-    transparent 0.85deg 51.4286deg
+    from var(--wheel-start),
+    rgba(226,232,240,0.72) 0 0.7deg,
+    transparent 0.7deg var(--wheel-step)
   );
 
-  /* центр оставляем чистым под кнопку */
-  -webkit-mask: radial-gradient(circle, transparent 0 36%, #000 48% 100%);
-          mask: radial-gradient(circle, transparent 0 36%, #000 48% 100%);
+  /* оставляем центр чистым под кнопку */
+  -webkit-mask: radial-gradient(circle, transparent 0 44%, #000 56% 100%);
+          mask: radial-gradient(circle, transparent 0 44%, #000 56% 100%);
 }
 
 /* Иконки и центр — выше линий */
@@ -312,16 +318,16 @@ body {
     rotate(calc(0deg - var(--a)));
 }
 
-/* Угол для каждого сектора */
-#wheel .sector[data-index='0']{ --a: 0deg; }
-#wheel .sector[data-index='1']{ --a: 51.43deg; }
-#wheel .sector[data-index='2']{ --a: 102.86deg; }
-#wheel .sector[data-index='3']{ --a: 154.29deg; }
-#wheel .sector[data-index='4']{ --a: 205.71deg; }
-#wheel .sector[data-index='5']{ --a: 257.14deg; }
-#wheel .sector[data-index='6']{ --a: 308.57deg; }
+/* Угол для каждого сектора — тоже от wheel-step */
+#wheel .sector[data-index='0']{ --a: calc(var(--wheel-step) * 0); }
+#wheel .sector[data-index='1']{ --a: calc(var(--wheel-step) * 1); }
+#wheel .sector[data-index='2']{ --a: calc(var(--wheel-step) * 2); }
+#wheel .sector[data-index='3']{ --a: calc(var(--wheel-step) * 3); }
+#wheel .sector[data-index='4']{ --a: calc(var(--wheel-step) * 4); }
+#wheel .sector[data-index='5']{ --a: calc(var(--wheel-step) * 5); }
+#wheel .sector[data-index='6']{ --a: calc(var(--wheel-step) * 6); }
 
-/* Плашка под подарок — делаем "стекло", а не квадрат */
+/* Плашка под подарок — “стекло”, не квадрат */
 #wheel .sector .sector-inner{
   width: var(--wheel-icon-box);
   height: var(--wheel-icon-box);
@@ -331,16 +337,16 @@ body {
   align-items: center;
   justify-content: center;
 
-  background: rgba(2, 6, 23, 0.22);
+  background: rgba(2, 6, 23, 0.18);
   box-shadow:
-    0 0 0 1px rgba(148, 163, 184, 0.16),
-    0 12px 26px rgba(0, 0, 0, 0.35);
+    0 0 0 1px rgba(148, 163, 184, 0.14),
+    0 12px 26px rgba(0, 0, 0, 0.32);
   backdrop-filter: blur(6px);
 
   font-size: var(--wheel-icon-size);
   line-height: 1;
 
-  /* чтобы иконки не крутились вместе с колесом */
+  /* компенсируем вращение колеса */
   transform: rotate(calc(-1 * var(--wheel-rot)));
   transform-origin: center;
 }
@@ -373,6 +379,7 @@ body {
   align-items: center;
   box-shadow: 0 0 25px rgba(52, 211, 153, 0.4);
 }
+
 
 
 
@@ -2108,6 +2115,7 @@ body {
   transform: rotate(calc(-1 * var(--wheel-rot)));
   transform-origin: center;
 }
+
 
 
 
