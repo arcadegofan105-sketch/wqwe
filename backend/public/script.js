@@ -14,9 +14,10 @@ const wheelSectors = [
   { emoji: "🗡️", name: "lightsword", price: 0.0 },
   { emoji: '🧸', name: 'Мишка', price: 0.1 },
   { emoji: "🧪", name: "Hexpot", price: 0.0 },
-  { emoji: '🍑', name: 'Персик', price: 0.0 },
   { emoji: '🧸', name: 'Мишка', price: 0.1 },
+  { emoji: '🍑', name: 'Персик', price: 0.0 },
 ]
+
 
 // ===== CASES CONFIG =====
 // По твоей идее: "крутится кейс и всегда мишка" — делаем выдачу всегда Мишка.
@@ -1826,6 +1827,7 @@ async function init() {
 }
 
 init()
+
 
 
 
