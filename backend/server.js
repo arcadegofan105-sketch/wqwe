@@ -706,13 +706,13 @@ app.post("/api/rewards/list", auth, (req, res) => {
       {
         key: "first_deposit",
         title: "Первый депозит",
-        desc: "+0.5 TON (один раз)",
+        desc: "+0.5 TON к балансу после первого пополнения. Начисляется один раз, повторно получить нельзя.",
         status: firstDepositStatus,
       },
       {
         key: "invite",
         title: "Инвайты",
-        desc: "+0.1 TON за друга, максимум 5",
+        desc: "+0.1 TON за каждого приглашённого, который открыл мини‑апп по твоей ссылке. Можно получить максимум за 5 друзей.",
         status: inviteStatus,
         invited,
         claimed: claimedInvites,
@@ -784,5 +784,6 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
 
 
