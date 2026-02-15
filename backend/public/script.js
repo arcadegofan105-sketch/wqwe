@@ -127,7 +127,6 @@ const screens = {
   bonus: document.getElementById('screen-bonus'),
   profile: document.getElementById('screen-profile'),
   admin: document.getElementById('screen-admin'),
-  minecraft: document.getElementById('screen-minecraft'),
 
 }
 
@@ -787,11 +786,6 @@ document.querySelectorAll('[data-home-target]').forEach(card => {
 
         if (target === 'cases') {
       setScreen('cases')
-      return
-    }
-
-    if (target === 'minecraft') {
-      setScreen('minecraft')
       return
     }
 
@@ -1901,6 +1895,7 @@ async function init() {
 }
 
 init()
+
 
 
 
