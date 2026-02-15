@@ -130,6 +130,9 @@ const screens = {
 
 }
 
+const rewardsListEl = document.getElementById('rewards-list')
+
+
 const depositBtn = document.getElementById('deposit-btn')
 const withdrawBtn = document.getElementById('withdraw-btn')
 
@@ -611,6 +614,16 @@ async function depositCheckApi(depositId) {
   return apiPost('/deposit/check', { depositId })
 }
 
+// ===== REWARDS APIs =====
+async function rewardsListApi() {
+  return apiPost('/rewards/list')
+}
+
+async function rewardsClaimApi(key) {
+  return apiPost('/rewards/claim', { key })
+}
+
+
 // admin APIs
 async function adminStatsApi() {
   return apiPost('/admin/stats')
@@ -648,6 +661,52 @@ function escapeHtml(s) {
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;')
 }
+
+// ===== REWARDS UI =====
+function renderRewards(items) {
+  if (!rewardsListEl) return
+  if (!Array.isArray(items) || items.length === 0) {
+    rewardsListEl.innerHTML = `<div class="bonus-card"><div class="bonus-title">Нет наград</div></div>`
+    return
+  }
+
+  rewardsListEl.innerHTML = items.map(it => {
+    const key = String(it.key || '')
+    const title = escapeHtml(it.title || '')
+    const desc = escapeHtml(it.desc || '')
+    const status = String(it.status || 'locked')
+
+    let text = 'Недоступно'
+    if (status === 'available') text = 'Получить'
+    if (status === 'claimed') text = 'Получено'
+
+    const disabled = status !== 'available' ? 'disabled' : ''
+
+    let progress = ''
+    if (key === 'invite') {
+      progress = `<div class="bonus-text">Прогресс: ${Number(it.claimed || 0)}/${Number(it.max || 5)} • Приглашено: ${Number(it.invited || 0)}</div>`
+    }
+
+    return `
+      <div class="bonus-card" data-reward-key="${escapeHtml(key)}">
+        <div class="bonus-title">${title}</div>
+        <div class="bonus-text">${desc}</div>
+        ${progress}
+        <button class="action-btn action-blue reward-claim-btn" type="button" ${disabled}>
+          ${text}
+        </button>
+      </div>
+    `
+  }).join('')
+}
+
+async function loadRewards() {
+  if (!rewardsListEl) return
+  rewardsListEl.innerHTML = `<div class="bonus-card"><div class="bonus-title">Загрузка...</div></div>`
+  const r = await rewardsListApi()
+  renderRewards(r.items || [])
+}
+
 
 // ===== ADMIN RENDER =====
 function renderAdminStats(stats) {
@@ -771,8 +830,34 @@ navButtons.forEach(btn => {
     const target = btn.dataset.target
     if (target === 'admin' && !isAdmin) return
     setScreen(target)
+    if (target === 'rewards') loadRewards().catch(e => alert(e.message || 'Ошибка наград'))
   })
 })
+
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('.reward-claim-btn')
+  if (!btn) return
+
+  const card = btn.closest('[data-reward-key]')
+  const key = card?.getAttribute('data-reward-key')
+  if (!key) return
+
+  btn.disabled = true
+  try {
+    const r = await rewardsClaimApi(key)
+
+    if (typeof r.newBalance === 'number') {
+      balance = Number(r.newBalance)
+      updateBalanceUI()
+    }
+
+    await loadRewards()
+    await fetchUserData()
+  } catch (err) {
+    alert(err.message || 'Ошибка награды')
+  }
+})
+
 
 // клики по карточкам на главной (Краш / Колесо / Кейсы)
 document.querySelectorAll('[data-home-target]').forEach(card => {
@@ -1895,6 +1980,7 @@ async function init() {
 }
 
 init()
+
 
 
 
