@@ -1213,7 +1213,7 @@ body {
 /* Множитель и статус */
 .crash-multiplier {
 	position: absolute;
-	top: 22%;
+	top: 20%;
 	left: 50%;
 	transform: translateX(-50%);
 	font-size: 32px;
@@ -1225,7 +1225,7 @@ body {
 
 .crash-status {
 	position: absolute;
-	top: 30%;
+	top: 37%;
 	left: 50%;
 	transform: translateX(-50%);
 	padding: 6px 14px;
@@ -2179,6 +2179,7 @@ body {
   height: min(380px, 52vh);      /* меньше по высоте, но адаптивно */
   border-radius: 22px;
 }
+
 
 
 
