@@ -6,9 +6,13 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// База лежит рядом с backend (можно поменять путь, если нужно)
-const dbPath = path.join(__dirname, "database.sqlite");
+// В Railway пишем в volume (/data), локально — рядом с backend
+const dbPath = process.env.RAILWAY_ENVIRONMENT
+  ? "/data/database.sqlite"
+  : path.join(__dirname, "database.sqlite");
+
 const db = new Database(dbPath);
+
 
 // Инициализация таблиц
 db.pragma("journal_mode = WAL");
@@ -402,3 +406,4 @@ export function redeemPromo(tgId, code) {
 }
 
 export default db;
+
