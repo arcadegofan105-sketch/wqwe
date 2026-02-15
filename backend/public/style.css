@@ -294,58 +294,37 @@ body {
 
 
 
-.sector {
-	position: absolute;
-	width: 50%;
-	height: 50%;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	font-size: 32px;
-	transform-origin: 100% 100%;
+/* Радиус, на котором стоят иконки (подкручивай число: 105–125 обычно норм) */
+#wheel { --icon-r: 112px; }
+
+/* Сектор = точка на окружности; иконка всегда ровная для зрителя */
+#wheel .sector{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 50px;
+  height: 50px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  transform:
+    translate(-50%, -50%)
+    rotate(var(--a))
+    translateY(calc(-1 * var(--icon-r)))
+    rotate(calc(0deg - var(--a)));
 }
 
-.sector[data-index='0'] {
-	top: 0;
-	left: 50%;
-	transform: translateX(-100%) rotate(0deg);
-}
+/* Угол для каждого сектора */
+#wheel .sector[data-index='0']{ --a: 0deg; }
+#wheel .sector[data-index='1']{ --a: 51.43deg; }
+#wheel .sector[data-index='2']{ --a: 102.86deg; }
+#wheel .sector[data-index='3']{ --a: 154.29deg; }
+#wheel .sector[data-index='4']{ --a: 205.71deg; }
+#wheel .sector[data-index='5']{ --a: 257.14deg; }
+#wheel .sector[data-index='6']{ --a: 308.57deg; }
 
-.sector[data-index='1'] {
-	top: 0;
-	left: 50%;
-	transform: translateX(-100%) rotate(51.43deg);
-}
-
-.sector[data-index='2'] {
-	top: 0;
-	left: 50%;
-	transform: translateX(-100%) rotate(102.86deg);
-}
-
-.sector[data-index='3'] {
-	top: 0;
-	left: 50%;
-	transform: translateX(-100%) rotate(154.29deg);
-}
-
-.sector[data-index='4'] {
-	top: 0;
-	left: 50%;
-	transform: translateX(-100%) rotate(205.71deg);
-}
-
-.sector[data-index='5'] {
-	top: 0;
-	left: 50%;
-	transform: translateX(-100%) rotate(257.14deg);
-}
-
-.sector[data-index='6'] {
-	top: 0;
-	left: 50%;
-	transform: translateX(-100%) rotate(308.57deg);
-}
 
 .wheel-center {
 	position: absolute;
@@ -2090,6 +2069,7 @@ body {
   transform: rotate(calc(-1 * var(--wheel-rot)));
   transform-origin: center;
 }
+
 
 
 
