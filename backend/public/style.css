@@ -1152,39 +1152,63 @@ body {
 }
 
 /* звёзды (параллакс) — больше и крупнее */
-.crash-stars {
+.crash-stars{
 	position: absolute;
-	inset: -20%;
-	background-image: radial-gradient(3px 3px at 10% 20%, rgba(248, 250, 252, 1) 0, transparent 60%),
-		radial-gradient(3px 3px at 80% 30%, rgba(248, 250, 252, 0.9) 0, transparent 60%),
-		radial-gradient(3px 3px at 30% 70%, rgba(226, 232, 240, 1) 0, transparent 60%),
-		radial-gradient(3px 3px at 60% 90%, rgba(248, 250, 252, 0.95) 0, transparent 60%),
-		radial-gradient(2px 2px at 20% 80%, rgba(148, 163, 184, 0.9) 0, transparent 60%),
-		radial-gradient(2px 2px at 70% 10%, rgba(148, 163, 184, 0.9) 0, transparent 60%),
-		radial-gradient(2px 2px at 40% 40%, rgba(226, 232, 240, 0.9) 0, transparent 60%),
-		radial-gradient(2px 2px at 90% 70%, rgba(148, 163, 184, 0.9) 0, transparent 60%);
+	inset: -30%;
+	background-image:
+		radial-gradient(4px 4px at 12% 18%, rgba(248,250,252,0.95) 0, transparent 60%),
+		radial-gradient(3px 3px at 78% 22%, rgba(248,250,252,0.85) 0, transparent 60%),
+		radial-gradient(3px 3px at 34% 66%, rgba(226,232,240,0.95) 0, transparent 60%),
+		radial-gradient(4px 4px at 62% 88%, rgba(248,250,252,0.90) 0, transparent 60%),
+		radial-gradient(2px 2px at 22% 82%, rgba(148,163,184,0.85) 0, transparent 60%),
+		radial-gradient(2px 2px at 70% 12%, rgba(148,163,184,0.85) 0, transparent 60%),
+		radial-gradient(2px 2px at 44% 40%, rgba(226,232,240,0.85) 0, transparent 60%),
+		radial-gradient(2px 2px at 90% 70%, rgba(148,163,184,0.85) 0, transparent 60%),
+
+		radial-gradient(3px 3px at 15% 55%, rgba(248,250,252,0.75) 0, transparent 60%),
+		radial-gradient(2px 2px at 28% 32%, rgba(248,250,252,0.70) 0, transparent 60%),
+		radial-gradient(3px 3px at 48% 18%, rgba(248,250,252,0.70) 0, transparent 60%),
+		radial-gradient(2px 2px at 58% 52%, rgba(226,232,240,0.70) 0, transparent 60%),
+		radial-gradient(3px 3px at 82% 48%, rgba(248,250,252,0.70) 0, transparent 60%),
+		radial-gradient(2px 2px at 88% 28%, rgba(148,163,184,0.70) 0, transparent 60%),
+		radial-gradient(3px 3px at 66% 68%, rgba(248,250,252,0.70) 0, transparent 60%),
+		radial-gradient(2px 2px at 40% 86%, rgba(148,163,184,0.70) 0, transparent 60%),
+
+		radial-gradient(2px 2px at 8% 30%, rgba(248,250,252,0.55) 0, transparent 60%),
+		radial-gradient(2px 2px at 92% 18%, rgba(248,250,252,0.55) 0, transparent 60%),
+		radial-gradient(2px 2px at 18% 92%, rgba(248,250,252,0.55) 0, transparent 60%),
+		radial-gradient(2px 2px at 76% 90%, rgba(248,250,252,0.55) 0, transparent 60%);
 	opacity: 1;
 	pointer-events: none;
 }
 
-.crash-stars-back {
-	animation: crashStarsMove 60s linear infinite;
-	opacity: 0.4;
+
+.crash-stars-back{
+	opacity: 0.55;
+	animation: crashStarsDriftA 18s linear infinite;
 }
 
-.crash-stars-front {
-	animation: crashStarsMove 35s linear infinite;
-	opacity: 0.9;
+.crash-stars-front{
+	opacity: 0.95;
+	animation: crashStarsDriftB 10s linear infinite;
 }
 
-@keyframes crashStarsMove {
-	0% {
-		transform: translate3d(0, 0, 0);
-	}
-	100% {
-		transform: translate3d(-8%, -5%, 0);
-	}
+@keyframes crashStarsDriftA{
+	0%   { transform: translate3d(0,0,0) scale(1); }
+	25%  { transform: translate3d(-6%, -2%, 0) scale(1.02); }
+	50%  { transform: translate3d(-10%, -6%, 0) scale(1.01); }
+	75%  { transform: translate3d(-4%, -9%, 0) scale(1.03); }
+	100% { transform: translate3d(0,0,0) scale(1); }
 }
+
+@keyframes crashStarsDriftB{
+	0%   { transform: translate3d(0,0,0) scale(1.03); }
+	20%  { transform: translate3d(-8%, -5%, 0) scale(1.06); }
+	55%  { transform: translate3d(-3%, -12%, 0) scale(1.04); }
+	80%  { transform: translate3d(-12%, -7%, 0) scale(1.07); }
+	100% { transform: translate3d(0,0,0) scale(1.03); }
+}
+
 
 /* Множитель и статус */
 .crash-multiplier {
@@ -2136,6 +2160,26 @@ body {
   transform: rotate(calc(-1 * var(--wheel-rot)));
   transform-origin: center;
 }
+
+/* CRASH: полностью чёрный фон и меньше по высоте */
+#screen-crash{
+  gap: 10px;                 /* меньше воздуха */
+  padding-top: 6px;          /* поднять контент выше */
+}
+
+#screen-crash .crash-container{
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* область игры: делаем фон чисто чёрным и уменьшаем высоту */
+#screen-crash .crash-game-area{
+  background: #000 !important;   /* вместо radial-gradient */
+  aspect-ratio: auto !important; /* убираем 9/10 */
+  height: min(380px, 52vh);      /* меньше по высоте, но адаптивно */
+  border-radius: 22px;
+}
+
 
 
 
