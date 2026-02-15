@@ -315,9 +315,9 @@ function renderPrizesList() {
   // 7 карточек в списке — в нужном тебе порядке (как на фото).
   // idx = индекс сектора в wheelSectors (на колесе), title/priceText = только отображение в списке.
   const DISPLAY = [
-    { idx: 0, title: "bear", priceText: "0.1 TON" },
+    { idx: 3, title: "bear", priceText: "0.1 TON" },
     { idx: 1, title: "PEPE", priceText: "10000 TON" },
-    { idx: 3, title: "Desk Celendar", priceText: "5 TON" },
+    { idx: 0, title: "Desk Celendar", priceText: "5 TON" },
     { idx: 2, title: "lightsword", priceText: "7 TON" },
     { idx: 4, title: "Hexpot", priceText: "10 TON" },
     { idx: 5, title: "Precious Peach", priceText: "500 TON" },
@@ -1807,6 +1807,7 @@ async function init() {
 }
 
 init()
+
 
 
 
