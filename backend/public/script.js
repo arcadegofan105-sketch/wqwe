@@ -1286,10 +1286,10 @@ function pathTangentAng(p, w, h) {
 // ---------- particles ----------
 const particles = []
 function spawnExplosion(x, y) {
-  const n = 46
+  const n = 140
   for (let i = 0; i < n; i++) {
     const a = Math.random() * Math.PI * 2
-    const sp = 80 + Math.random() * 220
+    const sp = 120 + Math.random() * 360
     particles.push({
       x,
       y,
@@ -1297,7 +1297,7 @@ function spawnExplosion(x, y) {
       vy: Math.sin(a) * sp,
       life: 0,
       max: 0.7 + Math.random() * 0.7,
-      size: 1.5 + Math.random() * 2.8,
+      size: 3.0 + Math.random() * 6.0,
       hue: 35 + Math.random() * 25,
     })
   }
@@ -1662,12 +1662,10 @@ function renderCrash(ts) {
 
   crashCtx.clearRect(0, 0, w, h)
 
-  // легкая туманность
-  const fog = crashCtx.createRadialGradient(w * 0.25, h * 0.85, 10, w * 0.25, h * 0.85, h * 0.9)
-  fog.addColorStop(0, 'rgba(99,102,241,0.10)')
-  fog.addColorStop(1, 'rgba(2,6,23,0)')
-  crashCtx.fillStyle = fog
-  crashCtx.fillRect(0, 0, w, h)
+  // фон полностью чёрный
+crashCtx.fillStyle = '#000'
+crashCtx.fillRect(0, 0, w, h)
+
 
   drawMoon(crashCtx, w, h)
 
@@ -1881,6 +1879,7 @@ async function init() {
 }
 
 init()
+
 
 
 
