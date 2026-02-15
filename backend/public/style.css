@@ -2074,6 +2074,19 @@ body {
   line-height: 1;
 }
 
+/* --- wheel icons upright (не крутятся вместе с колесом) --- */
+:root { --wheel-rot: 0deg; }
+
+#wheel .sector .sector-inner{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* главное: контр-поворот */
+  transform: rotate(calc(-1 * var(--wheel-rot)));
+  transform-origin: center;
+}
+
 
 
 
