@@ -203,8 +203,10 @@ const caseAnimTrack = document.getElementById('case-anim-track')
 
 function setCaseAnimVisible(v) {
   if (!caseAnimOverlay) return
+  console.log('[caseAnim] visible ->', v, 'time', Date.now())
   caseAnimOverlay.classList.toggle('active', !!v)
 }
+
 
 function makeAnimItemHTML(prize) {
   const v = giftVisual(prize)
@@ -214,12 +216,13 @@ function makeAnimItemHTML(prize) {
 
 // рулетка-анимация (простая и надежная)
 async function playCaseOpenAnimation({ pool, winner }) {
+  console.log('[caseAnim] start') // <-- ВОТ СЮДА (самое начало)
   if (!caseAnimTrack || !caseAnimOverlay) return
 
   const base = Array.isArray(pool) && pool.length ? pool : [winner]
   const items = []
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
-  items[items.length - 6] = winner // победитель ближе к концу
+  items[items.length - 6] = winner
 
   caseAnimTrack.innerHTML = items.map(makeAnimItemHTML).join('')
   caseAnimTrack.style.transition = 'none'
@@ -227,12 +230,10 @@ async function playCaseOpenAnimation({ pool, winner }) {
 
   setCaseAnimVisible(true)
 
-// форсим layout, чтобы браузер точно применил display/opacity до старта transition
-caseAnimOverlay.offsetHeight
-caseAnimTrack.offsetHeight
+  caseAnimOverlay.offsetHeight
+  caseAnimTrack.offsetHeight
 
-await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))
-
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))
 
   const itemW = 96
   const gap = 22
@@ -247,8 +248,11 @@ await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))
   caseAnimTrack.style.transform = `translateX(${finalX}px)`
 
   await new Promise(r => setTimeout(r, 6000))
+
+  console.log('[caseAnim] end-hide') // <-- ВОТ СЮДА (прямо перед скрытием)
   setCaseAnimVisible(false)
 }
+
 
 
 // ===== STATE =====
@@ -1985,6 +1989,7 @@ async function init() {
 }
 
 init()
+
 
 
 
