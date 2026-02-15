@@ -1285,6 +1285,26 @@ function pathTangentAng(p, w, h) {
 
 // ---------- particles ----------
 const particles = []
+
+function spawnSpaceDust(w, h, count = 2) {
+  for (let i = 0; i < count; i++) {
+    const x = Math.random() * w
+    const y = Math.random() * h
+    const a = Math.random() * Math.PI * 2
+    const sp = 10 + Math.random() * 60
+
+    particles.push({
+      x, y,
+      vx: Math.cos(a) * sp,
+      vy: Math.sin(a) * sp,
+      life: 0,
+      max: 1.2 + Math.random() * 1.8,     // живут дольше
+      size: 1.8 + Math.random() * 3.8,    // крупнее
+      hue: 190 + Math.random() * 60       // холодные тона (можешь поменять)
+    })
+  }
+}
+
 function spawnExplosion(x, y) {
   const n = 140
   for (let i = 0; i < n; i++) {
@@ -1535,6 +1555,8 @@ async function cashoutCrash(isAuto = false) {
 function crashBoomIntoMoon() {
   if (!crashCanvas) return
   const { w, h } = getSceneSize()
+  // постоянная пыль/звёзды в движении
+spawnSpaceDust(w, h, 3)
   const m = moonPos(w, h)
   const ix = m.x - m.r * 0.55
   const iy = m.y + m.r * 0.25
@@ -1879,6 +1901,7 @@ async function init() {
 }
 
 init()
+
 
 
 
