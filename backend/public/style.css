@@ -373,11 +373,21 @@ body {
   background-position: center;
 }
 
-/* Календарь (Deskcelend.png) выглядит мелким из-за пустых полей — увеличиваем только его */
-#wheel .sector .gift-icon[style*="Deskcelend.png"],
-.wheel-prizes .wheel-prize-emoji .gift-icon[style*="Deskcelend.png"]{
-  background-size: 135% 135%;
+/* Календарь: делаем контейнер под него не квадратным */
+#wheel .sector .gift-icon[style*="Deskcelend.png"]{
+  width: calc(var(--wheel-icon-size) * 1.15);
+  height: calc(var(--wheel-icon-size) * 0.85);
+  background-size: contain;
+  background-position: center;
 }
+
+.wheel-prizes .wheel-prize-emoji .gift-icon[style*="Deskcelend.png"]{
+  width: 54px;
+  height: 40px;
+  background-size: contain;
+  background-position: center;
+}
+
 
 
 .wheel-center{
@@ -2125,6 +2135,7 @@ body {
   transform: rotate(calc(-1 * var(--wheel-rot)));
   transform-origin: center;
 }
+
 
 
 
