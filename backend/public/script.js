@@ -23,9 +23,9 @@ const wheelSectors = [
 // По твоей идее: "крутится кейс и всегда мишка" — делаем выдачу всегда Мишка.
 const CASES = {
   newyear: {
-    id: 'newyear',
-    title: 'Календарь',
-    priceTon: 0.2,
+  id: 'newyear',
+  title: 'calendar',
+  priceTon: 0.2,
     imageSelector: '.case-image-newyear',
     contents: [
       { emoji: '📅', name: 'Календарь', price: 1.5 },
@@ -1989,6 +1989,7 @@ async function init() {
 }
 
 init()
+
 
 
 
