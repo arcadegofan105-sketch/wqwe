@@ -893,16 +893,17 @@ setWheelIconsUpright(currentRotation)
 
 })
 
-wheel?.addEventListener('transitionend', e => {
-  if (e.propertyName !== 'transform') return
+wheel?.addEventListener('transitionend', (e) => {
+  // раньше было: if (e.propertyName !== 'transform') return
+  if (e.propertyName !== '--wheel-rot' && e.propertyName !== 'transform') return
   if (!isSpinning) return
 
   currentRotation = ((currentRotation % 360) + 360) % 360
-wheel.style.transition = 'none'
-setWheelIconsUpright(currentRotation)
-wheel.offsetHeight
-wheel.style.transition = ''
 
+  wheel.style.transition = 'none'
+  setWheelIconsUpright(currentRotation)
+  wheel.offsetHeight
+  wheel.style.transition = ''
 
   setLastPrizeText(currentPrize)
   openModal(currentPrize)
@@ -1825,6 +1826,7 @@ async function init() {
 }
 
 init()
+
 
 
 
