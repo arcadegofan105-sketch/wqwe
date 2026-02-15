@@ -227,42 +227,67 @@ body {
 	box-shadow: 0 0 30px rgba(56, 189, 248, 0.25);
 }
 
-/* ===== wheel dividers (7 slices) ===== */
+/* ===== красивое деление колеса на 7 секторов ===== */
+
 .wheel {
 	position: relative;
 	overflow: hidden;
 }
 
-/* Линии-разделители */
+/* Слой спиц */
 .wheel::after {
 	content: '';
 	position: absolute;
-	inset: 6px;               /* чтобы не залезало на border: 6px */
+	inset: 10px;              /* чуть глубже, чтобы не упиралось в бордер */
 	border-radius: 50%;
 	pointer-events: none;
 	z-index: 2;
-
-	/* 7 секторов: 360/7 = 51.4286deg */
-	background: repeating-conic-gradient(
-		from -90deg,
-		rgba(148, 163, 184, 0.85) 0deg 1.2deg, /* толщина линии */
-		rgba(0, 0, 0, 0) 1.2deg 51.4286deg
-	);
-
-	/* чуть мягче */
-	filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.18));
 	opacity: 0.9;
+
+	/* луч: тонкая линия по радиусу + мягкое свечение */
+	background:
+		/* основная линия */
+		linear-gradient(
+			to right,
+			transparent 0,
+			transparent calc(50% - 1px),
+			rgba(226, 232, 240, 0.85) calc(50% - 1px),
+			rgba(226, 232, 240, 0.85) calc(50% + 1px),
+			transparent calc(50% + 1px),
+			transparent 100%
+		),
+		/* мягкая подсветка вокруг линии */
+		linear-gradient(
+			to right,
+			transparent 0,
+			transparent calc(50% - 6px),
+			rgba(56, 189, 248, 0.16) calc(50% - 6px),
+			rgba(56, 189, 248, 0.16) calc(50% + 6px),
+			transparent calc(50% + 6px),
+			transparent 100%
+		);
+
+	/* делаем 7 копий луча по кругу */
+	-webkit-mask: conic-gradient(from -90deg, #000 0 1deg, transparent 1deg 51.4286deg);
+	mask: conic-gradient(from -90deg, #000 0 1deg, transparent 1deg 51.4286deg);
+
+	/* затухание к центру (чтобы вокруг кнопки было чисто) */
+	-webkit-mask-composite: source-in;
+	mask-composite: intersect;
+
+	/* затухание — центр чистый, дальше видно */
+	-webkit-mask-image:
+		radial-gradient(circle, transparent 0 44%, #000 56% 100%),
+		conic-gradient(from -90deg, #000 0 1deg, transparent 1deg 51.4286deg);
+	mask-image:
+		radial-gradient(circle, transparent 0 44%, #000 56% 100%),
+		conic-gradient(from -90deg, #000 0 1deg, transparent 1deg 51.4286deg);
 }
 
-/* Иконки поверх линий */
-.sector {
-	z-index: 3;
-}
+/* Иконки и центр — выше */
+.sector { z-index: 3; }
+.wheel-center { z-index: 4; }
 
-/* Центр поверх линий (чтобы линии не лезли на кнопку) */
-.wheel-center {
-	z-index: 4;
-}
 
 
 .sector {
@@ -1810,6 +1835,7 @@ body {
 #mc-spin-btn {
   flex: 1;
 }
+
 
 
 
