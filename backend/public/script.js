@@ -61,11 +61,12 @@ const CASES_ALWAYS_PRIZE = { emoji: '🧸', name: 'Мишка', price: 0.1 }
 const GIFT_IMAGES = {
   "Пепе": "epepepepe.webp",
   "Персик": "epersok.webp",
+  "Календарь": "Deskcelend.png",
 
-  // новые подарки
   "Hexpot": "Hexpot (1).webp",
   "lightsword": "lightsword.webp",
 };
+
 
 function giftVisual(item) {
   const file = GIFT_IMAGES[item?.name];
@@ -1827,6 +1828,7 @@ async function init() {
 }
 
 init()
+
 
 
 
