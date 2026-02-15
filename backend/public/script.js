@@ -227,7 +227,12 @@ async function playCaseOpenAnimation({ pool, winner }) {
 
   setCaseAnimVisible(true)
 
-  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))
+// форсим layout, чтобы браузер точно применил display/opacity до старта transition
+caseAnimOverlay.offsetHeight
+caseAnimTrack.offsetHeight
+
+await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))
+
 
   const itemW = 96
   const gap = 22
@@ -1980,6 +1985,7 @@ async function init() {
 }
 
 init()
+
 
 
 
