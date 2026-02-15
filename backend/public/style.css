@@ -1943,6 +1943,17 @@ body {
     drop-shadow(0 12px 18px rgba(0,0,0,.55));      /* глубина */
 }
 
+.case-anim-pointer-top{
+  top: 10px;
+  transform: translateX(-50%) rotate(0deg) !important;
+}
+
+.case-anim-pointer-bottom{
+  bottom: 10px;
+  transform: translateX(-50%) rotate(180deg) !important;
+}
+
+
 /* верхняя стрелка (остриё вниз) */
 .case-anim-pointer-top{
   top: 10px;
@@ -2238,6 +2249,7 @@ body {
   height: min(380px, 52vh);      /* меньше по высоте, но адаптивно */
   border-radius: 22px;
 }
+
 
 
 
