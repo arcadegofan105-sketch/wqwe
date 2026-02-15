@@ -1178,6 +1178,7 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
 // ===== CRASH (logic + canvas animation: rocket -> moon) =====
 const crashCanvas = document.getElementById('crash-canvas')
 const crashCtx = crashCanvas ? crashCanvas.getContext('2d') : null
+const rocketVideo = document.getElementById('rocket-video')
 const crashMultiplierEl = document.getElementById('crash-multiplier')
 const crashStatusEl = document.getElementById('crash-status')
 const crashBetInput = document.getElementById('crash-bet-input')
@@ -1217,6 +1218,18 @@ function initCrashCanvas() {
   crashCanvas.height = Math.max(1, Math.floor(rect.height * dpr))
   crashCtx.setTransform(dpr, 0, 0, dpr, 0, 0)
 }
+
+async function ensureRocketVideoPlaying() {
+  if (!rocketVideo) return
+  try {
+    rocketVideo.muted = true
+    rocketVideo.playsInline = true
+    await rocketVideo.play()
+  } catch (_) {
+    // autoplay может быть заблокирован — норм
+  }
+}
+
 
 function generateCrashPoint() {
   const rand = Math.random() * 100
@@ -1421,6 +1434,20 @@ function drawRocket(ctx, x, y, ang, flamePower) {
 
   ctx.restore()
 }
+
+function drawRocketVideo(ctx, x, y, ang, size = 56) {
+  if (!rocketVideo || rocketVideo.readyState < 2) return
+
+  const w = size * 1.6
+  const h = size * 1.0
+
+  ctx.save()
+  ctx.translate(x, y)
+  ctx.rotate(ang)
+  ctx.drawImage(rocketVideo, -w / 2, -h / 2, w, h)
+  ctx.restore()
+}
+
 
 // ---------- UI ----------
 function updateCrashButtonUI() {
@@ -1629,11 +1656,13 @@ function renderCrash(ts) {
   drawPath(crashCtx, w, h, p)
 
   if (crashState === 'playing') {
-    const pt = pathPoint(p, w, h)
-    const ang = pathTangentAng(p, w, h)
-    const flame = 0.4 + 0.6 * Math.min(1, (crashMultiplier - 1) / 2)
-    drawRocket(crashCtx, pt.x, pt.y, ang, flame)
-  }
+  const pt = pathPoint(p, w, h)
+  const ang = pathTangentAng(p, w, h)
+
+  // size можно привязать к multiplier, если хочешь “ускорение/приближение”
+  drawRocketVideo(crashCtx, pt.x, pt.y, ang, 56)
+}
+
 
   if (crashState === 'crashed' && crashImpact) {
     const t = (performance.now() - crashImpact.ts) / 1000
@@ -1659,10 +1688,12 @@ function renderCrash(ts) {
 }
 
 // ---------- controls ----------
-crashMainActionBtn?.addEventListener('click', () => {
+crashMainActionBtn?.addEventListener('click', async () => {
+  await ensureRocketVideoPlaying()
   if (crashState === 'idle') startCrash()
   else if (crashState === 'playing') cashoutCrash(false)
 })
+
 
 window.addEventListener('resize', () => {
   if (!crashCanvas) return
@@ -1828,6 +1859,7 @@ async function init() {
 }
 
 init()
+
 
 
 
