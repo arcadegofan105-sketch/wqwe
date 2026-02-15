@@ -1457,7 +1457,7 @@ function drawRocket(ctx, x, y, ang, flamePower) {
 }
 
 // Видео-ракета: больше + небольшой наклон вправо + вырезание чёрного фона
-function drawRocketVideo(ctx, x, y, ang, size = 56) {
+function drawRocketVideo(ctx, x, y, ang, size = 70) {
   if (!rocketVideo || rocketVideo.readyState < 2 || !rocketKeyCtx) return
 
   const vw = rocketVideo.videoWidth
@@ -1901,6 +1901,7 @@ async function init() {
 }
 
 init()
+
 
 
 
