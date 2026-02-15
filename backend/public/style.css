@@ -1924,16 +1924,20 @@ body {
 }
 
 .case-anim-pointer{
-  position:absolute;
-  right: 26px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 0; height: 0;
-  border-top: 14px solid transparent;
-  border-bottom: 14px solid transparent;
-  border-left: 20px solid rgba(255,255,255,.92);
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-bottom: 20px solid rgba(255,255,255,.92);
+
   filter: drop-shadow(0 6px 12px rgba(0,0,0,.35));
 }
+
 
 .case-anim-track{
   display:flex;
@@ -2195,6 +2199,7 @@ body {
   height: min(380px, 52vh);      /* меньше по высоте, но адаптивно */
   border-radius: 22px;
 }
+
 
 
 
