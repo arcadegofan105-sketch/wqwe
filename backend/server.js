@@ -274,7 +274,7 @@ app.post("/api/spin", auth, (req, res) => {
 // ===== CASES =====
 // Открытие кейса на сервере (реальное списание с баланса)
 const CASES = {
-  newyear: { title: "Календарь", priceTon: 0.1 },
+  newyear: { title: "calendar", priceTon: 0.2 },
   onlynft: { title: "Классический", priceTon: 1.0 },
   crypto: { title: "Все или ничего", priceTon: 0.5 },
 };
@@ -784,6 +784,7 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
 
 
 
