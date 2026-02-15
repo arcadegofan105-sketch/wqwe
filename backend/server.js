@@ -5,7 +5,7 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import { beginCell, Cell } from "@ton/core";
 
-import {
+import db, {
   touchUserVisit,
   getUserByTgId,
   updateUserBalance,
@@ -19,6 +19,13 @@ import {
   listPromos,
   deletePromo,
   redeemPromo,
+
+  // NEW:
+  tryBindReferral,
+  countInvitedByInviter,
+  addClaim,
+  hasClaim,
+  countInviteClaims,
 } from "./db.js";
 
 const app = express();
@@ -229,6 +236,15 @@ function safeNumber(x, def = 0) {
 app.post("/api/me", auth, (req, res) => {
   const tgUser = req.tgUser;
   const u = touchUserVisit(tgUser);
+  // referral bind (A: засчитываем при первом открытии по ссылке)
+try {
+  const params = new URLSearchParams(req.body?.initData || "");
+  const startParam = String(params.get("start_param") || "").trim(); // inviter tg_id
+  if (startParam && /^\d+$/.test(startParam)) {
+    tryBindReferral(String(tgUser.id), startParam);
+  }
+} catch {}
+
   const inventory = listInventory(tgUser.id);
 
   res.json({
@@ -657,6 +673,109 @@ app.post("/api/admin/promo/delete", auth, requireAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
+// ===== REWARDS =====
+app.post("/api/rewards/list", auth, (req, res) => {
+  const tgId = String(req.tgUser.id);
+  touchUserVisit(req.tgUser);
+
+  const u = mustGetUser(tgId);
+
+  // 1) First deposit +0.5 (one time)
+  const firstDepositEligible = safeNumber(u.total_deposit_ton, 0) > 0;
+  const firstDepositClaimed = hasClaim(tgId, "first_deposit");
+  const firstDepositStatus = firstDepositClaimed
+    ? "claimed"
+    : firstDepositEligible
+      ? "available"
+      : "locked";
+
+  // 2) Invites +0.1 each, max 5
+  const invited = countInvitedByInviter(tgId);
+  const claimedInvites = countInviteClaims(tgId);
+  const maxInvites = 5;
+
+  const inviteStatus =
+    claimedInvites >= maxInvites
+      ? "claimed"
+      : invited > claimedInvites
+        ? "available"
+        : "locked";
+
+  res.json({
+    items: [
+      {
+        key: "first_deposit",
+        title: "Первый депозит",
+        desc: "+0.5 TON (один раз)",
+        status: firstDepositStatus,
+      },
+      {
+        key: "invite",
+        title: "Инвайты",
+        desc: "+0.1 TON за друга, максимум 5",
+        status: inviteStatus,
+        invited,
+        claimed: claimedInvites,
+        max: maxInvites,
+      },
+    ],
+  });
+});
+
+app.post("/api/rewards/claim", auth, (req, res) => {
+  const tgId = String(req.tgUser.id);
+  touchUserVisit(req.tgUser);
+
+  const key = String(req.body?.key || "").trim();
+  if (!key) return res.status(400).json({ error: "key required" });
+
+  const tx = db.transaction(() => {
+    const u = mustGetUser(tgId);
+
+    if (key === "first_deposit") {
+      if (safeNumber(u.total_deposit_ton, 0) <= 0) throw new Error("Сначала сделайте депозит");
+
+      const ins = addClaim(tgId, "first_deposit", 0.5);
+      if (ins.changes !== 1) throw new Error("Награда уже получена");
+
+      const newBalance = Number((safeNumber(u.balance, 0) + 0.5).toFixed(2));
+      updateUserBalance(tgId, newBalance);
+
+      return { ok: true, newBalance };
+    }
+
+    if (key === "invite") {
+      const invited = countInvitedByInviter(tgId);
+      const already = countInviteClaims(tgId);
+      const max = 5;
+
+      const canTake = Math.min(max - already, Math.max(0, invited - already));
+      if (canTake <= 0) throw new Error("Пока нет доступных инвайтов");
+
+      // фиксируем invite_1..invite_5 (лимит обеспечивается ключами)
+      for (let i = 0; i < canTake; i++) {
+        addClaim(tgId, `invite_${already + i + 1}`, 0.1);
+      }
+
+      const add = 0.1 * canTake;
+      const newBalance = Number((safeNumber(u.balance, 0) + add).toFixed(2));
+      updateUserBalance(tgId, newBalance);
+
+      return { ok: true, newBalance, added: Number(add.toFixed(2)), count: canTake };
+    }
+
+    throw new Error("unknown reward");
+  });
+
+  try {
+    const r = tx();
+    return res.json(r);
+  } catch (e) {
+    return res.status(400).json({ error: e.message || "claim error" });
+  }
+});
+
+
 // fallback: любые не-API роуты -> index.html
 app.get("*", (req, res) => {
   if (req.path.startsWith("/api")) return res.status(404).json({ error: "Not Found" });
@@ -665,4 +784,5 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
 
