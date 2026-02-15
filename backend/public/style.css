@@ -1888,14 +1888,30 @@ body {
 .case-anim-overlay{
   position: fixed;
   inset: 0;
-  display: none;
+
+  /* вместо display:none */
+  display: flex;
   align-items: center;
   justify-content: center;
+
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+
+  transition: opacity .12s ease, visibility 0s linear .12s;
+
   background: rgba(0,0,0,.55);
   backdrop-filter: blur(6px);
   z-index: 9999;
 }
-.case-anim-overlay.active{ display:flex; }
+
+.case-anim-overlay.active{
+  opacity: 1;
+  pointer-events: auto;
+  visibility: visible;
+  transition: opacity .12s ease;
+}
+
 
 .case-anim-window{
   width: min(560px, 92vw);
@@ -2179,6 +2195,7 @@ body {
   height: min(380px, 52vh);      /* меньше по высоте, но адаптивно */
   border-radius: 22px;
 }
+
 
 
 
