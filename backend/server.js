@@ -261,16 +261,21 @@ app.post("/api/spin", auth, (req, res) => {
   const user = mustGetUser(tgId);
   const balance = safeNumber(user.balance, 0);
 
-  if (balance < 1) return res.status(400).json({ error: "Недостаточно средств" });
+  if (balance < 1) {
+    return res.status(400).json({ error: "Недостаточно средств" });
+  }
 
   const newBalance = Number((balance - 1).toFixed(2));
   updateUserBalance(tgId, newBalance);
 
-  res.json({ prize: { emoji: "🧸", name: "Bear", price: 0.1 }, newBalance });
+  const prize = { emoji: "🧸", name: "Bear", price: 0.1 };
+
+  // кладём приз в инвентарь каждый спин
+  addInventoryItem(tgId, prize);
+
+  res.json({ prize, newBalance });
 });
 
-
-// ===== CASES =====
 // ===== CASES =====
 // Конфиг кейсов: названия + цены
 const CASES = {
@@ -431,6 +436,9 @@ app.post("/api/prize/keep", auth, (req, res) => {
 });
 
 // prize sell (by idx from newest-first list)
+
+
+// prize sell (by idx from newest-first list)
 app.post("/api/prize/sell", auth, (req, res) => {
   const tgId = String(req.tgUser.id);
   touchUserVisit(req.tgUser);
@@ -452,7 +460,6 @@ app.post("/api/prize/sell", auth, (req, res) => {
 
   const priceFromDb = safeNumber(removed.price, 0);
   if (!Number.isFinite(priceFromDb) || priceFromDb <= 0) {
-    // не продаём, если цена в БД нулевая/битая
     addInventoryItem(tgId, removed); // rollback
     return res.status(400).json({ error: "Этот подарок нельзя продать" });
   }
@@ -464,7 +471,6 @@ app.post("/api/prize/sell", auth, (req, res) => {
   const inventory = listInventory(tgId);
   res.json({ newBalance, inventory });
 });
-
 
 
 
@@ -847,6 +853,7 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
 
 
 
