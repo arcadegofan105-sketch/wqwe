@@ -12,11 +12,18 @@ body {
   color: #e5e7eb;
 }
 
+
 .app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  /* тёмный вертикальный градиент + две мягкие «ауры» */
+  background:
+    radial-gradient(circle at 10% 0%, rgba(168,85,247,0.26), transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba(45,212,191,0.18), transparent 55%),
+    linear-gradient(180deg, #020617 0%, #020617 40%, #020617 75%, #020617 100%);
 }
+
 
 .content {
   flex: 1;
@@ -2587,6 +2594,7 @@ body {
 .inv-btn:active {
   transform: translateY(1px) scale(.98);
 }
+
 
 
 
