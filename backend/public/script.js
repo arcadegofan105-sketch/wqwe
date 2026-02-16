@@ -38,7 +38,7 @@ const CASES = {
     priceTon: 1.0,
     imageSelector: '.case-image-onlynft',
     contents: [
-      { emoji: '🐸', name: 'Пепе', price: 0.0 },
+      { emoji: '🐸', name: 'Пепе', price: 10000.0 },
       { emoji: '🧸', name: 'Мишка', price: 0.1 },
     ],
   },
@@ -48,7 +48,7 @@ const CASES = {
     priceTon: 0.5,
     imageSelector: '.case-image-crypto',
     contents: [
-      { emoji: '🍑', name: 'Персик', price: 0.0 },
+      { emoji: '🍑', name: 'Персик', price: 500.0 },
       { emoji: '🧸', name: 'Мишка', price: 0.1 },
     ],
   },
@@ -2065,6 +2065,7 @@ async function init() {
 }
 
 init()
+
 
 
 
