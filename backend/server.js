@@ -19,7 +19,6 @@ import db, {
   listPromos,
   deletePromo,
   redeemPromo,
-
   // NEW:
   tryBindReferral,
   countInvitedByInviter,
@@ -82,7 +81,6 @@ app.use(express.static(PUBLIC_DIR));
 app.get("/", (req, res) => res.sendFile(INDEX_PATH));
 
 // ===== Telegram initData validation =====
-// Telegram Mini Apps: verify initData via HMAC WebAppData
 function validateInitData(initData) {
   if (!initData || typeof initData !== "string") throw new Error("initData required");
 
@@ -236,14 +234,13 @@ function safeNumber(x, def = 0) {
 app.post("/api/me", auth, (req, res) => {
   const tgUser = req.tgUser;
   const u = touchUserVisit(tgUser);
-  // referral bind (A: засчитываем при первом открытии по ссылке)
-try {
-  const params = new URLSearchParams(req.body?.initData || "");
-  const startParam = String(params.get("start_param") || "").trim(); // inviter tg_id
-  if (startParam && /^\d+$/.test(startParam)) {
-    tryBindReferral(String(tgUser.id), startParam);
-  }
-} catch {}
+  try {
+    const params = new URLSearchParams(req.body?.initData || "");
+    const startParam = String(params.get("start_param") || "").trim(); // inviter tg_id
+    if (startParam && /^\d+$/.test(startParam)) {
+      tryBindReferral(String(tgUser.id), startParam);
+    }
+  } catch {}
 
   const inventory = listInventory(tgUser.id);
 
@@ -272,14 +269,58 @@ app.post("/api/spin", auth, (req, res) => {
 });
 
 // ===== CASES =====
-// Открытие кейса на сервере (реальное списание с баланса)
+// Конфиг кейсов: названия + цены
 const CASES = {
-  newyear: { title: "calendar", priceTon: 0.2 },
-  onlynft: { title: "Классический", priceTon: 1.0 },
-  crypto: { title: "Все или ничего", priceTon: 0.5 },
+  newyear: { title: "calendar",       priceTon: 0.2 },
+  onlynft: { title: "Классический",   priceTon: 1.0 },
+  crypto:  { title: "Все или ничего", priceTon: 0.5 },
 };
 
-// Пока по ТЗ: всегда падает Мишка
+// Пул призов с шансами (для трёх кейсов)
+const CASE_PRIZES = {
+  // Celendar case (newyear)
+  newyear: [
+    { emoji: "📅", name: "Celendar (random)",   price: 1.5,    weight: 1 },
+    { emoji: "🍭", name: "lolpop",              price: 7.0,    weight: 1 },
+    { emoji: "🧦", name: "socks",               price: 10.0,   weight: 1 },
+    { emoji: "🪆", name: "Woodoo (random)",     price: 30.0,   weight: 1 },
+    { emoji: "🧸", name: "Bear",                price: 0.1,    weight: 96 },
+  ],
+
+  // Classic case (onlynft)
+  onlynft: [
+    { emoji: "🐸", name: "Plush Pepe Pink Latex", price: 10000.0, weight: 1 },
+    { emoji: "🧸", name: "Bear",                  price: 0.1,     weight: 99 },
+  ],
+
+  // All or nothing (crypto)
+  crypto: [
+    { emoji: "🍑", name: "Precious Peach (random)", price: 500.0, weight: 1 },
+    { emoji: "🧸", name: "Bear",                    price: 0.1,   weight: 99 },
+  ],
+};
+
+// выбор по весам
+function pickWeighted(prizes) {
+  if (!Array.isArray(prizes) || prizes.length === 0) {
+    return { emoji: "🧸", name: "Bear", price: 0.1 };
+  }
+
+  const total = prizes.reduce((sum, p) => sum + (Number(p.weight) || 0), 0);
+  if (total <= 0) {
+    return prizes[0];
+  }
+
+  let r = Math.random() * total;
+  for (const p of prizes) {
+    const w = Number(p.weight) || 0;
+    if (r < w) return p;
+    r -= w;
+  }
+  return prizes[prizes.length - 1];
+}
+
+// Открытие кейса на сервере (со списанием и шансами)
 app.post("/api/cases/open", auth, (req, res) => {
   const tgId = String(req.tgUser.id);
   touchUserVisit(req.tgUser);
@@ -292,18 +333,24 @@ app.post("/api/cases/open", auth, (req, res) => {
   const balance = safeNumber(user.balance, 0);
   const price = safeNumber(cfg.priceTon, 0);
 
-  if (balance < price) return res.status(400).json({ error: "Недостаточно средств" });
+  if (balance < price) {
+    return res.status(400).json({ error: "Недостаточно средств" });
+  }
 
   const newBalance = Number((balance - price).toFixed(2));
   updateUserBalance(tgId, newBalance);
 
-  const prize = { emoji: "🧸", name: "Мишка", price: 0.1 };
+  const pool = CASE_PRIZES[caseType] || [
+    { emoji: "🧸", name: "Bear", price: 0.1 },
+  ];
+  const winner = pickWeighted(pool);
+
   return res.json({
     ok: true,
     caseType,
     caseTitle: cfg.title,
     priceTon: price,
-    prize,
+    prize: winner,
     newBalance,
   });
 });
@@ -440,8 +487,7 @@ app.post("/api/withdraw/ton", auth, async (req, res) => {
   try {
     await sendAdminMessage(text);
   } catch (e) {
-    // rollback
-    updateUserBalance(tgId, balance);
+    updateUserBalance(tgId, balance); // rollback
     return res.status(500).json({ error: e.message || "Ошибка уведомления" });
   }
 
@@ -561,7 +607,6 @@ app.post("/api/deposit/check", auth, async (req, res) => {
     return res.json({ ok: true, credited: false });
   }
 
-  // credit (SQLite)
   const user = mustGetUser(userId);
 
   const newBalance = Number((safeNumber(user.balance, 0) + dep.amount).toFixed(2));
@@ -624,7 +669,7 @@ app.post("/api/admin/users", auth, requireAdmin, (req, res) => {
   res.json(listUsersPaged({ q, page, limit: 20 }));
 });
 
-// adjust balance: delta can be +1 / -1 etc
+// adjust balance
 app.post("/api/admin/user/adjust-balance", auth, requireAdmin, (req, res) => {
   const tgId = String(req.body?.tgId || "").trim();
   const delta = safeNumber(req.body?.delta, NaN);
@@ -632,7 +677,6 @@ app.post("/api/admin/user/adjust-balance", auth, requireAdmin, (req, res) => {
   if (!tgId) return res.status(400).json({ error: "tgId required" });
   if (!Number.isFinite(delta) || delta === 0) return res.status(400).json({ error: "delta invalid" });
 
-  // ensure user exists
   const user = getUserByTgId(tgId);
   if (!user) return res.status(404).json({ error: "user not found" });
 
@@ -680,16 +724,11 @@ app.post("/api/rewards/list", auth, (req, res) => {
 
   const u = mustGetUser(tgId);
 
-  // 1) First deposit +0.5 (one time)
   const firstDepositEligible = safeNumber(u.total_deposit_ton, 0) > 0;
   const firstDepositClaimed = hasClaim(tgId, "first_deposit");
-  const firstDepositStatus = firstDepositClaimed
-    ? "claimed"
-    : firstDepositEligible
-      ? "available"
-      : "locked";
+  const firstDepositStatus =
+    firstDepositClaimed ? "claimed" : firstDepositEligible ? "available" : "locked";
 
-  // 2) Invites +0.1 each, max 5
   const invited = countInvitedByInviter(tgId);
   const claimedInvites = countInviteClaims(tgId);
   const maxInvites = 5;
@@ -752,7 +791,6 @@ app.post("/api/rewards/claim", auth, (req, res) => {
       const canTake = Math.min(max - already, Math.max(0, invited - already));
       if (canTake <= 0) throw new Error("Пока нет доступных инвайтов");
 
-      // фиксируем invite_1..invite_5 (лимит обеспечивается ключами)
       for (let i = 0; i < canTake; i++) {
         addClaim(tgId, `invite_${already + i + 1}`, 0.1);
       }
@@ -775,8 +813,7 @@ app.post("/api/rewards/claim", auth, (req, res) => {
   }
 });
 
-
-// fallback: любые не-API роуты -> index.html
+// fallback
 app.get("*", (req, res) => {
   if (req.path.startsWith("/api")) return res.status(404).json({ error: "Not Found" });
   res.sendFile(INDEX_PATH);
@@ -784,7 +821,3 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
-
-
-
-
