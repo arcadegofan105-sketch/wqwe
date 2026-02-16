@@ -1243,7 +1243,7 @@ modalSellBtn?.addEventListener('click', async () => {
 modalKeepBtn?.addEventListener('click', async () => {
   if (!currentPrize) return
   try {
-    // спин/кейс уже положил приз в инвентарь на сервере
+    await keepPrizeApi(currentPrize)
     await fetchUserData()
     currentPrize = null
     currentPrizeIdx = null
@@ -1253,6 +1253,7 @@ modalKeepBtn?.addEventListener('click', async () => {
     alert(err.message || 'Ошибка сохранения')
   }
 })
+
 
 
 
@@ -2201,6 +2202,7 @@ async function init() {
 }
 
 init()
+
 
 
 
