@@ -297,10 +297,16 @@ async function playCaseOpenAnimation({ pool, winner }) {
   setCaseAnimVisible(false)
 }
 
-async function playInlineCaseAnimation(pool, winner){
+async function playInlineCaseAnimation(pool, winner) {
   if (!caseOpenTrack) return
 
-  const base = Array.isArray(pool) && pool.length ? pool : [winner]
+  // Берём пул и делаем лёгкий shuffle, чтобы порядок менялся каждый спин
+  const base = Array.isArray(pool) && pool.length ? [...pool] : [winner]
+  for (let i = base.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[base[i], base[j]] = [base[j], base[i]]
+  }
+
   const items = []
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
   items[items.length - 6] = winner
@@ -315,6 +321,8 @@ async function playInlineCaseAnimation(pool, winner){
   const step = itemW + gap
   const winIndex = items.length - 6
   const target = -winIndex * step
+
+  // оставляем твой jitter, он ок
   const jitter = -Math.round(step * 0.35 + Math.random() * step * 0.25)
   const finalX = target + jitter
 
@@ -340,6 +348,7 @@ async function playInlineCaseAnimation(pool, winner){
     caseOpenTrack.style.transform = `translateX(${finalX}px)`
   })
 }
+
 
 
 // ===== STATE =====
@@ -2131,6 +2140,7 @@ async function init() {
 }
 
 init()
+
 
 
 
