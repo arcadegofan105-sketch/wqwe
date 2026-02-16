@@ -339,7 +339,7 @@ async function playInlineCaseAnimation(pool, winner) {
 
   // 4) ЖЁСТКО выбираем индекс выигрышной ячейки
   // это позиция, которая окажется под фиолетовым окном
-  const WIN_INDEX = 23 // ПОТОМ ПОДБЕРЁМ: 18, 19, 20, 21...
+  const WIN_INDEX = 28 // ПОТОМ ПОДБЕРЁМ: 18, 19, 20, 21...
 
   const clampedIndex = Math.min(Math.max(WIN_INDEX, 0), items.length - 1)
 
@@ -2177,6 +2177,7 @@ async function init() {
 }
 
 init()
+
 
 
 
