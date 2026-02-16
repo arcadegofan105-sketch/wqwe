@@ -101,14 +101,13 @@ const GIFT_IMAGES = {
 
 
 
-
 function giftVisual(item) {
   const file = GIFT_IMAGES[item?.name]
   if (file) {
     return `<span class="gift-icon" style="background-image:url('${file}')"></span>`
   }
-  // fallback, если вдруг нет файла
-  return `<span class="gift-icon gift-icon-fallback">🎁</span>`
+  // если файла нет – показываем исходный эмодзи, как раньше
+  return item?.emoji || ''
 }
 
 
@@ -2216,6 +2215,7 @@ async function init() {
 }
 
 init()
+
 
 
 
