@@ -14,11 +14,35 @@ body {
 
 .app {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top, rgba(56,189,248,0.06), transparent 55%),
-    radial-gradient(circle at bottom, rgba(34,197,94,0.05), transparent 55%),
-    #020617;
+  display: flex;
+  flex-direction: column;
 }
+
+.content {
+  flex: 1;
+  padding: 16px;
+  position: relative;
+  overflow-y: auto;
+}
+
+/* нижняя панель фиксируем к низу */
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 10px 10px;
+  background:
+    linear-gradient(to top, rgba(15,23,42,0.98), rgba(15,23,42,0.90));
+  backdrop-filter: blur(18px);
+  box-shadow:
+    0 -1px 0 rgba(15,23,42,1),
+    0 -18px 40px rgba(0,0,0,0.95);
+}
+
 
 
 /* TOP BAR */
@@ -902,9 +926,25 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 3px;
-  padding: 4px 0;
+  padding: 8px 0 4px;
   cursor: pointer;
+  position: relative;
   transition: color 0.2s ease, transform 0.15s ease;
+}
+
+/* фиолетовая полоска сверху активной вкладки */
+.nav-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 3px;
+  border-radius: 999px;
+  background: transparent;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
 }
 
 .nav-btn:active {
@@ -912,8 +952,8 @@ body {
 }
 
 .nav-btn .nav-icon {
-  width: 22px;
-  height: 22px;
+  width: 28px;   /* иконка больше */
+  height: 28px;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
@@ -922,8 +962,8 @@ body {
 }
 
 .nav-btn svg {
-  width: 16px;
-  height: 16px;
+  width: 20px;   /* svg больше */
+  height: 20px;
   stroke: currentColor;
   fill: none;
   stroke-width: 1.7;
@@ -935,17 +975,22 @@ body {
   font-size: 11px;
 }
 
-/* активная вкладка: голубой капсульный бек */
+/* активная вкладка: фиолетовая полоска + тёмный фон под кнопкой */
 .nav-btn.active {
   color: #f9fafb;
 }
 
+.nav-btn.active::before {
+  background: linear-gradient(to right, #8b5cf6, #7c3aed);
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .nav-btn.active .nav-icon {
-  background:
-    radial-gradient(circle at top, rgba(56,189,248,0.45), rgba(59,130,246,0.3));
+  background: rgba(76, 29, 149, 0.45); /* тёмно-фиолетовый подсвет */
   box-shadow:
-    0 0 0 1px rgba(59,130,246,0.8),
-    0 10px 26px rgba(15,23,42,0.95);
+    0 0 0 1px rgba(129, 140, 248, 0.7),
+    0 10px 24px rgba(15, 23, 42, 0.95);
   transform: translateY(-1px);
 }
 
@@ -2542,6 +2587,7 @@ body {
 .inv-btn:active {
   transform: translateY(1px) scale(.98);
 }
+
 
 
 
