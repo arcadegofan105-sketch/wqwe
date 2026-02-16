@@ -195,7 +195,7 @@ const caseOpenImageEl = document.getElementById('case-open-image')
 const caseOpenPriceEl = document.getElementById('case-open-price')
 const caseOpenSpinBtn = document.getElementById('case-open-spin')
 const caseOpenRewardsListEl = document.getElementById('case-open-rewards-list')
-const caseOpenTrack = document.getElementById("case-open-track")
+const caseOpenTrack = document.getElementById('case-open-track')
 
 
 // Case open animation UI
@@ -254,6 +254,32 @@ async function playCaseOpenAnimation({ pool, winner }) {
   setCaseAnimVisible(false)
 }
 
+async function playInlineCaseAnimation(pool, winner){
+  if (!caseOpenTrack) return
+
+  const base = Array.isArray(pool) && pool.length ? pool : [winner]
+  const items = []
+  for (let i = 0; i < 28; i++) items.push(base[i % base.length])
+  items[items.length - 6] = winner
+
+  caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
+  caseOpenTrack.style.transition = 'none'
+  caseOpenTrack.style.transform = 'translateX(0px)'
+  caseOpenTrack.offsetHeight
+
+  const itemW = 96
+  const gap = 22
+  const step = itemW + gap
+  const winIndex = items.length - 6
+  const target = -winIndex * step
+  const jitter = -Math.round(step * 0.35 + Math.random() * step * 0.25)
+  const finalX = target + jitter
+
+  caseOpenTrack.style.transition = 'transform 5.6s cubic-bezier(.08,.82,.12,1)'
+  caseOpenTrack.style.transform = `translateX(${finalX}px)`
+
+  await new Promise(r => setTimeout(r, 3600))
+}
 
 
 // ===== STATE =====
@@ -942,7 +968,7 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
 
     // 2) анимация (крутит содержимое кейса)
     const pool = Array.isArray(cfg.contents) && cfg.contents.length ? cfg.contents : [prize]
-    await playCaseOpenAnimation({ pool, winner: prize })
+    await playInlineCaseAnimation(pool, prize)
 
     // 3) показываем результат
     currentPrize = prize
@@ -2011,6 +2037,7 @@ async function init() {
 }
 
 init()
+
 
 
 
