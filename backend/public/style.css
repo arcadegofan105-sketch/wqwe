@@ -1494,20 +1494,19 @@ body {
 	box-shadow: 0 0 0 1px rgba(30, 64, 175, 0.6), 0 10px 24px rgba(15, 23, 42, 0.9);
 }
 
-/* 3 актуальных кейса */
+/* 3 кейса */
 .case-image-newyear {
-	background-image: url('images/celendarcase.jpg');   /* Celendar case */
+	background-image: url('celendarcase.jpg');   /* Celendar case */
 }
 
 .case-image-onlynft {
-	background-image: url('images/classiccase.jpg');    /* Classic case */
+	background-image: url('classeigs.jpg');     /* Classic case */
 }
 
 .case-image-crypto {
-	background-image: url('images/allornothing.jpg');   /* All or nothing */
+	background-image: url('allornothing.jpg');  /* All or nothing */
 }
 
-/* если genesis / elite больше не используешь — можно удалить */
 .case-info {
 	display: flex;
 	justify-content: space-between;
@@ -2377,6 +2376,7 @@ body {
   display: inline-block;
   flex: 0 0 44px;
 }
+
 
 
 
