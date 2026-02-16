@@ -10,15 +10,13 @@ const BOT_USERNAME = 'GiftWheels_bot'
 
 const wheelSectors = [
   { emoji: '🐸', name: 'Pepe', price: 0.0 },              // 1) Pepe
-  { emoji: '🧸', name: 'Bear', price: 0.1 },              // 2) Bear
-  { emoji: "🗡️", name: "lightsword", price: 0.0 },       // 3) Sword
+  { emoji: "🗡️", name: "lightsword", price: 0.0 },       
+  { emoji: '🧸', name: 'Bear', price: 0.1 },                 // 3) Sword
   { emoji: "🧪", name: "Hexpot", price: 0.0 },            // 4) Hexpot
   { emoji: '📅', name: 'Celendar (random)', price: 1.5 }, // 5) Celendar
   { emoji: '🍑', name: 'Precious Peach (random)', price: 0.0 }, // 6) Peach
   { emoji: '🧸', name: 'Bear', price: 0.1 },              // 7) ещё Bear (если хочешь 2 мишки как было)
 ]
-
-
 
 
 // ===== CASES CONFIG =====
@@ -2074,6 +2072,7 @@ async function init() {
 }
 
 init()
+
 
 
 
