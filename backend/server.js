@@ -435,11 +435,6 @@ app.post("/api/prize/sell", auth, (req, res) => {
   const tgId = String(req.tgUser.id);
   touchUserVisit(req.tgUser);
 
-  const prize = req.body?.prize;
-  if (!prize || typeof prize !== "object") {
-    return res.status(400).json({ error: "prize required" });
-  }
-
   const idxRaw = req.body?.idx;
   if (idxRaw === undefined || idxRaw === null || idxRaw === "") {
     return res.status(400).json({ error: "idx required" });
@@ -455,15 +450,9 @@ app.post("/api/prize/sell", auth, (req, res) => {
     return res.status(400).json({ error: "Предмет не найден" });
   }
 
-  // мягкая защита от подмены — сверяем только имя
-  if (String(removed.name) !== String(prize.name)) {
-    addInventoryItem(tgId, removed); // rollback
-    return res.status(400).json({ error: "Предмет не найден" });
-  }
-
   const priceFromDb = safeNumber(removed.price, 0);
   if (!Number.isFinite(priceFromDb) || priceFromDb <= 0) {
-    // не продаём, если в БД цена некорректна
+    // не продаём, если цена в БД нулевая/битая
     addInventoryItem(tgId, removed); // rollback
     return res.status(400).json({ error: "Этот подарок нельзя продать" });
   }
@@ -475,6 +464,8 @@ app.post("/api/prize/sell", auth, (req, res) => {
   const inventory = listInventory(tgId);
   res.json({ newBalance, inventory });
 });
+
+
 
 
 // withdraw TON
@@ -856,6 +847,7 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
 
 
 
