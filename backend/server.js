@@ -278,13 +278,12 @@ const CASES = {
 
 // Пул призов с шансами (для трёх кейсов)
 const CASE_PRIZES = {
-  // Celendar case (newyear)
   newyear: [
-    { emoji: "📅", name: "Celendar (random)",   price: 1.5,    weight: 1 },
-    { emoji: "🍭", name: "lolpop",              price: 7.0,    weight: 1 },
-    { emoji: "🧦", name: "socks",               price: 10.0,   weight: 1 },
-    { emoji: "🪆", name: "Woodoo (random)",     price: 30.0,   weight: 1 },
-    { emoji: "🧸", name: "Bear",                price: 0.1,    weight: 96 },
+    { emoji: "📅", name: "Celendar (random)",   price: 1.5,  weight: 1 },
+    { emoji: "🍭", name: "lolpop",              price: 7.0,  weight: 1 },
+    { emoji: "🧦", name: "socks",               price: 10.0, weight: 1 },
+    { emoji: "🪆", name: "Woodoo (random)",     price: 30.0, weight: 1 },
+    { emoji: "🧸", name: "Bear",                price: 0.1,  weight: 96 },
   ],
 
   // Classic case (onlynft)
@@ -340,19 +339,18 @@ app.post("/api/cases/open", auth, (req, res) => {
   const newBalance = Number((balance - price).toFixed(2));
   updateUserBalance(tgId, newBalance);
 
-  const pool = CASE_PRIZES[caseType] || [
-    { emoji: "🧸", name: "Bear", price: 0.1 },
-  ];
-  const winner = pickWeighted(pool);
+  const pool = CASE_PRIZES[caseType] || [{ emoji: "🧸", name: "Bear", price: 0.1 }];
+const winner = pickWeighted(pool);
 
-  return res.json({
-    ok: true,
-    caseType,
-    caseTitle: cfg.title,
-    priceTon: price,
-    prize: winner,
-    newBalance,
-  });
+return res.json({
+  ok: true,
+  caseType,
+  caseTitle: cfg.title,
+  priceTon: price,
+  prize: winner,
+  newBalance,
+});
+
 });
 
 // promo apply (from DB)
@@ -821,3 +819,4 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
