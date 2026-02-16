@@ -316,44 +316,43 @@ async function playCaseOpenAnimation({ pool, winner }) {
 async function playInlineCaseAnimation(pool, winner) {
   if (!caseOpenTrack) return
 
-  // 1) базовый набор предметов
   const base = Array.isArray(pool) && pool.length ? [...pool] : [winner]
   for (let i = base.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
     ;[base[i], base[j]] = [base[j], base[i]]
   }
 
-  // 2) лента из 28 элементов
   const items = []
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
 
-  // 3) рендер без анимации, старт в 0px
   caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
   caseOpenTrack.style.transition = 'none'
   caseOpenTrack.style.transform = 'translateX(0px)'
-  void caseOpenTrack.offsetHeight // форсим reflow
+  void caseOpenTrack.offsetHeight
 
   const itemW = 96
   const gap = 22
   const step = itemW + gap
 
-  // 4) ЖЁСТКО выбираем индекс выигрышной ячейки
-  // это позиция, которая окажется под фиолетовым окном
-  const WIN_INDEX = 28 // ПОТОМ ПОДБЕРЁМ: 18, 19, 20, 21...
+  const viewportWidth = caseOpenTrack.parentElement
+    ? caseOpenTrack.parentElement.offsetWidth
+    : 0
 
-  const clampedIndex = Math.min(Math.max(WIN_INDEX, 0), items.length - 1)
+  const centerX = viewportWidth / 2
 
-  // ставим победителя именно в эту ячейку
+  // центр в элементах + сдвиг вправо
+  const rawIndex = centerX / step + 0.8  // <-- менять только ЭТО число
+  const winIndex = Math.round(rawIndex)
+  const clampedIndex = Math.min(Math.max(winIndex, 0), items.length - 1)
+
   items[clampedIndex] = winner
   caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
 
-  // 5) считаем конечное смещение: чтобы clampedIndex оказался под "иглой"
   const target = -clampedIndex * step
-  const finalX = target // без джиттера, чтобы не сбивать слот
+  const finalX = target
 
-  const DURATION_MS = 8000 // медленнее
+  const DURATION_MS = 8000
 
-  // 6) плавный переход от 0px к finalX
   await new Promise(resolve => {
     let done = false
     const finish = () => {
@@ -374,8 +373,6 @@ async function playInlineCaseAnimation(pool, winner) {
     caseOpenTrack.style.transform = `translateX(${finalX}px)`
   })
 }
-
-
 
 // ===== STATE =====
 let currentRotation = 0
@@ -2177,6 +2174,7 @@ async function init() {
 }
 
 init()
+
 
 
 
