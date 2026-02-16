@@ -274,10 +274,27 @@ async function playInlineCaseAnimation(pool, winner){
   const jitter = -Math.round(step * 0.35 + Math.random() * step * 0.25)
   const finalX = target + jitter
 
-  caseOpenTrack.style.transition = 'transform 5.6s cubic-bezier(.08,.82,.12,1)'
-  caseOpenTrack.style.transform = `translateX(${finalX}px)`
+  const DURATION_MS = 5600
 
-  await new Promise(r => setTimeout(r, 3600))
+  await new Promise(resolve => {
+    let done = false
+    const finish = () => {
+      if (done) return
+      done = true
+      caseOpenTrack.removeEventListener('transitionend', onEnd)
+      resolve()
+    }
+    const onEnd = (e) => {
+      if (e.propertyName !== 'transform') return
+      finish()
+    }
+
+    caseOpenTrack.addEventListener('transitionend', onEnd)
+    setTimeout(finish, DURATION_MS + 200)
+
+    caseOpenTrack.style.transition = `transform ${DURATION_MS}ms cubic-bezier(.08,.82,.12,1)`
+    caseOpenTrack.style.transform = `translateX(${finalX}px)`
+  })
 }
 
 
@@ -289,8 +306,8 @@ let currentPrize = null
 let currentPrizeIdx = null
 let isSpinning = false
 let isAdmin = false
-
 let selectedCaseType = null
+let isCaseOpening = false
 
 const adminState = {
   q: '',
@@ -944,34 +961,39 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
   const cfg = CASES[selectedCaseType]
   if (!cfg) return
 
+  if (isCaseOpening) return
   if (prizeModal?.classList.contains('active')) return
   if (withdrawModal?.classList.contains('active')) return
 
+  isCaseOpening = true
   caseOpenSpinBtn.disabled = true
+
   try {
     // 1) сервер списывает и возвращает приз
     const r = await apiPost('/cases/open', { caseType: selectedCaseType })
 
-    balance = Number(r.newBalance ?? balance)
+    balance = Number(r?.newBalance ?? balance)
     updateBalanceUI()
 
-    const prize = r.prize || CASES_ALWAYS_PRIZE
+    const prize = r?.prize || CASES_ALWAYS_PRIZE
 
-    // 2) анимация (крутит содержимое кейса)
+    // 2) анимация (крутит содержимое кейса на ЭТОМ экране)
     const pool = Array.isArray(cfg.contents) && cfg.contents.length ? cfg.contents : [prize]
     await playInlineCaseAnimation(pool, prize)
 
-    // 3) показываем результат
+    // 3) показываем результат (строго после анимации)
     currentPrize = prize
     currentPrizeIdx = null
     setLastPrizeText(currentPrize)
     openModal(currentPrize)
   } catch (e) {
-    alert(e.message || 'Ошибка открытия кейса')
+    alert(e?.message || 'Ошибка открытия кейса')
   } finally {
+    isCaseOpening = false
     caseOpenSpinBtn.disabled = false
   }
 })
+
 
 
 // крутилка
@@ -2028,6 +2050,7 @@ async function init() {
 }
 
 init()
+
 
 
 
