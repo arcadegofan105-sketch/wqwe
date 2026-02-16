@@ -1241,7 +1241,7 @@ modalKeepBtn?.addEventListener('click', async () => {
 })
 
 inventoryList?.addEventListener('click', async e => {
-  const card = e.target.closest('.inventory-item')
+  const card = e.target.closest('.inv-card')   // было .inventory-item
   if (!card) return
 
   const idx = Number(card.dataset.idx)
@@ -2185,6 +2185,7 @@ async function init() {
 }
 
 init()
+
 
 
 
