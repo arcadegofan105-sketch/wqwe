@@ -249,20 +249,19 @@ body {
   --wheel-icon-size: 46px;
 }
 
-.wheel-wrapper {
-  position: relative;
-  width: 100%;
-  max-width: 300px;
-  aspect-ratio: 1;
-  margin: 0 auto 16px;
-  padding: 14px;
-  border-radius: 24px;
-  background:
-    radial-gradient(circle at top, rgba(129,140,248,0.18), rgba(2,6,23,0.9));
-  box-shadow:
-    0 0 0 1px rgba(15,23,42,0.95),
-    0 20px 48px rgba(0,0,0,0.95);
+.wheel-arrow {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  transform: translateX(-50%);
+  z-index: 20;
+  pointer-events: none;
 }
+
+/* если у тебя в HTML всё ещё стоит символ типа ▼, он уже будет почти незаметен */
+
 
 /* встроенная стрелка‑указатель сверху */
 .wheel-arrow {
@@ -2878,6 +2877,7 @@ body {
   color: #6b7280;
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
+
 
 
 
