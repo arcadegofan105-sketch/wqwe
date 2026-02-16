@@ -24,17 +24,15 @@ const wheelSectors = [
 const CASES = {
   newyear: {
     id: 'newyear',
-    title: 'Celendar case',
+    title: 'calendar',
     priceTon: 0.2,
     imageSelector: '.case-image-newyear',
     contents: [
       { emoji: '📅', name: 'Celendar (random)', price: 1.5 },
-
-      { emoji: '🍭', name: 'lolpop', price: 7.0 },
-      { emoji: '🧦', name: 'socks', price: 10.0 },
-      { emoji: '🪆', name: 'Woodoo (random)', price: 30.0 },
-
-      { emoji: '🧸', name: 'Bear', price: 0.1 }, // мишка в пуле для анимации
+      { emoji: '🍭', name: 'lolpop',            price: 7.0 },
+      { emoji: '🧦', name: 'socks',             price: 10.0 },
+      { emoji: '🪆', name: 'Woodoo (random)',   price: 30.0 },
+      { emoji: '🧸', name: 'Bear',              price: 0.1 }, // мишка в кейсе
     ],
   },
 
@@ -80,6 +78,7 @@ const GIFT_IMAGES = {
   "lolpop": "levelpops.webp",
   "socks": "soksos.webp",
   "Woodoo (random)": "voodoolol.png",
+    "Bear": "Bear.png",
 };
 
 
@@ -2129,6 +2128,7 @@ async function init() {
 }
 
 init()
+
 
 
 
