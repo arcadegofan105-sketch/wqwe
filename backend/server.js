@@ -253,7 +253,6 @@ app.post("/api/me", auth, (req, res) => {
 });
 
 // spin: всегда "мишка", цена 1 TON
-// spin: всегда "мишка", цена 1 TON
 app.post("/api/spin", auth, (req, res) => {
   const tgId = String(req.tgUser.id);
   touchUserVisit(req.tgUser);
@@ -270,11 +269,12 @@ app.post("/api/spin", auth, (req, res) => {
 
   const prize = { emoji: "🧸", name: "Bear", price: 0.1 };
 
-  // кладём приз в инвентарь каждый спин
-  addInventoryItem(tgId, prize);
+  // ВАЖНО: НЕ добавляем в инвентарь здесь
+  // addInventoryItem(tgId, prize);
 
   res.json({ prize, newBalance });
 });
+
 
 // ===== CASES =====
 // Конфиг кейсов: названия + цены
@@ -851,6 +851,7 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
 
 
 
