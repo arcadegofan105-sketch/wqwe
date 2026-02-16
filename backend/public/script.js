@@ -203,10 +203,33 @@ const caseOpenSpinBtn = document.getElementById('case-open-spin')
 const caseOpenRewardsListEl = document.getElementById('case-open-rewards-list')
 const caseOpenTrack = document.getElementById('case-open-track')
 
+// === ВСТАВЬ ВОТ ЭТО СЮДА ===
+function formatTonHuman(v) {
+  const n = Number(v)
+  if (!Number.isFinite(n)) return '0'
+  return n.toFixed(2).replace(/\.?0+$/, '')
+}
+
+function renderCasesMenuFromConfig() {
+  caseCards?.forEach(card => {
+    const type = card.getAttribute('data-case-type')
+    const cfg = CASES?.[type]
+    if (!cfg) return
+
+    const titleEl = card.querySelector('.case-name')
+    const priceEl = card.querySelector('.case-price')
+
+    if (titleEl) titleEl.textContent = cfg.title || type
+    if (priceEl) priceEl.textContent = `${formatTonHuman(cfg.priceTon || 0)} TON`
+  })
+}
+// === КОНЕЦ ВСТАВКИ ===
+
 
 // Case open animation UI
 const caseAnimOverlay = document.getElementById('case-anim-overlay')
 const caseAnimTrack = document.getElementById('case-anim-track')
+
 
 function setCaseAnimVisible(v) {
   if (!caseAnimOverlay) return
@@ -2053,6 +2076,7 @@ async function init() {
   updateTelegramUserUI()
   renderWheel()
   renderPrizesList()
+  renderCasesMenuFromConfig()
   setLastPrizeText(null)
   updateInviteUI()
 
@@ -2072,6 +2096,7 @@ async function init() {
 }
 
 init()
+
 
 
 
