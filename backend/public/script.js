@@ -255,11 +255,9 @@ function renderCasesMenuFromConfig() {
 }
 // === КОНЕЦ ВСТАВКИ ===
 
-
 // Case open animation UI
 const caseAnimOverlay = document.getElementById('case-anim-overlay')
 const caseAnimTrack = document.getElementById('case-anim-track')
-
 
 function setCaseAnimVisible(v) {
   if (!caseAnimOverlay) return
@@ -267,24 +265,24 @@ function setCaseAnimVisible(v) {
   caseAnimOverlay.classList.toggle('active', !!v)
 }
 
-
 function makeAnimItemHTML(prize) {
   const v = giftVisual(prize)
   const isIcon = String(v).includes('gift-icon')
   return `<div class="case-anim-item">${isIcon ? v : `<div class="emoji">${v}</div>`}</div>`
 }
 
-
-
-// рулетка-анимация (простая и надежная)
+// рулетка-анимация (простая и надёжная, оверлей по центру)
 async function playCaseOpenAnimation({ pool, winner }) {
   console.log('[caseAnim] start')
   if (!caseAnimTrack || !caseAnimOverlay) return
 
   const base = Array.isArray(pool) && pool.length ? pool : [winner]
+
   const items = []
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
-  items[items.length - 6] = winner  // здесь вставляем победителя
+
+  // сюда вставляем победителя
+  items[items.length - 6] = winner
 
   caseAnimTrack.innerHTML = items.map(makeAnimItemHTML).join('')
   caseAnimTrack.style.transition = 'none'
@@ -292,6 +290,7 @@ async function playCaseOpenAnimation({ pool, winner }) {
 
   setCaseAnimVisible(true)
 
+  // форсим reflow
   caseAnimOverlay.offsetHeight
   caseAnimTrack.offsetHeight
 
@@ -315,58 +314,6 @@ async function playCaseOpenAnimation({ pool, winner }) {
   setCaseAnimVisible(false)
 }
 
-  // 2) лента из 28 элементов
-  const items = []
-  for (let i = 0; i < 28; i++) items.push(base[i % base.length])
-
-  // 3) рендер без анимации, старт в 0px
-  caseOpenTrack.innerHTML = items.map((it, idx) => makeAnimItemHTML(it, idx)).join('')
-  caseOpenTrack.style.transition = 'none'
-  caseOpenTrack.style.transform = 'translateX(0px)'
-  void caseOpenTrack.offsetHeight
-
-  const itemW = 96
-  const gap = 22
-  const step = itemW + gap
-
-  // 4) ФИКСИРОВАННЫЙ индекс слота под "иглой"
-  // допустимые значения 0–27, начинай, например, с 18
-  const WIN_INDEX = 19
-
-  const clampedIndex = Math.min(Math.max(WIN_INDEX, 0), items.length - 1)
-
-  // ставим победителя именно в эту ячейку
-  //items[clampedIndex] = winner
-  //caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
-
-  // 5) двигаем так, чтобы clampedIndex оказался под иглой
-  const target = -clampedIndex * step
-  const finalX = target
-
-  const DURATION_MS = 8000
-
-  await new Promise(resolve => {
-    let done = false
-    const finish = () => {
-      if (done) return
-      done = true
-      caseOpenTrack.removeEventListener('transitionend', onEnd)
-      resolve()
-    }
-    const onEnd = e => {
-      if (e.propertyName !== 'transform') return
-      finish()
-    }
-
-    caseOpenTrack.addEventListener('transitionend', onEnd)
-    setTimeout(finish, DURATION_MS + 300)
-
-    caseOpenTrack.style.transition = `transform ${DURATION_MS}ms cubic-bezier(.08,.82,.12,1)`
-    caseOpenTrack.style.transform = `translateX(${finalX}px)`
-  })
-}
-
-
 // ===== STATE =====
 let currentRotation = 0
 let balance = 0
@@ -383,6 +330,7 @@ const adminState = {
   page: 1,
   pages: 1,
 }
+
 
 // ===== HELPERS =====
 function updateBalanceUI() {
@@ -2163,6 +2111,7 @@ async function init() {
 }
 
 init()
+
 
 
 
