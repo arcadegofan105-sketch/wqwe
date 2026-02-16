@@ -103,12 +103,14 @@ const GIFT_IMAGES = {
 
 
 function giftVisual(item) {
-  const file = GIFT_IMAGES[item?.name];
+  const file = GIFT_IMAGES[item?.name]
   if (file) {
-    return `<span class="gift-icon" style="background-image:url('${file}')"></span>`;
+    return `<span class="gift-icon" style="background-image:url('${file}')"></span>`
   }
-  return item?.emoji || "";
+  // fallback, если вдруг нет файла
+  return `<span class="gift-icon gift-icon-fallback">🎁</span>`
 }
+
 
 
 // ===== TELEGRAM =====
@@ -2217,6 +2219,7 @@ async function init() {
 }
 
 init()
+
 
 
 
