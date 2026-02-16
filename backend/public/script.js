@@ -9,18 +9,17 @@ const MIN_DEPOSIT_TON = 0.1
 const BOT_USERNAME = 'GiftWheels_bot'
 
 const wheelSectors = [
-  { emoji: '🐸', name: 'Pepe', price: 0.0 },              // 1) Pepe
-  { emoji: "🗡️", name: "lightsword", price: 0.0 },       
-  { emoji: '🧸', name: 'Bear', price: 0.1 },                 // 3) Sword
-  { emoji: "🧪", name: "Hexpot", price: 0.0 },            // 4) Hexpot
-  { emoji: '📅', name: 'Celendar (random)', price: 1.5 }, // 5) Celendar
-  { emoji: '🍑', name: 'Precious Peach (random)', price: 0.0 }, // 6) Peach
-  { emoji: '🧸', name: 'Bear', price: 0.1 },              // 7) ещё Bear (если хочешь 2 мишки как было)
+  { emoji: '📅', name: 'Календарь', price: 1.5 },
+  { emoji: '🐸', name: 'Пепе', price: 0.0 },
+  { emoji: "🗡️", name: "lightsword", price: 0.0 },
+  { emoji: '🧸', name: 'Мишка', price: 0.1 },
+  { emoji: "🧪", name: "Hexpot", price: 0.0 },
+  { emoji: '🧸', name: 'Мишка', price: 0.1 },
+  { emoji: '🍑', name: 'Персик', price: 0.0 },
 ]
 
-
 // ===== CASES CONFIG =====
-// "Кейс крутится и всегда мишка" — winner всегда CASES_ALWAYS_PRIZE, а анимация может крутить pool.
+// "крутится кейс и всегда мишка"
 const CASES = {
   newyear: {
     id: 'newyear',
@@ -28,88 +27,49 @@ const CASES = {
     priceTon: 0.2,
     imageSelector: '.case-image-newyear',
     contents: [
-  { emoji: '📅', name: 'Celendar (random)', price: 1.5 },
-  { emoji: '🍭', name: 'lolpop',            price: 7.0 },
-  { emoji: '🧸', name: 'Bear',              price: 0.1 },
-  { emoji: '🧦', name: 'socks',             price: 10.0 },
-  { emoji: '🧸', name: 'Bear',              price: 0.1 },
-  { emoji: '🪆', name: 'Woodoo (random)',   price: 30.0 },
-  { emoji: '🧸', name: 'Bear',              price: 0.1 },
-]
-,
+      { emoji: '📅', name: 'Календарь', price: 1.5 },
+      { emoji: '🧸', name: 'Мишка', price: 0.1 },
+    ],
   },
-
   onlynft: {
-  id: 'onlynft',
-  title: 'Classic case',
-  priceTon: 1.0,
-  imageSelector: '.case-image-onlynft',
-  contents: [
-    { emoji: '🐸', name: 'Plush Pepe Pink Latex', price: 10000.0 },
-
-    { emoji: '💔', name: 'Trapped Hearts',  price: 20.0 },
-    { emoji: '🐱', name: 'Scared Cats',     price: 200.0 },
-    { emoji: '💵', name: 'Snoop Cigars',    price: 15.0 },
-    { emoji: '🥃', name: 'Vintage Cigars',  price: 40.0 },
-    { emoji: '🎩', name: 'Witch Hats',      price: 7.0 },
-    { emoji: '🍪', name: 'Happy Brownies',  price: 5.0 },
-
-    { emoji: '🧸', name: 'Bear',            price: 0.1 },
-  ],
-},
-
-
+    id: 'onlynft',
+    title: 'Классический',
+    priceTon: 1.0,
+    imageSelector: '.case-image-onlynft',
+    contents: [
+      { emoji: '🐸', name: 'Пепе', price: 0.0 },
+      { emoji: '🧸', name: 'Мишка', price: 0.1 },
+    ],
+  },
   crypto: {
     id: 'crypto',
-    title: 'All or nothing',
+    title: 'Все или ничего',
     priceTon: 0.5,
     imageSelector: '.case-image-crypto',
     contents: [
-      { emoji: '🍑', name: 'Precious Peach (random)', price: 500.0 },       // было "Персик"
-      { emoji: '🧸', name: 'Bear', price: 0.1 },
+      { emoji: '🍑', name: 'Персик', price: 0.0 },
+      { emoji: '🧸', name: 'Мишка', price: 0.1 },
     ],
   },
 }
 
+// Всегда выдаваемый приз
+const CASES_ALWAYS_PRIZE = { emoji: '🧸', name: 'Мишка', price: 0.1 }
 
-// Всегда выдаваемый приз (winner).
-const CASES_ALWAYS_PRIZE = { emoji: '🧸', name: 'Bear', price: 0.1 }
-
-// CUSTOM IMAGES (ключ = точное item.name)
+// CUSTOM IMAGES
 const GIFT_IMAGES = {
-  "Pepe": "epepepepe.webp",
-  "Plush Pepe Pink Latex": "PinkLat.webp",
-
-  "Precious Peach (random)": "epersok.webp",
-  "Celendar (random)": "Deskcelend.png",
-
+  "Пепе": "epepepepe.webp",
+  "Персик": "epersok.webp",
+  "Календарь": "Deskcelend.png",
   "Hexpot": "Hexpot (1).webp",
   "lightsword": "lightsword.webp",
-
-  "lolpop": "levelpops.webp",
-  "socks": "soksos.webp",
-  "Woodoo (random)": "voodoolol.png",
-  "Bear": "Bear.png",
-
-  "Trapped Hearts": "TrappedHeart.png",
-  "Scared Cats": "scaredcad.webp",
-  "Snoop Cigars": "dollars.webp",
-  "Vintage Cigars": "sigares.webp",
-  "Witch Hats": "WitchHats.webp",
-  "Happy Brownies": "poorsada.webp",
-};
-
-
-
-
-function giftVisual(item) {
-  const file = GIFT_IMAGES[item?.name];
-  if (file) {
-    return `<span class="gift-icon" style="background-image:url('${file}')"></span>`;
-  }
-  return item?.emoji || "";
 }
 
+function giftVisual(item) {
+  const file = GIFT_IMAGES[item?.name]
+  if (file) return `<span class="gift-icon" style="background-image:url('${file}')"></span>`
+  return item?.emoji || ""
+}
 
 // ===== TELEGRAM =====
 const tg = window.Telegram?.WebApp || null
@@ -139,7 +99,6 @@ function setWheelIconsUpright(angleDeg) {
   wheel.style.setProperty("--wheel-rot", `${angleDeg}deg`)
 }
 
-
 const spinButton = document.getElementById('spin-button')
 const balanceValueSpan = document.getElementById('balance-value')
 const balanceValueSpan2 = document.getElementById('balance-value-2')
@@ -163,11 +122,9 @@ const screens = {
   bonus: document.getElementById('screen-bonus'),
   profile: document.getElementById('screen-profile'),
   admin: document.getElementById('screen-admin'),
-
 }
 
 const rewardsListEl = document.getElementById('rewards-list')
-
 
 const depositBtn = document.getElementById('deposit-btn')
 const withdrawBtn = document.getElementById('withdraw-btn')
@@ -227,35 +184,13 @@ const inviteCopyBtn = document.getElementById('invite-copy-btn')
 
 // Cases UI
 const caseCards = document.querySelectorAll('#screen-cases .case-card')
+const caseOpenTitleEl = document.getElementById('case-open-title')
+const caseOpenImageEl = document.getElementById('case-open-image')
 const caseOpenPriceEl = document.getElementById('case-open-price')
 const caseOpenSpinBtn = document.getElementById('case-open-spin')
 const caseOpenRewardsListEl = document.getElementById('case-open-rewards-list')
-const caseOpenTrack = document.getElementById('case-open-track')
 
-
-// === ВСТАВЬ ВОТ ЭТО СЮДА ===
-function formatTonHuman(v) {
-  const n = Number(v)
-  if (!Number.isFinite(n)) return '0'
-  return n.toFixed(2).replace(/\.?0+$/, '')
-}
-
-function renderCasesMenuFromConfig() {
-  caseCards?.forEach(card => {
-    const type = card.getAttribute('data-case-type')
-    const cfg = CASES?.[type]
-    if (!cfg) return
-
-    const titleEl = card.querySelector('.case-name')
-    const priceEl = card.querySelector('.case-price')
-
-    if (titleEl) titleEl.textContent = cfg.title || type
-    if (priceEl) priceEl.textContent = `${formatTonHuman(cfg.priceTon || 0)} TON`
-  })
-}
-// === КОНЕЦ ВСТАВКИ ===
-
-// Case open animation UI
+// Case open animation UI (оверлей)
 const caseAnimOverlay = document.getElementById('case-anim-overlay')
 const caseAnimTrack = document.getElementById('case-anim-track')
 
@@ -271,17 +206,16 @@ function makeAnimItemHTML(prize) {
   return `<div class="case-anim-item">${isIcon ? v : `<div class="emoji">${v}</div>`}</div>`
 }
 
-// рулетка-анимация (простая и надёжная, оверлей по центру)
+// рулетка-анимация (оверлей, проблема только в небольшом смещении)
 async function playCaseOpenAnimation({ pool, winner }) {
   console.log('[caseAnim] start')
   if (!caseAnimTrack || !caseAnimOverlay) return
 
   const base = Array.isArray(pool) && pool.length ? pool : [winner]
-
   const items = []
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
 
-  // сюда вставляем победителя
+  // победитель в items.length - 6
   items[items.length - 6] = winner
 
   caseAnimTrack.innerHTML = items.map(makeAnimItemHTML).join('')
@@ -290,7 +224,6 @@ async function playCaseOpenAnimation({ pool, winner }) {
 
   setCaseAnimVisible(true)
 
-  // форсим reflow
   caseAnimOverlay.offsetHeight
   caseAnimTrack.offsetHeight
 
@@ -323,7 +256,6 @@ let currentPrizeIdx = null
 let isSpinning = false
 let isAdmin = false
 let selectedCaseType = null
-let isCaseOpening = false
 
 const adminState = {
   q: '',
@@ -2121,6 +2053,7 @@ async function init() {
 }
 
 init()
+
 
 
 
