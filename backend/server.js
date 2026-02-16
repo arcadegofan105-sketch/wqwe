@@ -280,31 +280,31 @@ const CASES = {
 // Пул призов с шансами (для трёх кейсов)
 const CASE_PRIZES = {
   newyear: [
-    { emoji: "📅", name: "Celendar (random)",   price: 1.5,  weight: 1 },
-    { emoji: "🍭", name: "lolpop",              price: 7.0,  weight: 1 },
-    { emoji: "🧦", name: "socks",               price: 10.0, weight: 1 },
-    { emoji: "🪆", name: "Woodoo (random)",     price: 30.0, weight: 1 },
-    { emoji: "🧸", name: "Bear",                price: 0.1,  weight: 96 },
+    // сумма весов = 10000 (удобно читать как проценты * 100)
+    { emoji: "📅", name: "Celendar (random)",   price: 1.5,  weight: 5 },   // 0.05%
+    { emoji: "🍭", name: "lolpop",              price: 7.0,  weight: 3 },   // 0.03%
+    { emoji: "🧦", name: "socks",               price: 10.0, weight: 2 },   // 0.02%
+    { emoji: "🪆", name: "Woodoo (random)",     price: 30.0, weight: 1 },   // 0.01%
+    { emoji: "🧸", name: "Bear",                price: 0.1,  weight: 9989 } // 99.89% ≈ 99.9%
   ],
 
   onlynft: [
-    { emoji: "🐸", name: "Plush Pepe Pink Latex", price: 10000.0, weight:   1 },
-    { emoji: "💔", name: "Trapped Hearts",        price:    20.0, weight:  50 },
-    { emoji: "🐱", name: "Scared Cats",           price:   200.0, weight:   5 },
-    { emoji: "💵", name: "Snoop Cigars",          price:    15.0, weight:  80 },
-    { emoji: "🥃", name: "Vintage Cigars",        price:    40.0, weight:  20 },
-    { emoji: "🎩", name: "Witch Hats",            price:     7.0, weight: 120 },
-    { emoji: "🍪", name: "Happy Brownies",        price:     5.0, weight: 150 },
-    { emoji: "🧸", name: "Bear",                  price:     0.1, weight: 500 },
+    // сумма весов = 100000 (Bear ≈ 99%, остальные суммарно ≈ 1%)
+    { emoji: "🐸", name: "Plush Pepe Pink Latex", price: 10000.0, weight: 0 },    // 0%
+    { emoji: "💔", name: "Trapped Hearts",        price: 20.0,    weight: 100 },  // 0.10%
+    { emoji: "🐱", name: "Scared Cats",           price: 200.0,   weight: 0 },    // 0%
+    { emoji: "💵", name: "Snoop Cigars",          price: 15.0,    weight: 100 },  // 0.10%
+    { emoji: "🥃", name: "Vintage Cigars",        price: 40.0,    weight: 100 },  // 0.10%
+    { emoji: "🎩", name: "Witch Hats",            price: 7.0,     weight: 300 },  // 0.30%
+    { emoji: "🍪", name: "Happy Brownies",        price: 5.0,     weight: 400 },  // 0.40%
+    { emoji: "🧸", name: "Bear",                  price: 0.1,     weight: 99000 } // 99.0%
   ],
 
   crypto: [
-    { emoji: "🍑", name: "Precious Peach (random)", price: 500.0, weight: 1 },
-    { emoji: "🧸", name: "Bear",                    price: 0.1,   weight: 99 },
+    { emoji: "🍑", name: "Precious Peach (random)", price: 500.0, weight: 0 },    // 0%
+    { emoji: "🧸", name: "Bear",                    price: 0.1,   weight: 100 }   // 100%
   ],
 };
-
-
 
 // выбор по весам
 function pickWeighted(prizes) {
@@ -843,6 +843,7 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
 
 
 
