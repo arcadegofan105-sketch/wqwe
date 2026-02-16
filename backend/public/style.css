@@ -1555,31 +1555,33 @@ body {
   background-size: cover;
 }
 
-/* в списках (wheel, кейсы) */
+/* СПИСКИ (колесо, кейсы, награды и т.п.) */
 .prize-emoji .gift-icon,
-.case-prize-emoji .gift-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.55);
+.case-prize-emoji .gift-icon,
+.case-open-reward-emoji .gift-icon {
+  width: 44px;   /* большие, но чуть меньше инвентаря */
+  height: 44px;
+  border-radius: 14px;
+  box-shadow: 0 5px 14px rgba(0,0,0,0.55);
 }
 
-/* в инвентаре */
+/* ИНВЕНТАРЬ */
 .inventory-item-emoji .gift-icon,
 .inv-card-image .gift-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  box-shadow: 0 5px 14px rgba(0,0,0,0.6);
+  width: 52px;   /* ещё крупнее */
+  height: 52px;
+  border-radius: 16px;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.6);
 }
 
-/* в модалке приза (центр) */
+/* МОДАЛКА ПРИЗА (центр) */
 .modal-prize-emoji .gift-icon {
-  width: 72px;
-  height: 72px;
-  border-radius: 18px;
-  box-shadow: 0 10px 24px rgba(0,0,0,0.7);
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  box-shadow: 0 12px 26px rgba(0,0,0,0.7);
 }
+
 
 
 /* ========== CASES ========== */
@@ -2751,6 +2753,7 @@ body {
   color: #6b7280;
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
+
 
 
 
