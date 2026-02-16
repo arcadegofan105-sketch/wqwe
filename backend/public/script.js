@@ -268,27 +268,23 @@ function setCaseAnimVisible(v) {
 }
 
 
-function makeAnimItemHTML(prize, idx) {
+function makeAnimItemHTML(prize) {
   const v = giftVisual(prize)
   const isIcon = String(v).includes('gift-icon')
-  return `
-    <div class="case-anim-item">
-      ${isIcon ? v : `<div class="emoji">${v}</div>`}
-      <div class="case-debug-index" style="font-size:10px;color:#fff;text-align:center;">${idx}</div>
-    </div>
-  `
+  return `<div class="case-anim-item">${isIcon ? v : `<div class="emoji">${v}</div>`}</div>`
 }
+
 
 
 // рулетка-анимация (простая и надежная)
 async function playCaseOpenAnimation({ pool, winner }) {
-  console.log('[caseAnim] start') // <-- ВОТ СЮДА (самое начало)
+  console.log('[caseAnim] start')
   if (!caseAnimTrack || !caseAnimOverlay) return
 
   const base = Array.isArray(pool) && pool.length ? pool : [winner]
   const items = []
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
-  items[items.length - 5] = winner
+  items[items.length - 6] = winner  // здесь вставляем победителя
 
   caseAnimTrack.innerHTML = items.map(makeAnimItemHTML).join('')
   caseAnimTrack.style.transition = 'none'
@@ -315,19 +311,9 @@ async function playCaseOpenAnimation({ pool, winner }) {
 
   await new Promise(r => setTimeout(r, 3600))
 
-  console.log('[caseAnim] end-hide') // <-- ВОТ СЮДА (прямо перед скрытием)
+  console.log('[caseAnim] end-hide')
   setCaseAnimVisible(false)
 }
-
-async function playInlineCaseAnimation(pool, winner) {
-  if (!caseOpenTrack) return
-
-  // 1) базовый набор предметов
-  const base = Array.isArray(pool) && pool.length ? [...pool] : [winner]
-  for (let i = base.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[base[i], base[j]] = [base[j], base[i]]
-  }
 
   // 2) лента из 28 элементов
   const items = []
@@ -1075,12 +1061,12 @@ caseCards.forEach(card => {
   })
 })
 
+
 // ✅ Открыть кейс (через сервер /api/cases/open)
 caseOpenSpinBtn?.addEventListener('click', async () => {
   const cfg = CASES[selectedCaseType]
   if (!cfg) return
 
-  // защита от повторных нажатий и открытых модалок
   if (isCaseOpening) return
   if (prizeModal?.classList.contains('active')) return
   if (withdrawModal?.classList.contains('active')) return
@@ -1089,7 +1075,6 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
   caseOpenSpinBtn.disabled = true
 
   try {
-    // 1) сервер: списание + выбор приза + (опционально) rollItems
     const r = await apiPost('/cases/open', { caseType: selectedCaseType })
 
     balance = Number(r?.newBalance ?? balance)
@@ -1101,17 +1086,14 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
       return
     }
 
-    // 2) выбираем пул для анимации:
-    // сначала пробуем rollItems с сервера, если его нет — contents из фронтового CASES
     const pool =
       Array.isArray(r?.rollItems) && r.rollItems.length
         ? r.rollItems
         : (Array.isArray(cfg.contents) && cfg.contents.length ? cfg.contents : [prize])
 
-    // 3) крутим inline‑анимацию ТОЛЬКО в треке кейса (без оверлея)
-    await playInlineCaseAnimation(pool, prize)
+    // ВАЖНО: здесь вызываем ИМЕННО playCaseOpenAnimation, НЕ inline
+    await playCaseOpenAnimation({ pool, winner: prize })
 
-    // 4) показываем результат и даём сохранить/продать
     currentPrize = prize
     currentPrizeIdx = null
     setLastPrizeText(currentPrize)
@@ -2181,6 +2163,7 @@ async function init() {
 }
 
 init()
+
 
 
 
