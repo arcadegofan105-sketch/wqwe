@@ -269,11 +269,12 @@ app.post("/api/spin", auth, (req, res) => {
 
   const prize = { emoji: "🧸", name: "Bear", price: 0.1 };
 
-  // ВАЖНО: НЕ добавляем в инвентарь здесь
-  // addInventoryItem(tgId, prize);
+  // сразу кладём в инвентарь
+  addInventoryItem(tgId, prize);
 
   res.json({ prize, newBalance });
 });
+
 
 
 // ===== CASES =====
@@ -851,6 +852,7 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
 
 
 
