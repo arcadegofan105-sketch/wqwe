@@ -316,48 +316,44 @@ async function playCaseOpenAnimation({ pool, winner }) {
 async function playInlineCaseAnimation(pool, winner) {
   if (!caseOpenTrack) return
 
+  // 1) базовый набор предметов
   const base = Array.isArray(pool) && pool.length ? [...pool] : [winner]
   for (let i = base.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
     ;[base[i], base[j]] = [base[j], base[i]]
   }
 
+  // 2) лента из 28 элементов
   const items = []
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
 
+  // 3) рендер без анимации, старт в 0px
   caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
-
-  // начальное положение без анимации
   caseOpenTrack.style.transition = 'none'
   caseOpenTrack.style.transform = 'translateX(0px)'
-  // форсим reflow, чтобы браузер применил 0px
-  void caseOpenTrack.offsetHeight
+  void caseOpenTrack.offsetHeight // форсим reflow
 
   const itemW = 96
   const gap = 22
   const step = itemW + gap
 
-  const totalWidth = items.length * step
-  const viewportWidth = caseOpenTrack.parentElement
-    ? caseOpenTrack.parentElement.offsetWidth
-    : 0
+  // 4) ЖЁСТКО выбираем индекс выигрышной ячейки
+  // это позиция, которая окажется под фиолетовым окном
+  const WIN_INDEX = 23 // ПОТОМ ПОДБЕРЁМ: 18, 19, 20, 21...
 
-  const centerX = viewportWidth / 2
+  const clampedIndex = Math.min(Math.max(WIN_INDEX, 0), items.length - 1)
 
-  // сдвиг индекса правее центра
-  const rawIndex = centerX / step + 0.7 // увеличивай/уменьшай 0.7, если надо ещё
-  const winIndex = Math.round(rawIndex)
-  const clampedIndex = Math.min(Math.max(winIndex, 0), items.length - 1)
-
+  // ставим победителя именно в эту ячейку
   items[clampedIndex] = winner
   caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
 
+  // 5) считаем конечное смещение: чтобы clampedIndex оказался под "иглой"
   const target = -clampedIndex * step
-  const jitter = -Math.round(step * 0.1 + Math.random() * step * 0.1)
-  const finalX = target + jitter
+  const finalX = target // без джиттера, чтобы не сбивать слот
 
-  const DURATION_MS = 8000 // медленнее крутка
+  const DURATION_MS = 8000 // медленнее
 
+  // 6) плавный переход от 0px к finalX
   await new Promise(resolve => {
     let done = false
     const finish = () => {
@@ -374,11 +370,11 @@ async function playInlineCaseAnimation(pool, winner) {
     caseOpenTrack.addEventListener('transitionend', onEnd)
     setTimeout(finish, DURATION_MS + 300)
 
-    // ВАЖНО: ставим transition ТОЛЬКО после того, как стояли в 0px
     caseOpenTrack.style.transition = `transform ${DURATION_MS}ms cubic-bezier(.08,.82,.12,1)`
     caseOpenTrack.style.transform = `translateX(${finalX}px)`
   })
 }
+
 
 
 // ===== STATE =====
@@ -2181,6 +2177,7 @@ async function init() {
 }
 
 init()
+
 
 
 
