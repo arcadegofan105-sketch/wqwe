@@ -253,6 +253,7 @@ app.post("/api/me", auth, (req, res) => {
 });
 
 // spin: всегда "мишка", цена 1 TON
+// spin: всегда "мишка", цена 1 TON
 app.post("/api/spin", auth, (req, res) => {
   const tgId = String(req.tgUser.id);
   touchUserVisit(req.tgUser);
@@ -265,8 +266,9 @@ app.post("/api/spin", auth, (req, res) => {
   const newBalance = Number((balance - 1).toFixed(2));
   updateUserBalance(tgId, newBalance);
 
-  res.json({ prize: { emoji: "🧸", name: "Мишка", price: 0.1 }, newBalance });
+  res.json({ prize: { emoji: "🧸", name: "Bear", price: 0.1 }, newBalance });
 });
+
 
 // ===== CASES =====
 // ===== CASES =====
@@ -843,6 +845,7 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
 
 
 
