@@ -300,7 +300,6 @@ async function playCaseOpenAnimation({ pool, winner }) {
 async function playInlineCaseAnimation(pool, winner) {
   if (!caseOpenTrack) return
 
-  // Берём пул и делаем лёгкий shuffle, чтобы порядок менялся каждый спин
   const base = Array.isArray(pool) && pool.length ? [...pool] : [winner]
   for (let i = base.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
@@ -309,7 +308,7 @@ async function playInlineCaseAnimation(pool, winner) {
 
   const items = []
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
-  items[items.length - 6] = winner
+  items[items.length - 6] = winner   // тут центр = приз с сервера
 
   caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
   caseOpenTrack.style.transition = 'none'
@@ -321,8 +320,6 @@ async function playInlineCaseAnimation(pool, winner) {
   const step = itemW + gap
   const winIndex = items.length - 6
   const target = -winIndex * step
-
-  // оставляем твой jitter, он ок
   const jitter = -Math.round(step * 0.35 + Math.random() * step * 0.25)
   const finalX = target + jitter
 
@@ -336,7 +333,7 @@ async function playInlineCaseAnimation(pool, winner) {
       caseOpenTrack.removeEventListener('transitionend', onEnd)
       resolve()
     }
-    const onEnd = (e) => {
+    const onEnd = e => {
       if (e.propertyName !== 'transform') return
       finish()
     }
@@ -348,6 +345,7 @@ async function playInlineCaseAnimation(pool, winner) {
     caseOpenTrack.style.transform = `translateX(${finalX}px)`
   })
 }
+
 
 
 
@@ -1064,6 +1062,7 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
     balance = Number(r?.newBalance ?? balance)
     updateBalanceUI()
 
+    // ВАЖНО: winner = приз с сервера
     const prize = r?.prize || CASES_ALWAYS_PRIZE
 
     // 2) анимация (крутит содержимое кейса на ЭТОМ экране)
@@ -1082,6 +1081,7 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
     caseOpenSpinBtn.disabled = false
   }
 })
+
 
 
 
@@ -2140,6 +2140,7 @@ async function init() {
 }
 
 init()
+
 
 
 
