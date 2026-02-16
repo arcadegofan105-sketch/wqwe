@@ -1201,28 +1201,13 @@ wheel?.addEventListener('transitionend', (e) => {
   isSpinning = false
 })
 
-
-
-
-
-modalKeepBtn?.addEventListener('click', async () => {
-  if (!currentPrize) return
-
-  try {
-    // 1) добавляем выпавший приз в инвентарь
-    await keepPrizeApi(currentPrize)
-
-    // 2) подтягиваем обновлённый инвентарь и баланс
-    await fetchUserData()
-
-    // 3) сбрасываем модалку
-    currentPrize = null
-    currentPrizeIdx = null
-    closeModal()
-    spinButton.disabled = false
-  } catch (err) {
-    alert(err.message || 'Ошибка: не удалось добавить в инвентарь')
-  }
+modalKeepBtn?.addEventListener('click', () => {
+  if (!prizeModal) return
+  // просто закрываем окно, приз уже в инвентаре после спина
+  currentPrize = null
+  currentPrizeIdx = null
+  prizeModal.classList.remove('active')
+  spinButton.disabled = false
 })
 
 
@@ -2171,6 +2156,7 @@ async function init() {
 }
 
 init()
+
 
 
 
