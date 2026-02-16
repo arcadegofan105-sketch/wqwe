@@ -346,7 +346,8 @@ async function playInlineCaseAnimation(pool, winner) {
   const centerX = viewportWidth / 2
 
   // индекс ячейки, которая окажется под центром
-  const winIndex = Math.round(centerX / step)
+  const rawIndex = centerX / step + 0.5 // сдвиг вправо на ~пол-слота
+const winIndex = Math.round(rawIndex)
 
   // защита от выхода за границы
   const clampedIndex = Math.min(Math.max(winIndex, 0), items.length - 1)
@@ -359,7 +360,7 @@ async function playInlineCaseAnimation(pool, winner) {
   const jitter = -Math.round(step * 0.1 + Math.random() * step * 0.1)
   const finalX = target + jitter
 
-  const DURATION_MS = 5600
+  const DURATION_MS = 8000
 
   await new Promise(resolve => {
     let done = false
@@ -2183,6 +2184,7 @@ async function init() {
 }
 
 init()
+
 
 
 
