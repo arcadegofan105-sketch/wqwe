@@ -326,33 +326,29 @@ async function playInlineCaseAnimation(pool, winner) {
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
 
   caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
+
+  // начальное положение без анимации
   caseOpenTrack.style.transition = 'none'
   caseOpenTrack.style.transform = 'translateX(0px)'
-  caseOpenTrack.offsetHeight
+  // форсим reflow, чтобы браузер применил 0px
+  void caseOpenTrack.offsetHeight
 
   const itemW = 96
   const gap = 22
   const step = itemW + gap
 
-  // ширина всей ленты
   const totalWidth = items.length * step
-
-  // ширина видимой области (окна кейса)
   const viewportWidth = caseOpenTrack.parentElement
     ? caseOpenTrack.parentElement.offsetWidth
     : 0
 
-  // пиксельная позиция центра окна
   const centerX = viewportWidth / 2
 
-  // индекс ячейки, которая окажется под центром
-  const rawIndex = centerX / step + 0.5 // сдвиг вправо на ~пол-слота
-const winIndex = Math.round(rawIndex)
-
-  // защита от выхода за границы
+  // сдвиг индекса правее центра
+  const rawIndex = centerX / step + 0.7 // увеличивай/уменьшай 0.7, если надо ещё
+  const winIndex = Math.round(rawIndex)
   const clampedIndex = Math.min(Math.max(winIndex, 0), items.length - 1)
 
-  // ставим победителя именно в эту ячейку
   items[clampedIndex] = winner
   caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
 
@@ -360,7 +356,7 @@ const winIndex = Math.round(rawIndex)
   const jitter = -Math.round(step * 0.1 + Math.random() * step * 0.1)
   const finalX = target + jitter
 
-  const DURATION_MS = 8000
+  const DURATION_MS = 8000 // медленнее крутка
 
   await new Promise(resolve => {
     let done = false
@@ -376,8 +372,9 @@ const winIndex = Math.round(rawIndex)
     }
 
     caseOpenTrack.addEventListener('transitionend', onEnd)
-    setTimeout(finish, DURATION_MS + 200)
+    setTimeout(finish, DURATION_MS + 300)
 
+    // ВАЖНО: ставим transition ТОЛЬКО после того, как стояли в 0px
     caseOpenTrack.style.transition = `transform ${DURATION_MS}ms cubic-bezier(.08,.82,.12,1)`
     caseOpenTrack.style.transform = `translateX(${finalX}px)`
   })
@@ -2184,6 +2181,7 @@ async function init() {
 }
 
 init()
+
 
 
 
