@@ -268,11 +268,17 @@ function setCaseAnimVisible(v) {
 }
 
 
-function makeAnimItemHTML(prize) {
+function makeAnimItemHTML(prize, idx) {
   const v = giftVisual(prize)
   const isIcon = String(v).includes('gift-icon')
-  return `<div class="case-anim-item">${isIcon ? v : `<div class="emoji">${v}</div>`}</div>`
+  return `
+    <div class="case-anim-item">
+      ${isIcon ? v : `<div class="emoji">${v}</div>`}
+      <div class="case-debug-index" style="font-size:10px;color:#fff;text-align:center;">${idx}</div>
+    </div>
+  `
 }
+
 
 // рулетка-анимация (простая и надежная)
 async function playCaseOpenAnimation({ pool, winner }) {
@@ -328,7 +334,7 @@ async function playInlineCaseAnimation(pool, winner) {
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
 
   // 3) рендер без анимации, старт в 0px
-  caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
+  caseOpenTrack.innerHTML = items.map((it, idx) => makeAnimItemHTML(it, idx)).join('')
   caseOpenTrack.style.transition = 'none'
   caseOpenTrack.style.transform = 'translateX(0px)'
   void caseOpenTrack.offsetHeight
@@ -344,8 +350,8 @@ async function playInlineCaseAnimation(pool, winner) {
   const clampedIndex = Math.min(Math.max(WIN_INDEX, 0), items.length - 1)
 
   // ставим победителя именно в эту ячейку
-  items[clampedIndex] = winner
-  caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
+  //items[clampedIndex] = winner
+  //caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
 
   // 5) двигаем так, чтобы clampedIndex оказался под иглой
   const target = -clampedIndex * step
@@ -2175,6 +2181,7 @@ async function init() {
 }
 
 init()
+
 
 
 
