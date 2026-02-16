@@ -234,61 +234,118 @@ body {
   initial-value: 0deg;
 }
 
-/* ===== WHEEL (готовый блок) ===== */
+/* ===== WHEEL (готовый блок, обновлённый) ===== */
 
-/* ВАЖНО: чтобы анимация кастомного угла работала как надо */
+/* анимируем кастомный угол */
 @property --wheel-rot {
   syntax: "<angle>";
   inherits: true;
   initial-value: 0deg;
 }
 
-/* Настройки размеров (подкручивай под себя) */
-:root{
-  --wheel-icon-box: 68px;   /* размер "плашки" под подарок */
-  --wheel-icon-size: 46px;  /* размер самой иконки */
+/* базовые размеры иконок */
+:root {
+  --wheel-icon-box: 68px;
+  --wheel-icon-size: 46px;
 }
 
-.wheel-wrapper{
+.wheel-wrapper {
   position: relative;
   width: 100%;
   max-width: 300px;
   aspect-ratio: 1;
   margin: 0 auto 16px;
+  padding: 14px;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top, rgba(129,140,248,0.18), rgba(2,6,23,0.9));
+  box-shadow:
+    0 0 0 1px rgba(15,23,42,0.95),
+    0 20px 48px rgba(0,0,0,0.95);
 }
 
-.wheel-arrow{
+/* встроенная стрелка‑указатель сверху */
+.wheel-arrow {
   position: absolute;
-  top: 0;
+  top: 6px;
   left: 50%;
-  transform: translateX(-50%) translateY(-50%);
-  font-size: 32px;
-  color: #facc15;
-  z-index: 10;
-  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.7));
+  width: 32px;
+  height: 32px;
+  transform: translateX(-50%);
+  z-index: 20;
+  pointer-events: none;
 }
 
-.wheel{
+.wheel-arrow::before {
+  content: "";
+  position: absolute;
+  inset: 6px 4px;
+  margin: 0 auto;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 14px solid #facc15;
+  filter: drop-shadow(0 4px 10px rgba(250, 204, 21, 0.8));
+}
+
+.wheel-arrow::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 24px;
+  height: 8px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: rgba(15,23,42,0.9);
+  box-shadow: 0 0 0 1px rgba(30,64,175,0.8);
+}
+
+/* само колесо */
+.wheel {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 6px solid rgba(148, 163, 184, 0.3);
-  background: radial-gradient(circle, #1f2937 0, #020617 70%);
-  box-shadow: 0 0 30px rgba(56, 189, 248, 0.25);
-
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255,255,255,0.2), transparent 55%),
+    radial-gradient(circle at 70% 80%, rgba(56,189,248,0.22), transparent 60%),
+    #020617;
+  box-shadow:
+    0 0 0 1px rgba(15,23,42,1),
+    0 0 0 6px rgba(15,23,42,0.85),
+    0 18px 40px rgba(0,0,0,0.9);
   position: relative;
   overflow: hidden;
-
   --wheel-rot: 0deg;
   transform: rotate(var(--wheel-rot));
   transition: --wheel-rot 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
 }
 
-/* ===== красивое деление колеса на 7 секторов (спицы) ===== */
-.wheel::after{
-  content: '';
+/* внутренний ободок + лёгкий conic‑glow */
+.wheel::before {
+  content: "";
   position: absolute;
   inset: 10px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(15,23,42,0.92) 0, rgba(15,23,42,1) 55%, rgba(15,23,42,1) 60%, transparent 70%),
+    conic-gradient(
+      from -90deg,
+      rgba(30,64,175,0.65),
+      rgba(56,189,248,0.35),
+      rgba(94,234,212,0.4),
+      rgba(30,64,175,0.65)
+    );
+  mix-blend-mode: screen;
+  opacity: 0.35;
+}
+
+/* деление на 7 тонких спиц */
+.wheel::after {
+  content: '';
+  position: absolute;
+  inset: 12px;
   border-radius: 50%;
   pointer-events: none;
   z-index: 2;
@@ -303,57 +360,136 @@ body {
       rgba(226, 232, 240, 0.85) calc(50% + 1px),
       transparent calc(50% + 1px),
       transparent 100%
-    ),
-    linear-gradient(
-      to right,
-      transparent 0,
-      transparent calc(50% - 6px),
-      rgba(56, 189, 248, 0.16) calc(50% - 6px),
-      rgba(56, 189, 248, 0.16) calc(50% + 6px),
-      transparent calc(50% + 6px),
-      transparent 100%
     );
 
-  /* 7 секторов => 360/7 = 51.4286deg */
   -webkit-mask: conic-gradient(from -90deg, #000 0 1deg, transparent 1deg 51.4286deg);
           mask: conic-gradient(from -90deg, #000 0 1deg, transparent 1deg 51.4286deg);
 
   -webkit-mask-composite: source-in;
           mask-composite: intersect;
-
-  -webkit-mask-image:
-    radial-gradient(circle, transparent 0 44%, #000 56% 100%),
-    conic-gradient(from -90deg, #000 0 1deg, transparent 1deg 51.4286deg);
-          mask-image:
-    radial-gradient(circle, transparent 0 44%, #000 56% 100%),
-    conic-gradient(from -90deg, #000 0 1deg, transparent 1deg 51.4286deg);
 }
 
-/* Иконки и центр — выше спиц */
-.sector{ z-index: 3; }
-.wheel-center{ z-index: 4; }
+/* иконки и центр над спицами */
+.sector { z-index: 3; }
+.wheel-center { z-index: 4; }
 
-/* Радиус, на котором стоят иконки (подкручивай 105–125) */
-#wheel{ --icon-r: 112px; }
+/* радиус размещения иконок */
+#wheel { --icon-r: 112px; }
 
-/* Сектор (позиция на окружности) */
-#wheel .sector{
+/* позиция сектора по окружности */
+#wheel .sector {
   position: absolute;
   top: 50%;
   left: 50%;
   width: var(--wheel-icon-box);
   height: var(--wheel-icon-box);
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   transform:
     translate(-50%, -50%)
     rotate(var(--a))
     translateY(calc(-1 * var(--icon-r)))
-    rotate(calc(0deg - var(--a))); /* чтобы иконка была ровной относительно сектора */
+    rotate(calc(0deg - var(--a)));
 }
+
+/* углы 7 секторов */
+#wheel .sector[data-index='0']{ --a: 0deg; }
+#wheel .sector[data-index='1']{ --a: 51.43deg; }
+#wheel .sector[data-index='2']{ --a: 102.86deg; }
+#wheel .sector[data-index='3']{ --a: 154.29deg; }
+#wheel .sector[data-index='4']{ --a: 205.71deg; }
+#wheel .sector[data-index='5']{ --a: 257.14deg; }
+#wheel .sector[data-index='6']{ --a: 308.57deg; }
+
+/* плашка под подарок */
+#wheel .sector .sector-inner {
+  width: var(--wheel-icon-box);
+  height: var(--wheel-icon-box);
+  border-radius: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255,255,255,0.22), transparent 60%),
+    rgba(15, 23, 42, 0.9);
+  box-shadow:
+    0 0 0 1px rgba(148, 163, 184, 0.35),
+    0 14px 30px rgba(0, 0, 0, 0.6);
+  font-size: var(--wheel-icon-size);
+  line-height: 1;
+  transform: rotate(calc(-1 * var(--wheel-rot)));
+  transform-origin: center;
+}
+
+/* картинки‑иконки */
+#wheel .sector .sector-inner img {
+  width: var(--wheel-icon-size);
+  height: var(--wheel-icon-size);
+  object-fit: contain;
+  display: block;
+}
+
+#wheel .sector .pepe-icon,
+#wheel .sector .gift-icon {
+  width: var(--wheel-icon-size);
+  height: var(--wheel-icon-size);
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* центр колеса с кнопкой */
+.wheel-center {
+  position: absolute;
+  inset: 28%;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255,255,255,0.25), transparent 65%),
+    radial-gradient(circle at 70% 80%, rgba(56,189,248,0.22), transparent 60%),
+    #020617;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow:
+    0 0 0 1px rgba(15,23,42,0.95),
+    0 12px 28px rgba(0,0,0,0.9);
+}
+
+/* кнопка спина */
+.spin-button {
+  border: none;
+  border-radius: 999px;
+  padding: 11px 18px;
+  background: linear-gradient(135deg, #facc15, #f97316);
+  color: #161827;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  box-shadow: 0 12px 26px rgba(250, 204, 21, 0.55);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+}
+
+.spin-subtitle {
+  font-size: 11px;
+  opacity: 0.9;
+}
+
+.spin-button:active {
+  transform: translateY(1px) scale(0.97);
+  box-shadow: 0 8px 20px rgba(250, 204, 21, 0.6);
+}
+
+.spin-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 
 /* Угол для каждого сектора */
 #wheel .sector[data-index='0']{ --a: 0deg; }
@@ -2421,18 +2557,7 @@ body {
   line-height: 1;
 }
 
-/* --- wheel icons upright (не крутятся вместе с колесом) --- */
-:root { --wheel-rot: 0deg; }
 
-#wheel .sector .sector-inner{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  /* главное: контр-поворот */
-  transform: rotate(calc(-1 * var(--wheel-rot)));
-  transform-origin: center;
-}
 
 /* CRASH: полностью чёрный фон и меньше по высоте */
 #screen-crash{
@@ -2753,6 +2878,7 @@ body {
   color: #6b7280;
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
+
 
 
 
