@@ -436,35 +436,46 @@ app.post("/api/prize/sell", auth, (req, res) => {
   touchUserVisit(req.tgUser);
 
   const prize = req.body?.prize;
-  if (!prize || typeof prize !== "object") return res.status(400).json({ error: "prize required" });
-
-  const price = safeNumber(prize.price, 0);
-  if (!Number.isFinite(price) || price <= 0)
-    return res.status(400).json({ error: "Этот подарок нельзя продать" });
+  if (!prize || typeof prize !== "object") {
+    return res.status(400).json({ error: "prize required" });
+  }
 
   const idxRaw = req.body?.idx;
-  if (idxRaw === undefined || idxRaw === null || idxRaw === "")
+  if (idxRaw === undefined || idxRaw === null || idxRaw === "") {
     return res.status(400).json({ error: "idx required" });
+  }
 
   const idx = Number(idxRaw);
-  if (!Number.isInteger(idx) || idx < 0) return res.status(400).json({ error: "Некорректный индекс предмета" });
+  if (!Number.isInteger(idx) || idx < 0) {
+    return res.status(400).json({ error: "Некорректный индекс предмета" });
+  }
 
   const removed = removeInventoryItemByIndexNewestFirst(tgId, idx);
-  if (!removed) return res.status(400).json({ error: "Предмет не найден" });
+  if (!removed) {
+    return res.status(400).json({ error: "Предмет не найден" });
+  }
 
-  // защита от подмены
-  if (String(removed.name) !== String(prize.name) || Number(removed.price || 0) !== price) {
+  // мягкая защита от подмены — сверяем только имя
+  if (String(removed.name) !== String(prize.name)) {
     addInventoryItem(tgId, removed); // rollback
     return res.status(400).json({ error: "Предмет не найден" });
   }
 
+  const priceFromDb = safeNumber(removed.price, 0);
+  if (!Number.isFinite(priceFromDb) || priceFromDb <= 0) {
+    // не продаём, если в БД цена некорректна
+    addInventoryItem(tgId, removed); // rollback
+    return res.status(400).json({ error: "Этот подарок нельзя продать" });
+  }
+
   const user = mustGetUser(tgId);
-  const newBalance = Number((safeNumber(user.balance, 0) + price).toFixed(2));
+  const newBalance = Number((safeNumber(user.balance, 0) + priceFromDb).toFixed(2));
   updateUserBalance(tgId, newBalance);
 
   const inventory = listInventory(tgId);
   res.json({ newBalance, inventory });
 });
+
 
 // withdraw TON
 app.post("/api/withdraw/ton", auth, async (req, res) => {
@@ -845,6 +856,7 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
 
 
 
