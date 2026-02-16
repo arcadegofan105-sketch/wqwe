@@ -1494,39 +1494,20 @@ body {
 	box-shadow: 0 0 0 1px rgba(30, 64, 175, 0.6), 0 10px 24px rgba(15, 23, 42, 0.9);
 }
 
+/* 3 актуальных кейса */
 .case-image-newyear {
-	background-image: url('images/newyearcase.png');
-}
-
-.case-image-crypto {
-	background-image: url('images/cryptocase.png');
+	background-image: url('images/celendarcase.jpg');   /* Celendar case */
 }
 
 .case-image-onlynft {
-	background-image: url('images/onlynftcase.png');
+	background-image: url('images/classiccase.jpg');    /* Classic case */
 }
 
-.case-image-genesis {
-	background-image: url('images/genesiscase.png');
+.case-image-crypto {
+	background-image: url('images/allornothing.jpg');   /* All or nothing */
 }
 
-.case-image-elite {
-	background-image: url('images/elitecase.png');
-}
-
-/* Твои новые кейсы */
-.case-image-calendar {
-	background-image: url('celendarcase.jpg');
-}
-
-.case-image-allornothing {
-	background-image: url('allornothing.jpg');
-}
-
-.case-image-classic {
-	background-image: url('classeigs.jpg');
-}
-
+/* если genesis / elite больше не используешь — можно удалить */
 .case-info {
 	display: flex;
 	justify-content: space-between;
@@ -2396,6 +2377,7 @@ body {
   display: inline-block;
   flex: 0 0 44px;
 }
+
 
 
 
