@@ -1202,22 +1202,26 @@ wheel?.addEventListener('transitionend', (e) => {
 })
 
 modalSellBtn?.addEventListener('click', async () => {
-  if (!inventoryList) return
+  if (!currentPrize) return
 
   try {
-    // подтягиваем актуальный инвентарь
+    // 1) сначала сохраняем приз в инвентарь
+    await keepPrizeApi(currentPrize)
+
+    // 2) подтягиваем обновлённый инвентарь
     const me = await fetchUserData()
     const inv = Array.isArray(me.inventory) ? me.inventory : inventory || []
 
     if (!inv.length) {
-      alert('В инвентаре пусто.')
+      alert('Не удалось найти предмет в инвентаре для продажи.')
       return
     }
 
-    // продаём самый новый предмет (последний в массиве)
-    const idx = inv.length - 1
+    // 3) берём самый новый предмет (индекс 0, т.к. newest-first)
+    const idx = 0
     const item = inv[idx]
 
+    // 4) продаём его
     const data = await sellPrizeApi(item, idx)
     balance = Number(data.newBalance ?? balance)
     updateBalanceUI()
@@ -1227,11 +1231,13 @@ modalSellBtn?.addEventListener('click', async () => {
     closeModal()
     spinButton.disabled = false
 
+    // 5) подтягиваем инвентарь ещё раз после продажи
     await fetchUserData()
   } catch (err) {
     alert(err.message || 'Ошибка продажи')
   }
 })
+
 
 
 modalKeepBtn?.addEventListener('click', async () => {
@@ -2195,6 +2201,7 @@ async function init() {
 }
 
 init()
+
 
 
 
