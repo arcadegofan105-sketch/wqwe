@@ -226,7 +226,7 @@ const inviteLinkText = document.getElementById('invite-link-text')
 const inviteCopyBtn = document.getElementById('invite-copy-btn')
 
 // Cases UI
-const caseCards = document.querySelectorAll('.case-card')
+const caseCards = document.querySelectorAll('#screen-cases .case-card')
 const caseOpenPriceEl = document.getElementById('case-open-price')
 const caseOpenSpinBtn = document.getElementById('case-open-spin')
 const caseOpenRewardsListEl = document.getElementById('case-open-rewards-list')
@@ -2121,6 +2121,7 @@ async function init() {
 }
 
 init()
+
 
 
 
