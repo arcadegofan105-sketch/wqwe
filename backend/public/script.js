@@ -282,7 +282,7 @@ async function playCaseOpenAnimation({ pool, winner }) {
   const base = Array.isArray(pool) && pool.length ? pool : [winner]
   const items = []
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
-  items[items.length - 6] = winner
+  items[items.length - 5] = winner
 
   caseAnimTrack.innerHTML = items.map(makeAnimItemHTML).join('')
   caseAnimTrack.style.transition = 'none'
@@ -2172,6 +2172,7 @@ async function init() {
 }
 
 init()
+
 
 
 
