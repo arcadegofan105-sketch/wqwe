@@ -286,28 +286,48 @@
           </div>
         </section>
 
-        <!-- Экран ОТКРЫТИЯ ОДНОГО КЕЙСА -->
-        <section id="screen-case-open" class="screen">
-          <div class="screen-title" id="case-open-title">Case</div>
-          <div class="screen-subtitle">
-            Нажмите "Открыть", чтобы получить случайный подарок.
-          </div>
+        <!-- Экран ОТКРЫТИЯ ОДНОГО КЕЙСА (NEW UI) -->
+<section id="screen-case-open" class="screen">
+  <div class="case-view">
+    <!-- верхняя панель как на скрине: кейс в “менюшке” -->
+    <div class="case-view-hero">
+      <div class="case-view-hero-inner">
+        <div class="case-view-thumb" id="case-open-image"></div>
 
-          <div class="case-open-card">
-            <div class="case-open-image" id="case-open-image"></div>
+        <button id="case-open-spin" class="case-open-main-btn" type="button">
+          Открыть кейс
+        </button>
+      </div>
+    </div>
 
-            <div class="case-open-price">Цена: <span id="case-open-price">0</span> TON</div>
+    <!-- сразу видим “подарки внутри кейса” -->
+    <div class="case-view-reel">
+      <div class="case-anim-window case-view-reel-window">
+        <div class="case-anim-track" id="case-open-track"></div>
 
-            <button id="case-open-spin" class="action-btn action-green" type="button">
-              Открыть кейс
-            </button>
-          </div>
+        <div class="case-anim-pointer case-anim-pointer-top"></div>
+        <div class="case-anim-pointer-line"></div>
+        <div class="case-anim-pointer case-anim-pointer-bottom"></div>
+      </div>
+    </div>
 
-          <div class="case-open-rewards">
-            <div class="case-open-rewards-title">Содержимое кейса</div>
-            <div id="case-open-rewards-list" class="case-open-rewards-list"></div>
-          </div>
-        </section>
+    <!-- заголовок “Коллекции…” + кубик -->
+    <div class="case-view-collections-head">
+      <div class="case-view-collections-title">
+        <span class="case-view-cube"></span>
+        Коллекции в этом кейсе
+      </div>
+      <div class="case-view-price">
+        <span class="balance-icon"></span>
+        <span id="case-open-price">0</span> TON
+      </div>
+    </div>
+
+    <!-- список подарков снизу -->
+    <div id="case-open-rewards-list" class="case-view-grid"></div>
+  </div>
+</section>
+
 
         <!-- Экран НАГРАДЫ -->
 <section id="screen-rewards" class="screen">
@@ -698,6 +718,7 @@
 
   </body>
 </html>
+
 
 
 
