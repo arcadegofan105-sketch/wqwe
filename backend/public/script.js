@@ -1202,19 +1202,41 @@ modalSellBtn?.addEventListener('click', async () => {
   try {
     let idx = currentPrizeIdx
 
-    // если индекса нет (кейс), сначала сохраняем приз, потом находим его в инвентаре
-    if (!Number.isInteger(idx)) {
-      await keepPrizeApi(currentPrize)
-      const me = await fetchUserData()               // обновит inventory
-      const inv = Array.isArray(me.inventory) ? me.inventory : inventory || []
-
-      const found = inv.findIndex(it => it && it.name === currentPrize.name && it.price === currentPrize.price)
-      if (found < 0) {
-        alert('Не удалось найти предмет в инвентаре для продажи.')
-        return
-      }
-      idx = found
+    // 1) Если у нас уже есть индекс (например, от колеса) — просто продаём
+    if (Number.isInteger(idx)) {
+      const data = await sellPrizeApi(currentPrize, idx)
+      balance = Number(data.newBalance ?? balance)
+      updateBalanceUI()
+      currentPrize = null
+      currentPrizeIdx = null
+      closeModal()
+      spinButton.disabled = false
+      await fetchUserData()
+      return
     }
+
+    // 2) Кейс: индекса нет, но приз уже добавлен на сервере в /api/cases/open
+    // Просто подгружаем инвентарь и ищем самый "свежий" подходящий предмет.
+    const me = await fetchUserData()
+    const inv = Array.isArray(me.inventory) ? me.inventory : inventory || []
+
+    // ищем с конца, чтобы брать самый новый
+    let found = -1
+    for (let i = inv.length - 1; i >= 0; i--) {
+      const it = inv[i]
+      if (!it) continue
+      if (String(it.name) === String(currentPrize.name) && Number(it.price) === Number(currentPrize.price)) {
+        found = i
+        break
+      }
+    }
+
+    if (found < 0) {
+      alert('Не удалось найти предмет в инвентаре для продажи.')
+      return
+    }
+
+    idx = found
 
     const data = await sellPrizeApi(currentPrize, idx)
     balance = Number(data.newBalance ?? balance)
@@ -1225,11 +1247,12 @@ modalSellBtn?.addEventListener('click', async () => {
     closeModal()
     spinButton.disabled = false
 
-    await fetchUserData() // подтягиваем актуальный инвентарь
+    await fetchUserData()
   } catch (err) {
     alert(err.message || 'Ошибка продажи')
   }
 })
+
 
 
 
@@ -2194,6 +2217,7 @@ async function init() {
 }
 
 init()
+
 
 
 
