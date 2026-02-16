@@ -191,7 +191,6 @@ const inviteCopyBtn = document.getElementById('invite-copy-btn')
 
 // Cases UI
 const caseCards = document.querySelectorAll('#screen-cases .case-card')
-const caseOpenTitleEl = document.getElementById('case-open-title')
 const caseOpenImageEl = document.getElementById('case-open-image')
 const caseOpenPriceEl = document.getElementById('case-open-price')
 const caseOpenSpinBtn = document.getElementById('case-open-spin')
@@ -478,7 +477,6 @@ function openCase(caseType) {
 
   selectedCaseType = caseType
 
-  if (caseOpenTitleEl) caseOpenTitleEl.textContent = cfg.title
   if (caseOpenPriceEl) caseOpenPriceEl.textContent = Number(cfg.priceTon || 0).toFixed(2)
 
   // подтягиваем классы изображения из карточки, чтобы было "как в списке"
@@ -1989,6 +1987,7 @@ async function init() {
 }
 
 init()
+
 
 
 
