@@ -172,15 +172,16 @@ const screens = {
 
 const rewardsListEl = document.getElementById('rewards-list')
 
-
 const depositBtn = document.getElementById('deposit-btn')
 const withdrawBtn = document.getElementById('withdraw-btn')
 
+// Модалка приза
 const prizeModal = document.getElementById('prize-modal')
 const modalPrizeEmoji = document.getElementById('modal-prize-emoji')
 const modalPrizeName = document.getElementById('modal-prize-name')
 const modalPrizePrice = document.getElementById('modal-prize-price')
-const prizeModal = document.querySelector('.prize-modal');
+const modalSellBtn = document.getElementById('modalSellBtn')
+const modalKeepBtn = document.getElementById('modalKeepBtn')
 
 const inventoryList = document.getElementById('inventory-list')
 
@@ -1200,14 +1201,40 @@ wheel?.addEventListener('transitionend', (e) => {
   isSpinning = false
 })
 
+// Кнопка "В инвентарь"
 modalKeepBtn?.addEventListener('click', () => {
   if (!prizeModal) return
-  // просто закрываем окно, приз уже в инвентаре после спина
   currentPrize = null
   currentPrizeIdx = null
   prizeModal.classList.remove('active')
-  spinButton.disabled = false
+  if (spinButton) spinButton.disabled = false
 })
+
+// Кнопка "Продать"
+modalSellBtn?.addEventListener('click', async () => {
+  if (!currentPrize) {
+    prizeModal?.classList.remove('active')
+    if (spinButton) spinButton.disabled = false
+    return
+  }
+
+  try {
+    // продаём самый новый предмет — индекс 0 в newest‑first списке
+    const idx = 0
+    const data = await sellPrizeApi(currentPrize, idx)
+    balance = Number(data.newBalance ?? balance)
+    updateBalanceUI()
+    await fetchUserData()
+  } catch (err) {
+    alert(err.message || 'Ошибка продажи')
+  } finally {
+    currentPrize = null
+    currentPrizeIdx = null
+    prizeModal?.classList.remove('active')
+    if (spinButton) spinButton.disabled = false
+  }
+})
+
 
 
 inventoryList?.addEventListener('click', async e => {
@@ -2155,6 +2182,7 @@ async function init() {
 }
 
 init()
+
 
 
 
