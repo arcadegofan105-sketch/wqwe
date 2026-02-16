@@ -270,12 +270,6 @@ app.post("/api/spin", auth, (req, res) => {
 
 // ===== CASES =====
 // Конфиг кейсов: названия + цены
-const CASES = {
-  newyear: { title: "calendar",       priceTon: 0.2 },
-  onlynft: { title: "Классический",   priceTon: 1.0 },
-  crypto:  { title: "Все или ничего", priceTon: 0.5 },
-};
-
 // Пул призов с шансами (для трёх кейсов)
 const CASE_PRIZES = {
   newyear: [
@@ -288,8 +282,14 @@ const CASE_PRIZES = {
 
   // Classic case (onlynft)
   onlynft: [
-    { emoji: "🐸", name: "Plush Pepe Pink Latex", price: 10000.0, weight: 1 },
-    { emoji: "🧸", name: "Bear",                  price: 0.1,     weight: 99 },
+    { emoji: "🐸", name: "Plush Pepe Pink Latex", price: 10000.0, weight:   1 },
+    { emoji: "💔", name: "Trapped Hearts",        price:    20.0, weight:  50 },
+    { emoji: "🐱", name: "Scared Cats",           price:   200.0, weight:   5 },
+    { emoji: "💵", name: "Snoop Cigars",          price:    15.0, weight:  80 },
+    { emoji: "🥃", name: "Vintage Cigars",        price:    40.0, weight:  20 },
+    { emoji: "🎩", name: "Witch Hats",            price:     7.0, weight: 120 },
+    { emoji: "🍪", name: "Happy Brownies",        price:     5.0, weight: 150 },
+    { emoji: "🧸", name: "Bear",                  price:     0.1, weight: 500 },
   ],
 
   // All or nothing (crypto)
@@ -298,6 +298,7 @@ const CASE_PRIZES = {
     { emoji: "🧸", name: "Bear",                    price: 0.1,   weight: 99 },
   ],
 };
+
 
 // выбор по весам
 function pickWeighted(prizes) {
@@ -340,18 +341,36 @@ app.post("/api/cases/open", auth, (req, res) => {
   updateUserBalance(tgId, newBalance);
 
   const pool = CASE_PRIZES[caseType] || [{ emoji: "🧸", name: "Bear", price: 0.1 }];
-const winner = pickWeighted(pool);
+  const winner = pickWeighted(pool);
 
-return res.json({
-  ok: true,
-  caseType,
-  caseTitle: cfg.title,
-  priceTon: price,
-  prize: winner,
-  newBalance,
-});
+  // Кладём приз в инвентарь
+  addInventoryItem(tgId, {
+    emoji: String(winner.emoji || "🎁"),
+    name: String(winner.name || "Подарок"),
+    price: safeNumber(winner.price, 0),
+  });
 
+  // Собираем ленту для анимации (можно просто ремикс пула)
+  const base = [...pool];
+  for (let i = base.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [base[i], base[j]] = [base[j], base[i]];
+  }
+
+  const rollItems = [];
+  for (let i = 0; i < 28; i++) rollItems.push(base[i % base.length]);
+
+  return res.json({
+    ok: true,
+    caseType,
+    caseTitle: cfg.title,
+    priceTon: price,
+    prize: winner,
+    newBalance,
+    rollItems,
+  });
 });
+;
 
 // promo apply (from DB)
 app.post("/api/promo/apply", auth, (req, res) => {
@@ -819,4 +838,5 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
 
