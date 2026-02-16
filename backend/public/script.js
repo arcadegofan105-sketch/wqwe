@@ -180,8 +180,7 @@ const prizeModal = document.getElementById('prize-modal')
 const modalPrizeEmoji = document.getElementById('modal-prize-emoji')
 const modalPrizeName = document.getElementById('modal-prize-name')
 const modalPrizePrice = document.getElementById('modal-prize-price')
-const modalSellBtn = document.getElementById('modal-sell')
-const modalKeepBtn = document.getElementById('modal-keep')
+const prizeModal = document.querySelector('.prize-modal');
 
 const inventoryList = document.getElementById('inventory-list')
 
@@ -2156,6 +2155,7 @@ async function init() {
 }
 
 init()
+
 
 
 
