@@ -40,15 +40,24 @@ const CASES = {
   },
 
   onlynft: {
-    id: 'onlynft',
-    title: 'Classic case',
-    priceTon: 1.0,
-    imageSelector: '.case-image-onlynft',
-    contents: [
-      { emoji: '🐸', name: 'Plush Pepe Pink Latex', price: 10000.0 },       // было "Пепе"
-      { emoji: '🧸', name: 'Bear', price: 0.1 },
-    ],
-  },
+  id: 'onlynft',
+  title: 'Classic case',
+  priceTon: 1.0,
+  imageSelector: '.case-image-onlynft',
+  contents: [
+    { emoji: '🐸', name: 'Plush Pepe Pink Latex', price: 10000.0 },
+
+    { emoji: '💔', name: 'Trapped Hearts',  price: 20.0 },
+    { emoji: '🐱', name: 'Scared Cats',     price: 200.0 },
+    { emoji: '💵', name: 'Snoop Cigars',    price: 15.0 },
+    { emoji: '🥃', name: 'Vintage Cigars',  price: 40.0 },
+    { emoji: '🎩', name: 'Witch Hats',      price: 7.0 },
+    { emoji: '🍪', name: 'Happy Brownies',  price: 5.0 },
+
+    { emoji: '🧸', name: 'Bear',            price: 0.1 },
+  ],
+},
+
 
   crypto: {
     id: 'crypto',
@@ -77,12 +86,19 @@ const GIFT_IMAGES = {
   "Hexpot": "Hexpot (1).webp",
   "lightsword": "lightsword.webp",
 
-  // новые для Celendar case
   "lolpop": "levelpops.webp",
   "socks": "soksos.webp",
   "Woodoo (random)": "voodoolol.png",
-    "Bear": "Bear.png",
+  "Bear": "Bear.png",
+
+  "Trapped Hearts": "TrappedHeart.png",
+  "Scared Cats": "scaredcad.webp",
+  "Snoop Cigars": "dollars.webp",
+  "Vintage Cigars": "sigares.webp",
+  "Witch Hats": "WitchHats.webp",
+  "Happy Brownies": "poorsada.webp",
 };
+
 
 
 
@@ -2152,6 +2168,7 @@ async function init() {
 }
 
 init()
+
 
 
 
