@@ -1203,7 +1203,7 @@ modalSellBtn?.addEventListener('click', async () => {
   try {
     let idx = currentPrizeIdx
 
-    // 1) Колесо: если есть индекс — просто продаём по нему
+    // 1) Колесо: если сервер вернул idx, продаём по нему
     if (Number.isInteger(idx)) {
       const data = await sellPrizeApi(currentPrize, idx)
       balance = Number(data.newBalance ?? balance)
@@ -1216,27 +1216,17 @@ modalSellBtn?.addEventListener('click', async () => {
       return
     }
 
-    // 2) Кейс: индекса нет, приз уже создан в /api/cases/open.
-    // Подтягиваем свежий инвентарь и ищем самый новый такой предмет.
+    // 2) Кейс: индекса нет, приз уже добавлен сервером в /api/cases/open.
+    // Берём просто самый новый предмет (последний в массиве).
     const me = await fetchUserData()
     const inv = Array.isArray(me.inventory) ? me.inventory : inventory || []
 
-    let found = -1
-    for (let i = inv.length - 1; i >= 0; i--) {
-      const it = inv[i]
-      if (!it) continue
-      if (String(it.name) === String(currentPrize.name) && Number(it.price) === Number(currentPrize.price)) {
-        found = i
-        break
-      }
-    }
-
-    if (found < 0) {
+    if (!inv.length) {
       alert('Не удалось найти предмет в инвентаре для продажи.')
       return
     }
 
-    idx = found
+    idx = inv.length - 1
 
     const data = await sellPrizeApi(currentPrize, idx)
     balance = Number(data.newBalance ?? balance)
@@ -1252,6 +1242,7 @@ modalSellBtn?.addEventListener('click', async () => {
     alert(err.message || 'Ошибка продажи')
   }
 })
+
 
 
 modalKeepBtn?.addEventListener('click', async () => {
@@ -2215,6 +2206,7 @@ async function init() {
 }
 
 init()
+
 
 
 
