@@ -549,60 +549,69 @@ function renderCaseRewardsList(cfg) {
   }).join('')
 }
 
-function renderCasePreviewTrack(cfg) {
+async function playInlineCaseAnimation(pool, winner) {
   if (!caseOpenTrack) return
 
-  const items = Array.isArray(cfg?.contents) && cfg.contents.length ? cfg.contents : []
-  const base = items.length ? items : [CASES_ALWAYS_PRIZE]
+  const base = Array.isArray(pool) && pool.length ? [...pool] : [winner]
+  for (let i = base.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[base[i], base[j]] = [base[j], base[i]]
+  }
 
-  const out = []
-  for (let i = 0; i < 18; i++) out.push(base[i % base.length])
+  const items = []
+  for (let i = 0; i < 28; i++) items.push(base[i % base.length])
 
-  caseOpenTrack.innerHTML = out.map(makeAnimItemHTML).join('')
+  // старт без анимации
+  caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
   caseOpenTrack.style.transition = 'none'
   caseOpenTrack.style.transform = 'translateX(0px)'
-}
+  void caseOpenTrack.offsetHeight
 
-function openCase(caseType) {
-  const cfg = CASES[caseType]
-  if (!cfg) {
-    alert('Этот кейс скоро добавим.')
-    return
-  }
+  const itemW = 96
+  const gap = 22
+  const step = itemW + gap
 
-  selectedCaseType = caseType
+  // считаем, какой индекс примерно в центре окна
+  const viewportWidth = caseOpenTrack.parentElement
+    ? caseOpenTrack.parentElement.offsetWidth
+    : 0
+  const centerX = viewportWidth / 2
 
-  // Заголовок (если есть элемент с id="case-open-title")
-  if (typeof caseOpenTitleEl !== 'undefined' && caseOpenTitleEl) {
-    caseOpenTitleEl.textContent = cfg.title || ''
-  }
+  // немного сдвинем вправо, чтобы попасть под фиолетовую рамку
+  const rawIndex = centerX / step + 0.8  // если все ещё будет левее, увеличь 0.8 → 1.0
+  const winIndex = Math.round(rawIndex)
+  const clampedIndex = Math.min(Math.max(winIndex, 0), items.length - 1)
 
-  // Цена открытия кейса (по-человечески)
-  if (caseOpenPriceEl) {
-    caseOpenPriceEl.textContent = formatTonHuman(cfg.priceTon || 0)
-  }
+  // winner в ту ячейку, которую видит "стрелка"
+  items[clampedIndex] = winner
+  caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
 
-  // Картинка: берём превью по селектору из конфигурации CASES
-  if (typeof caseOpenImageEl !== 'undefined' && caseOpenImageEl) {
-    const img = cfg.imageSelector ? document.querySelector(cfg.imageSelector) : null
+  const target = -clampedIndex * step
+  const finalX = target
 
-    if (img?.className) {
-      // заменяем класс case-image* на case-open-image*, чтобы сохранить стили
-      caseOpenImageEl.className = img.className.replace('case-image', 'case-open-image')
-    } else {
-      caseOpenImageEl.className = 'case-open-image'
+  // медленнее анимация
+  const DURATION_MS = 8000
+
+  await new Promise(resolve => {
+    let done = false
+    const finish = () => {
+      if (done) return
+      done = true
+      caseOpenTrack.removeEventListener('transitionend', onEnd)
+      resolve()
     }
-  }
+    const onEnd = e => {
+      if (e.propertyName !== 'transform') return
+      finish()
+    }
 
-  // Список призов и предпросмотр ленты
-  renderCaseRewardsList(cfg)
-  renderCasePreviewTrack(cfg)
+    caseOpenTrack.addEventListener('transitionend', onEnd)
+    setTimeout(finish, DURATION_MS + 300)
 
-  // Переход на экран открытия кейса
-  setScreen('caseOpen')
+    caseOpenTrack.style.transition = `transform ${DURATION_MS}ms cubic-bezier(.08,.82,.12,1)`
+    caseOpenTrack.style.transform = `translateX(${finalX}px)`
+  })
 }
-
-
 
 
 // ===== TON CONNECT =====
@@ -2111,6 +2120,7 @@ async function init() {
 }
 
 init()
+
 
 
 
