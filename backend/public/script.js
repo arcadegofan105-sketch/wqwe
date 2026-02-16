@@ -1071,6 +1071,7 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
   const cfg = CASES[selectedCaseType]
   if (!cfg) return
 
+  // защита от повторных нажатий и открытых модалок
   if (isCaseOpening) return
   if (prizeModal?.classList.contains('active')) return
   if (withdrawModal?.classList.contains('active')) return
@@ -1079,6 +1080,7 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
   caseOpenSpinBtn.disabled = true
 
   try {
+    // 1) сервер: списание + выбор приза + (опционально) rollItems
     const r = await apiPost('/cases/open', { caseType: selectedCaseType })
 
     balance = Number(r?.newBalance ?? balance)
@@ -1090,15 +1092,17 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
       return
     }
 
-    // Берём ленту либо с сервера, либо из фронтового конфига
+    // 2) выбираем пул для анимации:
+    // сначала пробуем rollItems с сервера, если его нет — contents из фронтового CASES
     const pool =
       Array.isArray(r?.rollItems) && r.rollItems.length
         ? r.rollItems
         : (Array.isArray(cfg.contents) && cfg.contents.length ? cfg.contents : [prize])
 
-    // Крутим ИМЕННО inline-анимацию, без оверлея
+    // 3) крутим inline‑анимацию ТОЛЬКО в треке кейса (без оверлея)
     await playInlineCaseAnimation(pool, prize)
 
+    // 4) показываем результат и даём сохранить/продать
     currentPrize = prize
     currentPrizeIdx = null
     setLastPrizeText(currentPrize)
@@ -1110,6 +1114,7 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
     caseOpenSpinBtn.disabled = false
   }
 })
+
 
 // крутилка
 spinButton?.addEventListener('click', async e => {
@@ -2167,6 +2172,7 @@ async function init() {
 }
 
 init()
+
 
 
 
