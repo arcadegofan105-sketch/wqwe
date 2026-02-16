@@ -9,14 +9,15 @@ const MIN_DEPOSIT_TON = 0.1
 const BOT_USERNAME = 'GiftWheels_bot'
 
 const wheelSectors = [
-  { emoji: '📅', name: 'Календарь', price: 1.5 },
-  { emoji: '🐸', name: 'Пепе', price: 0.0 },
+  { emoji: '📅', name: 'Celendar (random)', price: 1.5 },
+  { emoji: '🐸', name: 'Pepe', price: 0.0 },                // обычный Pepe (колесо)
   { emoji: "🗡️", name: "lightsword", price: 0.0 },
-  { emoji: '🧸', name: 'Мишка', price: 0.1 },
+  { emoji: '🧸', name: 'Bear', price: 0.1 },
   { emoji: "🧪", name: "Hexpot", price: 0.0 },
-  { emoji: '🧸', name: 'Мишка', price: 0.1 },
-  { emoji: '🍑', name: 'Персик', price: 0.0 },
+  { emoji: '🧸', name: 'Bear', price: 0.1 },
+  { emoji: '🍑', name: 'Precious Peach (random)', price: 0.0 },
 ]
+
 
 
 // ===== CASES CONFIG =====
@@ -2072,6 +2073,7 @@ async function init() {
 }
 
 init()
+
 
 
 
