@@ -269,7 +269,14 @@ app.post("/api/spin", auth, (req, res) => {
 });
 
 // ===== CASES =====
+// ===== CASES =====
 // Конфиг кейсов: названия + цены
+const CASES = {
+  newyear: { title: "calendar",       priceTon: 0.2 },
+  onlynft: { title: "Классический",   priceTon: 1.0 },
+  crypto:  { title: "Все или ничего", priceTon: 0.5 },
+};
+
 // Пул призов с шансами (для трёх кейсов)
 const CASE_PRIZES = {
   newyear: [
@@ -280,7 +287,6 @@ const CASE_PRIZES = {
     { emoji: "🧸", name: "Bear",                price: 0.1,  weight: 96 },
   ],
 
-  // Classic case (onlynft)
   onlynft: [
     { emoji: "🐸", name: "Plush Pepe Pink Latex", price: 10000.0, weight:   1 },
     { emoji: "💔", name: "Trapped Hearts",        price:    20.0, weight:  50 },
@@ -292,12 +298,12 @@ const CASE_PRIZES = {
     { emoji: "🧸", name: "Bear",                  price:     0.1, weight: 500 },
   ],
 
-  // All or nothing (crypto)
   crypto: [
     { emoji: "🍑", name: "Precious Peach (random)", price: 500.0, weight: 1 },
     { emoji: "🧸", name: "Bear",                    price: 0.1,   weight: 99 },
   ],
 };
+
 
 
 // выбор по весам
@@ -370,7 +376,6 @@ app.post("/api/cases/open", auth, (req, res) => {
     rollItems,
   });
 });
-;
 
 // promo apply (from DB)
 app.post("/api/promo/apply", auth, (req, res) => {
@@ -838,5 +843,6 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
 
 
