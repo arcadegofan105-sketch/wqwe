@@ -491,14 +491,15 @@ function renderCaseRewardsList(cfg) {
 
   const items = Array.isArray(cfg.contents) ? cfg.contents : [CASES_ALWAYS_PRIZE]
   caseOpenRewardsListEl.innerHTML = items
-  .map(it => `
-    <div class="case-prize-card">
-      <div class="case-prize-emoji">${giftVisual(it)}</div>
-      <div class="case-prize-name">${escapeHtml(it?.name || '')}</div>
-    </div>
-  `)
-  .join('')
+    .map(it => `
+      <div class="case-prize-card">
+        <div class="case-prize-emoji">${giftVisual(it)}</div>
+        <div class="case-prize-name">${escapeHtml(it?.name || '')}</div>
+      </div>
+    `)
+    .join('')
 }
+
 
 function renderCasePreviewTrack(cfg){
   if (!caseOpenTrack) return
@@ -525,16 +526,7 @@ function openCase(caseType) {
 
   if (caseOpenPriceEl) caseOpenPriceEl.textContent = Number(cfg.priceTon || 0).toFixed(2)
 
-  // подтягиваем классы изображения из карточки, чтобы было "как в списке"
-  if (caseOpenImageEl) {
-    const img = document.querySelector(`#screen-cases .case-card[data-case-type="${caseType}"] .case-image`)
-    if (img?.className) {
-      // заменим base-class, чтобы CSS мог отличать open-image при необходимости
-      caseOpenImageEl.className = img.className.replace('case-image', 'case-open-image')
-    } else {
-      caseOpenImageEl.className = 'case-open-image'
-    }
-  }
+  
 
   renderCaseRewardsList(cfg)
 renderCasePreviewTrack(cfg)
@@ -2037,6 +2029,7 @@ async function init() {
 }
 
 init()
+
 
 
 
