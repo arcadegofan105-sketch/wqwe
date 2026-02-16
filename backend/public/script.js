@@ -1229,7 +1229,8 @@ modalSellBtn?.addEventListener('click', async () => {
 modalKeepBtn?.addEventListener('click', async () => {
   if (!currentPrize) return
   try {
-    await keepPrizeApi(currentPrize)
+    // для кейсов приз уже создан сервером в /cases/open,
+    // поэтому просто обновляем данные и закрываем модалку
     await fetchUserData()
     currentPrize = null
     currentPrizeIdx = null
@@ -1239,6 +1240,7 @@ modalKeepBtn?.addEventListener('click', async () => {
     alert(err.message || 'Ошибка сохранения')
   }
 })
+
 
 inventoryList?.addEventListener('click', async e => {
   const card = e.target.closest('.inv-card')   // было .inventory-item
@@ -2185,6 +2187,7 @@ async function init() {
 }
 
 init()
+
 
 
 
