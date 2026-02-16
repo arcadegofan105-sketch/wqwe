@@ -317,21 +317,19 @@ async function playCaseOpenAnimation({ pool, winner }) {
 async function playInlineCaseAnimation(pool, winner) {
   if (!caseOpenTrack) return
 
-  console.log('ANIM WINNER:', winner)
-
-  // 1) Берём пул и чуть шифлим порядок, чтобы каждый спин был разный
   const base = Array.isArray(pool) && pool.length ? [...pool] : [winner]
   for (let i = base.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
     ;[base[i], base[j]] = [base[j], base[i]]
   }
 
-  // 2) Собираем ленту
   const items = []
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
 
-  // 3) Финальная позиция — РОВНО winner с сервера
-  items[items.length - 6] = winner
+  // НАСТРАИВАЕМАЯ точка выигрыша
+  const WIN_OFFSET = 6 // пробуй 5 или 7, пока центр не совпадёт
+  const winIndex = items.length - WIN_OFFSET
+  items[winIndex] = winner
 
   caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
   caseOpenTrack.style.transition = 'none'
@@ -341,12 +339,12 @@ async function playInlineCaseAnimation(pool, winner) {
   const itemW = 96
   const gap = 22
   const step = itemW + gap
-  const winIndex = items.length - 6
+
   const target = -winIndex * step
   const jitter = -Math.round(step * 0.35 + Math.random() * step * 0.25)
   const finalX = target + jitter
 
-  const DURATION_MS = 7000
+  const DURATION_MS = 5600
 
   await new Promise(resolve => {
     let done = false
@@ -2172,6 +2170,7 @@ async function init() {
 }
 
 init()
+
 
 
 
