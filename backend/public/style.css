@@ -1224,18 +1224,19 @@ body {
 }
 
 .crash-status {
-	position: absolute;
-	top: 37%;
-	left: 50%;
-	transform: translateX(-50%) rotate(8deg);
-	padding: 6px 14px;
-	border-radius: 999px;
-	background: rgba(15, 23, 42, 0.7);
-	backdrop-filter: blur(10px);
-	font-size: 15px;
-	font-weight: 600;
-	color: #e5e7eb;
+  position: absolute;
+  top: 37px;
+  left: 50%;
+  transform: translateX(-50%); /* без rotate */
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.7);
+  backdrop-filter: blur(10px);
+  font-size: 15px;
+  font-weight: 600;
+  color: #e5e7eb;
 }
+
 
 /* Ракета */
 .crash-rocket {
@@ -2370,6 +2371,7 @@ body {
 .case-prize-price-text{
   line-height: 1;
 }
+
 
 
 
