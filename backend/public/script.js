@@ -195,6 +195,8 @@ const caseOpenImageEl = document.getElementById('case-open-image')
 const caseOpenPriceEl = document.getElementById('case-open-price')
 const caseOpenSpinBtn = document.getElementById('case-open-spin')
 const caseOpenRewardsListEl = document.getElementById('case-open-rewards-list')
+const caseOpenTrack = document.getElementById("case-open-track")
+
 
 // Case open animation UI
 const caseAnimOverlay = document.getElementById('case-anim-overlay')
@@ -463,8 +465,26 @@ function renderCaseRewardsList(cfg) {
 
   const items = Array.isArray(cfg.contents) ? cfg.contents : [CASES_ALWAYS_PRIZE]
   caseOpenRewardsListEl.innerHTML = items
-    .map(it => `<div class="case-reward-item">${giftVisual(it)} <span>${it.name}</span></div>`)
-    .join('')
+  .map(it => `
+    <div class="case-prize-card">
+      <div class="case-prize-emoji">${giftVisual(it)}</div>
+      <div class="case-prize-name">${escapeHtml(it?.name || '')}</div>
+    </div>
+  `)
+  .join('')
+}
+
+function renderCasePreviewTrack(cfg){
+  if (!caseOpenTrack) return
+  const items = Array.isArray(cfg?.contents) && cfg.contents.length ? cfg.contents : []
+  const base = items.length ? items : [CASES_ALWAYS_PRIZE]
+
+  const out = []
+  for (let i = 0; i < 18; i++) out.push(base[i % base.length])
+
+  caseOpenTrack.innerHTML = out.map(makeAnimItemHTML).join("")
+  caseOpenTrack.style.transition = "none"
+  caseOpenTrack.style.transform = "translateX(0px)"
 }
 
 
@@ -491,8 +511,12 @@ function openCase(caseType) {
   }
 
   renderCaseRewardsList(cfg)
-  setScreen('caseOpen')
+renderCasePreviewTrack(cfg)
+setScreen('caseOpen')
+
 }
+
+
 
 // ===== TON CONNECT =====
 function isWalletConnected() {
@@ -1987,6 +2011,7 @@ async function init() {
 }
 
 init()
+
 
 
 
