@@ -9,17 +9,18 @@ const MIN_DEPOSIT_TON = 0.1
 const BOT_USERNAME = 'GiftWheels_bot'
 
 const wheelSectors = [
-  { emoji: '📅', name: 'Календарь', price: 1.5 },
-  { emoji: '🐸', name: 'Пепе', price: 0.0 },
-  { emoji: "🗡️", name: "lightsword", price: 0.0 },
-  { emoji: '🧸', name: 'Мишка', price: 0.1 },
-  { emoji: "🧪", name: "Hexpot", price: 0.0 },
-  { emoji: '🧸', name: 'Мишка', price: 0.1 },
-  { emoji: '🍑', name: 'Персик', price: 0.0 },
+  { emoji: '🐸', name: 'Pepe', price: 0.0 },              // 1) Pepe
+  { emoji: "🗡️", name: "lightsword", price: 0.0 },       
+  { emoji: '🧸', name: 'Bear', price: 0.1 },                 // 3) Sword
+  { emoji: "🧪", name: "Hexpot", price: 0.0 },            // 4) Hexpot
+  { emoji: '📅', name: 'Celendar (random)', price: 1.5 }, // 5) Celendar
+  { emoji: '🍑', name: 'Precious Peach (random)', price: 0.0 }, // 6) Peach
+  { emoji: '🧸', name: 'Bear', price: 0.1 },              // 7) ещё Bear (если хочешь 2 мишки как было)
 ]
 
+
 // ===== CASES CONFIG =====
-// "крутится кейс и всегда мишка"
+// "Кейс крутится и всегда мишка" — winner всегда CASES_ALWAYS_PRIZE, а анимация может крутить pool.
 const CASES = {
   newyear: {
     id: 'newyear',
@@ -27,49 +28,88 @@ const CASES = {
     priceTon: 0.2,
     imageSelector: '.case-image-newyear',
     contents: [
-      { emoji: '📅', name: 'Календарь', price: 1.5 },
-      { emoji: '🧸', name: 'Мишка', price: 0.1 },
-    ],
+  { emoji: '📅', name: 'Celendar (random)', price: 1.5 },
+  { emoji: '🍭', name: 'lolpop',            price: 7.0 },
+  { emoji: '🧸', name: 'Bear',              price: 0.1 },
+  { emoji: '🧦', name: 'socks',             price: 10.0 },
+  { emoji: '🧸', name: 'Bear',              price: 0.1 },
+  { emoji: '🪆', name: 'Woodoo (random)',   price: 30.0 },
+  { emoji: '🧸', name: 'Bear',              price: 0.1 },
+]
+,
   },
+
   onlynft: {
-    id: 'onlynft',
-    title: 'Классический',
-    priceTon: 1.0,
-    imageSelector: '.case-image-onlynft',
-    contents: [
-      { emoji: '🐸', name: 'Пепе', price: 0.0 },
-      { emoji: '🧸', name: 'Мишка', price: 0.1 },
-    ],
-  },
+  id: 'onlynft',
+  title: 'Classic case',
+  priceTon: 1.0,
+  imageSelector: '.case-image-onlynft',
+  contents: [
+    { emoji: '🐸', name: 'Plush Pepe Pink Latex', price: 10000.0 },
+
+    { emoji: '💔', name: 'Trapped Hearts',  price: 20.0 },
+    { emoji: '🐱', name: 'Scared Cats',     price: 200.0 },
+    { emoji: '💵', name: 'Snoop Cigars',    price: 15.0 },
+    { emoji: '🥃', name: 'Vintage Cigars',  price: 40.0 },
+    { emoji: '🎩', name: 'Witch Hats',      price: 7.0 },
+    { emoji: '🍪', name: 'Happy Brownies',  price: 5.0 },
+
+    { emoji: '🧸', name: 'Bear',            price: 0.1 },
+  ],
+},
+
+
   crypto: {
     id: 'crypto',
-    title: 'Все или ничего',
+    title: 'All or nothing',
     priceTon: 0.5,
     imageSelector: '.case-image-crypto',
     contents: [
-      { emoji: '🍑', name: 'Персик', price: 0.0 },
-      { emoji: '🧸', name: 'Мишка', price: 0.1 },
+      { emoji: '🍑', name: 'Precious Peach (random)', price: 500.0 },       // было "Персик"
+      { emoji: '🧸', name: 'Bear', price: 0.1 },
     ],
   },
 }
 
-// Всегда выдаваемый приз
-const CASES_ALWAYS_PRIZE = { emoji: '🧸', name: 'Мишка', price: 0.1 }
 
-// CUSTOM IMAGES
+// Всегда выдаваемый приз (winner).
+const CASES_ALWAYS_PRIZE = { emoji: '🧸', name: 'Bear', price: 0.1 }
+
+// CUSTOM IMAGES (ключ = точное item.name)
 const GIFT_IMAGES = {
-  "Пепе": "epepepepe.webp",
-  "Персик": "epersok.webp",
-  "Календарь": "Deskcelend.png",
+  "Pepe": "epepepepe.webp",
+  "Plush Pepe Pink Latex": "PinkLat.webp",
+
+  "Precious Peach (random)": "epersok.webp",
+  "Celendar (random)": "Deskcelend.png",
+
   "Hexpot": "Hexpot (1).webp",
   "lightsword": "lightsword.webp",
-}
+
+  "lolpop": "levelpops.webp",
+  "socks": "soksos.webp",
+  "Woodoo (random)": "voodoolol.png",
+  "Bear": "Bear.png",
+
+  "Trapped Hearts": "TrappedHeart.png",
+  "Scared Cats": "scaredcad.webp",
+  "Snoop Cigars": "dollars.webp",
+  "Vintage Cigars": "sigares.webp",
+  "Witch Hats": "WitchHats.webp",
+  "Happy Brownies": "poorsada.webp",
+};
+
+
+
 
 function giftVisual(item) {
-  const file = GIFT_IMAGES[item?.name]
-  if (file) return `<span class="gift-icon" style="background-image:url('${file}')"></span>`
-  return item?.emoji || ""
+  const file = GIFT_IMAGES[item?.name];
+  if (file) {
+    return `<span class="gift-icon" style="background-image:url('${file}')"></span>`;
+  }
+  return item?.emoji || "";
 }
+
 
 // ===== TELEGRAM =====
 const tg = window.Telegram?.WebApp || null
@@ -99,6 +139,7 @@ function setWheelIconsUpright(angleDeg) {
   wheel.style.setProperty("--wheel-rot", `${angleDeg}deg`)
 }
 
+
 const spinButton = document.getElementById('spin-button')
 const balanceValueSpan = document.getElementById('balance-value')
 const balanceValueSpan2 = document.getElementById('balance-value-2')
@@ -122,9 +163,11 @@ const screens = {
   bonus: document.getElementById('screen-bonus'),
   profile: document.getElementById('screen-profile'),
   admin: document.getElementById('screen-admin'),
+
 }
 
 const rewardsListEl = document.getElementById('rewards-list')
+
 
 const depositBtn = document.getElementById('deposit-btn')
 const withdrawBtn = document.getElementById('withdraw-btn')
@@ -183,16 +226,40 @@ const inviteLinkText = document.getElementById('invite-link-text')
 const inviteCopyBtn = document.getElementById('invite-copy-btn')
 
 // Cases UI
-const caseCards = document.querySelectorAll('#screen-cases .case-card')
-const caseOpenTitleEl = document.getElementById('case-open-title')
-const caseOpenImageEl = document.getElementById('case-open-image')
+const caseCards = document.querySelectorAll('.case-card')
 const caseOpenPriceEl = document.getElementById('case-open-price')
 const caseOpenSpinBtn = document.getElementById('case-open-spin')
 const caseOpenRewardsListEl = document.getElementById('case-open-rewards-list')
+const caseOpenTrack = document.getElementById('case-open-track')
 
-// Case open animation UI (оверлей)
+
+// === ВСТАВЬ ВОТ ЭТО СЮДА ===
+function formatTonHuman(v) {
+  const n = Number(v)
+  if (!Number.isFinite(n)) return '0'
+  return n.toFixed(2).replace(/\\.?0+$/, '')
+}
+
+function renderCasesMenuFromConfig() {
+  caseCards?.forEach(card => {
+    const type = card.getAttribute('data-case-type')
+    const cfg = CASES?.[type]
+    if (!cfg) return
+
+    const titleEl = card.querySelector('.case-name')
+    const priceEl = card.querySelector('.case-price')
+
+    if (titleEl) titleEl.textContent = cfg.title || type
+    if (priceEl) priceEl.textContent = `${formatTonHuman(cfg.priceTon || 0)} TON`
+  })
+}
+// === КОНЕЦ ВСТАВКИ ===
+
+
+// Case open animation UI
 const caseAnimOverlay = document.getElementById('case-anim-overlay')
 const caseAnimTrack = document.getElementById('case-anim-track')
+
 
 function setCaseAnimVisible(v) {
   if (!caseAnimOverlay) return
@@ -200,23 +267,22 @@ function setCaseAnimVisible(v) {
   caseAnimOverlay.classList.toggle('active', !!v)
 }
 
+
 function makeAnimItemHTML(prize) {
   const v = giftVisual(prize)
   const isIcon = String(v).includes('gift-icon')
   return `<div class="case-anim-item">${isIcon ? v : `<div class="emoji">${v}</div>`}</div>`
 }
 
-// рулетка-анимация (оверлей, проблема только в небольшом смещении)
+// рулетка-анимация (простая и надежная)
 async function playCaseOpenAnimation({ pool, winner }) {
-  console.log('[caseAnim] start')
+  console.log('[caseAnim] start') // <-- ВОТ СЮДА (самое начало)
   if (!caseAnimTrack || !caseAnimOverlay) return
 
   const base = Array.isArray(pool) && pool.length ? pool : [winner]
   const items = []
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
-
-  // победитель в items.length - 6
-  items[items.length - 6] = winner
+  items[items.length - 5] = winner
 
   caseAnimTrack.innerHTML = items.map(makeAnimItemHTML).join('')
   caseAnimTrack.style.transition = 'none'
@@ -243,9 +309,80 @@ async function playCaseOpenAnimation({ pool, winner }) {
 
   await new Promise(r => setTimeout(r, 3600))
 
-  console.log('[caseAnim] end-hide')
+  console.log('[caseAnim] end-hide') // <-- ВОТ СЮДА (прямо перед скрытием)
   setCaseAnimVisible(false)
 }
+
+async function playInlineCaseAnimation(pool, winner) {
+  if (!caseOpenTrack) return
+
+  const base = Array.isArray(pool) && pool.length ? [...pool] : [winner]
+  for (let i = base.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[base[i], base[j]] = [base[j], base[i]]
+  }
+
+  const items = []
+  for (let i = 0; i < 28; i++) items.push(base[i % base.length])
+
+  caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
+  caseOpenTrack.style.transition = 'none'
+  caseOpenTrack.style.transform = 'translateX(0px)'
+  caseOpenTrack.offsetHeight
+
+  const itemW = 96
+  const gap = 22
+  const step = itemW + gap
+
+  // ширина всей ленты
+  const totalWidth = items.length * step
+
+  // ширина видимой области (окна кейса)
+  const viewportWidth = caseOpenTrack.parentElement
+    ? caseOpenTrack.parentElement.offsetWidth
+    : 0
+
+  // пиксельная позиция центра окна
+  const centerX = viewportWidth / 2
+
+  // индекс ячейки, которая окажется под центром
+  const rawIndex = centerX / step + 0.5 // сдвиг вправо на ~пол-слота
+const winIndex = Math.round(rawIndex)
+
+  // защита от выхода за границы
+  const clampedIndex = Math.min(Math.max(winIndex, 0), items.length - 1)
+
+  // ставим победителя именно в эту ячейку
+  items[clampedIndex] = winner
+  caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
+
+  const target = -clampedIndex * step
+  const jitter = -Math.round(step * 0.1 + Math.random() * step * 0.1)
+  const finalX = target + jitter
+
+  const DURATION_MS = 8000
+
+  await new Promise(resolve => {
+    let done = false
+    const finish = () => {
+      if (done) return
+      done = true
+      caseOpenTrack.removeEventListener('transitionend', onEnd)
+      resolve()
+    }
+    const onEnd = e => {
+      if (e.propertyName !== 'transform') return
+      finish()
+    }
+
+    caseOpenTrack.addEventListener('transitionend', onEnd)
+    setTimeout(finish, DURATION_MS + 200)
+
+    caseOpenTrack.style.transition = `transform ${DURATION_MS}ms cubic-bezier(.08,.82,.12,1)`
+    caseOpenTrack.style.transform = `translateX(${finalX}px)`
+  })
+}
+
 
 // ===== STATE =====
 let currentRotation = 0
@@ -256,13 +393,13 @@ let currentPrizeIdx = null
 let isSpinning = false
 let isAdmin = false
 let selectedCaseType = null
+let isCaseOpening = false
 
 const adminState = {
   q: '',
   page: 1,
   pages: 1,
 }
-
 
 // ===== HELPERS =====
 function updateBalanceUI() {
@@ -451,7 +588,7 @@ inviteCopyBtn?.addEventListener('click', async () => {
 function formatTonHuman(v) {
   const n = Number(v)
   if (!Number.isFinite(n)) return '0'
-  return n.toFixed(2).replace(/\.?0+$/, '')
+  return n.toFixed(2).replace(/\\.?0+$/, '')
 }
 
 function renderCaseRewardsList(cfg) {
@@ -481,69 +618,60 @@ function renderCaseRewardsList(cfg) {
   }).join('')
 }
 
-async function playInlineCaseAnimation(pool, winner) {
+function renderCasePreviewTrack(cfg) {
   if (!caseOpenTrack) return
 
-  const base = Array.isArray(pool) && pool.length ? [...pool] : [winner]
-  for (let i = base.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[base[i], base[j]] = [base[j], base[i]]
-  }
+  const items = Array.isArray(cfg?.contents) && cfg.contents.length ? cfg.contents : []
+  const base = items.length ? items : [CASES_ALWAYS_PRIZE]
 
-  const items = []
-  for (let i = 0; i < 28; i++) items.push(base[i % base.length])
+  const out = []
+  for (let i = 0; i < 18; i++) out.push(base[i % base.length])
 
-  // старт без анимации
-  caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
+  caseOpenTrack.innerHTML = out.map(makeAnimItemHTML).join('')
   caseOpenTrack.style.transition = 'none'
   caseOpenTrack.style.transform = 'translateX(0px)'
-  void caseOpenTrack.offsetHeight
-
-  const itemW = 96
-  const gap = 22
-  const step = itemW + gap
-
-  // считаем, какой индекс примерно в центре окна
-  const viewportWidth = caseOpenTrack.parentElement
-    ? caseOpenTrack.parentElement.offsetWidth
-    : 0
-  const centerX = viewportWidth / 2
-
-  // немного сдвинем вправо, чтобы попасть под фиолетовую рамку
-  const rawIndex = centerX / step + 0.8  // если все ещё будет левее, увеличь 0.8 → 1.0
-  const winIndex = Math.round(rawIndex)
-  const clampedIndex = Math.min(Math.max(winIndex, 0), items.length - 1)
-
-  // winner в ту ячейку, которую видит "стрелка"
-  items[clampedIndex] = winner
-  caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
-
-  const target = -clampedIndex * step
-  const finalX = target
-
-  // медленнее анимация
-  const DURATION_MS = 9000
-
-  await new Promise(resolve => {
-    let done = false
-    const finish = () => {
-      if (done) return
-      done = true
-      caseOpenTrack.removeEventListener('transitionend', onEnd)
-      resolve()
-    }
-    const onEnd = e => {
-      if (e.propertyName !== 'transform') return
-      finish()
-    }
-
-    caseOpenTrack.addEventListener('transitionend', onEnd)
-    setTimeout(finish, DURATION_MS + 300)
-
-    caseOpenTrack.style.transition = `transform ${DURATION_MS}ms cubic-bezier(.08,.82,.12,1)`
-    caseOpenTrack.style.transform = `translateX(${finalX}px)`
-  })
 }
+
+function openCase(caseType) {
+  const cfg = CASES[caseType]
+  if (!cfg) {
+    alert('Этот кейс скоро добавим.')
+    return
+  }
+
+  selectedCaseType = caseType
+
+  // Заголовок (если есть элемент с id="case-open-title")
+  if (typeof caseOpenTitleEl !== 'undefined' && caseOpenTitleEl) {
+    caseOpenTitleEl.textContent = cfg.title || ''
+  }
+
+  // Цена открытия кейса (по-человечески)
+  if (caseOpenPriceEl) {
+    caseOpenPriceEl.textContent = formatTonHuman(cfg.priceTon || 0)
+  }
+
+  // Картинка: берём превью по селектору из конфигурации CASES
+  if (typeof caseOpenImageEl !== 'undefined' && caseOpenImageEl) {
+    const img = cfg.imageSelector ? document.querySelector(cfg.imageSelector) : null
+
+    if (img?.className) {
+      // заменяем класс case-image* на case-open-image*, чтобы сохранить стили
+      caseOpenImageEl.className = img.className.replace('case-image', 'case-open-image')
+    } else {
+      caseOpenImageEl.className = 'case-open-image'
+    }
+  }
+
+  // Список призов и предпросмотр ленты
+  renderCaseRewardsList(cfg)
+  renderCasePreviewTrack(cfg)
+
+  // Переход на экран открытия кейса
+  setScreen('caseOpen')
+}
+
+
 
 
 // ===== TON CONNECT =====
@@ -950,12 +1078,12 @@ caseCards.forEach(card => {
   })
 })
 
-
 // ✅ Открыть кейс (через сервер /api/cases/open)
 caseOpenSpinBtn?.addEventListener('click', async () => {
   const cfg = CASES[selectedCaseType]
   if (!cfg) return
 
+  // защита от повторных нажатий и открытых модалок
   if (isCaseOpening) return
   if (prizeModal?.classList.contains('active')) return
   if (withdrawModal?.classList.contains('active')) return
@@ -964,6 +1092,7 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
   caseOpenSpinBtn.disabled = true
 
   try {
+    // 1) сервер: списание + выбор приза + (опционально) rollItems
     const r = await apiPost('/cases/open', { caseType: selectedCaseType })
 
     balance = Number(r?.newBalance ?? balance)
@@ -975,14 +1104,17 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
       return
     }
 
+    // 2) выбираем пул для анимации:
+    // сначала пробуем rollItems с сервера, если его нет — contents из фронтового CASES
     const pool =
       Array.isArray(r?.rollItems) && r.rollItems.length
         ? r.rollItems
         : (Array.isArray(cfg.contents) && cfg.contents.length ? cfg.contents : [prize])
 
-    // ВАЖНО: крутим inline, без оверлея
+    // 3) крутим inline‑анимацию ТОЛЬКО в треке кейса (без оверлея)
     await playInlineCaseAnimation(pool, prize)
 
+    // 4) показываем результат и даём сохранить/продать
     currentPrize = prize
     currentPrizeIdx = null
     setLastPrizeText(currentPrize)
@@ -994,7 +1126,6 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
     caseOpenSpinBtn.disabled = false
   }
 })
-
 
 
 // крутилка
@@ -2053,6 +2184,7 @@ async function init() {
 }
 
 init()
+
 
 
 
