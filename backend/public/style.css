@@ -2372,6 +2372,17 @@ body {
   line-height: 1;
 }
 
+/* Увеличить иконки в списке призов кейса (внизу) */
+#case-open-rewards-list .gift-icon {
+  width: 44px;
+  height: 44px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: inline-block;
+  flex: 0 0 44px;
+}
+
 
 
 
