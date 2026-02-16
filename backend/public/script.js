@@ -498,6 +498,13 @@ inviteCopyBtn?.addEventListener('click', async () => {
 })
 
 // ===== CASES HELPERS =====
+
+function formatTonHuman(v) {
+  const n = Number(v)
+  if (!Number.isFinite(n)) return '0'
+  return n.toFixed(2).replace(/\.?0+$/, '')
+}
+
 function renderCaseRewardsList(cfg) {
   if (!caseOpenRewardsListEl) return
   if (!cfg) {
@@ -509,8 +516,7 @@ function renderCaseRewardsList(cfg) {
 
   caseOpenRewardsListEl.innerHTML = items.map(it => {
     const name = escapeHtml(it?.name || '')
-    const price = Number(it?.price ?? 0)
-    const priceText = Number.isFinite(price) ? price.toFixed(2) : '0.00'
+    const priceText = formatTonHuman(it?.price)
 
     return `
       <div class="case-prize-card">
@@ -526,21 +532,19 @@ function renderCaseRewardsList(cfg) {
   }).join('')
 }
 
-
-
-function renderCasePreviewTrack(cfg){
+function renderCasePreviewTrack(cfg) {
   if (!caseOpenTrack) return
+
   const items = Array.isArray(cfg?.contents) && cfg.contents.length ? cfg.contents : []
   const base = items.length ? items : [CASES_ALWAYS_PRIZE]
 
   const out = []
   for (let i = 0; i < 18; i++) out.push(base[i % base.length])
 
-  caseOpenTrack.innerHTML = out.map(makeAnimItemHTML).join("")
-  caseOpenTrack.style.transition = "none"
-  caseOpenTrack.style.transform = "translateX(0px)"
+  caseOpenTrack.innerHTML = out.map(makeAnimItemHTML).join('')
+  caseOpenTrack.style.transition = 'none'
+  caseOpenTrack.style.transform = 'translateX(0px)'
 }
-
 
 function openCase(caseType) {
   const cfg = CASES[caseType]
@@ -551,14 +555,14 @@ function openCase(caseType) {
 
   selectedCaseType = caseType
 
-  if (caseOpenPriceEl) caseOpenPriceEl.textContent = Number(cfg.priceTon || 0).toFixed(2)
-
-  
+  // цена открытия кейса (тоже "по-человечески")
+  if (caseOpenPriceEl) {
+    caseOpenPriceEl.textContent = formatTonHuman(cfg.priceTon || 0)
+  }
 
   renderCaseRewardsList(cfg)
-renderCasePreviewTrack(cfg)
-setScreen('caseOpen')
-
+  renderCasePreviewTrack(cfg)
+  setScreen('caseOpen')
 }
 
 
@@ -2061,6 +2065,7 @@ async function init() {
 }
 
 init()
+
 
 
 
