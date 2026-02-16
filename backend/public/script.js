@@ -20,48 +20,53 @@ const wheelSectors = [
 
 
 // ===== CASES CONFIG =====
-// По твоей идее: "крутится кейс и всегда мишка" — делаем выдачу всегда Мишка.
+// "Кейс крутится и всегда мишка" — winner всегда CASES_ALWAYS_PRIZE, а анимация может крутить pool.
 const CASES = {
   newyear: {
-  id: 'newyear',
-  title: 'calendar',
-  priceTon: 0.2,
+    id: 'newyear',
+    title: 'Celendar case',     // было "Новогодний кейс"/"calendar"
+    priceTon: 0.2,
     imageSelector: '.case-image-newyear',
     contents: [
-      { emoji: '📅', name: 'Календарь', price: 1.5 },
-      { emoji: '🧸', name: 'Мишка', price: 0.1 },
+      { emoji: '📅', name: 'Celendar (random)', price: 1.5 },               // было "Календарь"
+      { emoji: '🧸', name: 'Bear', price: 0.1 },                             // было "Мишка"
     ],
   },
+
   onlynft: {
     id: 'onlynft',
-    title: 'Классический',
+    title: 'Classic case',
     priceTon: 1.0,
     imageSelector: '.case-image-onlynft',
     contents: [
-      { emoji: '🐸', name: 'Пепе', price: 10000.0 },
-      { emoji: '🧸', name: 'Мишка', price: 0.1 },
+      { emoji: '🐸', name: 'Plush Pepe Pink Latex', price: 10000.0 },       // было "Пепе"
+      { emoji: '🧸', name: 'Bear', price: 0.1 },
     ],
   },
+
   crypto: {
     id: 'crypto',
-    title: 'Все или ничего',
+    title: 'All or nothing',
     priceTon: 0.5,
     imageSelector: '.case-image-crypto',
     contents: [
-      { emoji: '🍑', name: 'Персик', price: 500.0 },
-      { emoji: '🧸', name: 'Мишка', price: 0.1 },
+      { emoji: '🍑', name: 'Precious Peach (random)', price: 500.0 },       // было "Персик"
+      { emoji: '🧸', name: 'Bear', price: 0.1 },
     ],
   },
 }
 
 
-const CASES_ALWAYS_PRIZE = { emoji: '🧸', name: 'Мишка', price: 0.1 }
+// Всегда выдаваемый приз (winner).
+const CASES_ALWAYS_PRIZE = { emoji: '🧸', name: 'Bear', price: 0.1 }
 
-// CUSTOM IMAGES
+// CUSTOM IMAGES (ключ = точное item.name)
 const GIFT_IMAGES = {
-  "Пепе": "epepepepe.webp",
-  "Персик": "epersok.webp",
-  "Календарь": "Deskcelend.png",
+  "Pepe": "epepepepe.webp",                      // обычный (колесо)
+  "Plush Pepe Pink Latex": "PinkLat.webp",       // розовый (кейс)
+
+  "Precious Peach (random)": "epersok.webp",
+  "Celendar (random)": "Deskcelend.png",
 
   "Hexpot": "Hexpot (1).webp",
   "lightsword": "lightsword.webp",
@@ -70,7 +75,9 @@ const GIFT_IMAGES = {
 
 function giftVisual(item) {
   const file = GIFT_IMAGES[item?.name];
-  if (file) return `<span class="gift-icon" style="background-image:url('${file}')"></span>`;
+  if (file) {
+    return `<span class="gift-icon" style="background-image:url('${file}')"></span>`;
+  }
   return item?.emoji || "";
 }
 
@@ -2065,6 +2072,7 @@ async function init() {
 }
 
 init()
+
 
 
 
