@@ -2072,7 +2072,7 @@ body {
   overflow: hidden;
 }
 
-/* ===== NEON POINTERS ===== */
+/* ===== NEON POINTERS (чуть левее центра) ===== */
 .case-anim-pointer{
   position: absolute;
   left: 50%;
@@ -2090,28 +2090,28 @@ body {
     drop-shadow(0 12px 18px rgba(0,0,0,.55));
 }
 
-/* верхняя: нос вниз */
+/* верхняя: нос вниз, сдвиг влево на 8px */
 .case-anim-pointer-top{
   top: 10px !important;
   bottom: auto !important;
-  transform: translateX(-50%) rotate(0deg) !important;
+  transform: translateX(calc(-50% - 8px)) rotate(0deg) !important;
 }
 
-/* нижняя: нос вверх */
+/* нижняя: нос вверх, тот же сдвиг */
 .case-anim-pointer-bottom{
   bottom: 10px !important;
   top: auto !important;
-  transform: translateX(-50%) rotate(180deg) !important;
+  transform: translateX(calc(-50% - 8px)) rotate(180deg) !important;
 }
 
-/* линия */
+/* линия, тот же сдвиг влево */
 .case-anim-pointer-line{
   position: absolute;
   left: 50%;
   top: 40px;
   bottom: 40px;
   width: 2px;
-  transform: translateX(-50%);
+  transform: translateX(calc(-50% - 8px));
 
   background: linear-gradient(
     to bottom,
@@ -2136,7 +2136,6 @@ body {
   overflow: visible;
 }
 
-
 .case-anim-item{
   width: 96px;
   height: 96px;
@@ -2148,6 +2147,7 @@ body {
   border: 1px solid rgba(255,255,255,.06);
   flex: 0 0 auto;
 }
+
 
 .case-anim-item .gift-icon{
   width: 72px;
@@ -2376,6 +2376,7 @@ body {
   display: inline-block;
   flex: 0 0 44px;
 }
+
 
 
 
