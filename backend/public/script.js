@@ -1084,16 +1084,14 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
     balance = Number(r?.newBalance ?? balance)
     updateBalanceUI()
 
-    // ВАЖНО: НИКАКОГО CASES_ALWAYS_PRIZE
     const prize = r?.prize
     if (!prize) {
       alert('Сервер не вернул приз')
       return
     }
-    console.log('SERVER PRIZE:', prize)
 
     const pool = Array.isArray(cfg.contents) && cfg.contents.length ? cfg.contents : [prize]
-    await playInlineCaseAnimation(pool, prize)
+    await playCaseOpenAnimation({ pool, winner: prize })
 
     currentPrize = prize
     currentPrizeIdx = null
@@ -1106,11 +1104,6 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
     caseOpenSpinBtn.disabled = false
   }
 })
-
-
-
-
-
 
 // крутилка
 spinButton?.addEventListener('click', async e => {
@@ -2168,6 +2161,7 @@ async function init() {
 }
 
 init()
+
 
 
 
