@@ -2595,6 +2595,104 @@ body {
   transform: translateY(1px) scale(.98);
 }
 
+/* ===== REWARDS / НАГРАДЫ ===== */
+
+#screen-rewards .screen-title {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+}
+
+#screen-rewards .screen-subtitle {
+  font-size: 13px;
+  color: #9ca3af;
+  margin-top: 4px;
+}
+
+/* колонка наград */
+.rewards-list {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* карточка награды */
+.bonus-card {
+  position: relative;
+  border-radius: 18px;
+  padding: 10px 12px 12px;
+  background:
+    radial-gradient(circle at top left, rgba(168,85,247,0.20), transparent 55%),
+    radial-gradient(circle at bottom right, rgba(56,189,248,0.12), transparent 60%),
+    rgba(15,23,42,0.97);
+  box-shadow:
+    0 0 0 1px rgba(30,64,175,0.8),
+    0 14px 34px rgba(15,23,42,0.95);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* вертикальная цветная полоса слева */
+.bonus-card::before {
+  content: "";
+  position: absolute;
+  left: 10px;
+  top: 9px;
+  width: 4px;
+  height: 22px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #8b5cf6, #22c55e);
+  opacity: 0.9;
+}
+
+/* заголовок и текст с учётом полоски */
+.bonus-title {
+  margin-left: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #e5e7eb;
+}
+
+.bonus-text {
+  margin-left: 12px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: #9ca3af;
+}
+
+/* прогресс (invite) делаем заметнее */
+.bonus-card .bonus-text + .bonus-text {
+  color: #c7d2fe;
+}
+
+/* кнопка награды */
+.bonus-card .action-btn {
+  margin-top: 6px;
+  align-self: flex-start;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* доступна: зелёный неон */
+.bonus-card .action-btn:not([disabled]) {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #ecfdf5;
+  box-shadow:
+    0 0 0 1px rgba(74,222,128,0.8),
+    0 10px 24px rgba(22,163,74,0.55);
+}
+
+/* недоступна: тёмная */
+.bonus-card .action-btn[disabled] {
+  background: rgba(15,23,42,0.9);
+  color: #6b7280;
+  box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
+}
+
 
 
 
