@@ -1202,40 +1202,24 @@ wheel?.addEventListener('transitionend', (e) => {
 })
 
 // Кнопка "В инвентарь"
-modalKeepBtn?.addEventListener('click', () => {
+modalKeepBtn?.addEventListener('click', async () => {
   if (!prizeModal) return
+
+  try {
+    // подтягиваем свежие данные юзера (баланс + inventory из БД)
+    const data = await fetchUserData()
+    balance = Number(data.balance || balance)
+    inventory = Array.isArray(data.inventory) ? data.inventory : inventory
+    renderInventory()
+  } catch (_) {
+    // если вдруг ошибка — просто продолжаем закрывать модалку
+  }
+
   currentPrize = null
   currentPrizeIdx = null
   prizeModal.classList.remove('active')
   if (spinButton) spinButton.disabled = false
 })
-
-// Кнопка "Продать"
-modalSellBtn?.addEventListener('click', async () => {
-  if (!currentPrize) {
-    prizeModal?.classList.remove('active')
-    if (spinButton) spinButton.disabled = false
-    return
-  }
-
-  try {
-    // продаём самый новый предмет — индекс 0 в newest‑first списке
-    const idx = 0
-    const data = await sellPrizeApi(currentPrize, idx)
-    balance = Number(data.newBalance ?? balance)
-    updateBalanceUI()
-    await fetchUserData()
-  } catch (err) {
-    alert(err.message || 'Ошибка продажи')
-  } finally {
-    currentPrize = null
-    currentPrizeIdx = null
-    prizeModal?.classList.remove('active')
-    if (spinButton) spinButton.disabled = false
-  }
-})
-
-
 
 inventoryList?.addEventListener('click', async e => {
   const card = e.target.closest('.inv-card')   // было .inventory-item
@@ -2182,6 +2166,7 @@ async function init() {
 }
 
 init()
+
 
 
 
