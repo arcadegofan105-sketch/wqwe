@@ -491,7 +491,6 @@ function renderPrizesList() {
   })
 }
 
-
 function renderInventory() {
   if (!inventoryList) return
 
@@ -504,21 +503,32 @@ function renderInventory() {
     .map((item, idx) => {
       const price = Number(item.price || 0).toFixed(2)
       return `
-        <div class="inventory-item" data-idx="${idx}">
-          <div class="inventory-item-top">
-            <div class="inventory-item-emoji">${giftVisual(item)}</div>
-            <div class="inventory-item-price">${price} TON</div>
+        <div class="inv-card" data-idx="${idx}">
+          <div class="inv-card-image-wrap">
+            <div class="inv-card-image">
+              ${giftVisual(item)}
+            </div>
+            <div class="inv-card-name">
+              ${escapeHtml(item.name || 'Подарок')}
+            </div>
           </div>
-          <div class="inventory-item-name">${item.name || 'Подарок'}</div>
-          <div class="inventory-item-actions">
-            <button class="inventory-btn inv-sell" type="button">Продать</button>
-            <button class="inventory-btn inv-withdraw" type="button">Вывести</button>
+
+          <div class="inv-card-footer">
+            <div class="inv-card-price">
+              <span class="inv-ton-icon"></span>
+              <span class="inv-ton-value">${price}</span>
+            </div>
+            <div class="inv-card-actions">
+              <button class="inv-btn inv-sell" type="button">Продать</button>
+              <button class="inv-btn inv-withdraw" type="button">Вывести</button>
+            </div>
           </div>
         </div>
       `
     })
     .join('')
 }
+
 
 function setScreen(name) {
   Object.keys(screens).forEach(key => {
@@ -2175,6 +2185,7 @@ async function init() {
 }
 
 init()
+
 
 
 
