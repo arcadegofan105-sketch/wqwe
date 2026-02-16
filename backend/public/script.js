@@ -506,15 +506,26 @@ function renderCaseRewardsList(cfg) {
   }
 
   const items = Array.isArray(cfg.contents) ? cfg.contents : [CASES_ALWAYS_PRIZE]
-  caseOpenRewardsListEl.innerHTML = items
-    .map(it => `
+
+  caseOpenRewardsListEl.innerHTML = items.map(it => {
+    const name = escapeHtml(it?.name || '')
+    const price = Number(it?.price ?? 0)
+    const priceText = Number.isFinite(price) ? price.toFixed(2) : '0.00'
+
+    return `
       <div class="case-prize-card">
         <div class="case-prize-emoji">${giftVisual(it)}</div>
-        <div class="case-prize-name">${escapeHtml(it?.name || '')}</div>
+        <div class="case-prize-name">${name}</div>
+
+        <div class="case-prize-price">
+          <span class="case-prize-ton"></span>
+          <span class="case-prize-price-text">${priceText}</span>
+        </div>
       </div>
-    `)
-    .join('')
+    `
+  }).join('')
 }
+
 
 
 function renderCasePreviewTrack(cfg){
@@ -2050,6 +2061,7 @@ async function init() {
 }
 
 init()
+
 
 
 
