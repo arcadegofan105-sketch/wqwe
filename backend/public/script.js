@@ -297,18 +297,25 @@ async function playCaseOpenAnimation({ pool, winner }) {
   setCaseAnimVisible(false)
 }
 
+
 async function playInlineCaseAnimation(pool, winner) {
   if (!caseOpenTrack) return
 
+  console.log('ANIM WINNER:', winner)
+
+  // 1) Берём пул и чуть шифлим порядок, чтобы каждый спин был разный
   const base = Array.isArray(pool) && pool.length ? [...pool] : [winner]
   for (let i = base.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
     ;[base[i], base[j]] = [base[j], base[i]]
   }
 
+  // 2) Собираем ленту
   const items = []
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
-  items[items.length - 6] = winner   // тут центр = приз с сервера
+
+  // 3) Финальная позиция — РОВНО winner с сервера
+  items[items.length - 6] = winner
 
   caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
   caseOpenTrack.style.transition = 'none'
@@ -1056,20 +1063,20 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
   caseOpenSpinBtn.disabled = true
 
   try {
-    // 1) сервер списывает и возвращает приз
+    // 1) сервер списывает и возвращает ПРАВИЛЬНЫЙ приз
     const r = await apiPost('/cases/open', { caseType: selectedCaseType })
 
     balance = Number(r?.newBalance ?? balance)
     updateBalanceUI()
 
-    // ВАЖНО: winner = приз с сервера
-    const prize = r?.prize || CASES_ALWAYS_PRIZE
+    const prize = r?.prize || CASES_ALWAYS_PRIZE   // winner с сервера
+    console.log('SERVER PRIZE:', prize)
 
-    // 2) анимация (крутит содержимое кейса на ЭТОМ экране)
+    // 2) анимация — крутим contents, но останавливаемся на этом же prize
     const pool = Array.isArray(cfg.contents) && cfg.contents.length ? cfg.contents : [prize]
     await playInlineCaseAnimation(pool, prize)
 
-    // 3) показываем результат (строго после анимации)
+    // 3) показываем ИМЕННО этот prize
     currentPrize = prize
     currentPrizeIdx = null
     setLastPrizeText(currentPrize)
@@ -1081,6 +1088,7 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
     caseOpenSpinBtn.disabled = false
   }
 })
+
 
 
 
@@ -2140,6 +2148,7 @@ async function init() {
 }
 
 init()
+
 
 
 
