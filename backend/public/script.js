@@ -197,11 +197,12 @@ const inviteLinkText = document.getElementById('invite-link-text')
 const inviteCopyBtn = document.getElementById('invite-copy-btn')
 
 // Cases UI
-const caseCards = document.querySelectorAll('#screen-cases .case-card')
+const caseCards = document.querySelectorAll('.case-card')
 const caseOpenPriceEl = document.getElementById('case-open-price')
 const caseOpenSpinBtn = document.getElementById('case-open-spin')
 const caseOpenRewardsListEl = document.getElementById('case-open-rewards-list')
 const caseOpenTrack = document.getElementById('case-open-track')
+
 
 // === ВСТАВЬ ВОТ ЭТО СЮДА ===
 function formatTonHuman(v) {
@@ -585,15 +586,36 @@ function openCase(caseType) {
 
   selectedCaseType = caseType
 
-  // цена открытия кейса (тоже "по-человечески")
+  // Заголовок (если есть элемент с id="case-open-title")
+  if (typeof caseOpenTitleEl !== 'undefined' && caseOpenTitleEl) {
+    caseOpenTitleEl.textContent = cfg.title || ''
+  }
+
+  // Цена открытия кейса (по-человечески)
   if (caseOpenPriceEl) {
     caseOpenPriceEl.textContent = formatTonHuman(cfg.priceTon || 0)
   }
 
+  // Картинка: берём превью по селектору из конфигурации CASES
+  if (typeof caseOpenImageEl !== 'undefined' && caseOpenImageEl) {
+    const img = cfg.imageSelector ? document.querySelector(cfg.imageSelector) : null
+
+    if (img?.className) {
+      // заменяем класс case-image* на case-open-image*, чтобы сохранить стили
+      caseOpenImageEl.className = img.className.replace('case-image', 'case-open-image')
+    } else {
+      caseOpenImageEl.className = 'case-open-image'
+    }
+  }
+
+  // Список призов и предпросмотр ленты
   renderCaseRewardsList(cfg)
   renderCasePreviewTrack(cfg)
+
+  // Переход на экран открытия кейса
   setScreen('caseOpen')
 }
+
 
 
 
@@ -2096,6 +2118,7 @@ async function init() {
 }
 
 init()
+
 
 
 
