@@ -316,15 +316,18 @@ async function playCaseOpenAnimation({ pool, winner }) {
 async function playInlineCaseAnimation(pool, winner) {
   if (!caseOpenTrack) return
 
+  // 1) базовый набор предметов
   const base = Array.isArray(pool) && pool.length ? [...pool] : [winner]
   for (let i = base.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
     ;[base[i], base[j]] = [base[j], base[i]]
   }
 
+  // 2) лента из 28 элементов
   const items = []
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
 
+  // 3) рендер без анимации, старт в 0px
   caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
   caseOpenTrack.style.transition = 'none'
   caseOpenTrack.style.transform = 'translateX(0px)'
@@ -334,20 +337,17 @@ async function playInlineCaseAnimation(pool, winner) {
   const gap = 22
   const step = itemW + gap
 
-  const viewportWidth = caseOpenTrack.parentElement
-    ? caseOpenTrack.parentElement.offsetWidth
-    : 0
+  // 4) ФИКСИРОВАННЫЙ индекс слота под "иглой"
+  // допустимые значения 0–27, начинай, например, с 18
+  const WIN_INDEX = 18
 
-  const centerX = viewportWidth / 2
+  const clampedIndex = Math.min(Math.max(WIN_INDEX, 0), items.length - 1)
 
-  // центр в элементах + сдвиг вправо
-  const rawIndex = centerX / step + 0.8  // <-- менять только ЭТО число
-  const winIndex = Math.round(rawIndex)
-  const clampedIndex = Math.min(Math.max(winIndex, 0), items.length - 1)
-
+  // ставим победителя именно в эту ячейку
   items[clampedIndex] = winner
   caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
 
+  // 5) двигаем так, чтобы clampedIndex оказался под иглой
   const target = -clampedIndex * step
   const finalX = target
 
@@ -373,6 +373,7 @@ async function playInlineCaseAnimation(pool, winner) {
     caseOpenTrack.style.transform = `translateX(${finalX}px)`
   })
 }
+
 
 // ===== STATE =====
 let currentRotation = 0
@@ -2174,6 +2175,7 @@ async function init() {
 }
 
 init()
+
 
 
 
