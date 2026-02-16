@@ -436,9 +436,6 @@ app.post("/api/prize/keep", auth, (req, res) => {
 });
 
 // prize sell (by idx from newest-first list)
-
-
-// prize sell (by idx from newest-first list)
 app.post("/api/prize/sell", auth, (req, res) => {
   const tgId = String(req.tgUser.id);
   touchUserVisit(req.tgUser);
@@ -471,6 +468,7 @@ app.post("/api/prize/sell", auth, (req, res) => {
   const inventory = listInventory(tgId);
   res.json({ newBalance, inventory });
 });
+
 
 
 
@@ -853,6 +851,7 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
 
 
 
