@@ -1514,6 +1514,19 @@ body {
 	background-image: url('images/elitecase.png');
 }
 
+/* Твои новые кейсы */
+.case-image-calendar {
+	background-image: url('celendarcase.jpg');
+}
+
+.case-image-allornothing {
+	background-image: url('allornothing.jpg');
+}
+
+.case-image-classic {
+	background-image: url('classeigs.jpg');
+}
+
 .case-info {
 	display: flex;
 	justify-content: space-between;
@@ -1530,6 +1543,7 @@ body {
 	font-weight: 600;
 	color: #a5f3fc;
 }
+
 
 /* экран открытия одного кейса */
 
@@ -2382,6 +2396,7 @@ body {
   display: inline-block;
   flex: 0 0 44px;
 }
+
 
 
 
