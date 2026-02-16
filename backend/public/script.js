@@ -8,14 +8,15 @@ const MIN_DEPOSIT_TON = 0.1
 // TODO: username -> GiftWheelsBot
 const BOT_USERNAME = 'GiftWheels_bot'
 
+
 const wheelSectors = [
-  { emoji: '🐸', name: 'Pepe', price: 0.0 },              // 1) Pepe
-  { emoji: "🗡️", name: "lightsword", price: 0.0 },       
-  { emoji: '🧸', name: 'Bear', price: 0.1 },              // 3) Bear
-  { emoji: "🧪", name: "Hexpot", price: 0.0 },           
-  { emoji: '📅', name: 'Celendar (random)', price: 1.5 }, // 5) Celendar
-  { emoji: '🍑', name: 'Precious Peach (random)', price: 0.0 }, // 6) Peach
-  { emoji: '🧸', name: 'Bear', price: 0.1 },              // 7) ещё Bear
+  { emoji: '🐸', name: 'Pepe', price: 0.0 },                   // 0
+  { emoji: '🗡️', name: 'lightsword', price: 0.0 },            // 1
+  { emoji: '📅', name: 'Celendar (random)', price: 1.5 },      // 2  ← Календарь
+  { emoji: '🧪', name: 'Hexpot', price: 0.0 },                 // 3
+  { emoji: '🧸', name: 'Bear', price: 0.1 },                   // 4  ← Мишка
+  { emoji: '🍑', name: 'Precious Peach (random)', price: 0.0 },// 5
+  { emoji: '🧸', name: 'Bear', price: 0.1 },                   // 6
 ]
 
 
@@ -467,20 +468,13 @@ function renderWheel() {
 
 function renderPrizesList() {
   const DISPLAY = [
-    // карта 1: Bear (из wheelSectors[2])
-    { idx: 2, title: "Bear", priceText: "0.1 TON" },
-    // карта 2: Pepe (wheelSectors[0])
-    { idx: 0, title: "PEPE", priceText: "0 TON" },
-    // карта 3: Calendar (wheelSectors[4])
-    { idx: 4, title: "Desk Calendar", priceText: "1.5 TON" },
-    // карта 4: lightsword (wheelSectors[1])
-    { idx: 1, title: "lightsword", priceText: "0 TON" },
-    // карта 5: Hexpot (wheelSectors[3])
-    { idx: 3, title: "Hexpot", priceText: "0 TON" },
-    // карта 6: Peach (wheelSectors[5])
-    { idx: 5, title: "Precious Peach", priceText: "0 TON" },
-    // карта 7: второй Bear (wheelSectors[6])
-    { idx: 6, title: "Bear", priceText: "0.1 TON" },
+    { idx: 4, title: "Bear",            priceText: "0.1 TON" },   // Bear (0.1)
+    { idx: 0, title: "Pepe",            priceText: "10000 TON" }, // Pepe 10000
+    { idx: 2, title: "Desk Calendar",   priceText: "1.5 TON" },   // Calendar 1.5
+    { idx: 1, title: "Lightsword",      priceText: "7 TON" },     // Lightsword 7
+    { idx: 3, title: "Hexpot",          priceText: "10 TON" },    // Hexpot 10
+    { idx: 6, title: "Bear",            priceText: "0.1 TON" },   // второй Bear
+    { idx: 5, title: "Precious Peach",  priceText: "500 TON" },   // Peach 500
   ]
 
   const cards = document.querySelectorAll(".wheel-prizes-grid .wheel-prize-card")
@@ -2201,6 +2195,7 @@ async function init() {
 }
 
 init()
+
 
 
 
