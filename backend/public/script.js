@@ -185,6 +185,7 @@ const modalKeepBtn = document.getElementById('modalKeepBtn')
 
 const inventoryList = document.getElementById('inventory-list')
 
+
 // Withdraw modal
 const withdrawModal = document.getElementById('withdraw-modal')
 const withdrawAmountInput = document.getElementById('withdraw-amount-input')
@@ -1184,7 +1185,6 @@ setWheelIconsUpright(currentRotation)
 })
 
 wheel?.addEventListener('transitionend', (e) => {
-  // раньше было: if (e.propertyName !== 'transform') return
   if (e.propertyName !== '--wheel-rot' && e.propertyName !== 'transform') return
   if (!isSpinning) return
 
@@ -1200,6 +1200,7 @@ wheel?.addEventListener('transitionend', (e) => {
 
   isSpinning = false
 })
+
 
 // Кнопка "В инвентарь"
 modalKeepBtn?.addEventListener('click', async () => {
@@ -2166,6 +2167,7 @@ async function init() {
 }
 
 init()
+
 
 
 
