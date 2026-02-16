@@ -2375,6 +2375,159 @@ body {
   flex: 0 0 44px;
 }
 
+/* Контейнер инвентаря */
+#inventory-list {
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+@media (min-width: 430px) {
+  #inventory-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Карточка предмета */
+.inv-card {
+  position: relative;
+  border-radius: 18px;
+  padding: 10px 10px 12px;
+  background:
+    radial-gradient(circle at top, rgba(129,140,248,.18), transparent 55%),
+    radial-gradient(circle at bottom, rgba(34,197,94,.16), transparent 60%),
+    #020617;
+  box-shadow:
+    0 0 0 1px rgba(15,23,42,.85),
+    0 16px 40px rgba(0,0,0,.75);
+  border: 1px solid rgba(148,163,184,.35);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Верх — большая картинка + название */
+.inv-card-image-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.inv-card-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;          /* квадрат как на скрине */
+  border-radius: 16px;
+  background: radial-gradient(circle at top, rgba(15,23,42,.95), rgba(15,23,42,.9));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* делаем иконки крупными */
+.inv-card-image .gift-icon {
+  width: 86%;
+  height: 86%;
+  border-radius: 20px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.inv-card-image .emoji {
+  font-size: 52px;
+}
+
+.inv-card-name {
+  font-size: 13px;
+  font-weight: 800;
+  color: #e5e7eb;
+  text-align: center;
+  line-height: 1.15;
+  text-shadow: 0 8px 18px rgba(0,0,0,.85);
+}
+
+/* Низ — цена + две кнопки */
+.inv-card-footer {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* TON цена */
+.inv-card-price {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(15,23,42,.95);
+  box-shadow:
+    0 0 0 1px rgba(94,234,212,.28),
+    0 10px 24px rgba(0,0,0,.7);
+  font-size: 12px;
+  font-weight: 800;
+  color: #bbf7d0;
+}
+
+/* TON иконка (подставь правильный путь к картинке) */
+.inv-ton-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  background-image: url('toncoin-ton-logo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,.55));
+}
+
+.inv-ton-value {
+  line-height: 1;
+}
+
+/* Кнопки Продать / Вывести */
+.inv-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.inv-btn {
+  flex: 1;
+  border: none;
+  border-radius: 12px;
+  padding: 8px 0;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  color: #e5e7eb;
+  background: rgba(15,23,42,.95);
+  box-shadow: 0 0 0 1px rgba(148,163,184,.35);
+}
+
+.inv-btn.inv-sell {
+  background: linear-gradient(135deg, #f97316, #b45309);
+  box-shadow:
+    0 0 0 1px rgba(251,146,60,.55),
+    0 12px 30px rgba(251,146,60,.35);
+}
+
+.inv-btn.inv-withdraw {
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  box-shadow:
+    0 0 0 1px rgba(56,189,248,.55),
+    0 12px 30px rgba(56,189,248,.35);
+}
+
+.inv-btn:active {
+  transform: translateY(1px) scale(.98);
+}
+
 
 
 
