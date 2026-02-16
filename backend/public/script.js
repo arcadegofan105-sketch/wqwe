@@ -1201,65 +1201,29 @@ wheel?.addEventListener('transitionend', (e) => {
   isSpinning = false
 })
 
-modalSellBtn?.addEventListener('click', async () => {
-  if (!currentPrize) return
 
-  try {
-    // 1) Сначала сохраняем приз в инвентарь
-    await keepPrizeApi(currentPrize)
-
-    // 2) Подтягиваем обновлённый инвентарь
-    const me = await fetchUserData()
-    const inv = Array.isArray(me.inventory) ? me.inventory : inventory || []
-
-    if (!inv.length) {
-      alert('Не удалось найти предмет в инвентаре для продажи.')
-      return
-    }
-
-    // 3) Самый новый предмет — индекс 0 (newest-first)
-    const idx = 0
-    const item = inv[idx]
-
-    // 4) Продаём его — сервер удалит item[0] и вернёт новый инвентарь
-    const data = await sellPrizeApi(item, idx)
-    balance = Number(data.newBalance ?? balance)
-    updateBalanceUI()
-
-    // 5) Обновляем локальный инвентарь и UI
-    if (Array.isArray(data.inventory)) {
-      inventory = data.inventory
-      renderInventory()
-    } else {
-      await fetchUserData()
-    }
-
-    currentPrize = null
-    currentPrizeIdx = null
-    closeModal()
-    spinButton.disabled = false
-  } catch (err) {
-    alert(err.message || 'Ошибка продажи')
-  }
-})
 
 
 
 modalKeepBtn?.addEventListener('click', async () => {
   if (!currentPrize) return
+
   try {
+    // 1) добавляем выпавший приз в инвентарь
     await keepPrizeApi(currentPrize)
+
+    // 2) подтягиваем обновлённый инвентарь и баланс
     await fetchUserData()
+
+    // 3) сбрасываем модалку
     currentPrize = null
     currentPrizeIdx = null
     closeModal()
     spinButton.disabled = false
   } catch (err) {
-    alert(err.message || 'Ошибка сохранения')
+    alert(err.message || 'Ошибка: не удалось добавить в инвентарь')
   }
 })
-
-
 
 
 inventoryList?.addEventListener('click', async e => {
@@ -2207,6 +2171,7 @@ async function init() {
 }
 
 init()
+
 
 
 
