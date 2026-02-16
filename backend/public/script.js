@@ -11,12 +11,13 @@ const BOT_USERNAME = 'GiftWheels_bot'
 const wheelSectors = [
   { emoji: '🐸', name: 'Pepe', price: 0.0 },              // 1) Pepe
   { emoji: "🗡️", name: "lightsword", price: 0.0 },       
-  { emoji: '🧸', name: 'Bear', price: 0.1 },                 // 3) Sword
-  { emoji: "🧪", name: "Hexpot", price: 0.0 },            // 4) Hexpot
+  { emoji: '🧸', name: 'Bear', price: 0.1 },              // 3) Bear
+  { emoji: "🧪", name: "Hexpot", price: 0.0 },           
   { emoji: '📅', name: 'Celendar (random)', price: 1.5 }, // 5) Celendar
   { emoji: '🍑', name: 'Precious Peach (random)', price: 0.0 }, // 6) Peach
-  { emoji: '🧸', name: 'Bear', price: 0.1 },              // 7) ещё Bear (если хочешь 2 мишки как было)
+  { emoji: '🧸', name: 'Bear', price: 0.1 },              // 7) ещё Bear
 ]
+
 
 
 // ===== CASES CONFIG =====
@@ -466,13 +467,20 @@ function renderWheel() {
 
 function renderPrizesList() {
   const DISPLAY = [
-    { idx: 3, title: "bear", priceText: "0.1 TON" },
-    { idx: 1, title: "PEPE", priceText: "10000 TON" },
-    { idx: 0, title: "Desk Celendar", priceText: "5 TON" },
-    { idx: 2, title: "lightsword", priceText: "7 TON" },
-    { idx: 4, title: "Hexpot", priceText: "10 TON" },
-    { idx: 5, title: "bear", priceText: "0.1 TON" },
-{ idx: 6, title: "Precious Peach", priceText: "500 TON" },
+    // карта 1: Bear (из wheelSectors[2])
+    { idx: 2, title: "Bear", priceText: "0.1 TON" },
+    // карта 2: Pepe (wheelSectors[0])
+    { idx: 0, title: "PEPE", priceText: "0 TON" },
+    // карта 3: Calendar (wheelSectors[4])
+    { idx: 4, title: "Desk Calendar", priceText: "1.5 TON" },
+    // карта 4: lightsword (wheelSectors[1])
+    { idx: 1, title: "lightsword", priceText: "0 TON" },
+    // карта 5: Hexpot (wheelSectors[3])
+    { idx: 3, title: "Hexpot", priceText: "0 TON" },
+    // карта 6: Peach (wheelSectors[5])
+    { idx: 5, title: "Precious Peach", priceText: "0 TON" },
+    // карта 7: второй Bear (wheelSectors[6])
+    { idx: 6, title: "Bear", priceText: "0.1 TON" },
   ]
 
   const cards = document.querySelectorAll(".wheel-prizes-grid .wheel-prize-card")
@@ -492,6 +500,7 @@ function renderPrizesList() {
     if (priceTextEl) priceTextEl.textContent = d.priceText
   })
 }
+
 
 function renderInventory() {
   if (!inventoryList) return
@@ -2192,6 +2201,7 @@ async function init() {
 }
 
 init()
+
 
 
 
