@@ -106,9 +106,10 @@ function giftVisual(item) {
   if (file) {
     return `<span class="gift-icon" style="background-image:url('${file}')"></span>`
   }
-  // если файла нет – показываем исходный эмодзи, как раньше
+  // если картинки нет — показываем эмодзи
   return item?.emoji || ''
 }
+
 
 
 
@@ -1198,37 +1199,23 @@ wheel?.addEventListener('transitionend', (e) => {
 })
 
 modalSellBtn?.addEventListener('click', async () => {
-  if (!currentPrize) return
+  if (!inventoryList) return
 
   try {
-    let idx = currentPrizeIdx
-
-    // 1) Колесо: если сервер вернул idx, продаём по нему
-    if (Number.isInteger(idx)) {
-      const data = await sellPrizeApi(currentPrize, idx)
-      balance = Number(data.newBalance ?? balance)
-      updateBalanceUI()
-      currentPrize = null
-      currentPrizeIdx = null
-      closeModal()
-      spinButton.disabled = false
-      await fetchUserData()
-      return
-    }
-
-    // 2) Кейс: индекса нет, приз уже добавлен сервером в /api/cases/open.
-    // Берём просто самый новый предмет (последний в массиве).
+    // подтягиваем актуальный инвентарь
     const me = await fetchUserData()
     const inv = Array.isArray(me.inventory) ? me.inventory : inventory || []
 
     if (!inv.length) {
-      alert('Не удалось найти предмет в инвентаре для продажи.')
+      alert('В инвентаре пусто.')
       return
     }
 
-    idx = inv.length - 1
+    // продаём самый новый предмет (последний в массиве)
+    const idx = inv.length - 1
+    const item = inv[idx]
 
-    const data = await sellPrizeApi(currentPrize, idx)
+    const data = await sellPrizeApi(item, idx)
     balance = Number(data.newBalance ?? balance)
     updateBalanceUI()
 
@@ -1244,12 +1231,10 @@ modalSellBtn?.addEventListener('click', async () => {
 })
 
 
-
 modalKeepBtn?.addEventListener('click', async () => {
   if (!currentPrize) return
   try {
-    // для кейсов приз уже создан сервером в /cases/open,
-    // поэтому просто обновляем данные и закрываем модалку
+    // спин/кейс уже положил приз в инвентарь на сервере
     await fetchUserData()
     currentPrize = null
     currentPrizeIdx = null
@@ -1259,6 +1244,7 @@ modalKeepBtn?.addEventListener('click', async () => {
     alert(err.message || 'Ошибка сохранения')
   }
 })
+
 
 
 inventoryList?.addEventListener('click', async e => {
@@ -2206,6 +2192,7 @@ async function init() {
 }
 
 init()
+
 
 
 
