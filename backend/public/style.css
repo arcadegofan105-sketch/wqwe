@@ -17,7 +17,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  /* тёмный вертикальный градиент + две мягкие «ауры» */
+  /* С‚С‘РјРЅС‹Р№ РІРµСЂС‚РёРєР°Р»СЊРЅС‹Р№ РіСЂР°РґРёРµРЅС‚ + РґРІРµ РјСЏРіРєРёРµ В«Р°СѓСЂС‹В» */
   background:
     radial-gradient(circle at 10% 0%, rgba(168,85,247,0.26), transparent 55%),
     radial-gradient(circle at 100% 100%, rgba(45,212,191,0.18), transparent 55%),
@@ -32,7 +32,7 @@ body {
   overflow-y: auto;
 }
 
-/* нижняя панель фиксируем к низу */
+/* РЅРёР¶РЅСЏСЏ РїР°РЅРµР»СЊ С„РёРєСЃРёСЂСѓРµРј Рє РЅРёР·Сѓ */
 .bottom-nav {
   position: fixed;
   left: 0;
@@ -153,7 +153,7 @@ body {
   font-weight: 700;
 }
 
-/* общая кнопка-статус кошелька */
+/* РѕР±С‰Р°СЏ РєРЅРѕРїРєР°-СЃС‚Р°С‚СѓСЃ РєРѕС€РµР»СЊРєР° */
 .wallet-status {
   margin-left: 4px;
   border-radius: 999px;
@@ -170,7 +170,7 @@ body {
   transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
 }
 
-/* не подключен — круг с плюсиком, неон-синий */
+/* РЅРµ РїРѕРґРєР»СЋС‡РµРЅ вЂ” РєСЂСѓРі СЃ РїР»СЋСЃРёРєРѕРј, РЅРµРѕРЅ-СЃРёРЅРёР№ */
 .wallet-status-disconnected {
   width: 24px;
   padding: 0;
@@ -183,7 +183,7 @@ body {
     0 8px 20px rgba(37,99,235,0.65);
 }
 
-/* подключен — чип с обводкой TON */
+/* РїРѕРґРєР»СЋС‡РµРЅ вЂ” С‡РёРї СЃ РѕР±РІРѕРґРєРѕР№ TON */
 .wallet-status-connected {
   background: rgba(15,23,42,0.95);
   color: #e5e7eb;
@@ -234,117 +234,61 @@ body {
   initial-value: 0deg;
 }
 
-/* ===== WHEEL (готовый блок, обновлённый) ===== */
+/* ===== WHEEL (РіРѕС‚РѕРІС‹Р№ Р±Р»РѕРє) ===== */
 
-/* анимируем кастомный угол */
+/* Р’РђР–РќРћ: С‡С‚РѕР±С‹ Р°РЅРёРјР°С†РёСЏ РєР°СЃС‚РѕРјРЅРѕРіРѕ СѓРіР»Р° СЂР°Р±РѕС‚Р°Р»Р° РєР°Рє РЅР°РґРѕ */
 @property --wheel-rot {
   syntax: "<angle>";
   inherits: true;
   initial-value: 0deg;
 }
 
-/* базовые размеры иконок */
-:root {
-  --wheel-icon-box: 68px;
-  --wheel-icon-size: 46px;
+/* РќР°СЃС‚СЂРѕР№РєРё СЂР°Р·РјРµСЂРѕРІ (РїРѕРґРєСЂСѓС‡РёРІР°Р№ РїРѕРґ СЃРµР±СЏ) */
+:root{
+  --wheel-icon-box: 68px;   /* СЂР°Р·РјРµСЂ "РїР»Р°С€РєРё" РїРѕРґ РїРѕРґР°СЂРѕРє */
+  --wheel-icon-size: 46px;  /* СЂР°Р·РјРµСЂ СЃР°РјРѕР№ РёРєРѕРЅРєРё */
 }
 
-.wheel-arrow {
+.wheel-wrapper{
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  aspect-ratio: 1;
+  margin: 0 auto 16px;
+}
+
+.wheel-arrow{
   position: absolute;
-  top: 6px;
+  top: 0;
   left: 50%;
-  width: 32px;
-  height: 32px;
-  transform: translateX(-50%);
-  z-index: 20;
-  pointer-events: none;
+  transform: translateX(-50%) translateY(-50%);
+  font-size: 32px;
+  color: #facc15;
+  z-index: 10;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.7));
 }
 
-/* если у тебя в HTML всё ещё стоит символ типа ▼, он уже будет почти незаметен */
-
-
-/* встроенная стрелка‑указатель сверху */
-.wheel-arrow {
-  position: absolute;
-  top: 6px;
-  left: 50%;
-  width: 32px;
-  height: 32px;
-  transform: translateX(-50%);
-  z-index: 20;
-  pointer-events: none;
-}
-
-.wheel-arrow::before {
-  content: "";
-  position: absolute;
-  inset: 6px 4px;
-  margin: 0 auto;
-  width: 0;
-  height: 0;
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-bottom: 14px solid #facc15;
-  filter: drop-shadow(0 4px 10px rgba(250, 204, 21, 0.8));
-}
-
-.wheel-arrow::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  width: 24px;
-  height: 8px;
-  transform: translateX(-50%);
-  border-radius: 999px;
-  background: rgba(15,23,42,0.9);
-  box-shadow: 0 0 0 1px rgba(30,64,175,0.8);
-}
-
-/* само колесо */
-.wheel {
+.wheel{
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background:
-    radial-gradient(circle at 30% 20%, rgba(255,255,255,0.2), transparent 55%),
-    radial-gradient(circle at 70% 80%, rgba(56,189,248,0.22), transparent 60%),
-    #020617;
-  box-shadow:
-    0 0 0 1px rgba(15,23,42,1),
-    0 0 0 6px rgba(15,23,42,0.85),
-    0 18px 40px rgba(0,0,0,0.9);
+  border: 6px solid rgba(148, 163, 184, 0.3);
+  background: radial-gradient(circle, #1f2937 0, #020617 70%);
+  box-shadow: 0 0 30px rgba(56, 189, 248, 0.25);
+
   position: relative;
   overflow: hidden;
+
   --wheel-rot: 0deg;
   transform: rotate(var(--wheel-rot));
   transition: --wheel-rot 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
 }
 
-/* внутренний ободок + лёгкий conic‑glow */
-.wheel::before {
-  content: "";
-  position: absolute;
-  inset: 10px;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle, rgba(15,23,42,0.92) 0, rgba(15,23,42,1) 55%, rgba(15,23,42,1) 60%, transparent 70%),
-    conic-gradient(
-      from -90deg,
-      rgba(30,64,175,0.65),
-      rgba(56,189,248,0.35),
-      rgba(94,234,212,0.4),
-      rgba(30,64,175,0.65)
-    );
-  mix-blend-mode: screen;
-  opacity: 0.35;
-}
-
-/* деление на 7 тонких спиц */
-.wheel::after {
+/* ===== РєСЂР°СЃРёРІРѕРµ РґРµР»РµРЅРёРµ РєРѕР»РµСЃР° РЅР° 7 СЃРµРєС‚РѕСЂРѕРІ (СЃРїРёС†С‹) ===== */
+.wheel::after{
   content: '';
   position: absolute;
-  inset: 12px;
+  inset: 10px;
   border-radius: 50%;
   pointer-events: none;
   z-index: 2;
@@ -359,40 +303,59 @@ body {
       rgba(226, 232, 240, 0.85) calc(50% + 1px),
       transparent calc(50% + 1px),
       transparent 100%
+    ),
+    linear-gradient(
+      to right,
+      transparent 0,
+      transparent calc(50% - 6px),
+      rgba(56, 189, 248, 0.16) calc(50% - 6px),
+      rgba(56, 189, 248, 0.16) calc(50% + 6px),
+      transparent calc(50% + 6px),
+      transparent 100%
     );
 
+  /* 7 СЃРµРєС‚РѕСЂРѕРІ => 360/7 = 51.4286deg */
   -webkit-mask: conic-gradient(from -90deg, #000 0 1deg, transparent 1deg 51.4286deg);
           mask: conic-gradient(from -90deg, #000 0 1deg, transparent 1deg 51.4286deg);
 
   -webkit-mask-composite: source-in;
           mask-composite: intersect;
+
+  -webkit-mask-image:
+    radial-gradient(circle, transparent 0 44%, #000 56% 100%),
+    conic-gradient(from -90deg, #000 0 1deg, transparent 1deg 51.4286deg);
+          mask-image:
+    radial-gradient(circle, transparent 0 44%, #000 56% 100%),
+    conic-gradient(from -90deg, #000 0 1deg, transparent 1deg 51.4286deg);
 }
 
-/* иконки и центр над спицами */
-.sector { z-index: 3; }
-.wheel-center { z-index: 4; }
+/* РРєРѕРЅРєРё Рё С†РµРЅС‚СЂ вЂ” РІС‹С€Рµ СЃРїРёС† */
+.sector{ z-index: 3; }
+.wheel-center{ z-index: 4; }
 
-/* радиус размещения иконок */
-#wheel { --icon-r: 112px; }
+/* Р Р°РґРёСѓСЃ, РЅР° РєРѕС‚РѕСЂРѕРј СЃС‚РѕСЏС‚ РёРєРѕРЅРєРё (РїРѕРґРєСЂСѓС‡РёРІР°Р№ 105вЂ“125) */
+#wheel{ --icon-r: 112px; }
 
-/* позиция сектора по окружности */
-#wheel .sector {
+/* РЎРµРєС‚РѕСЂ (РїРѕР·РёС†РёСЏ РЅР° РѕРєСЂСѓР¶РЅРѕСЃС‚Рё) */
+#wheel .sector{
   position: absolute;
   top: 50%;
   left: 50%;
   width: var(--wheel-icon-box);
   height: var(--wheel-icon-box);
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   transform:
     translate(-50%, -50%)
     rotate(var(--a))
     translateY(calc(-1 * var(--icon-r)))
-    rotate(calc(0deg - var(--a)));
+    rotate(calc(0deg - var(--a))); /* С‡С‚РѕР±С‹ РёРєРѕРЅРєР° Р±С‹Р»Р° СЂРѕРІРЅРѕР№ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ СЃРµРєС‚РѕСЂР° */
 }
 
-/* углы 7 секторов */
+/* РЈРіРѕР» РґР»СЏ РєР°Р¶РґРѕРіРѕ СЃРµРєС‚РѕСЂР° */
 #wheel .sector[data-index='0']{ --a: 0deg; }
 #wheel .sector[data-index='1']{ --a: 51.43deg; }
 #wheel .sector[data-index='2']{ --a: 102.86deg; }
@@ -401,105 +364,7 @@ body {
 #wheel .sector[data-index='5']{ --a: 257.14deg; }
 #wheel .sector[data-index='6']{ --a: 308.57deg; }
 
-/* плашка под подарок */
-#wheel .sector .sector-inner {
-  width: var(--wheel-icon-box);
-  height: var(--wheel-icon-box);
-  border-radius: 18px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background:
-    radial-gradient(circle at 30% 20%, rgba(255,255,255,0.22), transparent 60%),
-    rgba(15, 23, 42, 0.9);
-  box-shadow:
-    0 0 0 1px rgba(148, 163, 184, 0.35),
-    0 14px 30px rgba(0, 0, 0, 0.6);
-  font-size: var(--wheel-icon-size);
-  line-height: 1;
-  transform: rotate(calc(-1 * var(--wheel-rot)));
-  transform-origin: center;
-}
-
-/* картинки‑иконки */
-#wheel .sector .sector-inner img {
-  width: var(--wheel-icon-size);
-  height: var(--wheel-icon-size);
-  object-fit: contain;
-  display: block;
-}
-
-#wheel .sector .pepe-icon,
-#wheel .sector .gift-icon {
-  width: var(--wheel-icon-size);
-  height: var(--wheel-icon-size);
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
-}
-
-/* центр колеса с кнопкой */
-.wheel-center {
-  position: absolute;
-  inset: 28%;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 30% 20%, rgba(255,255,255,0.25), transparent 65%),
-    radial-gradient(circle at 70% 80%, rgba(56,189,248,0.22), transparent 60%),
-    #020617;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow:
-    0 0 0 1px rgba(15,23,42,0.95),
-    0 12px 28px rgba(0,0,0,0.9);
-}
-
-/* кнопка спина */
-.spin-button {
-  border: none;
-  border-radius: 999px;
-  padding: 11px 18px;
-  background: linear-gradient(135deg, #facc15, #f97316);
-  color: #161827;
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  box-shadow: 0 12px 26px rgba(250, 204, 21, 0.55);
-  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
-}
-
-.spin-subtitle {
-  font-size: 11px;
-  opacity: 0.9;
-}
-
-.spin-button:active {
-  transform: translateY(1px) scale(0.97);
-  box-shadow: 0 8px 20px rgba(250, 204, 21, 0.6);
-}
-
-.spin-button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-
-/* Угол для каждого сектора */
-#wheel .sector[data-index='0']{ --a: 0deg; }
-#wheel .sector[data-index='1']{ --a: 51.43deg; }
-#wheel .sector[data-index='2']{ --a: 102.86deg; }
-#wheel .sector[data-index='3']{ --a: 154.29deg; }
-#wheel .sector[data-index='4']{ --a: 205.71deg; }
-#wheel .sector[data-index='5']{ --a: 257.14deg; }
-#wheel .sector[data-index='6']{ --a: 308.57deg; }
-
-/* Плашка + выравнивание размера подарков */
+/* РџР»Р°С€РєР° + РІС‹СЂР°РІРЅРёРІР°РЅРёРµ СЂР°Р·РјРµСЂР° РїРѕРґР°СЂРєРѕРІ */
 #wheel .sector .sector-inner{
   width: var(--wheel-icon-box);
   height: var(--wheel-icon-box);
@@ -514,16 +379,16 @@ body {
     0 0 0 1px rgba(148, 163, 184, 0.22),
     0 14px 30px rgba(0, 0, 0, 0.45);
 
-  /* одинаковый размер для эмодзи */
+  /* РѕРґРёРЅР°РєРѕРІС‹Р№ СЂР°Р·РјРµСЂ РґР»СЏ СЌРјРѕРґР·Рё */
   font-size: var(--wheel-icon-size);
   line-height: 1;
 
-  /* ГЛАВНОЕ: компенсируем вращение всего колеса, чтобы всегда было ровно */
+  /* Р“Р›РђР’РќРћР•: РєРѕРјРїРµРЅСЃРёСЂСѓРµРј РІСЂР°С‰РµРЅРёРµ РІСЃРµРіРѕ РєРѕР»РµСЃР°, С‡С‚РѕР±С‹ РІСЃРµРіРґР° Р±С‹Р»Рѕ СЂРѕРІРЅРѕ */
   transform: rotate(calc(-1 * var(--wheel-rot)));
   transform-origin: center;
 }
 
-/* Если внутри sector-inner у тебя картинка <img> */
+/* Р•СЃР»Рё РІРЅСѓС‚СЂРё sector-inner Сѓ С‚РµР±СЏ РєР°СЂС‚РёРЅРєР° <img> */
 #wheel .sector .sector-inner img{
   width: var(--wheel-icon-size);
   height: var(--wheel-icon-size);
@@ -531,7 +396,7 @@ body {
   display: block;
 }
 
-/* Если иконки через background-image (pepe-icon / gift-icon) */
+/* Р•СЃР»Рё РёРєРѕРЅРєРё С‡РµСЂРµР· background-image (pepe-icon / gift-icon) */
 #wheel .sector .pepe-icon,
 #wheel .sector .gift-icon{
   width: var(--wheel-icon-size);
@@ -541,7 +406,7 @@ body {
   background-position: center;
 }
 
-/* Календарь: крупно, без искажений (кадрирование вместо "мелко") */
+/* РљР°Р»РµРЅРґР°СЂСЊ: РєСЂСѓРїРЅРѕ, Р±РµР· РёСЃРєР°Р¶РµРЅРёР№ (РєР°РґСЂРёСЂРѕРІР°РЅРёРµ РІРјРµСЃС‚Рѕ "РјРµР»РєРѕ") */
 #wheel .sector .gift-icon[style*="Deskcelend.png"]{
   width: calc(var(--wheel-icon-size) * 1.35);
   height: calc(var(--wheel-icon-size) * 1.05);
@@ -659,7 +524,7 @@ body {
 	text-align: center;
 }
 
-/* ===== WHEEL PRIZES (new "Что в колесе?") ===== */
+/* ===== WHEEL PRIZES (new "Р§С‚Рѕ РІ РєРѕР»РµСЃРµ?") ===== */
 
 .wheel-prizes {
   margin-top: 14px;
@@ -685,7 +550,7 @@ body {
   text-shadow: 0 10px 24px rgba(0,0,0,0.55);
 }
 
-/* маленький "кубик" как в кейсах, под общий стиль */
+/* РјР°Р»РµРЅСЊРєРёР№ "РєСѓР±РёРє" РєР°Рє РІ РєРµР№СЃР°С…, РїРѕРґ РѕР±С‰РёР№ СЃС‚РёР»СЊ */
 .wheel-prizes-cube {
   width: 18px;
   height: 18px;
@@ -698,14 +563,14 @@ body {
     0 10px 26px rgba(56, 189, 248, 0.16);
 }
 
-/* сетка как на "что в кейсе": 2 колонки (на узких экранах), на широких можно 3 */
+/* СЃРµС‚РєР° РєР°Рє РЅР° "С‡С‚Рѕ РІ РєРµР№СЃРµ": 2 РєРѕР»РѕРЅРєРё (РЅР° СѓР·РєРёС… СЌРєСЂР°РЅР°С…), РЅР° С€РёСЂРѕРєРёС… РјРѕР¶РЅРѕ 3 */
 .wheel-prizes .wheel-prizes-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
-/* на более широких — 3 колонки, чтобы было плотнее как у тебя раньше */
+/* РЅР° Р±РѕР»РµРµ С€РёСЂРѕРєРёС… вЂ” 3 РєРѕР»РѕРЅРєРё, С‡С‚РѕР±С‹ Р±С‹Р»Рѕ РїР»РѕС‚РЅРµРµ РєР°Рє Сѓ С‚РµР±СЏ СЂР°РЅСЊС€Рµ */
 @media (min-width: 430px) {
   .wheel-prizes .wheel-prizes-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -746,10 +611,10 @@ body {
   background: rgba(15, 23, 42, 0.65);
   box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.16);
 
-  font-size: 34px; /* если вдруг эмодзи */
+  font-size: 34px; /* РµСЃР»Рё РІРґСЂСѓРі СЌРјРѕРґР·Рё */
 }
 
-/* чтобы твои .gift-icon (webp) красиво смотрелись в карточке */
+/* С‡С‚РѕР±С‹ С‚РІРѕРё .gift-icon (webp) РєСЂР°СЃРёРІРѕ СЃРјРѕС‚СЂРµР»РёСЃСЊ РІ РєР°СЂС‚РѕС‡РєРµ */
 .wheel-prizes .wheel-prize-emoji .gift-icon {
   width: 46px;
   height: 46px;
@@ -1005,13 +870,13 @@ body {
 	transform: scale(0.98);
 }
 
-/* Продать */
+/* РџСЂРѕРґР°С‚СЊ */
 .inventory-btn.inv-sell {
 	background: linear-gradient(135deg, #f59e0b, #d97706);
 	color: #1f1300;
 }
 
-/* Вывести */
+/* Р’С‹РІРµСЃС‚Рё */
 .inventory-btn.inv-withdraw {
 	background: linear-gradient(135deg, #60a5fa, #6366f1);
 	color: #0b1020;
@@ -1046,7 +911,7 @@ body {
   z-index: 10;
   display: flex;
   justify-content: space-between;
-  padding: 0; /* кнопка занимает всю высоту */
+  padding: 0; /* РєРЅРѕРїРєР° Р·Р°РЅРёРјР°РµС‚ РІСЃСЋ РІС‹СЃРѕС‚Сѓ */
   background:
     linear-gradient(to top, rgba(15,23,42,0.98), rgba(15,23,42,0.90));
   backdrop-filter: blur(18px);
@@ -1067,7 +932,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* центр по высоте */
+  justify-content: center; /* С†РµРЅС‚СЂ РїРѕ РІС‹СЃРѕС‚Рµ */
   gap: 3px;
   padding: 0;
   cursor: pointer;
@@ -1075,7 +940,7 @@ body {
   transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
 }
 
-/* фиолетовая полоска сверху активной вкладки */
+/* С„РёРѕР»РµС‚РѕРІР°СЏ РїРѕР»РѕСЃРєР° СЃРІРµСЂС…Сѓ Р°РєС‚РёРІРЅРѕР№ РІРєР»Р°РґРєРё */
 .nav-btn::before {
   content: "";
   position: absolute;
@@ -1097,7 +962,7 @@ body {
 .nav-btn .nav-icon {
   width: 24px;
   height: 24px;
-  border-radius: 0; /* без круглой подложки */
+  border-radius: 0; /* Р±РµР· РєСЂСѓРіР»РѕР№ РїРѕРґР»РѕР¶РєРё */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1118,7 +983,7 @@ body {
   font-size: 11px;
 }
 
-/* активная вкладка: фиолетовая полоска + прямоугольный фон под всей кнопкой */
+/* Р°РєС‚РёРІРЅР°СЏ РІРєР»Р°РґРєР°: С„РёРѕР»РµС‚РѕРІР°СЏ РїРѕР»РѕСЃРєР° + РїСЂСЏРјРѕСѓРіРѕР»СЊРЅС‹Р№ С„РѕРЅ РїРѕРґ РІСЃРµР№ РєРЅРѕРїРєРѕР№ */
 .nav-btn.active {
   color: #f9fafb;
   background:
@@ -1132,7 +997,7 @@ body {
   transform: translateY(0);
 }
 
-/* без отдельного кружка вокруг иконки */
+/* Р±РµР· РѕС‚РґРµР»СЊРЅРѕРіРѕ РєСЂСѓР¶РєР° РІРѕРєСЂСѓРі РёРєРѕРЅРєРё */
 .nav-btn.active .nav-icon {
   background: transparent;
   box-shadow: none;
@@ -1145,7 +1010,7 @@ body {
   }
 }
 
-/* ===== MODAL (общая оболочка) ===== */
+/* ===== MODAL (РѕР±С‰Р°СЏ РѕР±РѕР»РѕС‡РєР°) ===== */
 
 .modal {
   display: none;
@@ -1163,7 +1028,7 @@ body {
   display: flex;
 }
 
-/* карточка модалки в стиле glass / минимализм */
+/* РєР°СЂС‚РѕС‡РєР° РјРѕРґР°Р»РєРё РІ СЃС‚РёР»Рµ glass / РјРёРЅРёРјР°Р»РёР·Рј */
 .modal-content {
   background:
     radial-gradient(circle at top, rgba(59,130,246,0.35), transparent 60%),
@@ -1183,7 +1048,7 @@ body {
   color: #e5e7eb;
 }
 
-/* крупная картинка приза */
+/* РєСЂСѓРїРЅР°СЏ РєР°СЂС‚РёРЅРєР° РїСЂРёР·Р° */
 .modal-prize-emoji {
   width: 96px;
   height: 96px;
@@ -1201,7 +1066,7 @@ body {
     0 0 0 1px rgba(15,23,42,0.95);
 }
 
-/* если это gift-icon картинка */
+/* РµСЃР»Рё СЌС‚Рѕ gift-icon РєР°СЂС‚РёРЅРєР° */
 .modal-prize-emoji .gift-icon {
   width: 72px;
   height: 72px;
@@ -1210,13 +1075,13 @@ body {
   background-position: center;
 }
 
-/* если просто эмодзи */
+/* РµСЃР»Рё РїСЂРѕСЃС‚Рѕ СЌРјРѕРґР·Рё */
 .modal-prize-emoji span:not(.gift-icon),
 .modal-prize-emoji .emoji {
   font-size: 54px;
 }
 
-/* заголовок/текст/цена */
+/* Р·Р°РіРѕР»РѕРІРѕРє/С‚РµРєСЃС‚/С†РµРЅР° */
 .modal-title {
   font-size: 19px;
   font-weight: 700;
@@ -1238,7 +1103,7 @@ body {
   margin-bottom: 8px;
 }
 
-/* кнопки */
+/* РєРЅРѕРїРєРё */
 .modal-buttons {
   display: flex;
   gap: 8px;
@@ -1261,14 +1126,14 @@ body {
   transform: translateY(1px) scale(0.97);
 }
 
-/* Продать — акцентный красный */
+/* РџСЂРѕРґР°С‚СЊ вЂ” Р°РєС†РµРЅС‚РЅС‹Р№ РєСЂР°СЃРЅС‹Р№ */
 .modal-btn-sell {
   background: linear-gradient(135deg, #f97373, #ef4444);
   color: #fef2f2;
   box-shadow: 0 8px 22px rgba(248, 113, 113, 0.5);
 }
 
-/* В инвентарь — зелёный */
+/* Р’ РёРЅРІРµРЅС‚Р°СЂСЊ вЂ” Р·РµР»С‘РЅС‹Р№ */
 .modal-btn-keep {
   background: linear-gradient(135deg, #34d399, #16a34a);
   color: #ecfdf3;
@@ -1276,7 +1141,7 @@ body {
 }
 
 
-/* Кнопка TON в модалке, когда кошелёк уже привязан */
+/* РљРЅРѕРїРєР° TON РІ РјРѕРґР°Р»РєРµ, РєРѕРіРґР° РєРѕС€РµР»С‘Рє СѓР¶Рµ РїСЂРёРІСЏР·Р°РЅ */
 .connect-wallet-bound {
 	display: flex;
 	justify-content: space-between;
@@ -1335,7 +1200,7 @@ body {
 	color: #94a3b8;
 }
 
-/* Pepe icon (instead of 🐸) */
+/* Pepe icon (instead of рџђё) */
 .pepe-icon {
 	display: inline-block;
 	width: 32px;
@@ -1373,7 +1238,7 @@ body {
 	width: 100%;
 }
 
-/* Игровая зона: космос + ракета */
+/* РРіСЂРѕРІР°СЏ Р·РѕРЅР°: РєРѕСЃРјРѕСЃ + СЂР°РєРµС‚Р° */
 .crash-game-area {
 	position: relative;
 	width: 100%;
@@ -1384,7 +1249,7 @@ body {
 	box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9), 0 25px 60px rgba(0, 0, 0, 0.9);
 }
 
-/* канвас оставляем под математику, фон полностью прозрачный */
+/* РєР°РЅРІР°СЃ РѕСЃС‚Р°РІР»СЏРµРј РїРѕРґ РјР°С‚РµРјР°С‚РёРєСѓ, С„РѕРЅ РїРѕР»РЅРѕСЃС‚СЊСЋ РїСЂРѕР·СЂР°С‡РЅС‹Р№ */
 #crash-canvas {
 	position: absolute;
 	inset: 0;
@@ -1394,7 +1259,7 @@ body {
 	background: transparent;
 }
 
-/* звёзды (параллакс) — больше и крупнее */
+/* Р·РІС‘Р·РґС‹ (РїР°СЂР°Р»Р»Р°РєСЃ) вЂ” Р±РѕР»СЊС€Рµ Рё РєСЂСѓРїРЅРµРµ */
 .crash-stars{
 	position: absolute;
 	inset: -30%;
@@ -1453,7 +1318,7 @@ body {
 }
 
 
-/* Множитель и статус */
+/* РњРЅРѕР¶РёС‚РµР»СЊ Рё СЃС‚Р°С‚СѓСЃ */
 .crash-multiplier {
 	position: absolute;
 	top: 20%;
@@ -1470,7 +1335,7 @@ body {
   position: absolute;
   top: 37px;
   left: 50%;
-  transform: translateX(-50%); /* без rotate */
+  transform: translateX(-50%); /* Р±РµР· rotate */
   padding: 6px 14px;
   border-radius: 999px;
   background: rgba(15, 23, 42, 0.7);
@@ -1481,7 +1346,7 @@ body {
 }
 
 
-/* Ракета */
+/* Р Р°РєРµС‚Р° */
 .crash-rocket {
 	position: absolute;
 	width: 46%;
@@ -1494,7 +1359,7 @@ body {
 	transition: transform 0.1s linear;
 }
 
-/* Основная синяя кнопка */
+/* РћСЃРЅРѕРІРЅР°СЏ СЃРёРЅСЏСЏ РєРЅРѕРїРєР° */
 .crash-main-btn {
 	width: 100%;
 	border: none;
@@ -1521,7 +1386,7 @@ body {
 	box-shadow: 0 0 0 1px rgba(30, 64, 175, 0.5), 0 10px 24px rgba(15, 23, 42, 0.9);
 }
 
-/* Панель ввода ставки */
+/* РџР°РЅРµР»СЊ РІРІРѕРґР° СЃС‚Р°РІРєРё */
 .crash-panel {
 	display: flex;
 	gap: 10px;
@@ -1574,7 +1439,7 @@ body {
 	background: rgba(15, 23, 42, 0.95);
 }
 
-/* Инфо блок */
+/* РРЅС„Рѕ Р±Р»РѕРє */
 .crash-info {
 	display: flex;
 	flex-direction: column;
@@ -1627,14 +1492,14 @@ body {
 	transform: translateY(1px) scale(0.98);
 }
 
-/* Мобильная подстройка */
+/* РњРѕР±РёР»СЊРЅР°СЏ РїРѕРґСЃС‚СЂРѕР№РєР° */
 @media (max-width: 480px) {
 	.crash-multiplier {
 		font-size: 28px;
 	}
 }
 
-/* ✅ ADD: input styles for withdraw modal */
+/* вњ… ADD: input styles for withdraw modal */
 .modal-input {
   width: 100%;
   padding: 12px 14px;
@@ -1682,7 +1547,7 @@ body {
 	line-height: 1.35;
 }
 
-/* === Иконки-подарки (картинки) === */
+/* === РРєРѕРЅРєРё-РїРѕРґР°СЂРєРё (РєР°СЂС‚РёРЅРєРё) === */
 .gift-icon {
   display: inline-block;
   background-repeat: no-repeat;
@@ -1690,26 +1555,26 @@ body {
   background-size: cover;
 }
 
-/* СПИСКИ (колесо, кейсы, награды и т.п.) */
+/* РЎРџРРЎРљР (РєРѕР»РµСЃРѕ, РєРµР№СЃС‹, РЅР°РіСЂР°РґС‹ Рё С‚.Рї.) */
 .prize-emoji .gift-icon,
 .case-prize-emoji .gift-icon,
 .case-open-reward-emoji .gift-icon {
-  width: 44px;   /* большие, но чуть меньше инвентаря */
+  width: 44px;   /* Р±РѕР»СЊС€РёРµ, РЅРѕ С‡СѓС‚СЊ РјРµРЅСЊС€Рµ РёРЅРІРµРЅС‚Р°СЂСЏ */
   height: 44px;
   border-radius: 14px;
   box-shadow: 0 5px 14px rgba(0,0,0,0.55);
 }
 
-/* ИНВЕНТАРЬ */
+/* РРќР’Р•РќРўРђР Р¬ */
 .inventory-item-emoji .gift-icon,
 .inv-card-image .gift-icon {
-  width: 52px;   /* ещё крупнее */
+  width: 52px;   /* РµС‰С‘ РєСЂСѓРїРЅРµРµ */
   height: 52px;
   border-radius: 16px;
   box-shadow: 0 8px 18px rgba(0,0,0,0.6);
 }
 
-/* МОДАЛКА ПРИЗА (центр) */
+/* РњРћР”РђР›РљРђ РџР РР—Рђ (С†РµРЅС‚СЂ) */
 .modal-prize-emoji .gift-icon {
   width: 80px;
   height: 80px;
@@ -1757,7 +1622,7 @@ body {
 	box-shadow: 0 0 0 1px rgba(30, 64, 175, 0.6), 0 10px 24px rgba(15, 23, 42, 0.9);
 }
 
-/* 3 кейса */
+/* 3 РєРµР№СЃР° */
 .case-image-newyear {
 	background-image: url('celendarcase.jpg');   /* Celendar case */
 }
@@ -1788,7 +1653,7 @@ body {
 }
 
 
-/* экран открытия одного кейса */
+/* СЌРєСЂР°РЅ РѕС‚РєСЂС‹С‚РёСЏ РѕРґРЅРѕРіРѕ РєРµР№СЃР° */
 
 .case-open-card {
 	margin-top: 16px;
@@ -1854,7 +1719,7 @@ body {
 	font-weight: 600;
 }
 
-/* === GAME CARDS: КРАШ и КОЛЕСО на главной === */
+/* === GAME CARDS: РљР РђРЁ Рё РљРћР›Р•РЎРћ РЅР° РіР»Р°РІРЅРѕР№ === */
 
 .info-row-games {
 	display: flex;
@@ -2078,7 +1943,7 @@ body {
   white-space: nowrap;
 }
 
-/* сетка подарков снизу как в wheel-prizes */
+/* СЃРµС‚РєР° РїРѕРґР°СЂРєРѕРІ СЃРЅРёР·Сѓ РєР°Рє РІ wheel-prizes */
 .case-view-grid{
   display:grid;
   grid-template-columns: repeat(2, minmax(0,1fr));
@@ -2089,7 +1954,7 @@ body {
   .case-view-grid{ grid-template-columns: repeat(3, minmax(0,1fr)); }
 }
 
-/* карточка подарка (универсальная) */
+/* РєР°СЂС‚РѕС‡РєР° РїРѕРґР°СЂРєР° (СѓРЅРёРІРµСЂСЃР°Р»СЊРЅР°СЏ) */
 .case-view-grid .case-prize-card{
   padding: 12px 12px 10px;
   border-radius: 16px;
@@ -2335,7 +2200,7 @@ body {
   overflow: hidden;
 }
 
-/* ===== NEON POINTERS (сильно левее центра) ===== */
+/* ===== NEON POINTERS (СЃРёР»СЊРЅРѕ Р»РµРІРµРµ С†РµРЅС‚СЂР°) ===== */
 .case-anim-pointer{
   position: absolute;
   left: 50%;
@@ -2353,21 +2218,21 @@ body {
     drop-shadow(0 12px 18px rgba(0,0,0,.55));
 }
 
-/* верхняя: нос вниз, сдвиг влево на 24px */
+/* РІРµСЂС…РЅСЏСЏ: РЅРѕСЃ РІРЅРёР·, СЃРґРІРёРі РІР»РµРІРѕ РЅР° 24px */
 .case-anim-pointer-top{
   top: 10px !important;
   bottom: auto !important;
   transform: translateX(calc(-50% - 38px)) rotate(0deg) !important;
 }
 
-/* нижняя: нос вверх, тот же сдвиг */
+/* РЅРёР¶РЅСЏСЏ: РЅРѕСЃ РІРІРµСЂС…, С‚РѕС‚ Р¶Рµ СЃРґРІРёРі */
 .case-anim-pointer-bottom{
   bottom: 10px !important;
   top: auto !important;
   transform: translateX(calc(-50% - 38px)) rotate(180deg) !important;
 }
 
-/* линия, тот же сдвиг влево */
+/* Р»РёРЅРёСЏ, С‚РѕС‚ Р¶Рµ СЃРґРІРёРі РІР»РµРІРѕ */
 .case-anim-pointer-line{
   position: absolute;
   left: 50%;
@@ -2423,7 +2288,7 @@ body {
   font-size: 54px;
 }
 
-/* ===== WHEEL PRIZES (new "Что в колесе?") ===== */
+/* ===== WHEEL PRIZES (new "Р§С‚Рѕ РІ РєРѕР»РµСЃРµ?") ===== */
 
 .wheel-prizes {
   margin-top: 14px;
@@ -2523,7 +2388,7 @@ body {
   line-height: 1.15;
 }
 
-/* цена как на фото: маленький TON-лого + текст, без звёзд */
+/* С†РµРЅР° РєР°Рє РЅР° С„РѕС‚Рѕ: РјР°Р»РµРЅСЊРєРёР№ TON-Р»РѕРіРѕ + С‚РµРєСЃС‚, Р±РµР· Р·РІС‘Р·Рґ */
 .wheel-prizes .wheel-prize-price{
   display: inline-flex;
   align-items: center;
@@ -2545,7 +2410,7 @@ body {
   width: 14px;
   height: 14px;
   display: inline-block;
-  background-image: url('toncoin-ton-logo.png'); /* тот же файл что в .balance-icon */
+  background-image: url('toncoin-ton-logo.png'); /* С‚РѕС‚ Р¶Рµ С„Р°Р№Р» С‡С‚Рѕ РІ .balance-icon */
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -2556,12 +2421,23 @@ body {
   line-height: 1;
 }
 
+/* --- wheel icons upright (РЅРµ РєСЂСѓС‚СЏС‚СЃСЏ РІРјРµСЃС‚Рµ СЃ РєРѕР»РµСЃРѕРј) --- */
+:root { --wheel-rot: 0deg; }
 
+#wheel .sector .sector-inner{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-/* CRASH: полностью чёрный фон и меньше по высоте */
+  /* РіР»Р°РІРЅРѕРµ: РєРѕРЅС‚СЂ-РїРѕРІРѕСЂРѕС‚ */
+  transform: rotate(calc(-1 * var(--wheel-rot)));
+  transform-origin: center;
+}
+
+/* CRASH: РїРѕР»РЅРѕСЃС‚СЊСЋ С‡С‘СЂРЅС‹Р№ С„РѕРЅ Рё РјРµРЅСЊС€Рµ РїРѕ РІС‹СЃРѕС‚Рµ */
 #screen-crash{
-  gap: 10px;                 /* меньше воздуха */
-  padding-top: 6px;          /* поднять контент выше */
+  gap: 10px;                 /* РјРµРЅСЊС€Рµ РІРѕР·РґСѓС…Р° */
+  padding-top: 6px;          /* РїРѕРґРЅСЏС‚СЊ РєРѕРЅС‚РµРЅС‚ РІС‹С€Рµ */
 }
 
 #screen-crash .crash-container{
@@ -2569,11 +2445,11 @@ body {
   margin: 0 auto;
 }
 
-/* область игры: делаем фон чисто чёрным и уменьшаем высоту */
+/* РѕР±Р»Р°СЃС‚СЊ РёРіСЂС‹: РґРµР»Р°РµРј С„РѕРЅ С‡РёСЃС‚Рѕ С‡С‘СЂРЅС‹Рј Рё СѓРјРµРЅСЊС€Р°РµРј РІС‹СЃРѕС‚Сѓ */
 #screen-crash .crash-game-area{
-  background: #000 !important;   /* вместо radial-gradient */
-  aspect-ratio: auto !important; /* убираем 9/10 */
-  height: min(380px, 52vh);      /* меньше по высоте, но адаптивно */
+  background: #000 !important;   /* РІРјРµСЃС‚Рѕ radial-gradient */
+  aspect-ratio: auto !important; /* СѓР±РёСЂР°РµРј 9/10 */
+  height: min(380px, 52vh);      /* РјРµРЅСЊС€Рµ РїРѕ РІС‹СЃРѕС‚Рµ, РЅРѕ Р°РґР°РїС‚РёРІРЅРѕ */
   border-radius: 22px;
 }
 
@@ -2616,7 +2492,7 @@ body {
   line-height: 1;
 }
 
-/* Увеличить иконки в списке призов кейса (внизу) */
+/* РЈРІРµР»РёС‡РёС‚СЊ РёРєРѕРЅРєРё РІ СЃРїРёСЃРєРµ РїСЂРёР·РѕРІ РєРµР№СЃР° (РІРЅРёР·Сѓ) */
 #case-open-rewards-list .gift-icon {
   width: 44px;
   height: 44px;
@@ -2627,7 +2503,7 @@ body {
   flex: 0 0 44px;
 }
 
-/* Контейнер инвентаря */
+/* РљРѕРЅС‚РµР№РЅРµСЂ РёРЅРІРµРЅС‚Р°СЂСЏ */
 #inventory-list {
   margin-top: 12px;
   display: grid;
@@ -2641,7 +2517,7 @@ body {
   }
 }
 
-/* Карточка предмета */
+/* РљР°СЂС‚РѕС‡РєР° РїСЂРµРґРјРµС‚Р° */
 .inv-card {
   position: relative;
   border-radius: 18px;
@@ -2660,7 +2536,7 @@ body {
   gap: 8px;
 }
 
-/* Верх — большая картинка + название */
+/* Р’РµСЂС… вЂ” Р±РѕР»СЊС€Р°СЏ РєР°СЂС‚РёРЅРєР° + РЅР°Р·РІР°РЅРёРµ */
 .inv-card-image-wrap {
   display: flex;
   flex-direction: column;
@@ -2670,7 +2546,7 @@ body {
 
 .inv-card-image {
   width: 100%;
-  aspect-ratio: 1 / 1;          /* квадрат как на скрине */
+  aspect-ratio: 1 / 1;          /* РєРІР°РґСЂР°С‚ РєР°Рє РЅР° СЃРєСЂРёРЅРµ */
   border-radius: 16px;
   background: radial-gradient(circle at top, rgba(15,23,42,.95), rgba(15,23,42,.9));
   display: flex;
@@ -2679,7 +2555,7 @@ body {
   overflow: hidden;
 }
 
-/* делаем иконки крупными */
+/* РґРµР»Р°РµРј РёРєРѕРЅРєРё РєСЂСѓРїРЅС‹РјРё */
 .inv-card-image .gift-icon {
   width: 86%;
   height: 86%;
@@ -2702,7 +2578,7 @@ body {
   text-shadow: 0 8px 18px rgba(0,0,0,.85);
 }
 
-/* Низ — цена + две кнопки */
+/* РќРёР· вЂ” С†РµРЅР° + РґРІРµ РєРЅРѕРїРєРё */
 .inv-card-footer {
   margin-top: 4px;
   display: flex;
@@ -2710,7 +2586,7 @@ body {
   gap: 8px;
 }
 
-/* TON цена */
+/* TON С†РµРЅР° */
 .inv-card-price {
   align-self: flex-start;
   display: inline-flex;
@@ -2727,7 +2603,7 @@ body {
   color: #bbf7d0;
 }
 
-/* TON иконка (подставь правильный путь к картинке) */
+/* TON РёРєРѕРЅРєР° (РїРѕРґСЃС‚Р°РІСЊ РїСЂР°РІРёР»СЊРЅС‹Р№ РїСѓС‚СЊ Рє РєР°СЂС‚РёРЅРєРµ) */
 .inv-ton-icon {
   width: 16px;
   height: 16px;
@@ -2743,7 +2619,7 @@ body {
   line-height: 1;
 }
 
-/* Кнопки Продать / Вывести */
+/* РљРЅРѕРїРєРё РџСЂРѕРґР°С‚СЊ / Р’С‹РІРµСЃС‚Рё */
 .inv-card-actions {
   display: flex;
   gap: 8px;
@@ -2780,7 +2656,7 @@ body {
   transform: translateY(1px) scale(.98);
 }
 
-/* ===== REWARDS / НАГРАДЫ ===== */
+/* ===== REWARDS / РќРђР“Р РђР”Р« ===== */
 
 #screen-rewards .screen-title {
   font-size: 20px;
@@ -2794,7 +2670,7 @@ body {
   margin-top: 4px;
 }
 
-/* колонка наград */
+/* РєРѕР»РѕРЅРєР° РЅР°РіСЂР°Рґ */
 .rewards-list {
   margin-top: 14px;
   display: flex;
@@ -2802,7 +2678,7 @@ body {
   gap: 10px;
 }
 
-/* карточка награды */
+/* РєР°СЂС‚РѕС‡РєР° РЅР°РіСЂР°РґС‹ */
 .bonus-card {
   position: relative;
   border-radius: 18px;
@@ -2819,7 +2695,7 @@ body {
   gap: 6px;
 }
 
-/* вертикальная цветная полоса слева */
+/* РІРµСЂС‚РёРєР°Р»СЊРЅР°СЏ С†РІРµС‚РЅР°СЏ РїРѕР»РѕСЃР° СЃР»РµРІР° */
 .bonus-card::before {
   content: "";
   position: absolute;
@@ -2832,7 +2708,7 @@ body {
   opacity: 0.9;
 }
 
-/* заголовок и текст с учётом полоски */
+/* Р·Р°РіРѕР»РѕРІРѕРє Рё С‚РµРєСЃС‚ СЃ СѓС‡С‘С‚РѕРј РїРѕР»РѕСЃРєРё */
 .bonus-title {
   margin-left: 12px;
   font-size: 14px;
@@ -2847,12 +2723,12 @@ body {
   color: #9ca3af;
 }
 
-/* прогресс (invite) делаем заметнее */
+/* РїСЂРѕРіСЂРµСЃСЃ (invite) РґРµР»Р°РµРј Р·Р°РјРµС‚РЅРµРµ */
 .bonus-card .bonus-text + .bonus-text {
   color: #c7d2fe;
 }
 
-/* кнопка награды */
+/* РєРЅРѕРїРєР° РЅР°РіСЂР°РґС‹ */
 .bonus-card .action-btn {
   margin-top: 6px;
   align-self: flex-start;
@@ -2862,7 +2738,7 @@ body {
   font-weight: 700;
 }
 
-/* доступна: зелёный неон */
+/* РґРѕСЃС‚СѓРїРЅР°: Р·РµР»С‘РЅС‹Р№ РЅРµРѕРЅ */
 .bonus-card .action-btn:not([disabled]) {
   background: linear-gradient(135deg, #22c55e, #16a34a);
   color: #ecfdf5;
@@ -2871,14 +2747,12 @@ body {
     0 10px 24px rgba(22,163,74,0.55);
 }
 
-/* недоступна: тёмная */
+/* РЅРµРґРѕСЃС‚СѓРїРЅР°: С‚С‘РјРЅР°СЏ */
 .bonus-card .action-btn[disabled] {
   background: rgba(15,23,42,0.9);
   color: #6b7280;
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
-
-
 
 
 
