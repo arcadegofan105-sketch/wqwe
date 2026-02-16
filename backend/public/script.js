@@ -1128,8 +1128,9 @@ spinButton?.addEventListener('click', async e => {
   updateBalanceUI()
 
   // Сейчас у тебя намеренно всегда крутится на мишку:
-  const bearIndex = wheelSectors.findIndex(s => s?.name === 'Мишка')
-  const sectorIndex = bearIndex >= 0 ? bearIndex : 0
+  let sectorIndex = wheelSectors.findIndex(s => s?.name === currentPrize?.name)
+if (sectorIndex < 0) sectorIndex = 0
+
 
   const N = wheelSectors.length
   const step = 360 / N
@@ -2151,6 +2152,7 @@ async function init() {
 }
 
 init()
+
 
 
 
