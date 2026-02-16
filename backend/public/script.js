@@ -1198,10 +1198,23 @@ wheel?.addEventListener('transitionend', (e) => {
 
 modalSellBtn?.addEventListener('click', async () => {
   if (!currentPrize) return
+
   try {
-    // Если у нас есть индекс (например, от колеса) — передаём его,
-    // если нет (кейсы) — продаём просто по призу, без предварительного keep
-    const idx = Number.isInteger(currentPrizeIdx) ? currentPrizeIdx : undefined
+    let idx = currentPrizeIdx
+
+    // если индекса нет (кейс), сначала сохраняем приз, потом находим его в инвентаре
+    if (!Number.isInteger(idx)) {
+      await keepPrizeApi(currentPrize)
+      const me = await fetchUserData()               // обновит inventory
+      const inv = Array.isArray(me.inventory) ? me.inventory : inventory || []
+
+      const found = inv.findIndex(it => it && it.name === currentPrize.name && it.price === currentPrize.price)
+      if (found < 0) {
+        alert('Не удалось найти предмет в инвентаре для продажи.')
+        return
+      }
+      idx = found
+    }
 
     const data = await sellPrizeApi(currentPrize, idx)
     balance = Number(data.newBalance ?? balance)
@@ -1212,11 +1225,12 @@ modalSellBtn?.addEventListener('click', async () => {
     closeModal()
     spinButton.disabled = false
 
-    await fetchUserData() // подтягиваем уже очищенный инвентарь с сервера
+    await fetchUserData() // подтягиваем актуальный инвентарь
   } catch (err) {
     alert(err.message || 'Ошибка продажи')
   }
 })
+
 
 
 modalKeepBtn?.addEventListener('click', async () => {
@@ -2180,6 +2194,7 @@ async function init() {
 }
 
 init()
+
 
 
 
