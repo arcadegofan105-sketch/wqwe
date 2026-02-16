@@ -8,21 +8,17 @@ const MIN_DEPOSIT_TON = 0.1
 // TODO: username -> GiftWheelsBot
 const BOT_USERNAME = 'GiftWheels_bot'
 
-
 const wheelSectors = [
-  { emoji: '🐸', name: 'Pepe', price: 0.0 },                   // 0
-  { emoji: '🗡️', name: 'lightsword', price: 0.0 },            // 1
-  { emoji: '📅', name: 'Celendar (random)', price: 1.5 },      // 2  ← Календарь
-  { emoji: '🧪', name: 'Hexpot', price: 0.0 },                 // 3
-  { emoji: '🧸', name: 'Bear', price: 0.1 },                   // 4  ← Мишка
-  { emoji: '🍑', name: 'Precious Peach (random)', price: 0.0 },// 5
-  { emoji: '🧸', name: 'Bear', price: 0.1 },                   // 6
+  { emoji: '🐸', name: 'Pepe', price: 0.0 },                    // 0
+  { emoji: '🗡️', name: 'lightsword', price: 0.0 },             // 1
+  { emoji: '📅', name: 'Celendar (random)', price: 1.5 },       // 2
+  { emoji: '🧪', name: 'Hexpot', price: 0.0 },                  // 3
+  { emoji: '🧸', name: 'Bear', price: 0.1 },                    // 4
+  { emoji: '🍑', name: 'Precious Peach (random)', price: 0.0 }, // 5
+  { emoji: '🧸', name: 'Bear', price: 0.1 },                    // 6
 ]
 
-
-
 // ===== CASES CONFIG =====
-// "Кейс крутится и всегда мишка" — winner всегда CASES_ALWAYS_PRIZE, а анимация может крутить pool.
 const CASES = {
   newyear: {
     id: 'newyear',
@@ -30,36 +26,34 @@ const CASES = {
     priceTon: 0.2,
     imageSelector: '.case-image-newyear',
     contents: [
-  { emoji: '📅', name: 'Celendar (random)', price: 1.5 },
-  { emoji: '🍭', name: 'lolpop',            price: 7.0 },
-  { emoji: '🧸', name: 'Bear',              price: 0.1 },
-  { emoji: '🧦', name: 'socks',             price: 10.0 },
-  { emoji: '🧸', name: 'Bear',              price: 0.1 },
-  { emoji: '🪆', name: 'Woodoo (random)',   price: 30.0 },
-  { emoji: '🧸', name: 'Bear',              price: 0.1 },
-]
-,
+      { emoji: '📅', name: 'Celendar (random)', price: 1.5 },
+      { emoji: '🍭', name: 'lolpop',            price: 7.0 },
+      { emoji: '🧸', name: 'Bear',              price: 0.1 },
+      { emoji: '🧦', name: 'socks',             price: 10.0 },
+      { emoji: '🧸', name: 'Bear',              price: 0.1 },
+      { emoji: '🪆', name: 'Woodoo (random)',   price: 30.0 },
+      { emoji: '🧸', name: 'Bear',              price: 0.1 },
+    ],
   },
 
   onlynft: {
-  id: 'onlynft',
-  title: 'Classic case',
-  priceTon: 1.0,
-  imageSelector: '.case-image-onlynft',
-  contents: [
-    { emoji: '🐸', name: 'Plush Pepe Pink Latex', price: 10000.0 },
+    id: 'onlynft',
+    title: 'Classic case',
+    priceTon: 1.0,
+    imageSelector: '.case-image-onlynft',
+    contents: [
+      { emoji: '🐸', name: 'Plush Pepe Pink Latex', price: 10000.0 },
 
-    { emoji: '💔', name: 'Trapped Hearts',  price: 20.0 },
-    { emoji: '🐱', name: 'Scared Cats',     price: 200.0 },
-    { emoji: '💵', name: 'Snoop Cigars',    price: 15.0 },
-    { emoji: '🥃', name: 'Vintage Cigars',  price: 40.0 },
-    { emoji: '🎩', name: 'Witch Hats',      price: 7.0 },
-    { emoji: '🍪', name: 'Happy Brownies',  price: 5.0 },
+      { emoji: '💔', name: 'Trapped Hearts',  price: 20.0 },
+      { emoji: '🐱', name: 'Scared Cats',     price: 200.0 },
+      { emoji: '💵', name: 'Snoop Cigars',    price: 15.0 },
+      { emoji: '🥃', name: 'Vintage Cigars',  price: 40.0 },
+      { emoji: '🎩', name: 'Witch Hats',      price: 7.0 },
+      { emoji: '🍪', name: 'Happy Brownies',  price: 5.0 },
 
-    { emoji: '🧸', name: 'Bear',            price: 0.1 },
-  ],
-},
-
+      { emoji: '🧸', name: 'Bear',            price: 0.1 },
+    ],
+  },
 
   crypto: {
     id: 'crypto',
@@ -67,53 +61,46 @@ const CASES = {
     priceTon: 0.5,
     imageSelector: '.case-image-crypto',
     contents: [
-      { emoji: '🍑', name: 'Precious Peach (random)', price: 500.0 },       // было "Персик"
+      { emoji: '🍑', name: 'Precious Peach (random)', price: 500.0 },
       { emoji: '🧸', name: 'Bear', price: 0.1 },
     ],
   },
 }
-
 
 // Всегда выдаваемый приз (winner).
 const CASES_ALWAYS_PRIZE = { emoji: '🧸', name: 'Bear', price: 0.1 }
 
 // CUSTOM IMAGES (ключ = точное item.name)
 const GIFT_IMAGES = {
-  "Pepe": "epepepepe.webp",
-  "Plush Pepe Pink Latex": "PinkLat.webp",
+  'Pepe': 'epepepepe.webp',
+  'Plush Pepe Pink Latex': 'PinkLat.webp',
 
-  "Precious Peach (random)": "epersok.webp",
-  "Celendar (random)": "Deskcelend.png",
+  'Precious Peach (random)': 'epersok.webp',
+  'Celendar (random)': 'Deskcelend.png',
 
-  "Hexpot": "Hexpot (1).webp",
-  "lightsword": "lightsword.webp",
+  'Hexpot': 'Hexpot (1).webp',
+  'lightsword': 'lightsword.webp',
 
-  "lolpop": "levelpops.webp",
-  "socks": "soksos.webp",
-  "Woodoo (random)": "voodoolol.png",
-  "Bear": "Bear.png",
+  'lolpop': 'levelpops.webp',
+  'socks': 'soksos.webp',
+  'Woodoo (random)': 'voodoolol.png',
+  'Bear': 'Bear.png',
 
-  "Trapped Hearts": "TrappedHeart.png",
-  "Scared Cats": "scaredcad.webp",
-  "Snoop Cigars": "dollars.webp",
-  "Vintage Cigars": "sigares.webp",
-  "Witch Hats": "WitchHats.webp",
-  "Happy Brownies": "poorsada.webp",
-};
-
-
+  'Trapped Hearts': 'TrappedHeart.png',
+  'Scared Cats': 'scaredcad.webp',
+  'Snoop Cigars': 'dollars.webp',
+  'Vintage Cigars': 'sigares.webp',
+  'Witch Hats': 'WitchHats.webp',
+  'Happy Brownies': 'poorsada.webp',
+}
 
 function giftVisual(item) {
   const file = GIFT_IMAGES[item?.name]
   if (file) {
     return `<span class="gift-icon" style="background-image:url('${file}')"></span>`
   }
-  // если картинки нет — показываем эмодзи
   return item?.emoji || ''
 }
-
-
-
 
 // ===== TELEGRAM =====
 const tg = window.Telegram?.WebApp || null
@@ -140,9 +127,8 @@ const wheel = document.getElementById('wheel')
 
 function setWheelIconsUpright(angleDeg) {
   if (!wheel) return
-  wheel.style.setProperty("--wheel-rot", `${angleDeg}deg`)
+  wheel.style.setProperty('--wheel-rot', `${angleDeg}deg`)
 }
-
 
 const spinButton = document.getElementById('spin-button')
 const balanceValueSpan = document.getElementById('balance-value')
@@ -167,7 +153,6 @@ const screens = {
   bonus: document.getElementById('screen-bonus'),
   profile: document.getElementById('screen-profile'),
   admin: document.getElementById('screen-admin'),
-
 }
 
 const rewardsListEl = document.getElementById('rewards-list')
@@ -184,7 +169,6 @@ const modalSellBtn = document.getElementById('modalSellBtn')
 const modalKeepBtn = document.getElementById('modalKeepBtn')
 
 const inventoryList = document.getElementById('inventory-list')
-
 
 // Withdraw modal
 const withdrawModal = document.getElementById('withdraw-modal')
@@ -237,12 +221,11 @@ const caseOpenSpinBtn = document.getElementById('case-open-spin')
 const caseOpenRewardsListEl = document.getElementById('case-open-rewards-list')
 const caseOpenTrack = document.getElementById('case-open-track')
 
-
-// === ВСТАВЬ ВОТ ЭТО СЮДА ===
+// Формат TON и подписи кейсов на главном
 function formatTonHuman(v) {
   const n = Number(v)
   if (!Number.isFinite(n)) return '0'
-  return n.toFixed(2).replace(/\\.?0+$/, '')
+  return n.toFixed(2).replace(/\\\\.?0+$/, '')
 }
 
 function renderCasesMenuFromConfig() {
@@ -258,8 +241,6 @@ function renderCasesMenuFromConfig() {
     if (priceEl) priceEl.textContent = `${formatTonHuman(cfg.priceTon || 0)} TON`
   })
 }
-// === КОНЕЦ ВСТАВКИ ===
-
 
 // Case open animation UI
 const caseAnimOverlay = document.getElementById('case-anim-overlay')
@@ -1199,10 +1180,11 @@ wheel?.addEventListener('transitionend', (e) => {
   openModal(currentPrize)
 
   isSpinning = false
+
+  // После спина подтягиваем свежие данные (баланс + инвентарь)
+  fetchUserData().catch(() => {})
 })
 
-// После спина подтягиваем свежие данные (баланс + инвентарь)
-fetchUserData().catch(() => {})
 
 
 // Кнопка "В инвентарь"
@@ -2202,6 +2184,7 @@ async function init() {
 }
 
 init()
+
 
 
 
