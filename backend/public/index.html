@@ -289,17 +289,8 @@
         <!-- Экран ОТКРЫТИЯ ОДНОГО КЕЙСА (NEW UI) -->
 <section id="screen-case-open" class="screen">
   <div class="case-view">
-    <div class="case-view-hero">
-      <div class="case-view-hero-inner">
-        <div class="case-view-thumb" id="case-open-image"></div>
 
-        <button id="case-open-spin" class="case-open-main-btn" type="button">
-          Открыть кейс
-        </button>
-      </div>
-    </div>
-
-    <!-- “подарки внутри кейса” сразу на экране -->
+    <!-- рулетка / лента подарков -->
     <div class="case-view-reel">
       <div class="case-anim-window case-view-reel-window">
         <div class="case-anim-track" id="case-open-track"></div>
@@ -310,6 +301,16 @@
       </div>
     </div>
 
+    <!-- большая кнопка -->
+    <button
+      id="case-open-spin"
+      class="case-open-main-btn case-open-main-btn--big"
+      type="button"
+    >
+      Открыть кейс
+    </button>
+
+    <!-- заголовок + цена -->
     <div class="case-view-collections-head">
       <div class="case-view-collections-title">
         <span class="case-view-cube"></span>
@@ -322,10 +323,11 @@
       </div>
     </div>
 
+    <!-- список подарков -->
     <div id="case-open-rewards-list" class="case-view-grid"></div>
+
   </div>
 </section>
-
 
 
         <!-- Экран НАГРАДЫ -->
@@ -717,6 +719,7 @@
 
   </body>
 </html>
+
 
 
 
