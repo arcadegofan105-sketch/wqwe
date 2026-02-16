@@ -590,7 +590,7 @@ async function playInlineCaseAnimation(pool, winner) {
   const finalX = target
 
   // медленнее анимация
-  const DURATION_MS = 8000
+  const DURATION_MS = 9000
 
   await new Promise(resolve => {
     let done = false
@@ -1048,8 +1048,8 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
         ? r.rollItems
         : (Array.isArray(cfg.contents) && cfg.contents.length ? cfg.contents : [prize])
 
-    // ВАЖНО: здесь вызываем ИМЕННО playCaseOpenAnimation, НЕ inline
-    await playCaseOpenAnimation({ pool, winner: prize })
+    // ВАЖНО: крутим inline, без оверлея
+    await playInlineCaseAnimation(pool, prize)
 
     currentPrize = prize
     currentPrizeIdx = null
@@ -1062,6 +1062,7 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
     caseOpenSpinBtn.disabled = false
   }
 })
+
 
 
 // крутилка
@@ -2120,6 +2121,7 @@ async function init() {
 }
 
 init()
+
 
 
 
