@@ -339,7 +339,7 @@ async function playInlineCaseAnimation(pool, winner) {
 
   // 4) ФИКСИРОВАННЫЙ индекс слота под "иглой"
   // допустимые значения 0–27, начинай, например, с 18
-  const WIN_INDEX = 18
+  const WIN_INDEX = 19
 
   const clampedIndex = Math.min(Math.max(WIN_INDEX, 0), items.length - 1)
 
@@ -2175,6 +2175,7 @@ async function init() {
 }
 
 init()
+
 
 
 
