@@ -1063,20 +1063,22 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
   caseOpenSpinBtn.disabled = true
 
   try {
-    // 1) сервер списывает и возвращает ПРАВИЛЬНЫЙ приз
     const r = await apiPost('/cases/open', { caseType: selectedCaseType })
 
     balance = Number(r?.newBalance ?? balance)
     updateBalanceUI()
 
-    const prize = r?.prize || CASES_ALWAYS_PRIZE   // winner с сервера
+    // ВАЖНО: НИКАКОГО CASES_ALWAYS_PRIZE
+    const prize = r?.prize
+    if (!prize) {
+      alert('Сервер не вернул приз')
+      return
+    }
     console.log('SERVER PRIZE:', prize)
 
-    // 2) анимация — крутим contents, но останавливаемся на этом же prize
     const pool = Array.isArray(cfg.contents) && cfg.contents.length ? cfg.contents : [prize]
     await playInlineCaseAnimation(pool, prize)
 
-    // 3) показываем ИМЕННО этот prize
     currentPrize = prize
     currentPrizeIdx = null
     setLastPrizeText(currentPrize)
@@ -1088,6 +1090,7 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
     caseOpenSpinBtn.disabled = false
   }
 })
+
 
 
 
@@ -2148,6 +2151,7 @@ async function init() {
 }
 
 init()
+
 
 
 
