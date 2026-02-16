@@ -313,7 +313,6 @@ async function playCaseOpenAnimation({ pool, winner }) {
   setCaseAnimVisible(false)
 }
 
-
 async function playInlineCaseAnimation(pool, winner) {
   if (!caseOpenTrack) return
 
@@ -326,11 +325,6 @@ async function playInlineCaseAnimation(pool, winner) {
   const items = []
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
 
-  // НАСТРАИВАЕМАЯ точка выигрыша
-  const WIN_OFFSET = 6 // пробуй 5 или 7, пока центр не совпадёт
-  const winIndex = items.length - WIN_OFFSET
-  items[winIndex] = winner
-
   caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
   caseOpenTrack.style.transition = 'none'
   caseOpenTrack.style.transform = 'translateX(0px)'
@@ -340,8 +334,29 @@ async function playInlineCaseAnimation(pool, winner) {
   const gap = 22
   const step = itemW + gap
 
-  const target = -winIndex * step
-  const jitter = -Math.round(step * 0.35 + Math.random() * step * 0.25)
+  // ширина всей ленты
+  const totalWidth = items.length * step
+
+  // ширина видимой области (окна кейса)
+  const viewportWidth = caseOpenTrack.parentElement
+    ? caseOpenTrack.parentElement.offsetWidth
+    : 0
+
+  // пиксельная позиция центра окна
+  const centerX = viewportWidth / 2
+
+  // индекс ячейки, которая окажется под центром
+  const winIndex = Math.round(centerX / step)
+
+  // защита от выхода за границы
+  const clampedIndex = Math.min(Math.max(winIndex, 0), items.length - 1)
+
+  // ставим победителя именно в эту ячейку
+  items[clampedIndex] = winner
+  caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
+
+  const target = -clampedIndex * step
+  const jitter = -Math.round(step * 0.1 + Math.random() * step * 0.1)
   const finalX = target + jitter
 
   const DURATION_MS = 5600
@@ -366,8 +381,6 @@ async function playInlineCaseAnimation(pool, winner) {
     caseOpenTrack.style.transform = `translateX(${finalX}px)`
   })
 }
-
-
 
 
 // ===== STATE =====
@@ -2170,6 +2183,7 @@ async function init() {
 }
 
 init()
+
 
 
 
