@@ -28,12 +28,15 @@ const CASES = {
     priceTon: 0.2,
     imageSelector: '.case-image-newyear',
     contents: [
-      { emoji: '📅', name: 'Celendar (random)', price: 1.5 },
-      { emoji: '🍭', name: 'lolpop',            price: 7.0 },
-      { emoji: '🧦', name: 'socks',             price: 10.0 },
-      { emoji: '🪆', name: 'Woodoo (random)',   price: 30.0 },
-      { emoji: '🧸', name: 'Bear',              price: 0.1 }, // мишка в кейсе
-    ],
+  { emoji: '📅', name: 'Celendar (random)', price: 1.5 },
+  { emoji: '🍭', name: 'lolpop',            price: 7.0 },
+  { emoji: '🧸', name: 'Bear',              price: 0.1 },
+  { emoji: '🧦', name: 'socks',             price: 10.0 },
+  { emoji: '🧸', name: 'Bear',              price: 0.1 },
+  { emoji: '🪆', name: 'Woodoo (random)',   price: 30.0 },
+  { emoji: '🧸', name: 'Bear',              price: 0.1 },
+]
+,
   },
 
   onlynft: {
@@ -2128,6 +2131,7 @@ async function init() {
 }
 
 init()
+
 
 
 
