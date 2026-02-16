@@ -2094,14 +2094,14 @@ body {
 .case-anim-pointer-top{
   top: 10px !important;
   bottom: auto !important;
-  transform: translateX(calc(-50% - 28px)) rotate(0deg) !important;
+  transform: translateX(calc(-50% - 38px)) rotate(0deg) !important;
 }
 
 /* нижняя: нос вверх, тот же сдвиг */
 .case-anim-pointer-bottom{
   bottom: 10px !important;
   top: auto !important;
-  transform: translateX(calc(-50% - 28px)) rotate(180deg) !important;
+  transform: translateX(calc(-50% - 38px)) rotate(180deg) !important;
 }
 
 /* линия, тот же сдвиг влево */
@@ -2111,7 +2111,7 @@ body {
   top: 40px;
   bottom: 40px;
   width: 2px;
-  transform: translateX(calc(-50% - 28px));
+  transform: translateX(calc(-50% - 38px));
 
   background: linear-gradient(
     to bottom,
@@ -2374,6 +2374,7 @@ body {
   display: inline-block;
   flex: 0 0 44px;
 }
+
 
 
 
