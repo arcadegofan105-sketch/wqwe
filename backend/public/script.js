@@ -346,7 +346,7 @@ async function playInlineCaseAnimation(pool, winner) {
   const jitter = -Math.round(step * 0.35 + Math.random() * step * 0.25)
   const finalX = target + jitter
 
-  const DURATION_MS = 5600
+  const DURATION_MS = 7000
 
   await new Promise(resolve => {
     let done = false
@@ -1090,8 +1090,14 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
       return
     }
 
-    const pool = Array.isArray(cfg.contents) && cfg.contents.length ? cfg.contents : [prize]
-    await playCaseOpenAnimation({ pool, winner: prize })
+    // Берём ленту либо с сервера, либо из фронтового конфига
+    const pool =
+      Array.isArray(r?.rollItems) && r.rollItems.length
+        ? r.rollItems
+        : (Array.isArray(cfg.contents) && cfg.contents.length ? cfg.contents : [prize])
+
+    // Крутим ИМЕННО inline-анимацию, без оверлея
+    await playInlineCaseAnimation(pool, prize)
 
     currentPrize = prize
     currentPrizeIdx = null
@@ -2161,6 +2167,7 @@ async function init() {
 }
 
 init()
+
 
 
 
