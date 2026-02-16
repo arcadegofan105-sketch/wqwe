@@ -1201,19 +1201,21 @@ wheel?.addEventListener('transitionend', (e) => {
   isSpinning = false
 })
 
+// После спина подтягиваем свежие данные (баланс + инвентарь)
+fetchUserData().catch(() => {})
+
 
 // Кнопка "В инвентарь"
 modalKeepBtn?.addEventListener('click', async () => {
   if (!prizeModal) return
 
   try {
-    // подтягиваем свежие данные юзера (баланс + inventory из БД)
     const data = await fetchUserData()
     balance = Number(data.balance || balance)
     inventory = Array.isArray(data.inventory) ? data.inventory : inventory
     renderInventory()
   } catch (_) {
-    // если вдруг ошибка — просто продолжаем закрывать модалку
+    // если ошибка — просто закрываем модалку
   }
 
   currentPrize = null
@@ -1221,6 +1223,39 @@ modalKeepBtn?.addEventListener('click', async () => {
   prizeModal.classList.remove('active')
   if (spinButton) spinButton.disabled = false
 })
+
+modalSellBtn?.addEventListener('click', async () => {
+  if (!currentPrize) {
+    prizeModal?.classList.remove('active')
+    if (spinButton) spinButton.disabled = false
+    return
+  }
+
+  try {
+    // считаем, что последний выигрыш — самый новый в БД (индекс 0 в newest-first)
+    const idx = 0
+
+    const data = await sellPrizeApi(currentPrize, idx)
+    balance = Number(data.newBalance ?? balance)
+    updateBalanceUI()
+
+    if (Array.isArray(data.inventory)) {
+      inventory = data.inventory
+      renderInventory()
+    } else {
+      await fetchUserData()
+    }
+  } catch (err) {
+    alert(err.message || 'Ошибка продажи')
+  } finally {
+    currentPrize = null
+    currentPrizeIdx = null
+    prizeModal?.classList.remove('active')
+    if (spinButton) spinButton.disabled = false
+  }
+})
+
+
 
 inventoryList?.addEventListener('click', async e => {
   const card = e.target.closest('.inv-card')   // было .inventory-item
@@ -2167,6 +2202,7 @@ async function init() {
 }
 
 init()
+
 
 
 
