@@ -30,7 +30,9 @@ db.prepare(
     visits_count INTEGER NOT NULL DEFAULT 0,
     created_at INTEGER NOT NULL,
     last_seen_at INTEGER NOT NULL,
-    last_free_spin_at INTEGER NOT NULL DEFAULT 0
+    last_free_spin_at INTEGER NOT NULL DEFAULT 0,
+    free_wheel_available INTEGER NOT NULL DEFAULT 0,
+    wheel_deposit_progress_ton REAL NOT NULL DEFAULT 0
   )
 `
 ).run();
@@ -39,6 +41,23 @@ db.prepare(
 try {
   db.prepare(
     `ALTER TABLE users ADD COLUMN last_free_spin_at INTEGER NOT NULL DEFAULT 0`
+  ).run();
+} catch (e) {
+  // колонка уже есть — игнорируем
+}
+
+// НОВОЕ: добавить поля для колеса, если их ещё нет (для старых БД)
+try {
+  db.prepare(
+    `ALTER TABLE users ADD COLUMN free_wheel_available INTEGER NOT NULL DEFAULT 0`
+  ).run();
+} catch (e) {
+  // колонка уже есть — игнорируем
+}
+
+try {
+  db.prepare(
+    `ALTER TABLE users ADD COLUMN wheel_deposit_progress_ton REAL NOT NULL DEFAULT 0`
   ).run();
 } catch (e) {
   // колонка уже есть — игнорируем
@@ -125,8 +144,21 @@ export function getUserByTgId(tgId) {
 export function createUserFromTg(tgUser) {
   const now = Date.now();
   const stmt = db.prepare(`
-    INSERT INTO users (tg_id, username, first_name, last_name, balance, total_deposit_ton, visits_count, created_at, last_seen_at, last_free_spin_at)
-    VALUES (?, ?, ?, ?, 0, 0, 1, ?, ?, 0)
+    INSERT INTO users (
+      tg_id,
+      username,
+      first_name,
+      last_name,
+      balance,
+      total_deposit_ton,
+      visits_count,
+      created_at,
+      last_seen_at,
+      last_free_spin_at,
+      free_wheel_available,
+      wheel_deposit_progress_ton
+    )
+    VALUES (?, ?, ?, ?, 0, 0, 1, ?, ?, 0, 0, 0)
   `);
   stmt.run(
     String(tgUser.id),
@@ -165,16 +197,33 @@ export function touchUserVisit(tgUser) {
   return getUserByTgId(tgUser.id);
 }
 
-// Обновление баланса и суммарного депозита
-export function updateUserBalanceAndDeposit(tgId, { balance, totalDepositTon }) {
+// Обновление баланса и суммарного депозита (+ поля колеса)
+export function updateUserBalanceAndDeposit(
+  tgId,
+  { balance, totalDepositTon, freeWheelAvailable, wheelDepositProgressTon }
+) {
+  const user = getUserByTgId(tgId);
+
+  const nextFree =
+    typeof freeWheelAvailable === "boolean"
+      ? (freeWheelAvailable ? 1 : 0)
+      : Number(user?.free_wheel_available || 0);
+
+  const nextProgress =
+    typeof wheelDepositProgressTon === "number"
+      ? wheelDepositProgressTon
+      : Number(user?.wheel_deposit_progress_ton || 0);
+
   db.prepare(
     `
     UPDATE users
     SET balance = ?,
-        total_deposit_ton = ?
+        total_deposit_ton = ?,
+        free_wheel_available = ?,
+        wheel_deposit_progress_ton = ?
     WHERE tg_id = ?
   `
-  ).run(balance, totalDepositTon, String(tgId));
+  ).run(balance, totalDepositTon, nextFree, nextProgress, String(tgId));
 }
 
 export function updateUserBalance(tgId, balance) {
