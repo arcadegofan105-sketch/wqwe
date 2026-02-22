@@ -319,19 +319,6 @@
           </div>
         </section>
 
-        <!-- Экран НАГРАДЫ -->
-        <section id="screen-rewards" class="screen">
-          <div class="screen-title">Награды</div>
-          <div class="screen-subtitle">Забирайте бонусы за активность.</div>
-
-          <div id="rewards-list" class="rewards-list">
-            <div class="bonus-card">
-              <div class="bonus-title">Загрузка...</div>
-              <div class="bonus-text">Получаем список наград</div>
-            </div>
-          </div>
-        </section>
-
         <!-- Экран ПРИГЛАСИТЬ -->
         <section id="screen-invite" class="screen">
           <div class="screen-title">Пригласить друзей</div>
@@ -356,6 +343,14 @@
             Введите промокод, чтобы получить бонус или скидку.
           </div>
 
+          <!-- Награды за активность (бывший раздел Награды) -->
+<div id="rewards-list" class="rewards-list">
+  <div class="bonus-card">
+    <div class="bonus-title">Загрузка...</div>
+    <div class="bonus-text">Получаем список наград</div>
+  </div>
+</div>
+          
           <div class="promo-block">
             <input id="promo-input" type="text" placeholder="Введите промокод" />
             <button id="promo-apply">Активировать</button>
@@ -513,16 +508,6 @@
       </main>
 
       <nav class="bottom-nav">
-        <button class="nav-btn" data-target="rewards">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="8" r="3.2" />
-              <path d="M9 2h6l-1 4H10L9 2z" />
-              <path d="M8 12 6 21l6-3 6 3-2-9" />
-            </svg>
-          </span>
-          <span>Награды</span>
-        </button>
 
         <button class="nav-btn" data-target="invite">
           <span class="nav-icon">
@@ -712,6 +697,7 @@
 
   </body>
 </html>
+
 
 
 
