@@ -1383,58 +1383,71 @@ body {
   100% { transform: translate3d(0,0,0) scale(1.03); }
 }
 
+/* ===== MULTIPLIER ===== */
 .crash-multiplier{
   position: absolute;
-  left: 50% !important;
-  top: 60% !important;
-  transform: translate(-50%, -50%) !important;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -30%); /* чуть выше центра */
 
-  /* страховка от “утягивания” шириной/выравниванием */
-  width: auto !important;
   max-width: calc(100% - 32px);
   text-align: center;
 
   font-size: 36px;
   font-weight: 900;
   color: #bef264;
-  text-shadow: 0 0 16px rgba(190,242,100,.9), 0 0 32px rgba(132,204,22,.8);
+  text-shadow:
+    0 0 16px rgba(190,242,100,.9),
+    0 0 32px rgba(132,204,22,.8);
+
   white-space: nowrap;
   pointer-events: none;
   z-index: 3;
 }
 
 
+
+/* ===== STATUS ===== */
 .crash-status{
   position: absolute;
   left: 50%;
-  top: 66% !important;
-  transform: translate(-50%, -50%);
+  top: 50%;
+  transform: translate(-50%, 35%); /* ниже центра */
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: max-content;
+
   max-width: calc(100% - 32px);
   padding: 8px 14px;
+
   border-radius: 999px;
   background: rgba(15,23,42,.70);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+
   font-size: 15px;
   font-weight: 700;
   color: #e5e7eb;
+
   white-space: nowrap;
   pointer-events: none;
   z-index: 3;
 }
 
+
+/* ===== ROCKET ===== */
 .crash-rocket{
   position: absolute;
+  left: 50%;
+  bottom: 0;
+
   width: 46%;
   max-width: 220px;
   height: auto;
-  bottom: -18%;
-  left: 50%;
-  transform: translateX(-50%);
+
+  transform: translate(-50%, 20%); /* слегка выходит снизу, но контролируемо */
+
   pointer-events: none;
   filter: drop-shadow(0 14px 24px rgba(59,130,246,.7));
   transition: transform .1s linear;
@@ -2826,6 +2839,7 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 }
+
 
 
 
