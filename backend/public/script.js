@@ -1544,52 +1544,8 @@ function getSceneSize() {
   return { w: rect.width, h: rect.height }
 }
 
-function moonPos(w, h) {
-  return { x: w * 0.78, y: h * 0.26, r: Math.min(w, h) * 0.14 }
-}
-
-// квадратичная траектория
-function pathPoint(p, w, h) {
-  const a = { x: w * 0.18, y: h * 0.78 }
-  const c = { x: w * 0.42, y: h * 0.18 }
-  const b = { x: w * 0.72, y: h * 0.32 }
-  const t = clamp(p, 0, 1)
-  const x = (1 - t) * (1 - t) * a.x + 2 * (1 - t) * t * c.x + t * t * b.x
-  const y = (1 - t) * (1 - t) * a.y + 2 * (1 - t) * t * c.y + t * t * b.y
-  return { x, y }
-}
-
-function pathTangentAng(p, w, h) {
-  const a = { x: w * 0.18, y: h * 0.78 }
-  const c = { x: w * 0.42, y: h * 0.18 }
-  const b = { x: w * 0.72, y: h * 0.32 }
-  const t = clamp(p, 0, 1)
-  const dx = 2 * (1 - t) * (c.x - a.x) + 2 * t * (b.x - c.x)
-  const dy = 2 * (1 - t) * (c.y - a.y) + 2 * t * (b.y - c.y)
-  return Math.atan2(dy, dx)
-}
-
 // ---------- particles ----------
 const particles = []
-
-function spawnSpaceDust(w, h, count = 2) {
-  for (let i = 0; i < count; i++) {
-    const x = Math.random() * w
-    const y = Math.random() * h
-    const a = Math.random() * Math.PI * 2
-    const sp = 10 + Math.random() * 60
-
-    particles.push({
-      x, y,
-      vx: Math.cos(a) * sp,
-      vy: Math.sin(a) * sp,
-      life: 0,
-      max: 1.2 + Math.random() * 1.8,     // живут дольше
-      size: 1.8 + Math.random() * 3.8,    // крупнее
-      hue: 190 + Math.random() * 60       // холодные тона (можешь поменять)
-    })
-  }
-}
 
 function spawnExplosion(x, y) {
   const n = 140
@@ -1634,53 +1590,6 @@ function drawParticles(ctx) {
     ctx.arc(p.x, p.y, p.size * (1 + t * 0.4), 0, Math.PI * 2)
     ctx.fill()
   }
-}
-
-// ---------- draw ----------
-function drawMoon(ctx, w, h) {
-  const m = moonPos(w, h)
-  const g = ctx.createRadialGradient(m.x - m.r * 0.3, m.y - m.r * 0.3, m.r * 0.2, m.x, m.y, m.r)
-  g.addColorStop(0, 'rgba(226,232,240,0.95)')
-  g.addColorStop(0.6, 'rgba(148,163,184,0.9)')
-  g.addColorStop(1, 'rgba(15,23,42,0.9)')
-
-  ctx.fillStyle = g
-  ctx.beginPath()
-  ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2)
-  ctx.fill()
-
-  ctx.globalAlpha = 0.25
-  ctx.fillStyle = '#0f172a'
-  const cr = [
-    { x: m.x - m.r * 0.25, y: m.y + m.r * 0.05, r: m.r * 0.18 },
-    { x: m.x + m.r * 0.18, y: m.y - m.r * 0.15, r: m.r * 0.12 },
-    { x: m.x + m.r * 0.05, y: m.y + m.r * 0.22, r: m.r * 0.09 },
-  ]
-  for (const c of cr) {
-    ctx.beginPath()
-    ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2)
-    ctx.fill()
-  }
-  ctx.globalAlpha = 1
-}
-
-function drawPath(ctx, w, h, p) {
-  ctx.save()
-  ctx.lineWidth = 2
-  ctx.strokeStyle = 'rgba(56,189,248,0.22)'
-  ctx.beginPath()
-  const steps = 60
-  for (let i = 0; i <= steps; i++) {
-    const t = (i / steps) * clamp(p, 0, 1)
-    const pt = pathPoint(t, w, h)
-    if (i === 0) ctx.moveTo(pt.x, pt.y)
-    else ctx.lineTo(pt.x, pt.y)
-  }
-  ctx.stroke()
-  ctx.lineWidth = 4
-  ctx.strokeStyle = 'rgba(56,189,248,0.10)'
-  ctx.stroke()
-  ctx.restore()
 }
 
 // (можно оставить старую векторную ракету — она больше не используется)
@@ -1768,10 +1677,9 @@ function drawRocketVideo(ctx, x, y, ang, size = 70) {
   rocketKeyCtx.putImageData(frame, 0, 0)
 
   // 3) рисуем на основной canvas (увеличение + наклон)
-  const w = size * 2.85   // было 2.0 → больше
-  const h = size * 1.75   // было 1.25 → больше
-  const extraTilt = 0.25  // было 0.12 → сильнее вправо (~11.5°)
-
+  const w = size * 2.85
+  const h = size * 1.75
+  const extraTilt = 0.25
 
   ctx.save()
   ctx.translate(x, y)
@@ -1841,15 +1749,16 @@ async function cashoutCrash(isAuto = false) {
 function crashBoomIntoMoon() {
   if (!crashCanvas) return
   const { w, h } = getSceneSize()
-  // постоянная пыль/звёзды в движении
-spawnSpaceDust(w, h, 3)
-  const m = moonPos(w, h)
-  const ix = m.x - m.r * 0.55
-  const iy = m.y + m.r * 0.25
+
+  // Точка взрыва = точка ракеты (фикс сверху)
+  const ix = Math.round(w * 0.5)
+  const iy = Math.round(h * 0.22)
+
   crashImpact = { x: ix, y: iy, ts: performance.now() }
   crashShake = 1
   spawnExplosion(ix, iy)
-  if (!crashHasCashedOut) setCrashStatus('Врезались в луну!', '#f97373')
+
+  if (!crashHasCashedOut) setCrashStatus('Краш!', '#f97373')
 }
 
 function endCrash() {
@@ -1968,28 +1877,15 @@ function renderCrash(ts) {
     crashCtx.translate((Math.random() - 0.5) * mag, (Math.random() - 0.5) * mag)
   }
 
+  // canvas прозрачный, фон = видео под ним
   crashCtx.clearRect(0, 0, w, h)
 
-  // фон полностью чёрный
-crashCtx.fillStyle = '#000'
-crashCtx.fillRect(0, 0, w, h)
-
-
-  drawMoon(crashCtx, w, h)
-
-  // прогресс полета из текущего multiplier
-  let p = 0
-  if (crashState === 'playing' || crashState === 'crashed') {
-    const t = Math.log(Math.max(crashMultiplier, 1)) / crashK
-    p = clamp(t / 12, 0, 1)
-  }
-
-  drawPath(crashCtx, w, h, p)
-
+  // Ракета фиксированно сверху
   if (crashState === 'playing') {
-    const pt = pathPoint(p, w, h)
-    const ang = pathTangentAng(p, w, h)
-    drawRocketVideo(crashCtx, pt.x, pt.y, ang, 56)
+    const rx = w * 0.5
+    const ry = h * 0.22
+    const ang = -0.25
+    drawRocketVideo(crashCtx, rx, ry, ang, 92)
   }
 
   if (crashState === 'crashed' && crashImpact) {
@@ -2188,6 +2084,7 @@ async function init() {
 }
 
 init()
+
 
 
 
