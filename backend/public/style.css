@@ -1385,9 +1385,15 @@ body {
 
 .crash-multiplier{
   position: absolute;
-  left: 50%;
-  top: 56%;
-  transform: translate(-50%, -50%);
+  left: 50% !important;
+  top: 56% !important;
+  transform: translate(-50%, -50%) !important;
+
+  /* страховка от “утягивания” шириной/выравниванием */
+  width: auto !important;
+  max-width: calc(100% - 32px);
+  text-align: center;
+
   font-size: 36px;
   font-weight: 900;
   color: #bef264;
@@ -1396,6 +1402,7 @@ body {
   pointer-events: none;
   z-index: 3;
 }
+
 
 .crash-status{
   position: absolute;
@@ -2507,7 +2514,7 @@ body {
 /* CRASH: РїРѕР»РЅРѕСЃС‚СЊСЋ С‡С‘СЂРЅС‹Р№ С„РѕРЅ Рё РјРµРЅСЊС€Рµ РїРѕ РІС‹СЃРѕС‚Рµ */
 #screen-crash{
   gap: 10px;                 /* РјРµРЅСЊС€Рµ РІРѕР·РґСѓС…Р° */
-  padding-top: 6px;          /* РїРѕРґРЅСЏС‚СЊ РєРѕРЅС‚РµРЅС‚ РІС‹С€Рµ */
+  padding-top: 18px;          /* РїРѕРґРЅСЏС‚СЊ РєРѕРЅС‚РµРЅС‚ РІС‹С€Рµ */
 }
 
 #screen-crash .crash-container{
@@ -2818,6 +2825,7 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 }
+
 
 
 
