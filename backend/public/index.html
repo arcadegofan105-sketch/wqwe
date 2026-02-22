@@ -44,14 +44,11 @@
 
           <!-- Карточки КРАШ и КОЛЕСО с изображениями -->
           <div class="info-row info-row-games">
-            <button class="game-card game-card-crash" data-home-target="crash" type="button">
-              <img src="crashcard.png" alt="Краш" class="game-card-image" />
-            </button>
+  <button class="game-card game-card-wheel" data-home-target="wheel" type="button">
+    <img src="colesocard.png" alt="Колесо" class="game-card-image" />
+  </button>
+</div>
 
-            <button class="game-card game-card-wheel" data-home-target="wheel" type="button">
-              <img src="colesocard.png" alt="Колесо" class="game-card-image" />
-            </button>
-          </div>
 
           <!-- Список кейсов перенесён на главную -->
 <div class="cases-grid">
@@ -522,6 +519,17 @@
           <span>Пригласить</span>
         </button>
 
+        <button class="nav-btn" data-target="crash">
+  <span class="nav-icon">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 2c3 3 3 6 0 9-3-3-3-6 0-9z" />
+      <path d="M12 11c4 2 6 5 6 8 0 2-1.5 3-3.5 3h-5C7.5 22 6 21 6 19c0-3 2-6 6-8z" />
+    </svg>
+  </span>
+  <span>Краш</span>
+</button>
+
+
         <button class="nav-btn active" data-target="home">
           <span class="nav-icon">
             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -698,6 +706,7 @@
 
   </body>
 </html>
+
 
 
 
