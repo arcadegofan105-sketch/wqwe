@@ -13,11 +13,10 @@ const dbPath = process.env.RAILWAY_ENVIRONMENT
 
 const db = new Database(dbPath);
 
-
 // Инициализация таблиц
 db.pragma("journal_mode = WAL");
 
-// Таблица пользователей
+// ===== users =====
 db.prepare(
   `
   CREATE TABLE IF NOT EXISTS users (
@@ -30,10 +29,20 @@ db.prepare(
     total_deposit_ton REAL NOT NULL DEFAULT 0,
     visits_count INTEGER NOT NULL DEFAULT 0,
     created_at INTEGER NOT NULL,
-    last_seen_at INTEGER NOT NULL
+    last_seen_at INTEGER NOT NULL,
+    last_free_spin_at INTEGER NOT NULL DEFAULT 0
   )
 `
 ).run();
+
+// миграция: добавить last_free_spin_at, если его нет (для старых БД)
+try {
+  db.prepare(
+    `ALTER TABLE users ADD COLUMN last_free_spin_at INTEGER NOT NULL DEFAULT 0`
+  ).run();
+} catch (e) {
+  // колонка уже есть — игнорируем
+}
 
 // ===== inventory (gifts) =====
 db.prepare(`
@@ -108,6 +117,7 @@ db.prepare(`
   )
 `).run();
 
+// ===== Users =====
 export function getUserByTgId(tgId) {
   return db.prepare(`SELECT * FROM users WHERE tg_id = ?`).get(String(tgId));
 }
@@ -115,8 +125,8 @@ export function getUserByTgId(tgId) {
 export function createUserFromTg(tgUser) {
   const now = Date.now();
   const stmt = db.prepare(`
-    INSERT INTO users (tg_id, username, first_name, last_name, balance, total_deposit_ton, visits_count, created_at, last_seen_at)
-    VALUES (?, ?, ?, ?, 0, 0, 1, ?, ?)
+    INSERT INTO users (tg_id, username, first_name, last_name, balance, total_deposit_ton, visits_count, created_at, last_seen_at, last_free_spin_at)
+    VALUES (?, ?, ?, ?, 0, 0, 1, ?, ?, 0)
   `);
   stmt.run(
     String(tgUser.id),
@@ -183,7 +193,9 @@ export function tryBindReferral(invitedTgId, inviterTgId) {
   const invited = String(invitedTgId);
   const inviter = String(inviterTgId);
 
-  if (!/^\d+$/.test(invited) || !/^\d+$/.test(inviter)) return { ok: false, reason: "bad_id" };
+  if (!/^\d+$/.test(invited) || !/^\d+$/.test(inviter)) {
+    return { ok: false, reason: "bad_id" };
+  }
   if (invited === inviter) return { ok: false, reason: "self" };
 
   // Привязка "один раз": если уже есть запись на invited_tg_id, то ничего не меняем
@@ -406,4 +418,3 @@ export function redeemPromo(tgId, code) {
 }
 
 export default db;
-
