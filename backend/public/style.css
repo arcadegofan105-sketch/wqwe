@@ -1263,7 +1263,7 @@ body {
 	height: 32px;
 }
 
-/* ========== CRASH GAME ========== */
+/* ========== CRASH GAME (FIXED STABLE VERSION) ========== */
 
 .crash-container {
   display: flex;
@@ -1274,47 +1274,42 @@ body {
   width: 100%;
 }
 
-/* Игровая зона: космос + видео-фон + ракета */
+/* ===== Игровая зона ===== */
+
 .crash-game-area {
   position: relative;
   width: 100%;
-  aspect-ratio: 9 / 10;
+  height: 60vh;              /* фикс вместо aspect-ratio */
+  max-height: 620px;
+  min-height: 420px;
+
   border-radius: 28px;
-  background: radial-gradient(circle at top, #020617 0, #02010b 60%, #000000 100%);
   overflow: hidden;
-  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9), 0 25px 60px rgba(0, 0, 0, 0.9);
+
+  background: radial-gradient(circle at top, #020617 0, #02010b 60%, #000000 100%);
+  box-shadow:
+    0 0 0 1px rgba(15, 23, 42, 0.9),
+    0 25px 60px rgba(0, 0, 0, 0.9);
 }
 
+/* ===== Видео фон ===== */
 
-
-/* ВИДЕО-ФОН: должен быть в HTML:
-   <div class="crash-bg"><video class="crash-bg-video" ...></video></div>
-*/
-.crash-game-area .crash-bg {
+.crash-bg {
   position: absolute;
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  border-radius: inherit;
 }
 
-.crash-game-area .crash-bg-video {
-  position: absolute;
-  inset: 0;
+.crash-bg-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 0%; /* держим верх видео вверху */
+  object-position: 50% 0%;
 }
 
+/* ===== Canvas ===== */
 
-/* Всё поверх видео */
-.crash-game-area > *:not(.crash-bg){
-  position: relative;
-  z-index: 1;
-}
-
-/* Canvas остаётся прозрачным */
 #crash-canvas {
   position: absolute;
   inset: 0;
@@ -1322,151 +1317,137 @@ body {
   height: 100%;
   display: block;
   background: transparent;
-  z-index: 1;
-}
-
-/* Звёзды (параллакс) */
-.crash-stars{
-  position: absolute;
-  inset: -30%;
-  background-image:
-    radial-gradient(4px 4px at 12% 18%, rgba(248,250,252,0.95) 0, transparent 60%),
-    radial-gradient(3px 3px at 78% 22%, rgba(248,250,252,0.85) 0, transparent 60%),
-    radial-gradient(3px 3px at 34% 66%, rgba(226,232,240,0.95) 0, transparent 60%),
-    radial-gradient(4px 4px at 62% 88%, rgba(248,250,252,0.90) 0, transparent 60%),
-    radial-gradient(2px 2px at 22% 82%, rgba(148,163,184,0.85) 0, transparent 60%),
-    radial-gradient(2px 2px at 70% 12%, rgba(148,163,184,0.85) 0, transparent 60%),
-    radial-gradient(2px 2px at 44% 40%, rgba(226,232,240,0.85) 0, transparent 60%),
-    radial-gradient(2px 2px at 90% 70%, rgba(148,163,184,0.85) 0, transparent 60%),
-
-    radial-gradient(3px 3px at 15% 55%, rgba(248,250,252,0.75) 0, transparent 60%),
-    radial-gradient(2px 2px at 28% 32%, rgba(248,250,252,0.70) 0, transparent 60%),
-    radial-gradient(3px 3px at 48% 18%, rgba(248,250,252,0.70) 0, transparent 60%),
-    radial-gradient(2px 2px at 58% 52%, rgba(226,232,240,0.70) 0, transparent 60%),
-    radial-gradient(3px 3px at 82% 48%, rgba(248,250,252,0.70) 0, transparent 60%),
-    radial-gradient(2px 2px at 88% 28%, rgba(148,163,184,0.70) 0, transparent 60%),
-    radial-gradient(3px 3px at 66% 68%, rgba(248,250,252,0.70) 0, transparent 60%),
-    radial-gradient(2px 2px at 40% 86%, rgba(148,163,184,0.70) 0, transparent 60%),
-
-    radial-gradient(2px 2px at 8% 30%, rgba(248,250,252,0.55) 0, transparent 60%),
-    radial-gradient(2px 2px at 92% 18%, rgba(248,250,252,0.55) 0, transparent 60%),
-    radial-gradient(2px 2px at 18% 92%, rgba(248,250,252,0.55) 0, transparent 60%),
-    radial-gradient(2px 2px at 76% 90%, rgba(248,250,252,0.55) 0, transparent 60%);
-  opacity: 1;
   pointer-events: none;
   z-index: 1;
 }
 
+/* ===== Звёзды ===== */
+
+.crash-stars {
+  position: absolute;
+  inset: -30%;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.8;
+}
+
 .crash-stars-back {
-  opacity: 0.55;
   animation: crashStarsDriftA 18s linear infinite;
 }
 
 .crash-stars-front {
-  opacity: 0.95;
   animation: crashStarsDriftB 10s linear infinite;
 }
 
 @keyframes crashStarsDriftA {
-  0%   { transform: translate3d(0,0,0) scale(1); }
-  25%  { transform: translate3d(-6%, -2%, 0) scale(1.02); }
-  50%  { transform: translate3d(-10%, -6%, 0) scale(1.01); }
-  75%  { transform: translate3d(-4%, -9%, 0) scale(1.03); }
-  100% { transform: translate3d(0,0,0) scale(1); }
+  0% { transform: translate3d(0,0,0); }
+  50% { transform: translate3d(-8%, -6%, 0); }
+  100% { transform: translate3d(0,0,0); }
 }
 
-@keyframes crashStarsDriftB{
-  0%   { transform: translate3d(0,0,0) scale(1.03); }
-  20%  { transform: translate3d(-8%, -5%, 0) scale(1.06); }
-  55%  { transform: translate3d(-3%, -12%, 0) scale(1.04); }
-  80%  { transform: translate3d(-12%, -7%, 0) scale(1.07); }
-  100% { transform: translate3d(0,0,0) scale(1.03); }
+@keyframes crashStarsDriftB {
+  0% { transform: translate3d(0,0,0); }
+  50% { transform: translate3d(-12%, -10%, 0); }
+  100% { transform: translate3d(0,0,0); }
 }
 
-/* ===== MULTIPLIER ===== */
+/* ===== MULTIPLIER (СТРОГО ПО ЦЕНТРУ) ===== */
+
 .crash-multiplier {
   position: absolute;
   left: 50%;
-  top: 60%;                /* опускаем ниже */
+  top: 52%;
   transform: translate(-50%, -50%);
-  font-size: 32px;
+
+  font-size: 36px;
   font-weight: 900;
+  letter-spacing: 1px;
+
   color: #bef264;
   text-shadow:
-    0 0 16px rgba(190,242,100,.9),
-    0 0 32px rgba(132,204,22,.8);
+    0 0 18px rgba(190,242,100,.9),
+    0 0 36px rgba(132,204,22,.8);
+
   white-space: nowrap;
   pointer-events: none;
   z-index: 5;
 }
+
+/* ===== STATUS ===== */
 
 .crash-status {
   position: absolute;
   left: 50%;
-  top: 72%;                /* ещё ниже статуса */
+  top: 65%;
   transform: translate(-50%, -50%);
-  padding: 8px 14px;
+
+  padding: 8px 16px;
   border-radius: 999px;
-  background: rgba(15,23,42,.70);
-  font-size: 15px;
+
+  background: rgba(15,23,42,.75);
+  backdrop-filter: blur(4px);
+
+  font-size: 14px;
   font-weight: 700;
   color: #e5e7eb;
+
   white-space: nowrap;
   pointer-events: none;
   z-index: 5;
 }
 
-
-
-
 /* ===== ROCKET ===== */
-.crash-rocket{
+
+.crash-rocket {
   position: absolute;
   left: 50%;
   bottom: 0;
 
-  width: 46%;
+  width: 48%;
   max-width: 220px;
-  height: auto;
 
-  transform: translate(-50%, 50%); /* слегка выходит снизу, но контролируемо */
-
+  transform: translateX(-50%);
   pointer-events: none;
+
   filter: drop-shadow(0 14px 24px rgba(59,130,246,.7));
   transition: transform .1s linear;
+
   z-index: 2;
-  display: block;
 }
 
+/* ===== MAIN BUTTON ===== */
 
-/* Основная синяя кнопка */
 .crash-main-btn {
   width: 100%;
   border: none;
   border-radius: 18px;
   padding: 14px 16px;
+
   background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: #e5e7eb;
+
   font-size: 15px;
   font-weight: 700;
-  letter-spacing: 0.4px;
   cursor: pointer;
-  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.7), 0 16px 40px rgba(37, 99, 235, 0.7);
-  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+
+  box-shadow:
+    0 0 0 1px rgba(37, 99, 235, 0.7),
+    0 16px 40px rgba(37, 99, 235, 0.7);
+
+  transition: 0.15s ease;
 }
 
 .crash-main-btn:active {
-  transform: translateY(1px) scale(0.98);
-  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.9), 0 10px 26px rgba(30, 64, 175, 0.8);
+  transform: scale(0.97);
 }
 
 .crash-main-btn:disabled {
   opacity: 0.6;
   cursor: default;
-  box-shadow: 0 0 0 1px rgba(30, 64, 175, 0.5), 0 10px 24px rgba(15, 23, 42, 0.9);
 }
 
-/* Панель ввода ставки */
+/* ===== Панель ===== */
+
 .crash-panel {
   display: flex;
   gap: 10px;
@@ -1477,7 +1458,7 @@ body {
 .crash-auto-block {
   flex: 1;
   border-radius: 16px;
-  background: rgba(15, 23, 42, 0.85);
+  background: rgba(15, 23, 42, 0.9);
   box-shadow: 0 0 0 1px rgba(51, 65, 85, 0.9);
   padding: 10px 12px;
 }
@@ -1489,28 +1470,27 @@ body {
   margin-bottom: 6px;
 }
 
-.crash-bet-input-row {
-  display: flex;
-  align-items: center;
-}
-
 .crash-bet-input {
   width: 100%;
   border: none;
   border-radius: 10px;
   padding: 8px 10px;
+
   background: rgba(15, 23, 42, 0.95);
   color: #e5e7eb;
+
   font-size: 14px;
   font-weight: 600;
+
   box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.35);
 }
 
 .crash-bet-input:focus {
   outline: none;
-  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.9), 0 0 20px rgba(8, 47, 73, 0.9);
+  box-shadow:
+    0 0 0 1px rgba(56, 189, 248, 0.9),
+    0 0 20px rgba(8, 47, 73, 0.9);
 }
-
 .crash-auto-placeholder {
   border-radius: 10px;
   padding: 8px 10px;
@@ -2834,6 +2814,7 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 }
+
 
 
 
