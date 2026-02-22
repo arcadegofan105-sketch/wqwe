@@ -1384,11 +1384,12 @@ body {
 }
 
 /* ===== MULTIPLIER ===== */
+/* ===== MULTIPLIER ===== */
 .crash-multiplier{
   position: absolute;
   left: 50%;
-  top: 72%;
-  transform: translate(-50%, -5%); /* чуть выше центра */
+  top: 80%;                 /* ниже */
+  transform: translate(-50%, -50%);
 
   max-width: calc(100% - 32px);
   text-align: center;
@@ -1406,13 +1407,12 @@ body {
 }
 
 
-
 /* ===== STATUS ===== */
 .crash-status{
   position: absolute;
   left: 50%;
-  top: 50%;
-  transform: translate(-50%, 60%); /* ниже центра */
+  top: 70%;                 /* выше иксов */
+  transform: translate(-50%, -50%);
 
   display: inline-flex;
   align-items: center;
@@ -2839,6 +2839,7 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 }
+
 
 
 
