@@ -143,7 +143,6 @@ const promoApplyBtn = document.getElementById('promo-apply')
 
 const navButtons = document.querySelectorAll('.nav-btn')
 const screens = {
-  rewards: document.getElementById('screen-rewards'),
   invite: document.getElementById('screen-invite'),
   home: document.getElementById('screen-home'),
   wheel: document.getElementById('screen-wheel'),
@@ -154,6 +153,7 @@ const screens = {
   profile: document.getElementById('screen-profile'),
   admin: document.getElementById('screen-admin'),
 }
+
 
 const rewardsListEl = document.getElementById('rewards-list')
 
@@ -1005,9 +1005,14 @@ navButtons.forEach(btn => {
     const target = btn.dataset.target
     if (target === 'admin' && !isAdmin) return
     setScreen(target)
-    if (target === 'rewards') loadRewards().catch(e => alert(e.message || 'Ошибка наград'))
+
+    // Награды теперь живут внутри экрана "Бонусы"
+    if (target === 'bonus') {
+      loadRewards().catch(e => alert(e.message || 'Ошибка наград'))
+    }
   })
 })
+
 
 document.addEventListener('click', async (e) => {
   const btn = e.target.closest('.reward-claim-btn')
@@ -2184,6 +2189,7 @@ async function init() {
 }
 
 init()
+
 
 
 
