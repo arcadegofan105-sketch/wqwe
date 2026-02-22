@@ -1492,7 +1492,7 @@ let crashStartTime = null
 
 // Скорость роста НЕ зависит от crashPoint, иначе палится
 // m(t) = exp(k*t)
-let crashK = 0.15
+let crashK = 0.07
 
 // визуальные состояния
 let crashImpact = null // {x,y,ts}
@@ -2100,6 +2100,7 @@ async function init() {
 }
 
 init()
+
 
 
 
