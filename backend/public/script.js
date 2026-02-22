@@ -1148,8 +1148,13 @@ spinButton?.addEventListener('click', async e => {
 
   currentPrize = prizeData.prize
   currentPrizeIdx = Number.isInteger(prizeData.idx) ? prizeData.idx : null
-  balance = Number(prizeData.newBalance ?? balance - SPIN_PRICE)
-  updateBalanceUI()
+ if (typeof prizeData.newBalance === 'number') {
+  balance = Number(prizeData.newBalance)
+} else {
+  balance = balance - SPINPRICE
+}
+updateBalanceUI()
+
 
   // Сейчас у тебя намеренно всегда крутится на мишку:
   let sectorIndex = wheelSectors.findIndex(s => s?.name === currentPrize?.name)
@@ -2100,6 +2105,7 @@ async function init() {
 }
 
 init()
+
 
 
 
