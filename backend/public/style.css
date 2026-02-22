@@ -17,12 +17,15 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  /* С‚С‘РјРЅС‹Р№ РІРµСЂС‚РёРєР°Р»СЊРЅС‹Р№ РіСЂР°РґРёРµРЅС‚ + РґРІРµ РјСЏРіРєРёРµ В«Р°СѓСЂС‹В» */
-  background:
-    radial-gradient(circle at 10% 0%, rgba(168,85,247,0.26), transparent 55%),
-    radial-gradient(circle at 100% 100%, rgba(45,212,191,0.18), transparent 55%),
-    linear-gradient(180deg, #020617 0%, #020617 40%, #020617 75%, #020617 100%);
+
+  /* важно для видео-фона (слои) */
+  position: relative;
+  overflow: hidden;
+
+  background-color: #020617;
 }
+
+
 
 
 .content {
@@ -30,7 +33,11 @@ body {
   padding: 16px;
   position: relative;
   overflow-y: auto;
+
+  /* новый слой */
+  background: linear-gradient(to bottom, rgba(2,6,23,0.30), rgba(2,6,23,0.55));
 }
+
 
 /* РЅРёР¶РЅСЏСЏ РїР°РЅРµР»СЊ С„РёРєСЃРёСЂСѓРµРј Рє РЅРёР·Сѓ */
 .bottom-nav {
@@ -2751,6 +2758,35 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 
+
+/* ===== Video background for whole app ===== */
+.app-bg-video {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.app-bg-dim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+
+  /* затемнение для читаемости */
+  background: linear-gradient(to bottom, rgba(2,6,23,0.25), rgba(2,6,23,0.60));
+}
+
+/* UI always above the video */
+.top-bar,
+.content,
+.bottom-nav {
+  position: relative;
+  z-index: 2;
+}
 
 
 
