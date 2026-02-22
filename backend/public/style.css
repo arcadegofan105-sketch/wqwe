@@ -1285,6 +1285,13 @@ body {
   box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9), 0 25px 60px rgba(0, 0, 0, 0.9);
 }
 
+/* Опускаем только фон (видео/картинка) ниже */
+.crash-game-area .crash-bg,
+.crash-game-area .crash-bg-video{
+  transform: translateY(18%);
+}
+
+
 /* ВИДЕО-ФОН: должен быть в HTML:
    <div class="crash-bg"><video class="crash-bg-video" ...></video></div>
 */
@@ -1380,33 +1387,50 @@ body {
 }
 
 /* Множитель и статус */
-.crash-multiplier {
+.crash-multiplier{
   position: absolute;
-  top: 20%;
   left: 50%;
+  top: calc(50% + 44px);   /* чуть ниже "Скоро взлетаем" */
   transform: translateX(-50%);
-  font-size: 32px;
-  font-weight: 800;
+
+  font-size: 36px;
+  font-weight: 900;
   color: #bef264;
   text-shadow: 0 0 16px rgba(190, 242, 100, 0.9), 0 0 32px rgba(132, 204, 22, 0.8);
+
+  white-space: nowrap;
   pointer-events: none;
-  z-index: 2;
+  z-index: 3;
 }
 
-.crash-status {
+
+.crash-status{
   position: absolute;
-  top: 37px;
   left: 50%;
-  transform: translateX(-50%);
-  padding: 6px 14px;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: max-content;
+  max-width: calc(100% - 32px);
+  padding: 8px 14px;
+
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.7);
+  background: rgba(15, 23, 42, 0.70);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   color: #e5e7eb;
-  z-index: 2;
+
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 3;
 }
+
 
 /* Ракета */
 .crash-rocket {
@@ -2809,6 +2833,7 @@ body {
   color: #6b7280;
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
+
 
 
 
