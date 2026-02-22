@@ -1151,16 +1151,18 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
 
 
 // крутилка
-spinButton?.addEventListener('click', async e => {
-  e.preventDefault()
-  e.stopPropagation()
-  if (isSpinning) return
-  if (prizeModal?.classList.contains('active')) return
-  if (withdrawModal?.classList.contains('active')) return
-
+js
   // если нет бесплатного спина — проверяем баланс
-  if (!freeWheelAvailable && balance < SPINPRICE) {
-    alert('Недостаточно средств. Нужно минимум 1 TON или сделайте депозит 0.5 TON для бесплатного спина.')
+  if (!freeWheelAvailable && balance < SPIN_PRICE) {
+    const need = Math.max(0, WHEEL_DEPOSIT_TARGET - wheelDepositProgressTon)
+      .toFixed(2)
+      .replace(/\.?0+$/, '')
+
+    alert(
+      need === '0'
+        ? 'Сделайте депозит 0.5 TON, чтобы колесо стало бесплатным.'
+        : `Сделайте депозит ещё ${need} TON, чтобы колесо стало бесплатным.`
+    )
     return
   }
 
@@ -2137,6 +2139,7 @@ async function init() {
 }
 
 init()
+
 
 
 
