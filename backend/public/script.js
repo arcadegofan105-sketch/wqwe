@@ -1158,20 +1158,22 @@ spinButton?.addEventListener('click', async e => {
   if (prizeModal?.classList.contains('active')) return
   if (withdrawModal?.classList.contains('active')) return
 
-  // если нет бесплатного спина — проверяем баланс и показываем окно про депозит
-  if (!freeWheelAvailable && balance < SPIN_PRICE) {
-    const need = Math.max(0, WHEEL_DEPOSIT_TARGET - wheelDepositProgressTon)
-      .toFixed(2)
-      .replace(/\.?0+$/, '')
+  // всегда показываем окно с инфой по депозиту
+  const need = Math.max(0, WHEEL_DEPOSIT_TARGET - wheelDepositProgressTon)
+    .toFixed(2)
+    .replace(/\.?0+$/, '')
 
+  if (!freeWheelAvailable) {
     alert(
       need === '0'
         ? 'Сделайте депозит 0.5 TON, чтобы колесо стало бесплатным.'
         : `Сделайте депозит ещё ${need} TON, чтобы колесо стало бесплатным.`
     )
+    // если нет бесплатного спина — дальше не крутим
     return
   }
 
+  // здесь уже есть бесплатное колесо -> крутим, баланс не проверяем
   isSpinning = true
   spinButton.disabled = true
 
@@ -1188,14 +1190,12 @@ spinButton?.addEventListener('click', async e => {
   currentPrize = prizeData.prize
   currentPrizeIdx = Number.isInteger(prizeData.idx) ? prizeData.idx : null
 
-  // обновляем баланс и статус колеса с ответа бэка
   if (typeof prizeData.newBalance === 'number') {
     balance = Number(prizeData.newBalance)
   }
   freeWheelAvailable = Boolean(prizeData.freeWheelAvailable)
   wheelDepositProgressTon = Number(prizeData.wheelDepositProgressTon || 0)
   updateBalanceUI()
-  updateWheelPriceLabel()
 
   // анимация колеса
   let sectorIndex = wheelSectors.findIndex(s => s?.name === currentPrize?.name)
@@ -1209,9 +1209,10 @@ spinButton?.addEventListener('click', async e => {
   const current = ((currentRotation % 360) + 360) % 360
   const delta = (((desiredAngle - base - current) % 360) + 360) % 360
 
-  currentRotation += FULLROUNDS * 360 + delta
+  currentRotation += FULL_ROUNDS * 360 + delta
   setWheelIconsUpright(currentRotation)
 })
+
 
 
 wheel?.addEventListener('transitionend', (e) => {
@@ -2145,6 +2146,7 @@ async function init() {
 }
 
 init()
+
 
 
 
