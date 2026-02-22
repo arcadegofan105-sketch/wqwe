@@ -1386,7 +1386,7 @@ body {
 .crash-multiplier{
   position: absolute;
   left: 50% !important;
-  top: 56% !important;
+  top: 60% !important;
   transform: translate(-50%, -50%) !important;
 
   /* страховка от “утягивания” шириной/выравниванием */
@@ -1407,7 +1407,7 @@ body {
 .crash-status{
   position: absolute;
   left: 50%;
-  top: 62%;
+  top: 66% !important;
   transform: translate(-50%, -50%);
   display: inline-flex;
   align-items: center;
@@ -2511,16 +2511,17 @@ body {
   transform-origin: center;
 }
 
-/* CRASH: РїРѕР»РЅРѕСЃС‚СЊСЋ С‡С‘СЂРЅС‹Р№ С„РѕРЅ Рё РјРµРЅСЊС€Рµ РїРѕ РІС‹СЃРѕС‚Рµ */
+/* CRASH: полностью чёрный фон и меньше по высоте */
 #screen-crash{
-  gap: 10px;                 /* РјРµРЅСЊС€Рµ РІРѕР·РґСѓС…Р° */
-  padding-top: 18px;          /* РїРѕРґРЅСЏС‚СЊ РєРѕРЅС‚РµРЅС‚ РІС‹С€Рµ */
+  gap: 10px;
+  padding-top: 18px; /* если хочешь опустить весь блок ниже — УМЕНЬШАЙ это значение, например до 4px или 0 */
 }
 
 #screen-crash .crash-container{
   max-width: 500px;
-  margin: 0 auto;
+  margin: 20px auto 0; /* было 0 auto; добавили 20px сверху, поднимай до 40–60 если нужно ещё ниже */
 }
+
 
 
 
@@ -2825,6 +2826,7 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 }
+
 
 
 
