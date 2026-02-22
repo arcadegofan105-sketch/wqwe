@@ -1383,61 +1383,29 @@ body {
   100% { transform: translate3d(0,0,0) scale(1.03); }
 }
 
-/* Множитель и статус */
-.crash-multiplier {
+.crash-multiplier{
   position: absolute;
   left: 50%;
   top: 56%;
   transform: translate(-50%, -50%);
-  font-size: 36px;
-  font-weight: 900;
-  color: #bef264;
-  text-shadow: 0 0 16px rgba(190, 242, 100, 0.9), 0 0 32px rgba(132, 204, 22, 0.8);
-  white-space: nowrap;
-  pointer-events: none;
   z-index: 3;
 }
 
-.crash-status {
+.crash-status{
   position: absolute;
   left: 50%;
   top: 62%;
   transform: translate(-50%, -50%);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: max-content;
-  max-width: calc(100% - 32px);
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.70);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  font-size: 15px;
-  font-weight: 700;
-  color: #e5e7eb;
-  white-space: nowrap;
-  pointer-events: none;
   z-index: 3;
 }
 
-.crash-rocket {
+.crash-rocket{
   position: absolute;
-  width: 46%;
-  max-width: 220px;
-  height: auto;
-
-  bottom: -18%;
   left: 50%;
+  bottom: -18%;
   transform: translateX(-50%);
-
-  pointer-events: none;
-  filter: drop-shadow(0 14px 24px rgba(59, 130, 246, 0.7));
-  transition: transform 0.1s linear;
   z-index: 2;
-  display: block;
 }
-
 
 
 /* Основная синяя кнопка */
@@ -2821,6 +2789,8 @@ body {
   color: #6b7280;
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
+
+body{ outline: 5px solid red !important; }
 
 
 
