@@ -1285,7 +1285,9 @@ body {
   box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9), 0 25px 60px rgba(0, 0, 0, 0.9);
 }
 
-/* ВИДЕО-ФОН (добавь этот блок, если в HTML есть <div class="crash-bg"><video class="crash-bg-video">...) */
+/* ВИДЕО-ФОН: должен быть в HTML:
+   <div class="crash-bg"><video class="crash-bg-video" ...></video></div>
+*/
 .crash-game-area .crash-bg{
   position: absolute;
   inset: 0;
@@ -1302,7 +1304,7 @@ body {
   object-fit: cover;
 }
 
-/* Все элементы игры поверх видео */
+/* Всё поверх видео */
 .crash-game-area > *:not(.crash-bg){
   position: relative;
   z-index: 1;
@@ -1316,6 +1318,7 @@ body {
   height: 100%;
   display: block;
   background: transparent;
+  z-index: 1;
 }
 
 /* Звёзды (параллакс) */
@@ -1347,6 +1350,7 @@ body {
     radial-gradient(2px 2px at 76% 90%, rgba(248,250,252,0.55) 0, transparent 60%);
   opacity: 1;
   pointer-events: none;
+  z-index: 1;
 }
 
 .crash-stars-back{
@@ -1386,6 +1390,7 @@ body {
   color: #bef264;
   text-shadow: 0 0 16px rgba(190, 242, 100, 0.9), 0 0 32px rgba(132, 204, 22, 0.8);
   pointer-events: none;
+  z-index: 2;
 }
 
 .crash-status {
@@ -1400,6 +1405,7 @@ body {
   font-size: 15px;
   font-weight: 600;
   color: #e5e7eb;
+  z-index: 2;
 }
 
 /* Ракета */
@@ -1413,6 +1419,7 @@ body {
   pointer-events: none;
   filter: drop-shadow(0 14px 24px rgba(59, 130, 246, 0.7));
   transition: transform 0.1s linear;
+  z-index: 2;
 }
 
 /* Основная синяя кнопка */
@@ -1552,6 +1559,7 @@ body {
 @media (max-width: 480px) {
   .crash-multiplier { font-size: 28px; }
 }
+
 
 
 /* вњ… ADD: input styles for withdraw modal */
@@ -2801,6 +2809,7 @@ body {
   color: #6b7280;
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
+
 
 
 
