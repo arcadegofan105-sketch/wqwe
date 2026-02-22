@@ -12,20 +12,14 @@ body {
   color: #e5e7eb;
 }
 
-
-.app {
+.app{
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-
-  /* важно для видео-фона (слои) */
   position: relative;
   overflow: hidden;
-
   background-color: #020617;
 }
-
-
 
 
 .content{
@@ -911,42 +905,6 @@ body {
 	opacity: 0.9;
 }
 
-/* BOTTOM NAV */
-
-.bottom-nav {
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
-  display: flex;
-  justify-content: space-between;
-  padding: 0; /* РєРЅРѕРїРєР° Р·Р°РЅРёРјР°РµС‚ РІСЃСЋ РІС‹СЃРѕС‚Сѓ */
-  background:
-    linear-gradient(to top, rgba(15,23,42,0.98), rgba(15,23,42,0.90));
-  backdrop-filter: blur(18px);
-  box-shadow:
-    0 -1px 0 rgba(15,23,42,1),
-    0 -18px 40px rgba(0,0,0,0.95);
-  flex-shrink: 0;
-  height: 60px;
-}
-
-.nav-btn {
-  flex: 1;
-  border: none;
-  background: transparent;
-  color: #6b7280;
-  font-size: 11px;
-  font-weight: 600;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center; /* С†РµРЅС‚СЂ РїРѕ РІС‹СЃРѕС‚Рµ */
-  gap: 3px;
-  padding: 0;
-  cursor: pointer;
-  position: relative;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
-}
 
 /* С„РёРѕР»РµС‚РѕРІР°СЏ РїРѕР»РѕСЃРєР° СЃРІРµСЂС…Сѓ Р°РєС‚РёРІРЅРѕР№ РІРєР»Р°РґРєРё */
 .nav-btn::before {
@@ -1238,112 +1196,133 @@ body {
 /* ========== CRASH GAME ========== */
 
 .crash-container {
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
-	max-width: 500px;
-	margin: 0 auto;
-	width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 500px;
+  margin: 0 auto;
+  width: 100%;
 }
 
-/* РРіСЂРѕРІР°СЏ Р·РѕРЅР°: РєРѕСЃРјРѕСЃ + СЂР°РєРµС‚Р° */
+/* Игровая зона: космос + видео-фон + ракета */
 .crash-game-area {
-	position: relative;
-	width: 100%;
-	aspect-ratio: 9 / 10;
-	border-radius: 28px;
-	background: radial-gradient(circle at top, #020617 0, #02010b 60%, #000000 100%);
-	overflow: hidden;
-	box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9), 0 25px 60px rgba(0, 0, 0, 0.9);
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 10;
+  border-radius: 28px;
+  background: radial-gradient(circle at top, #020617 0, #02010b 60%, #000000 100%);
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9), 0 25px 60px rgba(0, 0, 0, 0.9);
 }
 
-/* РєР°РЅРІР°СЃ РѕСЃС‚Р°РІР»СЏРµРј РїРѕРґ РјР°С‚РµРјР°С‚РёРєСѓ, С„РѕРЅ РїРѕР»РЅРѕСЃС‚СЊСЋ РїСЂРѕР·СЂР°С‡РЅС‹Р№ */
+/* ВИДЕО-ФОН (добавь этот блок, если в HTML есть <div class="crash-bg"><video class="crash-bg-video">...) */
+.crash-game-area .crash-bg{
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.crash-game-area .crash-bg-video{
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Все элементы игры поверх видео */
+.crash-game-area > *:not(.crash-bg){
+  position: relative;
+  z-index: 1;
+}
+
+/* Canvas остаётся прозрачным */
 #crash-canvas {
-	position: absolute;
-	inset: 0;
-	width: 100%;
-	height: 100%;
-	display: block;
-	background: transparent;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: transparent;
 }
 
-/* Р·РІС‘Р·РґС‹ (РїР°СЂР°Р»Р»Р°РєСЃ) вЂ” Р±РѕР»СЊС€Рµ Рё РєСЂСѓРїРЅРµРµ */
+/* Звёзды (параллакс) */
 .crash-stars{
-	position: absolute;
-	inset: -30%;
-	background-image:
-		radial-gradient(4px 4px at 12% 18%, rgba(248,250,252,0.95) 0, transparent 60%),
-		radial-gradient(3px 3px at 78% 22%, rgba(248,250,252,0.85) 0, transparent 60%),
-		radial-gradient(3px 3px at 34% 66%, rgba(226,232,240,0.95) 0, transparent 60%),
-		radial-gradient(4px 4px at 62% 88%, rgba(248,250,252,0.90) 0, transparent 60%),
-		radial-gradient(2px 2px at 22% 82%, rgba(148,163,184,0.85) 0, transparent 60%),
-		radial-gradient(2px 2px at 70% 12%, rgba(148,163,184,0.85) 0, transparent 60%),
-		radial-gradient(2px 2px at 44% 40%, rgba(226,232,240,0.85) 0, transparent 60%),
-		radial-gradient(2px 2px at 90% 70%, rgba(148,163,184,0.85) 0, transparent 60%),
+  position: absolute;
+  inset: -30%;
+  background-image:
+    radial-gradient(4px 4px at 12% 18%, rgba(248,250,252,0.95) 0, transparent 60%),
+    radial-gradient(3px 3px at 78% 22%, rgba(248,250,252,0.85) 0, transparent 60%),
+    radial-gradient(3px 3px at 34% 66%, rgba(226,232,240,0.95) 0, transparent 60%),
+    radial-gradient(4px 4px at 62% 88%, rgba(248,250,252,0.90) 0, transparent 60%),
+    radial-gradient(2px 2px at 22% 82%, rgba(148,163,184,0.85) 0, transparent 60%),
+    radial-gradient(2px 2px at 70% 12%, rgba(148,163,184,0.85) 0, transparent 60%),
+    radial-gradient(2px 2px at 44% 40%, rgba(226,232,240,0.85) 0, transparent 60%),
+    radial-gradient(2px 2px at 90% 70%, rgba(148,163,184,0.85) 0, transparent 60%),
 
-		radial-gradient(3px 3px at 15% 55%, rgba(248,250,252,0.75) 0, transparent 60%),
-		radial-gradient(2px 2px at 28% 32%, rgba(248,250,252,0.70) 0, transparent 60%),
-		radial-gradient(3px 3px at 48% 18%, rgba(248,250,252,0.70) 0, transparent 60%),
-		radial-gradient(2px 2px at 58% 52%, rgba(226,232,240,0.70) 0, transparent 60%),
-		radial-gradient(3px 3px at 82% 48%, rgba(248,250,252,0.70) 0, transparent 60%),
-		radial-gradient(2px 2px at 88% 28%, rgba(148,163,184,0.70) 0, transparent 60%),
-		radial-gradient(3px 3px at 66% 68%, rgba(248,250,252,0.70) 0, transparent 60%),
-		radial-gradient(2px 2px at 40% 86%, rgba(148,163,184,0.70) 0, transparent 60%),
+    radial-gradient(3px 3px at 15% 55%, rgba(248,250,252,0.75) 0, transparent 60%),
+    radial-gradient(2px 2px at 28% 32%, rgba(248,250,252,0.70) 0, transparent 60%),
+    radial-gradient(3px 3px at 48% 18%, rgba(248,250,252,0.70) 0, transparent 60%),
+    radial-gradient(2px 2px at 58% 52%, rgba(226,232,240,0.70) 0, transparent 60%),
+    radial-gradient(3px 3px at 82% 48%, rgba(248,250,252,0.70) 0, transparent 60%),
+    radial-gradient(2px 2px at 88% 28%, rgba(148,163,184,0.70) 0, transparent 60%),
+    radial-gradient(3px 3px at 66% 68%, rgba(248,250,252,0.70) 0, transparent 60%),
+    radial-gradient(2px 2px at 40% 86%, rgba(148,163,184,0.70) 0, transparent 60%),
 
-		radial-gradient(2px 2px at 8% 30%, rgba(248,250,252,0.55) 0, transparent 60%),
-		radial-gradient(2px 2px at 92% 18%, rgba(248,250,252,0.55) 0, transparent 60%),
-		radial-gradient(2px 2px at 18% 92%, rgba(248,250,252,0.55) 0, transparent 60%),
-		radial-gradient(2px 2px at 76% 90%, rgba(248,250,252,0.55) 0, transparent 60%);
-	opacity: 1;
-	pointer-events: none;
+    radial-gradient(2px 2px at 8% 30%, rgba(248,250,252,0.55) 0, transparent 60%),
+    radial-gradient(2px 2px at 92% 18%, rgba(248,250,252,0.55) 0, transparent 60%),
+    radial-gradient(2px 2px at 18% 92%, rgba(248,250,252,0.55) 0, transparent 60%),
+    radial-gradient(2px 2px at 76% 90%, rgba(248,250,252,0.55) 0, transparent 60%);
+  opacity: 1;
+  pointer-events: none;
 }
-
 
 .crash-stars-back{
-	opacity: 0.55;
-	animation: crashStarsDriftA 18s linear infinite;
+  opacity: 0.55;
+  animation: crashStarsDriftA 18s linear infinite;
 }
 
 .crash-stars-front{
-	opacity: 0.95;
-	animation: crashStarsDriftB 10s linear infinite;
+  opacity: 0.95;
+  animation: crashStarsDriftB 10s linear infinite;
 }
 
 @keyframes crashStarsDriftA{
-	0%   { transform: translate3d(0,0,0) scale(1); }
-	25%  { transform: translate3d(-6%, -2%, 0) scale(1.02); }
-	50%  { transform: translate3d(-10%, -6%, 0) scale(1.01); }
-	75%  { transform: translate3d(-4%, -9%, 0) scale(1.03); }
-	100% { transform: translate3d(0,0,0) scale(1); }
+  0%   { transform: translate3d(0,0,0) scale(1); }
+  25%  { transform: translate3d(-6%, -2%, 0) scale(1.02); }
+  50%  { transform: translate3d(-10%, -6%, 0) scale(1.01); }
+  75%  { transform: translate3d(-4%, -9%, 0) scale(1.03); }
+  100% { transform: translate3d(0,0,0) scale(1); }
 }
 
 @keyframes crashStarsDriftB{
-	0%   { transform: translate3d(0,0,0) scale(1.03); }
-	20%  { transform: translate3d(-8%, -5%, 0) scale(1.06); }
-	55%  { transform: translate3d(-3%, -12%, 0) scale(1.04); }
-	80%  { transform: translate3d(-12%, -7%, 0) scale(1.07); }
-	100% { transform: translate3d(0,0,0) scale(1.03); }
+  0%   { transform: translate3d(0,0,0) scale(1.03); }
+  20%  { transform: translate3d(-8%, -5%, 0) scale(1.06); }
+  55%  { transform: translate3d(-3%, -12%, 0) scale(1.04); }
+  80%  { transform: translate3d(-12%, -7%, 0) scale(1.07); }
+  100% { transform: translate3d(0,0,0) scale(1.03); }
 }
 
-
-/* РњРЅРѕР¶РёС‚РµР»СЊ Рё СЃС‚Р°С‚СѓСЃ */
+/* Множитель и статус */
 .crash-multiplier {
-	position: absolute;
-	top: 20%;
-	left: 50%;
-	transform: translateX(-50%);
-	font-size: 32px;
-	font-weight: 800;
-	color: #bef264;
-	text-shadow: 0 0 16px rgba(190, 242, 100, 0.9), 0 0 32px rgba(132, 204, 22, 0.8);
-	pointer-events: none;
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 32px;
+  font-weight: 800;
+  color: #bef264;
+  text-shadow: 0 0 16px rgba(190, 242, 100, 0.9), 0 0 32px rgba(132, 204, 22, 0.8);
+  pointer-events: none;
 }
 
 .crash-status {
   position: absolute;
   top: 37px;
   left: 50%;
-  transform: translateX(-50%); /* Р±РµР· rotate */
+  transform: translateX(-50%);
   padding: 6px 14px;
   border-radius: 999px;
   background: rgba(15, 23, 42, 0.7);
@@ -1353,159 +1332,157 @@ body {
   color: #e5e7eb;
 }
 
-
-/* Р Р°РєРµС‚Р° */
+/* Ракета */
 .crash-rocket {
-	position: absolute;
-	width: 46%;
-	max-width: 220px;
-	bottom: 18%;
-	left: 50%;
-	transform: translateX(-50%);
-	pointer-events: none;
-	filter: drop-shadow(0 14px 24px rgba(59, 130, 246, 0.7));
-	transition: transform 0.1s linear;
+  position: absolute;
+  width: 46%;
+  max-width: 220px;
+  bottom: 18%;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  filter: drop-shadow(0 14px 24px rgba(59, 130, 246, 0.7));
+  transition: transform 0.1s linear;
 }
 
-/* РћСЃРЅРѕРІРЅР°СЏ СЃРёРЅСЏСЏ РєРЅРѕРїРєР° */
+/* Основная синяя кнопка */
 .crash-main-btn {
-	width: 100%;
-	border: none;
-	border-radius: 18px;
-	padding: 14px 16px;
-	background: linear-gradient(135deg, #2563eb, #1d4ed8);
-	color: #e5e7eb;
-	font-size: 15px;
-	font-weight: 700;
-	letter-spacing: 0.4px;
-	cursor: pointer;
-	box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.7), 0 16px 40px rgba(37, 99, 235, 0.7);
-	transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+  width: 100%;
+  border: none;
+  border-radius: 18px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #e5e7eb;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  cursor: pointer;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.7), 0 16px 40px rgba(37, 99, 235, 0.7);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
 }
 
 .crash-main-btn:active {
-	transform: translateY(1px) scale(0.98);
-	box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.9), 0 10px 26px rgba(30, 64, 175, 0.8);
+  transform: translateY(1px) scale(0.98);
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.9), 0 10px 26px rgba(30, 64, 175, 0.8);
 }
 
 .crash-main-btn:disabled {
-	opacity: 0.6;
-	cursor: default;
-	box-shadow: 0 0 0 1px rgba(30, 64, 175, 0.5), 0 10px 24px rgba(15, 23, 42, 0.9);
+  opacity: 0.6;
+  cursor: default;
+  box-shadow: 0 0 0 1px rgba(30, 64, 175, 0.5), 0 10px 24px rgba(15, 23, 42, 0.9);
 }
 
-/* РџР°РЅРµР»СЊ РІРІРѕРґР° СЃС‚Р°РІРєРё */
+/* Панель ввода ставки */
 .crash-panel {
-	display: flex;
-	gap: 10px;
-	width: 100%;
+  display: flex;
+  gap: 10px;
+  width: 100%;
 }
 
 .crash-bet-block,
 .crash-auto-block {
-	flex: 1;
-	border-radius: 16px;
-	background: rgba(15, 23, 42, 0.85);
-	box-shadow: 0 0 0 1px rgba(51, 65, 85, 0.9);
-	padding: 10px 12px;
+  flex: 1;
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.85);
+  box-shadow: 0 0 0 1px rgba(51, 65, 85, 0.9);
+  padding: 10px 12px;
 }
 
 .crash-bet-label {
-	font-size: 11px;
-	font-weight: 600;
-	color: #9ca3af;
-	margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  margin-bottom: 6px;
 }
 
 .crash-bet-input-row {
-	display: flex;
-	align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .crash-bet-input {
-	width: 100%;
-	border: none;
-	border-radius: 10px;
-	padding: 8px 10px;
-	background: rgba(15, 23, 42, 0.95);
-	color: #e5e7eb;
-	font-size: 14px;
-	font-weight: 600;
-	box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.35);
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: rgba(15, 23, 42, 0.95);
+  color: #e5e7eb;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.35);
 }
 
 .crash-bet-input:focus {
-	outline: none;
-	box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.9), 0 0 20px rgba(8, 47, 73, 0.9);
+  outline: none;
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.9), 0 0 20px rgba(8, 47, 73, 0.9);
 }
 
 .crash-auto-placeholder {
-	border-radius: 10px;
-	padding: 8px 10px;
-	font-size: 13px;
-	color: #6b7280;
-	background: rgba(15, 23, 42, 0.95);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: #6b7280;
+  background: rgba(15, 23, 42, 0.95);
 }
 
-/* РРЅС„Рѕ Р±Р»РѕРє */
+/* Инфо блок */
 .crash-info {
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-	padding: 14px 14px 12px;
-	border-radius: 18px;
-	background: rgba(15, 23, 42, 0.8);
-	box-shadow: 0 0 0 1px rgba(30, 64, 175, 0.4), 0 16px 40px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 14px 12px;
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.8);
+  box-shadow: 0 0 0 1px rgba(30, 64, 175, 0.4), 0 16px 40px rgba(0, 0, 0, 0.7);
 }
 
 .crash-info-item {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .crash-info-label {
-	font-size: 12px;
-	font-weight: 500;
-	color: #9ca3af;
+  font-size: 12px;
+  font-weight: 500;
+  color: #9ca3af;
 }
 
 .crash-info-value {
-	font-size: 14px;
-	font-weight: 700;
-	color: #e5e7eb;
+  font-size: 14px;
+  font-weight: 700;
+  color: #e5e7eb;
 }
 
 .crash-secondary-btn {
-	margin-top: 6px;
-	width: 100%;
-	border-radius: 12px;
-	border: none;
-	padding: 9px 12px;
-	font-size: 13px;
-	font-weight: 600;
-	color: #e5e7eb;
-	background: rgba(15, 23, 42, 0.95);
-	box-shadow: 0 0 0 1px rgba(55, 65, 81, 0.8);
-	cursor: pointer;
-	transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+  margin-top: 6px;
+  width: 100%;
+  border-radius: 12px;
+  border: none;
+  padding: 9px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e5e7eb;
+  background: rgba(15, 23, 42, 0.95);
+  box-shadow: 0 0 0 1px rgba(55, 65, 81, 0.8);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
 }
 
 .crash-secondary-btn:disabled {
-	opacity: 0.55;
-	cursor: default;
+  opacity: 0.55;
+  cursor: default;
 }
 
 .crash-secondary-btn:not(:disabled):active {
-	transform: translateY(1px) scale(0.98);
+  transform: translateY(1px) scale(0.98);
 }
 
-/* РњРѕР±РёР»СЊРЅР°СЏ РїРѕРґСЃС‚СЂРѕР№РєР° */
+/* Мобильная подстройка */
 @media (max-width: 480px) {
-	.crash-multiplier {
-		font-size: 28px;
-	}
+  .crash-multiplier { font-size: 28px; }
 }
+
 
 /* вњ… ADD: input styles for withdraw modal */
 .modal-input {
@@ -2754,39 +2731,6 @@ body {
   color: #6b7280;
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
-
-
-/* ===== Video background for whole app ===== */
-.app-bg-video {
-  position: fixed;
-  inset: 0;
-  width: 100vw;
-  height: 100vh;
-  object-fit: cover;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.app-bg-dim {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-
-  /* затемнение для читаемости */
-  background: linear-gradient(to bottom, rgba(2,6,23,0.25), rgba(2,6,23,0.60));
-}
-
-/* UI always above the video */
-.top-bar,
-.content,
-.bottom-nav {
-  position: relative;
-  z-index: 2;
-}
-
-
-
 
 
 
