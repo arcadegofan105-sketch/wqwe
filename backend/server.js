@@ -252,29 +252,42 @@ app.post("/api/me", auth, (req, res) => {
   });
 });
 
-// spin: всегда "мишка", цена 1 TON
+
+// spin: бесплатное колесо 1 раз в сутки
 app.post("/api/spin", auth, (req, res) => {
   const tgId = String(req.tgUser.id);
   touchUserVisit(req.tgUser);
 
   const user = mustGetUser(tgId);
-  const balance = safeNumber(user.balance, 0);
+  const now = Date.now();
+  const ONE_DAY = 24 * 60 * 60 * 1000;
 
-  if (balance < 1) {
-    return res.status(400).json({ error: "Недостаточно средств" });
+  const last = safeNumber(user.last_free_spin_at, 0);
+  if (now - last < ONE_DAY) {
+    const msLeft = ONE_DAY - (now - last);
+    const secLeft = Math.ceil(msLeft / 1000);
+    return res.status(400).json({
+      error: "Бесплатное колесо доступно раз в сутки",
+      code: "FREE_SPIN_COOLDOWN",
+      secondsLeft: secLeft,
+    });
   }
 
-  const newBalance = Number((balance - 1).toFixed(2));
-  updateUserBalance(tgId, newBalance);
-
+  // тут можно сделать любую логику призов, пока оставим мишку
   const prize = { emoji: "🧸", name: "Bear", price: 0.1 };
 
-  // вот ЭТО обязательно должно быть, без условий
   addInventoryItem(tgId, prize);
 
-  res.json({ prize, newBalance });
-});
+  // фиксируем время бесплатного спина
+  db.prepare(`
+    UPDATE users
+    SET last_free_spin_at = ?
+    WHERE tg_id = ?
+  `).run(now, tgId);
 
+  // баланс не трогаем: спин бесплатный
+  res.json({ prize });
+});
 
 
 
@@ -853,6 +866,7 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
 
 
 
