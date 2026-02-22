@@ -1883,7 +1883,7 @@ function renderCrash(ts) {
   // Ракета фиксированно сверху
   if (crashState === 'playing') {
     const rx = w * 0.5
-    const ry = h * 0.22
+    const ry = h * 0.40
     const ang = -0.25
     drawRocketVideo(crashCtx, rx, ry, ang, 92)
   }
@@ -2084,6 +2084,7 @@ async function init() {
 }
 
 init()
+
 
 
 
