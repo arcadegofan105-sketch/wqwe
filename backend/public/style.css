@@ -1384,15 +1384,11 @@ body {
 }
 
 /* ===== MULTIPLIER ===== */
-/* ===== MULTIPLIER ===== */
 .crash-multiplier{
   position: absolute;
   left: 50%;
-  top: 80%;                 /* ниже */
-  transform: translate(-50%, -50%);
-
-  max-width: calc(100% - 32px);
-  text-align: center;
+  bottom: 60px;
+  transform: translateX(-50%);
 
   font-size: 36px;
   font-weight: 900;
@@ -1403,7 +1399,7 @@ body {
 
   white-space: nowrap;
   pointer-events: none;
-  z-index: 3;
+  z-index: 5;
 }
 
 
@@ -1411,20 +1407,12 @@ body {
 .crash-status{
   position: absolute;
   left: 50%;
-  top: 70%;                 /* выше иксов */
-  transform: translate(-50%, -50%);
+  bottom: 110px;
+  transform: translateX(-50%);
 
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  max-width: calc(100% - 32px);
   padding: 8px 14px;
-
   border-radius: 999px;
   background: rgba(15,23,42,.70);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 
   font-size: 15px;
   font-weight: 700;
@@ -1432,8 +1420,9 @@ body {
 
   white-space: nowrap;
   pointer-events: none;
-  z-index: 3;
+  z-index: 5;
 }
+
 
 
 /* ===== ROCKET ===== */
@@ -2531,8 +2520,12 @@ body {
 }
 
 #screen-crash .crash-container{
+  position: relative;        /* ВАЖНО */
+  width: 100%;
   max-width: 500px;
-  margin: 20px auto 0; /* было 0 auto; добавили 20px сверху, поднимай до 40–60 если нужно ещё ниже */
+  height: 420px;             /* фиксируем высоту */
+  margin: 20px auto 0;
+  overflow: hidden;          /* чтобы ничего не вылезало */
 }
 
 
@@ -2839,6 +2832,7 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 }
+
 
 
 
