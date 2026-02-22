@@ -2513,21 +2513,29 @@ body {
   transform-origin: center;
 }
 
-/* CRASH: полностью чёрный фон и меньше по высоте */
+/* CRASH: экран с чёрным фоном и адекватной высотой */
 #screen-crash{
   gap: 10px;
-  padding-top: 18px; /* если хочешь опустить весь блок ниже — УМЕНЬШАЙ это значение, например до 4px или 0 */
+  padding-top: 12px;              /* можешь менять 0–24px, чтобы выше/ниже весь блок */
 }
 
 #screen-crash .crash-container{
-  position: relative;        /* ВАЖНО */
+  position: relative;
   width: 100%;
   max-width: 500px;
-  height: 420px;             /* фиксируем высоту */
-  margin: 20px auto 0;
-  overflow: hidden;          /* чтобы ничего не вылезало */
+  margin: 16px auto 0;            /* общий сдвиг краша вниз */
+
+  /* высоту задаёт внутренняя область .crash-game-area через aspect-ratio */
 }
 
+/* сама область игры (важно, чтобы было что‑то типа этого рядом в стилях) */
+.crash-game-area{
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 10;           /* можешь сделать 9 / 11 или 9 / 12, если хочешь выше */
+  border-radius: 28px;
+  overflow: hidden;
+}
 
 
 
@@ -2832,6 +2840,7 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 }
+
 
 
 
