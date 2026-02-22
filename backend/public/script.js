@@ -1151,8 +1151,14 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
 
 
 // крутилка
-js
-  // если нет бесплатного спина — проверяем баланс
+spinButton?.addEventListener('click', async e => {
+  e.preventDefault()
+  e.stopPropagation()
+  if (isSpinning) return
+  if (prizeModal?.classList.contains('active')) return
+  if (withdrawModal?.classList.contains('active')) return
+
+  // если нет бесплатного спина — проверяем баланс и показываем окно про депозит
   if (!freeWheelAvailable && balance < SPIN_PRICE) {
     const need = Math.max(0, WHEEL_DEPOSIT_TARGET - wheelDepositProgressTon)
       .toFixed(2)
@@ -2139,6 +2145,7 @@ async function init() {
 }
 
 init()
+
 
 
 
