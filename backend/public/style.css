@@ -1388,7 +1388,7 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -30%); /* чуть выше центра */
+  transform: translate(-50%, -5%); /* чуть выше центра */
 
   max-width: calc(100% - 32px);
   text-align: center;
@@ -1412,7 +1412,7 @@ body {
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, 35%); /* ниже центра */
+  transform: translate(-50%, 60%); /* ниже центра */
 
   display: inline-flex;
   align-items: center;
@@ -1446,7 +1446,7 @@ body {
   max-width: 220px;
   height: auto;
 
-  transform: translate(-50%, 20%); /* слегка выходит снизу, но контролируемо */
+  transform: translate(-50%, 50%); /* слегка выходит снизу, но контролируемо */
 
   pointer-events: none;
   filter: drop-shadow(0 14px 24px rgba(59,130,246,.7));
@@ -2839,6 +2839,7 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 }
+
 
 
 
