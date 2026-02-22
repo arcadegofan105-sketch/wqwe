@@ -1387,8 +1387,8 @@ body {
 .crash-multiplier{
   position: absolute;
   left: 50%;
-  top: calc(50% + 44px);   /* чуть ниже "Скоро взлетаем" */
-  transform: translateX(-50%);
+  top: 56%;                 /* было слишком высоко — опустили */
+  transform: translate(-50%, -50%);
 
   font-size: 36px;
   font-weight: 900;
@@ -1401,10 +1401,11 @@ body {
 }
 
 
+
 .crash-status{
   position: absolute;
   left: 50%;
-  top: 50%;
+  top: 62%;
   transform: translate(-50%, -50%);
   display: inline-flex;
   align-items: center;
@@ -1434,7 +1435,7 @@ body {
   position: absolute;
   width: 46%;
   max-width: 220px;
-  bottom: 8%;
+  bottom: -18%;
   left: 50%;
   transform: translateX(-50%);
   pointer-events: none;
@@ -2824,6 +2825,7 @@ body {
   color: #6b7280;
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
+
 
 
 
