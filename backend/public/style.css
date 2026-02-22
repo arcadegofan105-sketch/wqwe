@@ -1285,11 +1285,6 @@ body {
   box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9), 0 25px 60px rgba(0, 0, 0, 0.9);
 }
 
-/* Опускаем только фон (видео/картинка) ниже */
-.crash-game-area .crash-bg,
-.crash-game-area .crash-bg-video{
-  transform: translateY(18%);
-}
 
 
 /* ВИДЕО-ФОН: должен быть в HTML:
@@ -1309,7 +1304,9 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: 50% 0%; /* держим верх видео вверху */
 }
+
 
 /* Всё поверх видео */
 .crash-game-area > *:not(.crash-bg){
@@ -2525,13 +2522,7 @@ body {
   margin: 0 auto;
 }
 
-/* РѕР±Р»Р°СЃС‚СЊ РёРіСЂС‹: РґРµР»Р°РµРј С„РѕРЅ С‡РёСЃС‚Рѕ С‡С‘СЂРЅС‹Рј Рё СѓРјРµРЅСЊС€Р°РµРј РІС‹СЃРѕС‚Сѓ */
-#screen-crash .crash-game-area{
-  background: #000 !important;   /* РІРјРµСЃС‚Рѕ radial-gradient */
-  aspect-ratio: auto !important; /* СѓР±РёСЂР°РµРј 9/10 */
-  height: min(380px, 52vh);      /* РјРµРЅСЊС€Рµ РїРѕ РІС‹СЃРѕС‚Рµ, РЅРѕ Р°РґР°РїС‚РёРІРЅРѕ */
-  border-radius: 22px;
-}
+
 
 
 .case-open-main-btn--big{
@@ -2833,6 +2824,7 @@ body {
   color: #6b7280;
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
+
 
 
 
