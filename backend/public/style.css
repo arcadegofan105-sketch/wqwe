@@ -1384,7 +1384,7 @@ body {
 }
 
 /* ===== MULTIPLIER ===== */
-.crash-multiplier{
+.crash-multiplier {
   position: absolute;
   left: 50%;
   top: 60%;                /* опускаем ниже */
@@ -1400,7 +1400,7 @@ body {
   z-index: 5;
 }
 
-.crash-status{
+.crash-status {
   position: absolute;
   left: 50%;
   top: 72%;                /* ещё ниже статуса */
@@ -2834,6 +2834,7 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 }
+
 
 
 
