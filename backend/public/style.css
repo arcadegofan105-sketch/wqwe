@@ -1290,7 +1290,7 @@ body {
 /* ВИДЕО-ФОН: должен быть в HTML:
    <div class="crash-bg"><video class="crash-bg-video" ...></video></div>
 */
-.crash-game-area .crash-bg{
+.crash-game-area .crash-bg {
   position: absolute;
   inset: 0;
   z-index: 0;
@@ -1298,7 +1298,7 @@ body {
   border-radius: inherit;
 }
 
-.crash-game-area .crash-bg-video{
+.crash-game-area .crash-bg-video {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -1357,17 +1357,17 @@ body {
   z-index: 1;
 }
 
-.crash-stars-back{
+.crash-stars-back {
   opacity: 0.55;
   animation: crashStarsDriftA 18s linear infinite;
 }
 
-.crash-stars-front{
+.crash-stars-front {
   opacity: 0.95;
   animation: crashStarsDriftB 10s linear infinite;
 }
 
-@keyframes crashStarsDriftA{
+@keyframes crashStarsDriftA {
   0%   { transform: translate3d(0,0,0) scale(1); }
   25%  { transform: translate3d(-6%, -2%, 0) scale(1.02); }
   50%  { transform: translate3d(-10%, -6%, 0) scale(1.01); }
@@ -1384,7 +1384,7 @@ body {
 }
 
 /* Множитель и статус */
-.crash-multiplier{
+.crash-multiplier {
   position: absolute;
   left: 50%;
   top: 56%;
@@ -1398,7 +1398,7 @@ body {
   z-index: 3;
 }
 
-.crash-status{
+.crash-status {
   position: absolute;
   left: 50%;
   top: 62%;
@@ -1421,7 +1421,7 @@ body {
   z-index: 3;
 }
 
-.crash-rocket{
+.crash-rocket {
   position: absolute;
   width: 46%;
   max-width: 220px;
@@ -2821,6 +2821,7 @@ body {
   color: #6b7280;
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
+
 
 
 
