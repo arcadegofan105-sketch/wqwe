@@ -1752,7 +1752,7 @@ function crashBoomIntoMoon() {
 
   // Точка взрыва = точка ракеты (фикс сверху)
   const ix = Math.round(w * 0.5)
-  const iy = Math.round(h * 0.22)
+  const iy = Math.round(h * 0.6)
 
   crashImpact = { x: ix, y: iy, ts: performance.now() }
   crashShake = 1
@@ -1883,7 +1883,7 @@ function renderCrash(ts) {
   // Ракета фиксированно сверху
   if (crashState === 'playing') {
     const rx = w * 0.5
-    const ry = h * 0.40
+    const ry = h * 0.6
     const ang = -0.25
     drawRocketVideo(crashCtx, rx, ry, ang, 92)
   }
@@ -2084,6 +2084,7 @@ async function init() {
 }
 
 init()
+
 
 
 
