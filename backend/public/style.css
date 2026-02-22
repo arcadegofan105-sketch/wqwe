@@ -2833,6 +2833,27 @@ body {
 }
 
 
+/* --- CRASH FIX (override) --- */
+#screen-crash .crash-game-area .crash-multiplier{
+  left: 50% !important;
+  top: 56% !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+#screen-crash .crash-game-area .crash-status{
+  left: 50% !important;
+  top: 62% !important;
+  transform: translate(-50%, -50%) !important;
+}
+
+#screen-crash .crash-game-area .crash-rocket{
+  left: 50% !important;
+  bottom: -18% !important;
+  transform: translateX(-50%) !important;
+  height: auto !important;
+  display: block !important;
+}
+
 
 
 
