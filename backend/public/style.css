@@ -1386,10 +1386,10 @@ body {
 /* ===== MULTIPLIER ===== */
 .crash-multiplier{
   position: absolute;
-  left: 50%;
-  top: 55%;                  /* внутри области, не снизу */
-  transform: translate(-50%, -50%);
-  font-size: 36px;
+  left: 50% !important;
+  top: 60% !important;                /* опускаем ниже */
+  transform: translate(-50%, -50%) !important;
+  font-size: 32px;
   font-weight: 900;
   color: #bef264;
   text-shadow:
@@ -1402,9 +1402,9 @@ body {
 
 .crash-status{
   position: absolute;
-  left: 50%;
-  top: 65%;
-  transform: translate(-50%, -50%);
+  left: 50% !important;
+  top: 72% !important;                /* ещё ниже статуса */
+  transform: translate(-50%, -50%) !important;
   padding: 8px 14px;
   border-radius: 999px;
   background: rgba(15,23,42,.70);
@@ -1415,6 +1415,7 @@ body {
   pointer-events: none;
   z-index: 5;
 }
+
 
 
 
@@ -2833,6 +2834,7 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 }
+
 
 
 
