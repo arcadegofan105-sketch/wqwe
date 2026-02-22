@@ -1431,18 +1431,24 @@ body {
 
 
 /* Ракета */
-.crash-rocket {
+.crash-rocket{
   position: absolute;
   width: 46%;
   max-width: 220px;
+
+  height: auto;
   bottom: -18%;
   left: 50%;
   transform: translateX(-50%);
+
   pointer-events: none;
   filter: drop-shadow(0 14px 24px rgba(59, 130, 246, 0.7));
   transition: transform 0.1s linear;
   z-index: 2;
+
+  display: block;
 }
+
 
 /* Основная синяя кнопка */
 .crash-main-btn {
@@ -2825,6 +2831,7 @@ body {
   color: #6b7280;
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
+
 
 
 
