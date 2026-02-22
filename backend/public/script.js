@@ -1044,16 +1044,15 @@ document.querySelectorAll('[data-home-target]').forEach(card => {
   card.addEventListener('click', () => {
     const target = card.getAttribute('data-home-target')
 
-    if (target === 'crash' || target === 'wheel') {
-      setScreen(target)
+    if (target === 'wheel') {
+      setScreen('wheel')
       return
     }
 
-        if (target === 'cases') {
+    if (target === 'cases') {
       setScreen('cases')
       return
     }
-
   })
 })
 
@@ -2189,6 +2188,7 @@ async function init() {
 }
 
 init()
+
 
 
 
