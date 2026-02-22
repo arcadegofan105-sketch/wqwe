@@ -372,6 +372,12 @@ let isAdmin = false
 let selectedCaseType = null
 let isCaseOpening = false
 
+// прогресс к бесплатному колесу
+const WHEEL_DEPOSIT_TARGET = 0.5
+let freeWheelAvailable = false
+let wheelDepositProgressTon = 0
+
+
 const adminState = {
   q: '',
   page: 1,
@@ -739,12 +745,36 @@ async function fetchUserData() {
   inventory = Array.isArray(data.inventory) ? data.inventory : []
   isAdmin = Boolean(data.isAdmin)
 
+  // новые поля от бэкенда
+freeWheelAvailable = Boolean(data.freeWheelAvailable)
+wheelDepositProgressTon = Number(data.wheelDepositProgressTon || 0)
+updateWheelPriceLabel()
+
+
   if (adminNavBtn) adminNavBtn.style.display = isAdmin ? '' : 'none'
 
   updateBalanceUI()
   renderInventory()
   return data
 }
+
+function updateWheelPriceLabel() {
+  const priceLabelEl = document.getElementById('wheel-price-text')
+  if (!priceLabelEl) return
+
+  if (freeWheelAvailable) {
+    priceLabelEl.textContent = 'Бесплатно'
+  } else {
+    const need = Math.max(0, WHEEL_DEPOSIT_TARGET - wheelDepositProgressTon)
+      .toFixed(2)
+      .replace(/\.?0+$/, '') // убираем лишние нули
+    priceLabelEl.textContent =
+      need === '0'
+        ? 'Бесплатно'
+        : `Сделайте депозит ещё ${need} TON, чтобы колесо стало бесплатным`
+  }
+}
+
 
 async function spinApi() {
   return apiPost('/spin')
@@ -1128,8 +1158,9 @@ spinButton?.addEventListener('click', async e => {
   if (prizeModal?.classList.contains('active')) return
   if (withdrawModal?.classList.contains('active')) return
 
-  if (balance < SPIN_PRICE) {
-    alert('Недостаточно средств. Нужно минимум 1 TON.')
+  // если нет бесплатного спина — проверяем баланс
+  if (!freeWheelAvailable && balance < SPINPRICE) {
+    alert('Недостаточно средств. Нужно минимум 1 TON или сделайте депозит 0.5 TON для бесплатного спина.')
     return
   }
 
@@ -1148,18 +1179,19 @@ spinButton?.addEventListener('click', async e => {
 
   currentPrize = prizeData.prize
   currentPrizeIdx = Number.isInteger(prizeData.idx) ? prizeData.idx : null
- if (typeof prizeData.newBalance === 'number') {
-  balance = Number(prizeData.newBalance)
-} else {
-  balance = balance - SPINPRICE
-}
-updateBalanceUI()
 
+  // обновляем баланс и статус колеса с ответа бэка
+  if (typeof prizeData.newBalance === 'number') {
+    balance = Number(prizeData.newBalance)
+  }
+  freeWheelAvailable = Boolean(prizeData.freeWheelAvailable)
+  wheelDepositProgressTon = Number(prizeData.wheelDepositProgressTon || 0)
+  updateBalanceUI()
+  updateWheelPriceLabel()
 
-  // Сейчас у тебя намеренно всегда крутится на мишку:
+  // анимация колеса
   let sectorIndex = wheelSectors.findIndex(s => s?.name === currentPrize?.name)
-if (sectorIndex < 0) sectorIndex = 0
-
+  if (sectorIndex < 0) sectorIndex = 0
 
   const N = wheelSectors.length
   const step = 360 / N
@@ -1169,10 +1201,10 @@ if (sectorIndex < 0) sectorIndex = 0
   const current = ((currentRotation % 360) + 360) % 360
   const delta = (((desiredAngle - base - current) % 360) + 360) % 360
 
-  currentRotation += FULL_ROUNDS * 360 + delta
-setWheelIconsUpright(currentRotation)
-
+  currentRotation += FULLROUNDS * 360 + delta
+  setWheelIconsUpright(currentRotation)
 })
+
 
 wheel?.addEventListener('transitionend', (e) => {
   if (e.propertyName !== '--wheel-rot' && e.propertyName !== 'transform') return
@@ -2105,6 +2137,7 @@ async function init() {
 }
 
 init()
+
 
 
 
