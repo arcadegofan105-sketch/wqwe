@@ -1651,7 +1651,7 @@ function drawRocket(ctx, x, y, ang, flamePower) {
   ctx.restore()
 }
 
-// Видео-ракета: больше + небольшой наклон вправо + вырезание чёрного фона
+// Видео-ракета: правильные пропорции + наклон + вырезание чёрного фона
 function drawRocketVideo(ctx, x, y, ang, size = 70) {
   if (!rocketVideo || rocketVideo.readyState < 2 || !rocketKeyCtx) return
 
@@ -1665,28 +1665,44 @@ function drawRocketVideo(ctx, x, y, ang, size = 70) {
   rocketKeyCtx.clearRect(0, 0, vw, vh)
   rocketKeyCtx.drawImage(rocketVideo, 0, 0, vw, vh)
 
-  // 2) вырезаем "почти чёрный" фон (MP4 без прозрачности)
+  // 2) вырезаем "почти чёрный" фон
   const frame = rocketKeyCtx.getImageData(0, 0, vw, vh)
   const d = frame.data
-  const threshold = 45 // 25..70; если съедает ракету — уменьши
+  const threshold = 45 // если съедает ракету — уменьши (30–40)
 
   for (let i = 0; i < d.length; i += 4) {
-    const r = d[i], g = d[i + 1], b = d[i + 2]
-    if (r <= threshold && g <= threshold && b <= threshold) d[i + 3] = 0
+    const r = d[i]
+    const g = d[i + 1]
+    const b = d[i + 2]
+    if (r <= threshold && g <= threshold && b <= threshold) {
+      d[i + 3] = 0
+    }
   }
   rocketKeyCtx.putImageData(frame, 0, 0)
 
-  // 3) рисуем на основной canvas (увеличение + наклон)
-  const w = size * 2.85
-  const h = size * 1.75
+  // 3) сохраняем реальные пропорции видео
+  const aspect = vw / vh
+
+  const width = size * 2.85
+  const height = width / aspect   // <-- ВАЖНО: теперь нет растяжения
+
   const extraTilt = 0.25
 
   ctx.save()
   ctx.translate(x, y)
   ctx.rotate(ang + extraTilt)
-  ctx.drawImage(rocketKeyCanvas, -w / 2, -h / 2, w, h)
+
+  ctx.drawImage(
+    rocketKeyCanvas,
+    -width / 2,
+    -height / 2,
+    width,
+    height
+  )
+
   ctx.restore()
 }
+
 
 // ---------- UI ----------
 function updateCrashButtonUI() {
@@ -2084,6 +2100,7 @@ async function init() {
 }
 
 init()
+
 
 
 
