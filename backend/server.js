@@ -244,50 +244,70 @@ app.post("/api/me", auth, (req, res) => {
 
   const inventory = listInventory(tgUser.id);
 
-  res.json({
+    res.json({
     balance: safeNumber(u.balance, 0),
     inventory,
     totalDepositTon: safeNumber(u.total_deposit_ton, 0),
     isAdmin: String(tgUser.id) === ADMIN_TG_ID,
+
+    // НОВОЕ: состояние колеса
+    freeWheelAvailable: !!u.free_wheel_available,
+    wheelDepositProgressTon: safeNumber(u.wheel_deposit_progress_ton, 0),
   });
+
 });
 
 
-// spin: бесплатное колесо 1 раз в сутки
+// spin: колесо — платно или бесплатно по депозитам
 app.post("/api/spin", auth, (req, res) => {
   const tgId = String(req.tgUser.id);
   touchUserVisit(req.tgUser);
 
   const user = mustGetUser(tgId);
-  const now = Date.now();
-  const ONE_DAY = 24 * 60 * 60 * 1000;
+  const balance = safeNumber(user.balance, 0);
 
-  const last = safeNumber(user.last_free_spin_at, 0);
-  if (now - last < ONE_DAY) {
-    const msLeft = ONE_DAY - (now - last);
-    const secLeft = Math.ceil(msLeft / 1000);
-    return res.status(400).json({
-      error: "Бесплатное колесо доступно раз в сутки",
-      code: "FREE_SPIN_COOLDOWN",
-      secondsLeft: secLeft,
-    });
+  const SPIN_PRICE = 1;          // цена платного спина
+  const WHEEL_DEPOSIT_TARGET = 0.5;
+
+  const freeWheelAvailable = !!user.free_wheel_available;
+  const wheelDepositProgressTon = safeNumber(user.wheel_deposit_progress_ton, 0);
+
+  let isFreeSpin = false;
+  let newBalance = balance;
+
+  if (freeWheelAvailable) {
+    // бесплатное колесо — баланс не трогаем
+    isFreeSpin = true;
+  } else {
+    // платный спин
+    if (balance < SPIN_PRICE) {
+      return res.status(400).json({ error: "Недостаточно средств" });
+    }
+    newBalance = Number((balance - SPIN_PRICE).toFixed(2));
+    updateUserBalance(tgId, newBalance);
   }
 
-  // тут можно сделать любую логику призов, пока оставим мишку
+  // приз (пока всегда мишка)
   const prize = { emoji: "🧸", name: "Bear", price: 0.1 };
-
   addInventoryItem(tgId, prize);
 
-  // фиксируем время бесплатного спина
-  db.prepare(`
-    UPDATE users
-    SET last_free_spin_at = ?
-    WHERE tg_id = ?
-  `).run(now, tgId);
+  // если бесплатный спин — сбрасываем флаг
+  if (freeWheelAvailable) {
+    db.prepare(
+      `UPDATE users SET free_wheel_available = 0 WHERE tg_id = ?`
+    ).run(tgId);
+  }
 
-  // баланс не трогаем: спин бесплатный
-  res.json({ prize });
+  return res.json({
+    prize,
+    newBalance,
+    freeWheelAvailable: false,          // после спина бесплатного флага нет
+    wheelDepositProgressTon,            // прогресс не меняем тут, только при депозите
+    isFreeSpin,
+  });
 });
+
+
 
 
 
@@ -629,11 +649,19 @@ app.post("/api/deposit/check", auth, async (req, res) => {
   const depositId = String(req.body?.depositId || "");
   const dep = pendingDeposits.get(depositId);
 
-  if (!dep || dep.userId !== userId) return res.status(404).json({ error: "deposit not found" });
+  if (!dep || dep.userId !== userId) {
+    return res.status(404).json({ error: "deposit not found" });
+  }
 
   if (dep.credited) {
     const user = mustGetUser(userId);
-    return res.json({ ok: true, credited: true, newBalance: safeNumber(user.balance, 0) });
+    return res.json({
+      ok: true,
+      credited: true,
+      newBalance: safeNumber(user.balance, 0),
+      freeWheelAvailable: !!user.free_wheel_available,
+      wheelDepositProgressTon: safeNumber(user.wheel_deposit_progress_ton, 0),
+    });
   }
 
   let txs = [];
@@ -654,20 +682,55 @@ app.post("/api/deposit/check", auth, async (req, res) => {
 
   const user = mustGetUser(userId);
 
-  const newBalance = Number((safeNumber(user.balance, 0) + dep.amount).toFixed(2));
-  const newTotalDeposit = Number((safeNumber(user.total_deposit_ton, 0) + dep.amount).toFixed(2));
+  const newBalance = Number(
+    (safeNumber(user.balance, 0) + dep.amount).toFixed(2)
+  );
+  const newTotalDeposit = Number(
+    (safeNumber(user.total_deposit_ton, 0) + dep.amount).toFixed(2)
+  );
 
-  updateUserBalanceAndDeposit(userId, { balance: newBalance, totalDepositTon: newTotalDeposit });
+  // === прогресс к бесплатному колесу ===
+  const WHEEL_DEPOSIT_TARGET = 0.5;
+
+  const prevProgress = safeNumber(user.wheel_deposit_progress_ton, 0);
+  let wheelDepositProgressTon = Number(
+    (prevProgress + dep.amount).toFixed(4)
+  );
+  let freeWheelAvailable = !!user.free_wheel_available;
+
+  if (wheelDepositProgressTon >= WHEEL_DEPOSIT_TARGET) {
+    freeWheelAvailable = true;
+    wheelDepositProgressTon = Number(
+      (wheelDepositProgressTon - WHEEL_DEPOSIT_TARGET).toFixed(4)
+    );
+  }
+
+  // сохраняем все значения разом
+  updateUserBalanceAndDeposit(userId, {
+    balance: newBalance,
+    totalDepositTon: newTotalDeposit,
+    freeWheelAvailable,
+    wheelDepositProgressTon,
+  });
 
   dep.credited = true;
   pendingDeposits.set(depositId, dep);
 
   sendAdminMessage(
-    `✅ Депозит зачислен\nID: ${userId}\nСумма: ${dep.amount.toFixed(2)} TON\nDepositId: ${depositId}`
+    `✅ Депозит зачислен\nID: ${userId}\nСумма: ${dep.amount.toFixed(
+      2
+    )} TON\nDepositId: ${depositId}`
   ).catch(() => {});
 
-  return res.json({ ok: true, credited: true, newBalance });
+  return res.json({
+    ok: true,
+    credited: true,
+    newBalance,
+    freeWheelAvailable,
+    wheelDepositProgressTon,
+  });
 });
+
 
 // crash bet
 app.post("/api/crash/bet", auth, (req, res) => {
@@ -866,6 +929,7 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
 
 
 
