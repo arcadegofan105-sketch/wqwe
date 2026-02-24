@@ -1085,8 +1085,14 @@ document.querySelectorAll('[data-home-target]').forEach(card => {
       setScreen('cases')
       return
     }
+
+    if (target === 'frog') {
+      setScreen('frog')
+      return
+    }
   })
 })
+
 
 // Кейсы: клик по карточке -> экран открытия
 caseCards.forEach(card => {
@@ -2368,6 +2374,7 @@ async function init() {
 }
 
 init()
+
 
 
 
