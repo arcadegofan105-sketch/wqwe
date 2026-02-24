@@ -931,13 +931,15 @@ function drawFrogScene(showCar = false) {
   clearFrogCanvas()
 
   const groundY = getGroundY()
-  const viewCenter = frogCanvas.width * 0.25
+  // лягушка привязана к левому краю поля (поближе к началу)
+  const frogScreenX = frogCanvas.width * 0.22
 
+  // если ещё не настроено – ставим лягушку перед первым люком
+  if (frogWorldX === undefined) {
+    frogWorldX = getHatchX(0) - 140
+  }
 
-  // Если лягушка ещё не появилась, ставим её левее первого люка
-  if (frogWorldX === undefined) frogWorldX = getHatchX(0) - 150
-
-  // 🌎 Смещаем сцену так, чтобы лягушка была по центру
+  // текущий сдвиг мира: хотим, чтобы frogWorldX оказался на frogScreenX
   const curWorldX = frogWorldX
 
   // Рисуем люки и множители
@@ -945,15 +947,29 @@ function drawFrogScene(showCar = false) {
   frogCtx.textAlign = 'center'
   frogCtx.textBaseline = 'top'
 
+  for (let i = 0; i < FROG_HATCH_MULTS.length; i++) {
+    const hatchWorldX = getHatchX(i)
+    const x = frogScreenX + (hatchWorldX - curWorldX)
 
-  // 🐸 Лягушка по центру, с подпрыгиванием
+    const mult = FROG_HATCH_MULTS[i]
+    const safe = frogWinningHatch >= 0 && i <= frogWinningHatch
+
+    frogCtx.fillStyle = safe ? 'rgba(22,163,74,0.85)' : 'rgba(148,163,184,0.7)'
+    const hatchWidth = 80
+    const hatchHeight = 20
+    frogCtx.fillRect(x - hatchWidth / 2, groundY, hatchWidth, hatchHeight)
+
+    frogCtx.fillStyle = '#0b1120'
+    frogCtx.fillText(`${mult.toFixed(2)}x`, x, groundY + 3)
+  }
+
+  // 🐸 Лягушка всегда на frogScreenX, с подпрыгиванием
   if (frogSprite) {
     const size = 60
-    // подпрыгивание при игре
     const jumpOffset = frogJumpProgress ? Math.sin(frogJumpProgress * Math.PI) * 15 : 0
     frogCtx.drawImage(
       frogSprite,
-      viewCenter - size / 2,
+      frogScreenX - size / 2,
       groundY - size - 10 - jumpOffset,
       size,
       size
@@ -965,13 +981,14 @@ function drawFrogScene(showCar = false) {
     const size = 100
     frogCtx.drawImage(
       frogCarSprite,
-      viewCenter - size / 2,
+      frogScreenX - size / 2,
       groundY - size - 30,
       size,
       size
     )
   }
 }
+
 
 function scrollFrogToHatch(targetIndex, duration = 600) {
   if (targetIndex >= FROG_HATCH_MULTS.length) targetIndex = FROG_HATCH_MULTS.length - 1
@@ -2126,16 +2143,14 @@ async function frogJump() {
   if (frogState !== 'bet_placed' && frogState !== 'running') return
 
   frogState = 'running'
+  frogWinningHatch = 0   // максимум 1.15x
 
-  // максимум, что даём – 1.15x
-  frogWinningHatch = 0
-
-  // следующий люк
   const nextHatch = frogCurrentHatch + 1
 
-  // куда по миру должна сместиться лягушка (на шаг вправо)
+  // стартовая мировая позиция
+  const startX = frogWorldX === undefined ? getHatchX(0) - 140 : frogWorldX
+  // целевая мировая позиция: лягушка должна «дойти» до центра следующего люка
   const targetX = getHatchX(nextHatch <= 0 ? 0 : nextHatch)
-  const startX = frogWorldX === undefined ? getHatchX(0) - 150 : frogWorldX
 
   const duration = 600
   const startTime = performance.now()
@@ -2143,7 +2158,7 @@ async function frogJump() {
   return new Promise(resolve => {
     function step(time) {
       const k = Math.min(1, (time - startTime) / duration)
-      const ease = k * (2 - k)   // ease‑out
+      const ease = k * (2 - k)
 
       frogWorldX = startX + (targetX - startX) * ease
       frogJumpProgress = ease
@@ -2170,7 +2185,6 @@ async function frogJump() {
   })
 }
 
-
 async function frogCashout() {
   if (frogState !== 'bet_placed' && frogState !== 'running') return
   await frogDie()
@@ -2187,6 +2201,9 @@ async function frogDie() {
 frogCurrentHatch = -1
 frogWinningHatch = 0
 frogAutoHatch = null
+frogWorldX = undefined
+frogJumpProgress = 0
+
 
 }
 
@@ -2369,6 +2386,7 @@ async function init() {
 
 
 init()
+
 
 
 
