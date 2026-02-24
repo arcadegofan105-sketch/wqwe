@@ -1643,7 +1643,6 @@ body {
 }
 
 /* --- FROGTONRUN --- */
-
 .frog-game-area {
   position: relative;
   width: 100%;
@@ -1651,26 +1650,24 @@ body {
   max-height: 620px;
   min-height: 420px;
   border-radius: 28px;
-  overflow-x: scroll;
+  overflow-x: auto;      /* важно: auto/scroll */
   overflow-y: hidden;
   background: #020617;
+  white-space: nowrap;   /* чтобы содержимое шло в линию */
 }
 
-/* фон дороги под канвасом */
+/* фон – длинная дорожка */
 .frog-bg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
+  display: block;
   height: 100%;
-  object-fit: cover;
-  opacity: 0.95;
+  width: auto;           /* ширина по картинке */
   pointer-events: none;
 }
 
-/* canvas с лягушкой и подписями поверх */
+/* canvas поверх всей области скролла */
 #frog-canvas {
-  position: relative;
-  z-index: 1;
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   pointer-events: none;
@@ -2921,6 +2918,7 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 }
+
 
 
 
