@@ -938,24 +938,25 @@ function drawFrogScene(showCar = false) {
   clearFrogCanvas()
 
   const groundY = getGroundY()
-
   const scroll = frogScrollEl?.scrollLeft || 0
 
 
-  // ⭐ СТАРТОВАЯ ПОЗИЦИЯ (перед первым люком)
-  let baseX = getHatchX(frogCurrentHatch)
+  // ⭐ стартовая позиция
+  let worldX
 
-  if (frogCurrentHatch === 0) {
-    baseX -= 160   // смещение влево чтобы стояла в начале
-  }
+  if (frogCurrentHatch <= 0)
+    worldX = 120
+  else
+    worldX = getHatchX(frogCurrentHatch)
 
-  const x = baseX - scroll
+
+  const x = worldX - scroll
 
 
-  // ===== ЛЯГУШКА =====
+  // 🐸 Лягушка
   if (frogSprite) {
 
-    const size = 80   // МЕНЬШЕ
+    const size = 80
 
     frogCtx.drawImage(
       frogSprite,
@@ -968,15 +969,15 @@ function drawFrogScene(showCar = false) {
   }
 
 
-  // ===== МАШИНА =====
+  // 🚗 Машина
   if (showCar && frogCarSprite) {
 
-    const size = 130  // меньше
+    const size = 120
 
     frogCtx.drawImage(
       frogCarSprite,
       x - size/2,
-      groundY - size - 25,
+      groundY - size - 30,
       size,
       size
     )
@@ -985,14 +986,15 @@ function drawFrogScene(showCar = false) {
 
 }
 
-
 function scrollFrogToHatch(index, duration = 400) {
 
   if (!frogScrollEl) return Promise.resolve()
 
-  const x = getHatchX(index) - frogScrollEl.clientWidth / 2
+  const frogWorldX = getHatchX(index)
 
-  const target = Math.max(0, x)
+  // ⭐ держим лягушку почти по центру
+  const target =
+    frogWorldX - frogScrollEl.clientWidth * 0.4
 
   const start = frogScrollEl.scrollLeft
 
@@ -1005,17 +1007,17 @@ function scrollFrogToHatch(index, duration = 400) {
 
     function step(t) {
 
-      const k = Math.min(1, (t - startTime) / duration)
+      const k = Math.min(1,(t-startTime)/duration)
 
-      frogScrollEl.scrollLeft = start + diff * k
+      frogScrollEl.scrollLeft =
+        start + diff * k
 
       drawFrogScene(false)
 
-      if (k < 1) {
+      if (k < 1)
         requestAnimationFrame(step)
-      } else {
+      else
         resolve()
-      }
 
     }
 
@@ -1024,8 +1026,6 @@ function scrollFrogToHatch(index, duration = 400) {
   })
 
 }
-
-
 
 function updateFrogUI() {
 
@@ -2200,6 +2200,7 @@ async function frogStartBet() {
 
   updateFrogUI()
   drawFrogScene(false)
+  frogScrollEl.scrollLeft = 0
 }
 
 async function frogJump() {
@@ -2448,6 +2449,7 @@ async function init() {
 
 
 init()
+
 
 
 
