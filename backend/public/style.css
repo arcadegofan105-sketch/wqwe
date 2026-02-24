@@ -1916,40 +1916,34 @@ body {
   opacity: 1;
 }
 
-/* базовый блок с картинкой (по умолчанию под колесо) */
+/* ОДИНАКОВЫЙ размер картинок для обеих карточек */
 .game-card-image {
   width: 100%;
   display: block;
   border-radius: 22px;
-  height: 140px;
-  object-fit: cover;        /* для img (колесо) */
-}
-
-/* карточка колеса: чуть выше и не растягиваем */
-.game-card-wheel .game-card-image {
-  height: 150px;
-  object-fit: contain;
-}
-
-/* карточка FrogTon: выше и логотип целиком */
-.game-card-frog .game-card-image {
-  height: 180px;            /* при необходимости подними/понизь */
-}
-
-/* Логотип FrogTon на главной */
-.game-card-image.frog-card-image {
-  background-image: url('FrogTonlogo.png');
-  background-size: contain; /* показать логотип полностью */
-  background-repeat: no-repeat;
+  height: 180px;        /* общая высота для колеса и FrogTon */
+  object-fit: contain;  /* чтобы всё влезало без растяжения */
   background-position: center;
 }
 
+/* колесо – это <img>, ему достаточно object-fit */
+.game-card-wheel .game-card-image {
+  object-fit: contain;
+}
+
+/* FrogTon – фон-логотип */
+.game-card-image.frog-card-image {
+  background-image: url('FrogTonlogo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+/* активное нажатие */
 .game-card:active {
   transform: translateY(1px) scale(0.98);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.9);
   filter: brightness(0.97);
 }
-
 
 
 /* ===== CASE VIEW (like screenshot) ===== */
@@ -2874,6 +2868,7 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 }
+
 
 
 
