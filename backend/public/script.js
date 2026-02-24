@@ -9,13 +9,13 @@ const MIN_DEPOSIT_TON = 0.1
 const BOT_USERNAME = 'GiftWheels_bot'
 
 const wheelSectors = [
-  { emoji: '🐸', name: 'Pepe', price: 0.0 },                    // 0
-  { emoji: '🗡️', name: 'lightsword', price: 0.0 },             // 1
-  { emoji: '📅', name: 'Celendar (random)', price: 1.5 },       // 2
-  { emoji: '🧪', name: 'Hexpot', price: 0.0 },                  // 3
-  { emoji: '🧸', name: 'Bear', price: 0.1 },                    // 4
-  { emoji: '🍑', name: 'Precious Peach (random)', price: 0.0 }, // 5
-  { emoji: '🧸', name: 'Bear', price: 0.1 },                    // 6
+  { emoji: '🐸', name: 'Pepe', nameKey: 'Pepe', price: 0.0 },                    // 0
+  { emoji: '🗡️', name: 'Lightsword', nameKey: 'lightsword', price: 7.0 },       // 1
+  { emoji: '📅', name: 'Celendar (random)', nameKey: 'Celendar (random)', price: 1.5 },       // 2
+  { emoji: '🧪', name: 'Hexpot', nameKey: 'Hexpot', price: 10.0 },               // 3
+  { emoji: '🧸', name: 'Bear', nameKey: 'Bear', price: 0.1 },                    // 4
+  { emoji: '🍑', name: 'Precious Peach (random)', nameKey: 'Precious Peach (random)', price: 500.0 }, // 5
+  { emoji: '🧸', name: 'Bear', nameKey: 'Bear', price: 0.1 },                    // 6
 ]
 
 // ===== CASES CONFIG =====
@@ -95,11 +95,13 @@ const GIFT_IMAGES = {
 }
 
 function giftVisual(item) {
-  const file = GIFT_IMAGES[item?.name]
+  if (!item) return ''
+  const name = item.nameKey || item.name
+  const file = GIFT_IMAGES[name]
   if (file) {
     return `<span class="gift-icon" style="background-image:url('${file}')"></span>`
   }
-  return item?.emoji || ''
+  return item.emoji || ''
 }
 
 // ===== TELEGRAM =====
@@ -152,10 +154,8 @@ const screens = {
   bonus: document.getElementById('screen-bonus'),
   profile: document.getElementById('screen-profile'),
   admin: document.getElementById('screen-admin'),
-  frog: document.getElementById('screen-frog'), // НОВЫЙ ЭКРАН
+  frog: document.getElementById('screen-frog'),
 }
-
-
 
 const rewardsListEl = document.getElementById('rewards-list')
 
@@ -222,12 +222,27 @@ const caseOpenPriceEl = document.getElementById('case-open-price')
 const caseOpenSpinBtn = document.getElementById('case-open-spin')
 const caseOpenRewardsListEl = document.getElementById('case-open-rewards-list')
 const caseOpenTrack = document.getElementById('case-open-track')
+const caseOpenTitleEl = document.getElementById('case-open-title')
+const caseOpenImageEl = document.getElementById('case-open-image')
 
-// Формат TON и подписи кейсов на главном
+// Case animation overlay
+const caseAnimOverlay = document.getElementById('case-anim-overlay')
+const caseAnimTrack = document.getElementById('case-anim-track')
+
+// FROGTON UI
+let frogScrollEl = document.querySelector('.frog-game-area')
+let frogCanvas = document.getElementById('frog-canvas')
+const frogMainActionBtn = document.getElementById('frog-main-action')
+const frogBetInput = document.getElementById('frog-bet-input')
+const frogAutoInput = document.getElementById('frog-auto-input')
+const frogCurrentMultEl = document.getElementById('frog-current-mult')
+const frogPotentialWinEl = document.getElementById('frog-potential-win')
+
+// ===== CASES: helpers =====
 function formatTonHuman(v) {
   const n = Number(v)
   if (!Number.isFinite(n)) return '0'
-  return n.toFixed(2).replace(/\\\\.?0+$/, '')
+  return n.toFixed(2).replace(/\.?0+$/, '')
 }
 
 function renderCasesMenuFromConfig() {
@@ -244,17 +259,10 @@ function renderCasesMenuFromConfig() {
   })
 }
 
-// Case open animation UI
-const caseAnimOverlay = document.getElementById('case-anim-overlay')
-const caseAnimTrack = document.getElementById('case-anim-track')
-
-
 function setCaseAnimVisible(v) {
   if (!caseAnimOverlay) return
-  console.log('[caseAnim] visible ->', v, 'time', Date.now())
   caseAnimOverlay.classList.toggle('active', !!v)
 }
-
 
 function makeAnimItemHTML(prize) {
   const v = giftVisual(prize)
@@ -262,9 +270,8 @@ function makeAnimItemHTML(prize) {
   return `<div class="case-anim-item">${isIcon ? v : `<div class="emoji">${v}</div>`}</div>`
 }
 
-// рулетка-анимация (простая и надежная)
+// Рулетка-анимация в оверлее (если захочешь использовать)
 async function playCaseOpenAnimation({ pool, winner }) {
-  console.log('[caseAnim] start') // <-- ВОТ СЮДА (самое начало)
   if (!caseAnimTrack || !caseAnimOverlay) return
 
   const base = Array.isArray(pool) && pool.length ? pool : [winner]
@@ -277,10 +284,8 @@ async function playCaseOpenAnimation({ pool, winner }) {
   caseAnimTrack.style.transform = 'translateX(0px)'
 
   setCaseAnimVisible(true)
-
   caseAnimOverlay.offsetHeight
   caseAnimTrack.offsetHeight
-
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))
 
   const itemW = 96
@@ -296,26 +301,22 @@ async function playCaseOpenAnimation({ pool, winner }) {
   caseAnimTrack.style.transform = `translateX(${finalX}px)`
 
   await new Promise(r => setTimeout(r, 3600))
-
-  console.log('[caseAnim] end-hide') // <-- ВОТ СЮДА (прямо перед скрытием)
   setCaseAnimVisible(false)
 }
 
+// Inline-анимация в экране кейса
 async function playInlineCaseAnimation(pool, winner) {
   if (!caseOpenTrack) return
 
-  // 1) базовый набор предметов
   const base = Array.isArray(pool) && pool.length ? [...pool] : [winner]
   for (let i = base.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
     ;[base[i], base[j]] = [base[j], base[i]]
   }
 
-  // 2) лента из 28 элементов
   const items = []
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
 
-  // 3) рендер без анимации, старт в 0px
   caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
   caseOpenTrack.style.transition = 'none'
   caseOpenTrack.style.transform = 'translateX(0px)'
@@ -324,21 +325,14 @@ async function playInlineCaseAnimation(pool, winner) {
   const itemW = 96
   const gap = 22
   const step = itemW + gap
-
-  // 4) ФИКСИРОВАННЫЙ индекс слота под "иглой"
-  // допустимые значения 0–27, начинай, например, с 18
   const WIN_INDEX = 18
-
   const clampedIndex = Math.min(Math.max(WIN_INDEX, 0), items.length - 1)
 
-  // ставим победителя именно в эту ячейку
   items[clampedIndex] = winner
   caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
 
-  // 5) двигаем так, чтобы clampedIndex оказался под иглой
   const target = -clampedIndex * step
   const finalX = target
-
   const DURATION_MS = 8000
 
   await new Promise(resolve => {
@@ -362,7 +356,6 @@ async function playInlineCaseAnimation(pool, winner) {
   })
 }
 
-
 // ===== STATE =====
 let currentRotation = 0
 let balance = 0
@@ -379,7 +372,25 @@ const WHEEL_DEPOSIT_TARGET = 0.5
 let freeWheelAvailable = false
 let wheelDepositProgressTon = 0
 
+// ===== FROGTON STATE =====
+// множители по 10 люкам (под ними текст и логика)
+const FROG_HATCH_MULTS = [
+  1.15, 1.3, 1.6, 2.0, 3.0,
+  5.0, 10.0, 15.0, 25.0, 100.0,
+]
 
+let frogState = 'idle'          // 'idle' | 'bet_placed' | 'running' | 'dead' | 'cashed'
+let frogBet = 0
+let frogCurrentHatch = -1       // индекс текущего люка (0..9)
+let frogWinningHatch = -1       // последний безопасный люк (0..9)
+let frogAutoHatch = null        // для авто-кэшаута: индекс (0..9) или null
+
+let frogCtx = null
+let frogBgImage = null          // фон (fonfrogton.png)
+let frogSprite = null           // лягушка (frog.png)
+let frogCarSprite = null        // машина (Cartonfrog.png)
+
+// ===== ADMIN STATE =====
 const adminState = {
   q: '',
   page: 1,
@@ -451,20 +462,20 @@ function renderWheel() {
       return
     }
 
-    inner.innerHTML = giftVisual(s) // ВАЖНО: обновляем ТОЛЬКО inner
+    inner.innerHTML = giftVisual(s)
     node.title = `${s.name} (${s.price} TON)`
   })
 }
 
 function renderPrizesList() {
   const DISPLAY = [
-    { idx: 4, title: "Bear",            priceText: "0.1 TON" },   // Bear (0.1)
-    { idx: 0, title: "Pepe",            priceText: "10000 TON" }, // Pepe 10000
-    { idx: 2, title: "Desk Calendar",   priceText: "1.5 TON" },   // Calendar 1.5
-    { idx: 1, title: "Lightsword",      priceText: "7 TON" },     // Lightsword 7
-    { idx: 3, title: "Hexpot",          priceText: "10 TON" },    // Hexpot 10
-    { idx: 6, title: "Bear",            priceText: "0.1 TON" },   // второй Bear
-    { idx: 5, title: "Precious Peach",  priceText: "500 TON" },   // Peach 500
+    { idx: 4, title: "Bear",            priceText: "0.1 TON" },
+    { idx: 0, title: "Pepe",            priceText: "10000 TON" },
+    { idx: 2, title: "Desk Calendar",   priceText: "1.5 TON" },
+    { idx: 1, title: "Lightsword",      priceText: "7 TON" },
+    { idx: 3, title: "Hexpot",          priceText: "10 TON" },
+    { idx: 6, title: "Bear",            priceText: "0.1 TON" },
+    { idx: 5, title: "Precious Peach",  priceText: "500 TON" },
   ]
 
   const cards = document.querySelectorAll(".wheel-prizes-grid .wheel-prize-card")
@@ -484,7 +495,6 @@ function renderPrizesList() {
     if (priceTextEl) priceTextEl.textContent = d.priceText
   })
 }
-
 
 function renderInventory() {
   if (!inventoryList) return
@@ -523,7 +533,6 @@ function renderInventory() {
     })
     .join('')
 }
-
 
 function setScreen(name) {
   Object.keys(screens).forEach(key => {
@@ -580,13 +589,6 @@ inviteCopyBtn?.addEventListener('click', async () => {
 })
 
 // ===== CASES HELPERS =====
-
-function formatTonHuman(v) {
-  const n = Number(v)
-  if (!Number.isFinite(n)) return '0'
-  return n.toFixed(2).replace(/\\.?0+$/, '')
-}
-
 function renderCaseRewardsList(cfg) {
   if (!caseOpenRewardsListEl) return
   if (!cfg) {
@@ -637,38 +639,27 @@ function openCase(caseType) {
 
   selectedCaseType = caseType
 
-  // Заголовок (если есть элемент с id="case-open-title")
-  if (typeof caseOpenTitleEl !== 'undefined' && caseOpenTitleEl) {
+  if (caseOpenTitleEl) {
     caseOpenTitleEl.textContent = cfg.title || ''
   }
 
-  // Цена открытия кейса (по-человечески)
   if (caseOpenPriceEl) {
     caseOpenPriceEl.textContent = formatTonHuman(cfg.priceTon || 0)
   }
 
-  // Картинка: берём превью по селектору из конфигурации CASES
-  if (typeof caseOpenImageEl !== 'undefined' && caseOpenImageEl) {
+  if (caseOpenImageEl) {
     const img = cfg.imageSelector ? document.querySelector(cfg.imageSelector) : null
-
     if (img?.className) {
-      // заменяем класс case-image* на case-open-image*, чтобы сохранить стили
       caseOpenImageEl.className = img.className.replace('case-image', 'case-open-image')
     } else {
       caseOpenImageEl.className = 'case-open-image'
     }
   }
 
-  // Список призов и предпросмотр ленты
   renderCaseRewardsList(cfg)
   renderCasePreviewTrack(cfg)
-
-  // Переход на экран открытия кейса
   setScreen('caseOpen')
 }
-
-
-
 
 // ===== TON CONNECT =====
 function isWalletConnected() {
@@ -747,11 +738,9 @@ async function fetchUserData() {
   inventory = Array.isArray(data.inventory) ? data.inventory : []
   isAdmin = Boolean(data.isAdmin)
 
-  // новые поля от бэкенда
-freeWheelAvailable = Boolean(data.freeWheelAvailable)
-wheelDepositProgressTon = Number(data.wheelDepositProgressTon || 0)
-updateWheelPriceLabel()
-
+  freeWheelAvailable = Boolean(data.freeWheelAvailable)
+  wheelDepositProgressTon = Number(data.wheelDepositProgressTon || 0)
+  updateWheelPriceLabel()
 
   if (adminNavBtn) adminNavBtn.style.display = isAdmin ? '' : 'none'
 
@@ -769,7 +758,7 @@ function updateWheelPriceLabel() {
   } else {
     const need = Math.max(0, WHEEL_DEPOSIT_TARGET - wheelDepositProgressTon)
       .toFixed(2)
-      .replace(/\.?0+$/, '') // убираем лишние нули
+      .replace(/\.?0+$/, '')
     priceLabelEl.textContent =
       need === '0'
         ? 'Бесплатно'
@@ -777,12 +766,11 @@ function updateWheelPriceLabel() {
   }
 }
 
-
+// spin / cases
 async function spinApi() {
   return apiPost('/spin')
 }
 
-// ✅ NEW: open case via server
 async function openCaseApi(caseType) {
   return apiPost('/cases/open', { caseType })
 }
@@ -830,7 +818,6 @@ async function rewardsClaimApi(key) {
   return apiPost('/rewards/claim', { key })
 }
 
-
 // admin APIs
 async function adminStatsApi() {
   return apiPost('/admin/stats')
@@ -867,6 +854,154 @@ function escapeHtml(s) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;')
+}
+
+// ===== FROGTON DRAW HELPERS =====
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => resolve(img)
+    img.onerror = reject
+    img.src = src
+  })
+}
+
+async function initFrogGraphics() {
+  if (!frogCanvas) return
+  if (frogCtx) return
+
+  frogCanvas.width = frogCanvas.clientWidth
+  frogCanvas.height = frogCanvas.clientHeight
+  frogCtx = frogCanvas.getContext('2d')
+
+  try {
+    frogBgImage = frogBgImage || await loadImage('fonfrogton.png')
+  } catch {}
+  try {
+    frogSprite = frogSprite || await loadImage('frog.png')
+  } catch {}
+  try {
+    frogCarSprite = frogCarSprite || await loadImage('Cartonfrog.png')
+  } catch {}
+}
+
+function getHatchX(index) {
+  const paddingLeft = 120
+  const step = 220
+  return paddingLeft + index * step
+}
+
+function getGroundY() {
+  if (!frogCanvas) return 0
+  return frogCanvas.height * 0.65
+}
+
+function clearFrogCanvas() {
+  if (!frogCtx || !frogCanvas) return
+  frogCtx.clearRect(0, 0, frogCanvas.width, frogCanvas.height)
+}
+
+function drawFrogScene(showCar = false) {
+  if (!frogCtx || !frogCanvas) return
+  clearFrogCanvas()
+
+  const groundY = getGroundY()
+
+  frogCtx.font = '12px system-ui'
+  frogCtx.textAlign = 'center'
+  frogCtx.textBaseline = 'top'
+
+  for (let i = 0; i < FROG_HATCH_MULTS.length; i++) {
+    const x = getHatchX(i) - (frogScrollEl?.scrollLeft || 0)
+    const safe = frogWinningHatch >= 0 && i <= frogWinningHatch
+
+    frogCtx.fillStyle = safe ? 'rgba(22,163,74,0.85)' : 'rgba(148,163,184,0.7)'
+    const hatchWidth = 80
+    const hatchHeight = 20
+    frogCtx.fillRect(x - hatchWidth / 2, groundY, hatchWidth, hatchHeight)
+
+    const mult = FROG_HATCH_MULTS[i]
+    frogCtx.fillStyle = '#0b1120'
+    frogCtx.fillText(`${mult.toFixed(2)}x`, x, groundY + 3)
+  }
+
+  if (frogCurrentHatch >= 0 && frogSprite) {
+    const x = getHatchX(frogCurrentHatch) - (frogScrollEl?.scrollLeft || 0)
+    const ground = groundY
+    const size = 80
+
+    frogCtx.drawImage(
+      frogSprite,
+      x - size / 2,
+      ground - size - 8,
+      size,
+      size
+    )
+  }
+
+  if (showCar && frogCarSprite && frogCurrentHatch >= 0) {
+    const x = getHatchX(frogCurrentHatch) - (frogScrollEl?.scrollLeft || 0)
+    const size = 110
+    frogCtx.drawImage(
+      frogCarSprite,
+      x - size / 2,
+      groundY - size - 40,
+      size,
+      size
+    )
+  }
+}
+
+function scrollFrogToHatch(index, duration = 400) {
+  if (!frogScrollEl) return Promise.resolve()
+  const x = getHatchX(index) - frogScrollEl.clientWidth / 2
+  const target = Math.max(0, x)
+  const start = frogScrollEl.scrollLeft
+  const diff = target - start
+  const startTime = performance.now()
+
+  return new Promise(resolve => {
+    function step(t) {
+      const k = Math.min(1, (t - startTime) / duration)
+      frogScrollEl.scrollLeft = start + diff * k
+      if (k < 1) {
+        requestAnimationFrame(step)
+      } else {
+        resolve()
+      }
+    }
+    requestAnimationFrame(step)
+  })
+}
+
+function updateFrogUI() {
+  if (frogCurrentMultEl) {
+    if (frogCurrentHatch >= 0) {
+      const mult = FROG_HATCH_MULTS[frogCurrentHatch] || 1
+      frogCurrentMultEl.textContent = `${mult.toFixed(2)}x`
+    } else {
+      frogCurrentMultEl.textContent = '1.00x'
+    }
+  }
+
+  if (frogPotentialWinEl) {
+    if (frogCurrentHatch >= 0 && frogBet > 0) {
+      const mult = FROG_HATCH_MULTS[frogCurrentHatch] || 1
+      const win = frogBet * mult
+      frogPotentialWinEl.textContent = `${win.toFixed(2)} TON`
+    } else {
+      frogPotentialWinEl.textContent = '—'
+    }
+  }
+
+  if (!frogMainActionBtn) return
+  if (frogState === 'idle' || frogState === 'cashed' || frogState === 'dead') {
+    frogMainActionBtn.textContent = 'Сделать ставку'
+    frogMainActionBtn.disabled = false
+  } else if (frogState === 'bet_placed' || frogState === 'running') {
+    frogMainActionBtn.textContent = 'Играть (прыжок)'
+    frogMainActionBtn.disabled = false
+  }
 }
 
 // ===== REWARDS UI =====
@@ -913,7 +1048,6 @@ async function loadRewards() {
   const r = await rewardsListApi()
   renderRewards(r.items || [])
 }
-
 
 // ===== ADMIN RENDER =====
 function renderAdminStats(stats) {
@@ -1038,13 +1172,11 @@ navButtons.forEach(btn => {
     if (target === 'admin' && !isAdmin) return
     setScreen(target)
 
-    // Награды теперь живут внутри экрана "Бонусы"
     if (target === 'bonus') {
       loadRewards().catch(e => alert(e.message || 'Ошибка наград'))
     }
   })
 })
-
 
 document.addEventListener('click', async (e) => {
   const btn = e.target.closest('.reward-claim-btn')
@@ -1070,8 +1202,7 @@ document.addEventListener('click', async (e) => {
   }
 })
 
-
-// клики по карточкам на главной (Краш / Колесо / Кейсы)
+// клики по карточкам на главной
 document.querySelectorAll('[data-home-target]').forEach(card => {
   card.addEventListener('click', () => {
     const target = card.getAttribute('data-home-target')
@@ -1090,11 +1221,15 @@ document.querySelectorAll('[data-home-target]').forEach(card => {
       setScreen('frog')
       return
     }
+
+    if (target === 'crash') {
+      setScreen('crash')
+      return
+    }
   })
 })
 
-
-// Кейсы: клик по карточке -> экран открытия
+// Кейсы: клик по карточке
 caseCards.forEach(card => {
   card.addEventListener('click', () => {
     const type = card.getAttribute('data-case-type')
@@ -1108,12 +1243,11 @@ caseCards.forEach(card => {
   })
 })
 
-// ✅ Открыть кейс (через сервер /api/cases/open)
+// Открыть кейс через сервер
 caseOpenSpinBtn?.addEventListener('click', async () => {
   const cfg = CASES[selectedCaseType]
   if (!cfg) return
 
-  // защита от повторных нажатий и открытых модалок
   if (isCaseOpening) return
   if (prizeModal?.classList.contains('active')) return
   if (withdrawModal?.classList.contains('active')) return
@@ -1122,8 +1256,7 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
   caseOpenSpinBtn.disabled = true
 
   try {
-    // 1) сервер: списание + выбор приза + (опционально) rollItems
-    const r = await apiPost('/cases/open', { caseType: selectedCaseType })
+    const r = await openCaseApi(selectedCaseType)
 
     balance = Number(r?.newBalance ?? balance)
     updateBalanceUI()
@@ -1134,17 +1267,13 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
       return
     }
 
-    // 2) выбираем пул для анимации:
-    // сначала пробуем rollItems с сервера, если его нет — contents из фронтового CASES
     const pool =
       Array.isArray(r?.rollItems) && r.rollItems.length
         ? r.rollItems
         : (Array.isArray(cfg.contents) && cfg.contents.length ? cfg.contents : [prize])
 
-    // 3) крутим inline‑анимацию ТОЛЬКО в треке кейса (без оверлея)
     await playInlineCaseAnimation(pool, prize)
 
-    // 4) показываем результат и даём сохранить/продать
     currentPrize = prize
     currentPrizeIdx = null
     setLastPrizeText(currentPrize)
@@ -1157,8 +1286,7 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
   }
 })
 
-
-// крутилка
+// Крутилка
 spinButton?.addEventListener('click', async e => {
   e.preventDefault()
   e.stopPropagation()
@@ -1166,7 +1294,6 @@ spinButton?.addEventListener('click', async e => {
   if (prizeModal?.classList.contains('active')) return
   if (withdrawModal?.classList.contains('active')) return
 
-  // всегда показываем окно с инфой по депозиту
   const need = Math.max(0, WHEEL_DEPOSIT_TARGET - wheelDepositProgressTon)
     .toFixed(2)
     .replace(/\.?0+$/, '')
@@ -1177,11 +1304,9 @@ spinButton?.addEventListener('click', async e => {
         ? 'Сделайте депозит 0.5 TON, чтобы колесо стало бесплатным.'
         : `Сделайте депозит ещё ${need} TON, чтобы колесо стало бесплатным.`
     )
-    // если нет бесплатного спина — дальше не крутим
     return
   }
 
-  // здесь уже есть бесплатное колесо -> крутим, баланс не проверяем
   isSpinning = true
   spinButton.disabled = true
 
@@ -1205,7 +1330,6 @@ spinButton?.addEventListener('click', async e => {
   wheelDepositProgressTon = Number(prizeData.wheelDepositProgressTon || 0)
   updateBalanceUI()
 
-  // анимация колеса
   let sectorIndex = wheelSectors.findIndex(s => s?.name === currentPrize?.name)
   if (sectorIndex < 0) sectorIndex = 0
 
@@ -1220,8 +1344,6 @@ spinButton?.addEventListener('click', async e => {
   currentRotation += FULL_ROUNDS * 360 + delta
   setWheelIconsUpright(currentRotation)
 })
-
-
 
 wheel?.addEventListener('transitionend', (e) => {
   if (e.propertyName !== '--wheel-rot' && e.propertyName !== 'transform') return
@@ -1238,12 +1360,8 @@ wheel?.addEventListener('transitionend', (e) => {
   openModal(currentPrize)
 
   isSpinning = false
-
-  // После спина подтягиваем свежие данные (баланс + инвентарь)
   fetchUserData().catch(() => {})
 })
-
-
 
 // Кнопка "В инвентарь"
 modalKeepBtn?.addEventListener('click', async () => {
@@ -1254,9 +1372,7 @@ modalKeepBtn?.addEventListener('click', async () => {
     balance = Number(data.balance || balance)
     inventory = Array.isArray(data.inventory) ? data.inventory : inventory
     renderInventory()
-  } catch (_) {
-    // если ошибка — просто закрываем модалку
-  }
+  } catch (_) {}
 
   currentPrize = null
   currentPrizeIdx = null
@@ -1272,9 +1388,7 @@ modalSellBtn?.addEventListener('click', async () => {
   }
 
   try {
-    // считаем, что последний выигрыш — самый новый в БД (индекс 0 в newest-first)
     const idx = 0
-
     const data = await sellPrizeApi(currentPrize, idx)
     balance = Number(data.newBalance ?? balance)
     updateBalanceUI()
@@ -1295,10 +1409,9 @@ modalSellBtn?.addEventListener('click', async () => {
   }
 })
 
-
-
+// инвентарь
 inventoryList?.addEventListener('click', async e => {
-  const card = e.target.closest('.inv-card')   // было .inventory-item
+  const card = e.target.closest('.inv-card')
   if (!card) return
 
   const idx = Number(card.dataset.idx)
@@ -1328,6 +1441,7 @@ inventoryList?.addEventListener('click', async e => {
   }
 })
 
+// промокоды
 promoApplyBtn?.addEventListener('click', async () => {
   const code = (promoInput?.value || '').trim()
   if (!code) {
@@ -1432,7 +1546,6 @@ depositConfirmBtn?.addEventListener('click', async () => {
       ],
     }
 
-    // ---- TonConnect statuses (как было у тебя) ----
     alert('Подтверди транзакцию в кошельке...')
     let requestSent = false
 
@@ -1449,7 +1562,6 @@ depositConfirmBtn?.addEventListener('click', async () => {
     if (!requestSent) {
       alert('Ожидаем подтверждение... (если кошелёк не открылся — открой вручную)')
     }
-    // ---------------------------------------------
 
     for (let i = 0; i < 12; i++) {
       await sleep(5000)
@@ -1514,8 +1626,6 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
     withdrawConfirmBtn.disabled = false
   }
 })
-
-
 
 // ===== CRASH (logic + canvas animation: rocket -> moon) =====
 const crashCanvas = document.getElementById('crash-canvas')
@@ -1996,224 +2106,131 @@ window.addEventListener('resize', () => {
   startCrashRenderLoop()
 })
 
-// ---------- FROGTONRUN ----------
+// ===== FROGTON LOGIC =====
+async function frogStartBet() {
+  if (frogState !== 'idle' && frogState !== 'cashed' && frogState !== 'dead') return
+  if (!frogBetInput) return
 
-const FROG_MULTS = [1.15, 1.37, 1.64, 2, 2.5, 3, 4, 10, 50, 100]
-
-let frogState = 'idle'         // 'idle' | 'running' | 'finished'
-let frogBetAmount = 0
-let frogStep = 0               // 0..9
-let frogAutoStep = null
-let frogHasCashedOut = false
-
-const frogCanvas = document.getElementById('frog-canvas')
-const frogMainActionBtn = document.getElementById('frog-main-action')
-const frogBetInput = document.getElementById('frog-bet-input')
-const frogAutoInput = document.getElementById('frog-auto-input')
-const frogCurrentMultEl = document.getElementById('frog-current-mult')
-const frogPotentialWinEl = document.getElementById('frog-potential-win')
-
-const frogImg = new Image()
-frogImg.src = 'froggame.jpg'
-
-// обновление UI
-function updateFrogUI() {
-  const mult = FROG_MULTS[frogStep] || 1
-  if (frogCurrentMultEl) frogCurrentMultEl.textContent = `${mult.toFixed(2)}x`
-  if (frogPotentialWinEl && frogBetAmount > 0) {
-    frogPotentialWinEl.textContent = `${(frogBetAmount * mult).toFixed(2)} TON`
-  } else if (frogPotentialWinEl) {
-    frogPotentialWinEl.textContent = '—'
-  }
-
-  if (!frogMainActionBtn) return
-  if (frogState === 'idle') {
-    frogMainActionBtn.textContent = 'Сделать ставку'
-    frogMainActionBtn.disabled = false
-  } else if (frogState === 'running') {
-    frogMainActionBtn.textContent = 'Забрать'
-    frogMainActionBtn.disabled = false
-  } else {
-    frogMainActionBtn.textContent = 'Раунд завершён'
-    frogMainActionBtn.disabled = true
-  }
-}
-
-// анимация и подписи x
-function drawFrogScene() {
-  if (!frogCanvas) return
-  const ctx = frogCanvas.getContext('2d')
-  if (!ctx) return
-
-  const w = frogCanvas.width = frogCanvas.clientWidth
-  const h = frogCanvas.height = frogCanvas.clientHeight
-
-  ctx.clearRect(0, 0, w, h)
-
-  const pad = 80
-  const laneY = h * 0.7
-  const stepX = (w - pad * 2) / 9
-
-  const now = performance.now()
-
-  // подписи x под люками (можно удалить, если хочешь использовать только фон)
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-  ctx.font = '14px system-ui'
-
-  for (let i = 0; i < FROG_MULTS.length; i++) {
-    const x = pad + stepX * i
-    const label = `${FROG_MULTS[i].toFixed(2)}x`
-
-    const bx = x
-    const by = laneY + 24
-    const bw = 64
-    const bh = 22
-
-    let alpha = 0.9
-    if (i === frogStep) {
-      alpha = 0.9 + 0.1 * Math.sin(now / 200)  // лёгкий пульс активного люка
-    }
-
-    ctx.fillStyle = `rgba(15,23,42,${alpha.toFixed(2)})`
-    ctx.beginPath()
-    if (ctx.roundRect) {
-      ctx.roundRect(bx - bw / 2, by - bh / 2, bw, bh, 6)
-    } else {
-      ctx.rect(bx - bw / 2, by - bh / 2, bw, bh)
-    }
-    ctx.fill()
-
-    ctx.fillStyle = '#e5e7eb'
-    ctx.fillText(label, bx, by + 1)
-  }
-
-  // анимация лягушки
-  const jump = Math.sin(now / 260) * 10
-  const tilt = Math.sin(now / 520) * 0.08
-
-  const frogX = pad + stepX * frogStep
-  const frogY = laneY - 54 + jump
-  const size = 90
-
-  ctx.save()
-  ctx.translate(frogX, frogY)
-  ctx.rotate(tilt)
-
-  if (frogImg.complete) {
-    ctx.drawImage(frogImg, -size / 2, -size / 2, size, size)
-  } else {
-    ctx.fillStyle = '#22c55e'
-    ctx.beginPath()
-    ctx.arc(0, 0, 30, 0, Math.PI * 2)
-    ctx.fill()
-  }
-
-  ctx.restore()
-
-  requestAnimationFrame(drawFrogScene)
-}
-
-frogImg.onload = () => requestAnimationFrame(drawFrogScene)
-
-// логика ставок и прыжков
-async function startFrogRound() {
-  if (frogState !== 'idle') return
-
-  frogBetAmount = parseFloat(frogBetInput?.value || '0')
-  if (!Number.isFinite(frogBetAmount) || frogBetAmount <= 0) {
-    alert('Введите ставку > 0')
+  const amount = Number(frogBetInput.value || 0)
+  if (!Number.isFinite(amount) || amount <= 0) {
+    alert('Укажи ставку (TON)')
     return
   }
-  if (balance < frogBetAmount) {
-    alert('Недостаточно средств.')
+
+  if (amount > balance) {
+    alert('Недостаточно средств')
     return
   }
 
   try {
-    const r = await apiPost('/frog/bet', { amount: frogBetAmount })
+    const r = await apiPost('/crash/bet', { amount })
     balance = Number(r.newBalance ?? balance)
     updateBalanceUI()
-  } catch (err) {
-    alert(err.message || 'Ошибка ставки')
+  } catch (e) {
+    alert(e.message || 'Ошибка ставки')
     return
   }
 
-  const rawAuto = String(frogAutoInput?.value || '').trim()
-  frogAutoStep = null
-  if (rawAuto) {
-    const v = Number(rawAuto)
-    if (!Number.isInteger(v) || v < 1 || v > 10) {
-      alert('Авто-вывод: введите целое число от 1 до 10')
-      return
-    }
-    frogAutoStep = v - 1
+  await initFrogGraphics()
+
+  frogBet = amount
+  frogState = 'bet_placed'
+  frogCurrentHatch = -1
+  frogWinningHatch = Math.floor(Math.random() * FROG_HATCH_MULTS.length)
+  frogAutoHatch = null
+
+  const auto = Number(frogAutoInput?.value || 0)
+  if (Number.isFinite(auto) && auto >= 1 && auto <= FROG_HATCH_MULTS.length) {
+    frogAutoHatch = auto - 1
+  }
+
+  if (frogScrollEl) frogScrollEl.scrollLeft = 0
+
+  updateFrogUI()
+  drawFrogScene(false)
+}
+
+async function frogJump() {
+  if (frogState !== 'bet_placed' && frogState !== 'running') return
+
+  const nextIndex = frogCurrentHatch + 1
+  if (nextIndex >= FROG_HATCH_MULTS.length) {
+    return
   }
 
   frogState = 'running'
-  frogStep = 0
-  frogHasCashedOut = false
+  frogCurrentHatch = nextIndex
+
+  await scrollFrogToHatch(frogCurrentHatch)
   updateFrogUI()
-  scheduleNextFrogStep()
-}
+  drawFrogScene(false)
 
-function scheduleNextFrogStep() {
-  if (frogState !== 'running') return
-
-  // авто-вывод
-  if (frogAutoStep != null && frogStep >= frogAutoStep && !frogHasCashedOut) {
-    cashoutFrog(true)
+  if (frogAutoHatch !== null && frogCurrentHatch === frogAutoHatch) {
+    await frogCashout()
     return
   }
 
-  if (frogStep >= FROG_MULTS.length - 1) {
-    cashoutFrog(false)
+  if (frogWinningHatch >= 0 && frogCurrentHatch > frogWinningHatch) {
+    await frogDie()
+  }
+}
+
+async function frogCashout() {
+  if (frogState !== 'bet_placed' && frogState !== 'running') return
+  if (frogCurrentHatch < 0) {
+    alert('Сначала сделай хотя бы один прыжок')
     return
   }
 
-  frogStep += 1
-  updateFrogUI()
-
-  const area = document.querySelector('.frog-game-area')
-  if (area) {
-    const segment = area.scrollWidth / 10
-    const target = segment * frogStep - area.clientWidth / 2
-    area.scrollTo({ left: Math.max(0, target), behavior: 'smooth' })
-  }
-
-  setTimeout(scheduleNextFrogStep, 1200)
-}
-
-async function cashoutFrog(isAuto = false) {
-  if (frogState !== 'running') return
-  if (frogHasCashedOut) return
-
-  const mult = FROG_MULTS[frogStep] || 1
-  const winAmount = frogBetAmount * mult
+  const mult = FROG_HATCH_MULTS[frogCurrentHatch] || 1
+  const win = frogBet * mult
 
   try {
-    const r = await apiPost('/frog/cashout', { amount: winAmount })
+    const r = await apiPost('/crash/cashout', { amount: win })
     balance = Number(r.newBalance ?? balance)
     updateBalanceUI()
-    frogHasCashedOut = true
-    frogState = 'finished'
-    alert(
-      (isAuto ? 'Авто-вывод: ' : 'Вы забрали: ') +
-      `x${mult.toFixed(2)}, ${winAmount.toFixed(2)} TON`
-    )
-  } catch (err) {
-    alert(err.message || 'Ошибка вывода')
-  } finally {
-    updateFrogUI()
+  } catch (e) {
+    alert(e.message || 'Ошибка кэшаута')
+    return
   }
+
+  frogState = 'cashed'
+  updateFrogUI()
+  drawFrogScene(false)
+  alert(`Вы забрали ${win.toFixed(2)} TON (${mult.toFixed(2)}x)`)
+
+  frogBet = 0
+  frogCurrentHatch = -1
+  frogWinningHatch = -1
+  frogAutoHatch = null
 }
 
-// обработчик основной кнопки
-frogMainActionBtn?.addEventListener('click', () => {
-  if (frogState === 'idle') startFrogRound()
-  else if (frogState === 'running') cashoutFrog(false)
+async function frogDie() {
+  frogState = 'dead'
+  updateFrogUI()
+  drawFrogScene(true)
+
+  alert('Лягушку сбила машина. Ставка проиграна.')
+
+  frogBet = 0
+  frogCurrentHatch = -1
+  frogWinningHatch = -1
+  frogAutoHatch = null
+}
+
+// кнопки FrogTon
+frogMainActionBtn?.addEventListener('click', async () => {
+  if (frogState === 'idle' || frogState === 'cashed' || frogState === 'dead') {
+    await frogStartBet()
+  } else if (frogState === 'bet_placed' || frogState === 'running') {
+    await frogJump()
+  }
 })
 
+const frogCashoutBtn = document.getElementById('frog-cashout-btn')
+frogCashoutBtn?.addEventListener('click', async () => {
+  await frogCashout()
+})
 
 // ===== ADMIN EVENTS =====
 adminPromoType?.addEventListener('change', () => {
@@ -2358,11 +2375,6 @@ async function init() {
   setLastPrizeText(null)
   updateInviteUI()
 
-  if (crashCanvas) {
-    initCrashCanvas()
-    startCrashRenderLoop()
-  }
-
   updateDepositButtonState()
 
   try {
@@ -2371,121 +2383,10 @@ async function init() {
   } catch (err) {
     alert(err.message || 'Unknown error')
   }
+
+  // сразу подготовим графику лягушки
+  await initFrogGraphics()
+  updateFrogUI()
 }
 
 init()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
