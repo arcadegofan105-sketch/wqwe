@@ -931,8 +931,6 @@ function clearFrogCanvas() {
 
 }
 
-
-
 function drawFrogScene(showCar = false) {
 
   if (!frogCtx || !frogCanvas) return
@@ -943,18 +941,26 @@ function drawFrogScene(showCar = false) {
 
   const scroll = frogScrollEl?.scrollLeft || 0
 
-  const x = getHatchX(frogCurrentHatch) - scroll
+
+  // ⭐ СТАРТОВАЯ ПОЗИЦИЯ (перед первым люком)
+  let baseX = getHatchX(frogCurrentHatch)
+
+  if (frogCurrentHatch === 0) {
+    baseX -= 160   // смещение влево чтобы стояла в начале
+  }
+
+  const x = baseX - scroll
 
 
   // ===== ЛЯГУШКА =====
-  if (frogSprite && frogCurrentHatch >= 0) {
+  if (frogSprite) {
 
-    const size = 130
+    const size = 80   // МЕНЬШЕ
 
     frogCtx.drawImage(
       frogSprite,
       x - size/2,
-      groundY - size - 15,
+      groundY - size - 10,
       size,
       size
     )
@@ -962,15 +968,15 @@ function drawFrogScene(showCar = false) {
   }
 
 
-  // ===== МАШИНА (CRASH) =====
-  if (showCar && frogCarSprite && frogCurrentHatch >= 0) {
+  // ===== МАШИНА =====
+  if (showCar && frogCarSprite) {
 
-    const size = 200
+    const size = 130  // меньше
 
     frogCtx.drawImage(
       frogCarSprite,
       x - size/2,
-      groundY - size - 40,
+      groundY - size - 25,
       size,
       size
     )
@@ -978,7 +984,6 @@ function drawFrogScene(showCar = false) {
   }
 
 }
-
 
 
 function scrollFrogToHatch(index, duration = 400) {
@@ -2443,6 +2448,7 @@ async function init() {
 
 
 init()
+
 
 
 
