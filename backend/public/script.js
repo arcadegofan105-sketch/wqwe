@@ -2108,9 +2108,12 @@ async function frogStartBet() {
 
   frogBet = amount
 frogState = 'bet_placed'
-frogCurrentHatch = -1     // ещё до первого люка
-frogWinningHatch = 0      // максимум 1.15x
+frogCurrentHatch = -1
+frogWinningHatch = 0
 frogAutoHatch = null
+frogWorldX = undefined
+frogJumpProgress = 0
+
 
 
   if (frogScrollEl) frogScrollEl.scrollLeft = 0
@@ -2124,35 +2127,41 @@ async function frogJump() {
 
   frogState = 'running'
 
-  // Максимум что выпадает — 1.15x
+  // максимум, что даём – 1.15x
   frogWinningHatch = 0
 
-  const targetX = getHatchX(frogCurrentHatch + 1)
+  // следующий люк
+  const nextHatch = frogCurrentHatch + 1
 
-  // анимация плавного движения лягушки и подпрыгивания
-  const startX = frogWorldX
+  // куда по миру должна сместиться лягушка (на шаг вправо)
+  const targetX = getHatchX(nextHatch <= 0 ? 0 : nextHatch)
+  const startX = frogWorldX === undefined ? getHatchX(0) - 150 : frogWorldX
+
   const duration = 600
   const startTime = performance.now()
 
   return new Promise(resolve => {
     function step(time) {
       const k = Math.min(1, (time - startTime) / duration)
-      const ease = k * (2 - k) // ease-out
+      const ease = k * (2 - k)   // ease‑out
 
       frogWorldX = startX + (targetX - startX) * ease
-      frogJumpProgress = ease // для подпрыгивания
-
+      frogJumpProgress = ease
       drawFrogScene(false)
 
-      if (k < 1) requestAnimationFrame(step)
-      else {
-        frogCurrentHatch += 1
+      if (k < 1) {
+        requestAnimationFrame(step)
+      } else {
+        frogCurrentHatch = nextHatch
         frogWorldX = targetX
         frogJumpProgress = 0
         drawFrogScene(false)
 
-        // Проверка проигрыша
-        if (frogCurrentHatch > frogWinningHatch) frogDie()
+        if (frogCurrentHatch > frogWinningHatch) {
+          frogDie()
+        } else {
+          updateFrogUI()
+        }
 
         resolve()
       }
@@ -2160,6 +2169,7 @@ async function frogJump() {
     requestAnimationFrame(step)
   })
 }
+
 
 async function frogCashout() {
   if (frogState !== 'bet_placed' && frogState !== 'running') return
@@ -2359,6 +2369,7 @@ async function init() {
 
 
 init()
+
 
 
 
