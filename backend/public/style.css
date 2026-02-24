@@ -1653,13 +1653,6 @@ body {
   background: #020617;
 }
 
-/* длинный фон-трек */
-.frog-bg {
-  display: block;
-  height: 100%;
-  width: auto;           /* ширина по картинке */
-  pointer-events: none;
-}
 
 /* canvas поверх */
 #frog-canvas {
@@ -2916,6 +2909,7 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 }
+
 
 
 
