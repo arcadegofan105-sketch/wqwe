@@ -37,10 +37,10 @@
       </header>
 
       <main class="content">
-        <!-- Главная: вход в режимы -->
+        <!-- Главная: вход в режимы + кейсы -->
         <section id="screen-home" class="screen active">
           <div class="screen-title">Главная</div>
-          <div class="screen-subtitle">Выберите режим: Краш, Колесо, Frog или Кейсы.</div>
+          <div class="screen-subtitle">Выберите режим: Краш, Колесо или Frog. Кейсы ниже.</div>
 
           <!-- Карточки КОЛЕСО и FROG -->
           <div class="info-row info-row-games">
@@ -51,10 +51,57 @@
             <button class="game-card game-card-frog" data-home-target="frog" type="button">
               <div class="game-card-image frog-card-image"></div>
             </button>
+          </div>
 
-            <button class="game-card game-card-cases" data-home-target="cases" type="button">
-              <div class="game-card-image cases-card-image"></div>
-            </button>
+          <!-- Кейсы прямо на главной, ниже режимов -->
+          <div class="screen-title" style="margin-top: 20px;">🎁 Кейсы</div>
+          <div class="screen-subtitle">Выберите кейс для открытия.</div>
+
+          <div class="cases-grid">
+            <!-- Celendar case (newyear) -->
+            <div class="case-card" data-case-type="newyear">
+              <div class="case-image case-image-newyear"></div>
+              <div class="case-info">
+                <div class="case-name">Celendar case</div>
+                <div class="case-price">0.2 TON</div>
+              </div>
+            </div>
+
+            <!-- Classic case (onlynft) -->
+            <div class="case-card" data-case-type="onlynft">
+              <div class="case-image case-image-onlynft"></div>
+              <div class="case-info">
+                <div class="case-name">Classic case</div>
+                <div class="case-price">1 TON</div>
+              </div>
+            </div>
+
+            <!-- All or nothing (crypto) -->
+            <div class="case-card" data-case-type="crypto">
+              <div class="case-image case-image-crypto"></div>
+              <div class="case-info">
+                <div class="case-name">All or nothing</div>
+                <div class="case-price">0.5 TON</div>
+              </div>
+            </div>
+
+            <!-- Genesis -->
+            <div class="case-card" data-case-type="genesis">
+              <div class="case-image case-image-genesis"></div>
+              <div class="case-info">
+                <div class="case-name">Genesis case</div>
+                <div class="case-price">5 TON</div>
+              </div>
+            </div>
+
+            <!-- Elite -->
+            <div class="case-card" data-case-type="elite">
+              <div class="case-image case-image-elite"></div>
+              <div class="case-info">
+                <div class="case-name">Elite case</div>
+                <div class="case-price">10 TON</div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -229,59 +276,6 @@
           </div>
         </section>
 
-        <!-- Экран КЕЙСЫ: сетка карточек -->
-        <section id="screen-cases" class="screen">
-          <div class="screen-title">🎁 Кейсы</div>
-          <div class="screen-subtitle">
-            Выберите кейс для открытия.
-          </div>
-
-          <div class="cases-grid">
-            <!-- Celendar case (newyear) -->
-            <div class="case-card" data-case-type="newyear">
-              <div class="case-image case-image-newyear"></div>
-              <div class="case-info">
-                <div class="case-name">Celendar case</div>
-                <div class="case-price">0.2 TON</div>
-              </div>
-            </div>
-
-            <!-- Classic case (onlynft) -->
-            <div class="case-card" data-case-type="onlynft">
-              <div class="case-image case-image-onlynft"></div>
-              <div class="case-info">
-                <div class="case-name">Classic case</div>
-                <div class="case-price">1 TON</div>
-              </div>
-            </div>
-
-            <!-- All or nothing (crypto) -->
-            <div class="case-card" data-case-type="crypto">
-              <div class="case-image case-image-crypto"></div>
-              <div class="case-info">
-                <div class="case-name">All or nothing</div>
-                <div class="case-price">0.5 TON</div>
-              </div>
-            </div>
-
-            <div class="case-card" data-case-type="genesis">
-              <div class="case-image case-image-genesis"></div>
-              <div class="case-info">
-                <div class="case-name">Genesis case</div>
-                <div class="case-price">5 TON</div>
-              </div>
-            </div>
-
-            <div class="case-card" data-case-type="elite">
-              <div class="case-image case-image-elite"></div>
-              <div class="case-info">
-                <div class="case-name">Elite case</div>
-                <div class="case-price">10 TON</div>
-              </div>
-            </div>
-          </div>
-        </section>
-
         <!-- Экран КРАШ -->
         <section id="screen-crash" class="screen">
           <div class="crash-container">
@@ -401,7 +395,7 @@
           </div>
 
           <button class="action-btn action-blue" id="invite-copy-btn" type="button">
-            Скопировать ссылку
+            Скопировать ссылку 
           </button>
         </section>
 
@@ -424,7 +418,7 @@
             </div>
           </div>
 
-          <!-- Награды за активность -->
+          <!-- Награды за активность (бывший раздел Награды) -->
           <div id="rewards-list" class="rewards-list">
             <div class="bonus-card">
               <div class="bonus-title">Загрузка...</div>
@@ -644,7 +638,7 @@
         </button>
       </nav>
 
-      <!-- Модалка приза -->
+      <!-- Модалки -->
       <div id="prize-modal" class="modal">
         <div class="modal-content">
           <div class="modal-prize-emoji" id="modal-prize-emoji">🧸</div>
@@ -666,7 +660,6 @@
         </div>
       </div>
 
-      <!-- Модалка вывода -->
       <div id="withdraw-modal" class="modal">
         <div class="modal-content">
           <div class="modal-title">Вывод TON</div>
@@ -697,7 +690,6 @@
         </div>
       </div>
 
-      <!-- Модалка депозита -->
       <div id="deposit-modal" class="modal">
         <div class="modal-content">
           <div class="modal-title">Пополнение баланса</div>
