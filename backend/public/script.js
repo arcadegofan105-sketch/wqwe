@@ -884,6 +884,8 @@ async function initFrogGraphics() {
   try {
     frogCarSprite = frogCarSprite || await loadImage('Cartonfrog.png')
   } catch {}
+  
+drawFrogScene()   // ← ВАЖНО
 }
 
 
@@ -2399,6 +2401,7 @@ async function init() {
 
 
 init()
+
 
 
 
