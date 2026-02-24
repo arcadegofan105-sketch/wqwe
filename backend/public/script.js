@@ -2179,8 +2179,8 @@ async function frogStartBet() {
 
   frogBet = amount
   frogState = 'bet_placed'
-  frogCurrentHatch = -1 // старт левее первого люка
-  frogWinningHatch = 0 // безопасный люк 0
+  frogCurrentHatch = 0 // старт левее первого люка
+  frogWinningHatch =  1// безопасный люк 0
   frogAutoHatch = null
 
   if (frogScrollEl) frogScrollEl.scrollLeft = 0
@@ -2428,6 +2428,7 @@ async function init() {
 
 
 init()
+
 
 
 
