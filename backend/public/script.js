@@ -939,10 +939,13 @@ function drawFrogScene(showCar = false) {
   const groundY = getGroundY()
   const viewCenter = frogCanvas.width / 2
 
-  // текущее положение люка в мире
-  const curWorldX = getHatchX(frogCurrentHatch)
+  // мировая X‑координата, относительно которой считаем сцену
+  const curWorldX =
+    frogCurrentHatch < 0
+      ? getHatchX(0) - 200   // стартовая точка левее самого первого люка
+      : getHatchX(frogCurrentHatch)
 
-  // люки и множители
+  // рисуем люки и множители
   frogCtx.font = '12px system-ui'
   frogCtx.textAlign = 'center'
   frogCtx.textBaseline = 'top'
@@ -963,7 +966,7 @@ function drawFrogScene(showCar = false) {
     frogCtx.fillText(`${mult.toFixed(2)}x`, x, groundY + 3)
   }
 
-  // 🐸 лягушка — всегда по центру
+  // 🐸 лягушка — всегда по центру экрана
   if (frogSprite) {
     const size = 80
     frogCtx.drawImage(
@@ -987,6 +990,7 @@ function drawFrogScene(showCar = false) {
     )
   }
 }
+
 
 function scrollFrogToHatch(index, duration = 400) {
   // Только ради лёгкой анимации перерисовки
@@ -2176,18 +2180,12 @@ async function frogStartBet() {
 
   await initFrogGraphics()
 
-  frogBet = amount
+ frogBet = amount
 frogState = 'bet_placed'
-frogCurrentHatch = -1       // перед первым люком
-frogWinningHatch = 0        // максимум 1.15x
+frogCurrentHatch = -1          // старт перед люком 0
+frogWinningHatch = 0
 frogAutoHatch = null
 
-
-
-  const auto = Number(frogAutoInput?.value || 0)
-  if (Number.isFinite(auto) && auto >= 1 && auto <= FROG_HATCH_MULTS.length) {
-    frogAutoHatch = auto - 1
-  }
 
   if (frogScrollEl) frogScrollEl.scrollLeft = 0
 
@@ -2208,6 +2206,12 @@ async function frogJump() {
   await scrollFrogToHatch(frogCurrentHatch)
   updateFrogUI()
   drawFrogScene(false)
+
+  if (frogWinningHatch >= 0 && frogCurrentHatch > frogWinningHatch) {
+    await frogDie()
+  }
+}
+
 
   // авто-кэшаута больше нет
 
@@ -2416,6 +2420,7 @@ async function init() {
 
 
 init()
+
 
 
 
