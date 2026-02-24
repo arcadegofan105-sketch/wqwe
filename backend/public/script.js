@@ -2248,8 +2248,9 @@ async function frogJump() {
     const targetIndex = 0
 
     const w = frogCanvas.width
-    const startX = w * 0.22
-    const endX = getHatchX(targetIndex)
+    const startX = w * 0.22                   // экранная позиция старта
+    const endWorldX = getHatchX(targetIndex)  // мировая
+    const endX = endWorldX - frogCameraOffset // экранная позиция люка
 
     const duration = 500
     const startTime = performance.now()
@@ -2273,7 +2274,6 @@ async function frogJump() {
           frogJumpProgress = 0
           frogCurrentHatch = targetIndex
 
-          // КАМЕРА ЗА ЛЯГУШКОЙ (1‑й раз)
           frogCameraOffset = getHatchX(frogCurrentHatch) - frogCanvas.width * 0.4
 
           drawFrogScene(false)
@@ -2294,8 +2294,10 @@ async function frogJump() {
 
   frogState = 'running'
 
-  const startX = getHatchX(fromIndex)
-  const endX = getHatchX(toIndex)
+  // считаем в МИРОВЫХ координатах, а на экран выводим через камеру
+  const startWorldX = getHatchX(fromIndex)
+  const endWorldX = getHatchX(toIndex)
+
   const duration = 500
   const startTime = performance.now()
 
@@ -2307,7 +2309,9 @@ async function frogJump() {
       const ease = k * (2 - k)
 
       frogJumpProgress = ease
-      frogAnimX = startX + (endX - startX) * ease
+
+      const interpWorldX = startWorldX + (endWorldX - startWorldX) * ease
+      frogAnimX = interpWorldX - frogCameraOffset   // переводим в экранные
 
       drawFrogScene(false)
 
@@ -2318,7 +2322,6 @@ async function frogJump() {
         frogJumpProgress = 0
         frogCurrentHatch = toIndex
 
-        // КАМЕРА ЗА ЛЯГУШКОЙ (2‑й раз)
         frogCameraOffset = getHatchX(frogCurrentHatch) - frogCanvas.width * 0.4
 
         drawFrogScene(false)
@@ -2339,9 +2342,6 @@ async function frogJump() {
     await frogDie()
   }
 }
-
-
-
 
 async function frogCashout() {
   if (frogState !== 'bet_placed' && frogState !== 'running') return
@@ -2542,6 +2542,7 @@ async function init() {
 
 
 init()
+
 
 
 
