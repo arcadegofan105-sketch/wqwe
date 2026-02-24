@@ -931,7 +931,8 @@ function drawFrogScene(showCar = false) {
   clearFrogCanvas()
 
   const groundY = getGroundY()
-  const viewCenter = frogCanvas.width / 2
+  const viewCenter = frogCanvas.width * 0.25
+
 
   // Если лягушка ещё не появилась, ставим её левее первого люка
   if (frogWorldX === undefined) frogWorldX = getHatchX(0) - 150
@@ -944,21 +945,6 @@ function drawFrogScene(showCar = false) {
   frogCtx.textAlign = 'center'
   frogCtx.textBaseline = 'top'
 
-  for (let i = 0; i < FROG_HATCH_MULTS.length; i++) {
-    const hatchWorldX = getHatchX(i)
-    const x = viewCenter + (hatchWorldX - curWorldX)
-
-    const mult = FROG_HATCH_MULTS[i]
-    const safe = frogWinningHatch >= 0 && i <= frogWinningHatch
-
-    frogCtx.fillStyle = safe ? 'rgba(22,163,74,0.85)' : 'rgba(148,163,184,0.7)'
-    const hatchWidth = 80
-    const hatchHeight = 20
-    frogCtx.fillRect(x - hatchWidth / 2, groundY, hatchWidth, hatchHeight)
-
-    frogCtx.fillStyle = '#0b1120'
-    frogCtx.fillText(`${mult.toFixed(2)}x`, x, groundY + 3)
-  }
 
   // 🐸 Лягушка по центру, с подпрыгиванием
   if (frogSprite) {
@@ -2121,10 +2107,11 @@ async function frogStartBet() {
   await initFrogGraphics()
 
   frogBet = amount
-  frogState = 'bet_placed'
-  frogCurrentHatch = 0 // старт левее первого люка
-  frogWinningHatch =  1// безопасный люк 0
-  frogAutoHatch = null
+frogState = 'bet_placed'
+frogCurrentHatch = -1     // ещё до первого люка
+frogWinningHatch = 0      // максимум 1.15x
+frogAutoHatch = null
+
 
   if (frogScrollEl) frogScrollEl.scrollLeft = 0
 
@@ -2187,9 +2174,10 @@ async function frogDie() {
   alert('Лягушку сбила машина. Ставка проиграна.')
 
   frogBet = 0
-  frogCurrentHatch = -1
-  frogWinningHatch = -1
-  frogAutoHatch = null
+frogCurrentHatch = -1
+frogWinningHatch = 0
+frogAutoHatch = null
+
 }
 
 
@@ -2371,6 +2359,7 @@ async function init() {
 
 
 init()
+
 
 
 
