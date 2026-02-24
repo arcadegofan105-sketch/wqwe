@@ -2136,7 +2136,7 @@ async function frogStartBet() {
 
   frogBet = amount
   frogState = 'bet_placed'
-  frogCurrentHatch = -1
+  frogCurrentHatch = 0
   frogWinningHatch = Math.floor(Math.random() * FROG_HATCH_MULTS.length)
   frogAutoHatch = null
 
@@ -2397,6 +2397,7 @@ async function init() {
 
 
 init()
+
 
 
 
