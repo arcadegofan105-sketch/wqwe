@@ -1960,8 +1960,7 @@ body {
   opacity: 1;
 }
 
-/* общий размер картинок для обеих карточек */
-/* общий размер картинок для обеих карточек */
+/* общий размер картинок */
 .game-card-image {
   width: 100%;
   display: block;
@@ -1971,12 +1970,13 @@ body {
   background-position: center;
 }
 
-/* колесо – делаем чуть шире, но не прячем */
+/* колесо – чуть растягиваем по ширине */
 .game-card-wheel .game-card-image {
-  object-fit: contain;   /* вернём contain, чтобы колесо не пропадало */
-  padding: 0 4px;        /* немного уменьшаем поля по бокам */
-  box-sizing: border-box;
+  object-fit: contain;        /* не режем */
+  transform: scaleX(1.06);    /* аккуратно расширяем по горизонтали */
+  transform-origin: center;   /* растяжение из центра */
 }
+
 
 
 /* FrogTon – фон-логотип */
@@ -2917,6 +2917,7 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 }
+
 
 
 
