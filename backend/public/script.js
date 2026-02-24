@@ -373,36 +373,25 @@ let freeWheelAvailable = false
 let wheelDepositProgressTon = 0
 
 // ===== FROGTON STATE =====
-// множители по 10 люкам (под ними текст и логика)
 const FROG_HATCH_MULTS = [
   1.15, 1.3, 1.6, 2.0, 3.0,
   5.0, 10.0, 15.0, 25.0, 100.0,
 ]
 
-let frogState = 'idle'          // 'idle' | 'bet_placed' | 'running' | 'dead' | 'cashed'
+let frogState = 'idle'
 let frogBet = 0
-let frogCurrentHatch = -1       // индекс текущего люка (0..9)
-let frogWinningHatch = -1       // последний безопасный люк (0..9)
-let frogAutoHatch = null        // для авто-кэшаута: индекс (0..9) или null
+let frogCurrentHatch = -1    // -1 = старт у светофора
+let frogWinningHatch = -1
+let frogAutoHatch = null
 
-// переменные для анимации лягушки
-let frogWorldX = undefined      // «мировая» X‑позиция лягушки
-let frogJumpProgress = 0        // прогресс подпрыгивания (0..1)
-let frogHatchSprite = null
+// анимация
+let frogJumpProgress = 0     // 0..1
+let frogAnimX = 0
+let frogIsJumping = false
 
 let frogCtx = null
-let frogBgImage = null          // фон (fonfrogton.png)
-let frogSprite = null           // лягушка (froggame.png)
-let frogCarSprite = null        // машина (Cartonfrog.png)
-let frogStartBgSprite = null
-
-
-// ===== ADMIN STATE =====
-const adminState = {
-  q: '',
-  page: 1,
-  pages: 1,
-}
+let frogSprite = null        // froggame.png
+let frogCarSprite = null     // Cartonfrog.png
 
 // ===== HELPERS =====
 function updateBalanceUI() {
@@ -872,7 +861,7 @@ function loadImage(src) {
     img.onload = () => resolve(img)
 
     img.onerror = () => {
-      console.error("Image load error:", src)
+      console.error('Image load error:', src)
       reject(src)
     }
 
@@ -880,6 +869,27 @@ function loadImage(src) {
   })
 }
 
+// Глобальные переменные для FROGTON (убедиcь, что они объявлены один раз)
+const FROG_HATCH_MULTS = [
+  1.15, 1.3, 1.6, 2.0, 3.0,
+  5.0, 10.0, 15.0, 25.0, 100.0,
+]
+
+let frogState = 'idle'
+let frogBet = 0
+let frogCurrentHatch = -1    // -1 = старт у светофора
+let frogWinningHatch = -1
+let frogAutoHatch = null
+
+let frogJumpProgress = 0     // 0..1
+let frogAnimX = 0
+let frogIsJumping = false
+
+let frogCtx = null
+let frogSprite = null        // froggame.png
+let frogCarSprite = null     // Cartonfrog.png
+
+// --- init graphics ---
 
 async function initFrogGraphics() {
   if (!frogCanvas) return
@@ -890,10 +900,6 @@ async function initFrogGraphics() {
   frogCtx = frogCanvas.getContext('2d')
 
   try {
-    frogStartBgSprite = await loadImage('spawnfprog.png')
-  } catch (e) {}
-
-  try {
     frogSprite = await loadImage('froggame.png')
   } catch (e) {}
 
@@ -901,23 +907,20 @@ async function initFrogGraphics() {
     frogCarSprite = await loadImage('Cartonfrog.png')
   } catch (e) {}
 
-  try {
-    frogHatchSprite = await loadImage('lukforrog.png')
-  } catch (e) {}
-
   drawFrogScene(false)
 }
 
+// --- geometry & background ---
 
 function getHatchX(index) {
-  const paddingLeft = 120
-  const step = 220         // ширина одной «полосы» люка
+  const paddingLeft = 140
+  const step = 220
   return paddingLeft + index * step
 }
 
 function getGroundY() {
   if (!frogCanvas) return 0
-  return frogCanvas.height * 0.65
+  return frogCanvas.height * 0.7
 }
 
 function clearFrogCanvas() {
@@ -925,113 +928,212 @@ function clearFrogCanvas() {
   frogCtx.clearRect(0, 0, frogCanvas.width, frogCanvas.height)
 }
 
+function drawRoadBackground() {
+  const w = frogCanvas.width
+  const h = frogCanvas.height
+  const groundY = getGroundY()
+
+  // асфальт
+  frogCtx.fillStyle = '#020617'
+  frogCtx.fillRect(0, 0, w, h)
+
+  // дорога
+  const roadTop = groundY - 80
+  const roadBottom = groundY + 40
+  frogCtx.fillStyle = '#0b1120'
+  frogCtx.fillRect(0, roadTop, w, roadBottom - roadTop)
+
+  // бордюры
+  frogCtx.fillStyle = '#111827'
+  frogCtx.fillRect(0, roadTop - 10, w, 10)
+  frogCtx.fillRect(0, roadBottom, w, 10)
+
+  // центральная пунктирная линия
+  frogCtx.strokeStyle = 'rgba(148,163,184,0.7)'
+  frogCtx.lineWidth = 3
+  frogCtx.setLineDash([14, 14])
+  frogCtx.beginPath()
+  frogCtx.moveTo(0, (roadTop + roadBottom) / 2)
+  frogCtx.lineTo(w, (roadTop + roadBottom) / 2)
+  frogCtx.stroke()
+  frogCtx.setLineDash([])
+}
+
+function drawTrafficLight() {
+  const w = frogCanvas.width
+  const h = frogCanvas.height
+  const x = w * 0.12
+  const y = h * 0.18
+
+  // стойка
+  frogCtx.fillStyle = '#0f172a'
+  frogCtx.fillRect(x - 4, y, 8, 70)
+
+  // корпус
+  frogCtx.fillStyle = '#020617'
+  frogCtx.fillRect(x - 16, y - 40, 32, 60)
+  frogCtx.strokeStyle = 'rgba(148,163,184,0.6)'
+  frogCtx.lineWidth = 2
+  frogCtx.strokeRect(x - 16, y - 40, 32, 60)
+
+  const r = 7
+  const cy1 = y - 28
+  const cy2 = y - 12
+  const cy3 = y + 4
+
+  // красный
+  frogCtx.fillStyle = 'rgba(248,113,113,0.25)'
+  frogCtx.beginPath()
+  frogCtx.arc(x, cy1, r, 0, Math.PI * 2)
+  frogCtx.fill()
+
+  // жёлтый
+  frogCtx.fillStyle = 'rgba(252,211,77,0.25)'
+  frogCtx.beginPath()
+  frogCtx.arc(x, cy2, r, 0, Math.PI * 2)
+  frogCtx.fill()
+
+  // зелёный активный
+  frogCtx.fillStyle = '#22c55e'
+  frogCtx.shadowColor = 'rgba(34,197,94,0.8)'
+  frogCtx.shadowBlur = 16
+  frogCtx.beginPath()
+  frogCtx.arc(x, cy3, r, 0, Math.PI * 2)
+  frogCtx.fill()
+  frogCtx.shadowBlur = 0
+}
+
+// --- main draw ---
+
 function drawFrogScene(showCar = false) {
   if (!frogCtx || !frogCanvas) return
   clearFrogCanvas()
 
   const w = frogCanvas.width
-  const h = frogCanvas.height
   const groundY = getGroundY()
 
-  // 0) Стартовый экран: ещё не прыгал
-  if (frogCurrentHatch < 0 && frogStartBgSprite) {
-    frogCtx.drawImage(frogStartBgSprite, 0, 0, w, h)
+  drawRoadBackground()
 
-    // лягушка стоит на спавн‑картинке в фиксированной позиции
-    if (frogSprite) {
-      const size = 80
-      const x = w * 0.22        // немного слева
-      frogCtx.drawImage(
-        frogSprite,
-        x - size / 2,
-        groundY - size - 16,
-        size,
-        size
-      )
-    }
-    return
+  if (frogCurrentHatch < 0) {
+    drawTrafficLight()
   }
 
-  // дальше — как у тебя сейчас: фон дороги + столбцы lukforrog
-  frogCtx.fillStyle = '#020617'
-  frogCtx.fillRect(0, 0, w, h)
+  // люки + множители
+  frogCtx.font = '12px system-ui'
+  frogCtx.textAlign = 'center'
+  frogCtx.textBaseline = 'top'
 
-  if (frogHatchSprite) {
-    const tileImg = frogHatchSprite
-    const step = 220
-    const tileW = step
-    const tileH = h
+  for (let i = 0; i < FROG_HATCH_MULTS.length; i++) {
+    const x = getHatchX(i)
+    const mult = FROG_HATCH_MULTS[i]
+    const safe = frogWinningHatch >= 0 && i <= frogWinningHatch
 
-    frogCtx.font = '12px system-ui'
-    frogCtx.textAlign = 'center'
-    frogCtx.textBaseline = 'top'
+    const hatchW = 76
+    const hatchH = 26
+    const hatchY = groundY - 30
 
-    for (let i = 0; i < FROG_HATCH_MULTS.length; i++) {
-      const worldX = getHatchX(i)
-      const x = worldX - (frogScrollEl?.scrollLeft || 0)
+    // плитка люка
+    frogCtx.fillStyle = safe ? '#16a34a' : '#111827'
+    frogCtx.beginPath()
+    frogCtx.roundRect(
+      x - hatchW / 2,
+      hatchY,
+      hatchW,
+      hatchH,
+      10
+    )
+    frogCtx.fill()
 
-      frogCtx.drawImage(
-        tileImg,
-        x - tileW / 2,
-        0,
-        tileW,
-        tileH
-      )
+    // овальное отверстие
+    frogCtx.fillStyle = '#020617'
+    frogCtx.beginPath()
+    frogCtx.ellipse(
+      x,
+      hatchY + hatchH / 2 + 2,
+      hatchW * 0.32,
+      hatchH * 0.28,
+      0,
+      0,
+      Math.PI * 2
+    )
+    frogCtx.fill()
 
-      frogCtx.fillStyle = '#0b1120'
-      frogCtx.fillText(`${FROG_HATCH_MULTS[i].toFixed(2)}x`, x, groundY + 4)
-    }
+    // прорези
+    frogCtx.strokeStyle = 'rgba(15,23,42,0.9)'
+    frogCtx.lineWidth = 2
+    const slitY = hatchY + hatchH / 2 + 2
+    const slitDX = 7
+    frogCtx.beginPath()
+    frogCtx.moveTo(x - slitDX, slitY - 4)
+    frogCtx.lineTo(x - slitDX, slitY + 4)
+    frogCtx.moveTo(x, slitY - 4)
+    frogCtx.lineTo(x, slitY + 4)
+    frogCtx.moveTo(x + slitDX, slitY - 4)
+    frogCtx.lineTo(x + slitDX, slitY + 4)
+    frogCtx.stroke()
+
+    // табличка с множителем
+    const labelW = 60
+    const labelH = 18
+    const labelY = groundY + 6
+
+    frogCtx.fillStyle = 'rgba(15,23,42,0.95)'
+    frogCtx.beginPath()
+    frogCtx.roundRect(
+      x - labelW / 2,
+      labelY,
+      labelW,
+      labelH,
+      8
+    )
+    frogCtx.fill()
+
+    frogCtx.fillStyle = safe ? '#bbf7d0' : '#e5e7eb'
+    frogCtx.fillText(`${mult.toFixed(2)}x`, x, labelY + 3)
   }
 
-  // лягушка на люке
-  if (frogCurrentHatch >= 0 && frogSprite) {
-    const x = getHatchX(frogCurrentHatch) - (frogScrollEl?.scrollLeft || 0)
-    const size = 80
+  // лягушка
+  if (frogSprite) {
+    const size = 82
+    let x
+
+    if (frogCurrentHatch < 0) {
+      x = w * 0.22
+    } else if (frogIsJumping) {
+      x = frogAnimX
+    } else {
+      x = getHatchX(frogCurrentHatch)
+    }
+
+    const jumpOffset = frogIsJumping
+      ? Math.sin(Math.PI * frogJumpProgress) * 20
+      : 0
+
     frogCtx.drawImage(
       frogSprite,
       x - size / 2,
-      groundY - size - 16,
+      groundY - size - 18 - jumpOffset,
       size,
       size
     )
   }
 
+  // машина
   if (showCar && frogCarSprite && frogCurrentHatch >= 0) {
-    const x = getHatchX(frogCurrentHatch) - (frogScrollEl?.scrollLeft || 0)
-    const size = 110
+    const size = 120
+    const x = frogIsJumping ? frogAnimX : getHatchX(frogCurrentHatch)
+
     frogCtx.drawImage(
       frogCarSprite,
       x - size / 2,
-      groundY - size - 40,
+      groundY - size - 44,
       size,
       size
     )
   }
 }
 
-
-function scrollFrogToHatch(targetIndex, duration = 600) {
-  if (targetIndex >= FROG_HATCH_MULTS.length) targetIndex = FROG_HATCH_MULTS.length - 1
-  const startHatch = frogCurrentHatch
-  const startTime = performance.now()
-
-  return new Promise(resolve => {
-    function step(time) {
-      const k = Math.min(1, (time - startTime) / duration)
-      const ease = k * (2 - k) // ease-out
-      frogCurrentHatch = startHatch + (targetIndex - startHatch) * ease
-      drawFrogScene(false)
-
-      if (k < 1) requestAnimationFrame(step)
-      else {
-        frogCurrentHatch = targetIndex
-        drawFrogScene(false)
-        resolve()
-      }
-    }
-    requestAnimationFrame(step)
-  })
-}
+// --- UI helpers (оставляем как было, только без scrollFrogToHatch) ---
 
 function updateFrogUI() {
   if (!frogMainActionBtn) return
@@ -1045,18 +1147,27 @@ function updateFrogUI() {
     frogCashoutBtn.disabled = false
   }
 
-  // обновление множителя и потенциального выигрыша
   if (frogCurrentMultEl) {
-    const mult = FROG_HATCH_MULTS[Math.min(Math.floor(frogCurrentHatch), FROG_HATCH_MULTS.length - 1)] || 1
+    const idx = Math.min(
+      Math.max(frogCurrentHatch, 0),
+      FROG_HATCH_MULTS.length - 1
+    )
+    const mult = FROG_HATCH_MULTS[idx] || 1
     frogCurrentMultEl.textContent = `${mult.toFixed(2)}x`
   }
 
   if (frogPotentialWinEl) {
-    const mult = FROG_HATCH_MULTS[Math.min(Math.floor(frogCurrentHatch), FROG_HATCH_MULTS.length - 1)] || 1
+    const idx = Math.min(
+      Math.max(frogCurrentHatch, 0),
+      FROG_HATCH_MULTS.length - 1
+    )
+    const mult = FROG_HATCH_MULTS[idx] || 1
     const win = frogBet * mult
-    frogPotentialWinEl.textContent = frogBet > 0 ? `${win.toFixed(2)} TON` : '—'
+    frogPotentialWinEl.textContent =
+      frogBet > 0 ? `${win.toFixed(2)} TON` : '—'
   }
 }
+
 
 
 // ===== ADMIN RENDER =====
@@ -2164,28 +2275,83 @@ frogJumpProgress = 0
 async function frogJump() {
   if (frogState !== 'bet_placed' && frogState !== 'running') return
 
-  // первый прыжок: со спавн-карты на люк 0
+  // первый прыжок: от светофора к люку 0
   if (frogCurrentHatch < 0) {
     frogState = 'running'
-    frogCurrentHatch = 0
+    const targetIndex = 0
 
-    await scrollFrogToHatch(frogCurrentHatch)
+    const w = frogCanvas.width
+    const startX = w * 0.22
+    const endX = getHatchX(targetIndex)
+
+    const duration = 500
+    const startTime = performance.now()
+
+    frogIsJumping = true
+
+    await new Promise(resolve => {
+      function step(t) {
+        const k = Math.min(1, (t - startTime) / duration)
+        const ease = k * (2 - k)
+
+        frogJumpProgress = ease
+        frogAnimX = startX + (endX - startX) * ease
+
+        drawFrogScene(false)
+
+        if (k < 1) requestAnimationFrame(step)
+        else {
+          frogIsJumping = false
+          frogJumpProgress = 0
+          frogCurrentHatch = targetIndex
+          drawFrogScene(false)
+          resolve()
+        }
+      }
+      requestAnimationFrame(step)
+    })
+
     updateFrogUI()
-    drawFrogScene(false)
     return
   }
 
-  const nextIndex = frogCurrentHatch + 1
-  if (nextIndex >= FROG_HATCH_MULTS.length) {
-    return
-  }
+  // последующие прыжки: от люка к люку
+  const fromIndex = frogCurrentHatch
+  const toIndex = frogCurrentHatch + 1
+  if (toIndex >= FROG_HATCH_MULTS.length) return
 
   frogState = 'running'
-  frogCurrentHatch = nextIndex
 
-  await scrollFrogToHatch(frogCurrentHatch)
+  const startX = getHatchX(fromIndex)
+  const endX = getHatchX(toIndex)
+  const duration = 500
+  const startTime = performance.now()
+
+  frogIsJumping = true
+
+  await new Promise(resolve => {
+    function step(t) {
+      const k = Math.min(1, (t - startTime) / duration)
+      const ease = k * (2 - k)
+
+      frogJumpProgress = ease
+      frogAnimX = startX + (endX - startX) * ease
+
+      drawFrogScene(false)
+
+      if (k < 1) requestAnimationFrame(step)
+      else {
+        frogIsJumping = false
+        frogJumpProgress = 0
+        frogCurrentHatch = toIndex
+        drawFrogScene(false)
+        resolve()
+      }
+    }
+    requestAnimationFrame(step)
+  })
+
   updateFrogUI()
-  drawFrogScene(false)
 
   if (frogAutoHatch !== null && frogCurrentHatch === frogAutoHatch) {
     await frogCashout()
@@ -2396,6 +2562,7 @@ async function init() {
 
 
 init()
+
 
 
 
