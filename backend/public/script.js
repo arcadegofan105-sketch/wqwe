@@ -394,6 +394,8 @@ let frogCtx = null
 let frogBgImage = null          // фон (fonfrogton.png)
 let frogSprite = null           // лягушка (froggame.png)
 let frogCarSprite = null        // машина (Cartonfrog.png)
+let frogStartBgSprite = null
+
 
 // ===== ADMIN STATE =====
 const adminState = {
@@ -888,6 +890,10 @@ async function initFrogGraphics() {
   frogCtx = frogCanvas.getContext('2d')
 
   try {
+    frogStartBgSprite = await loadImage('spawnfprog.png')
+  } catch (e) {}
+
+  try {
     frogSprite = await loadImage('froggame.png')
   } catch (e) {}
 
@@ -901,6 +907,7 @@ async function initFrogGraphics() {
 
   drawFrogScene(false)
 }
+
 
 function getHatchX(index) {
   const paddingLeft = 120
@@ -926,14 +933,32 @@ function drawFrogScene(showCar = false) {
   const h = frogCanvas.height
   const groundY = getGroundY()
 
-  // 1) Фон дороги (просто тёмный)
+  // 0) Стартовый экран: ещё не прыгал
+  if (frogCurrentHatch < 0 && frogStartBgSprite) {
+    frogCtx.drawImage(frogStartBgSprite, 0, 0, w, h)
+
+    // лягушка стоит на спавн‑картинке в фиксированной позиции
+    if (frogSprite) {
+      const size = 80
+      const x = w * 0.22        // немного слева
+      frogCtx.drawImage(
+        frogSprite,
+        x - size / 2,
+        groundY - size - 16,
+        size,
+        size
+      )
+    }
+    return
+  }
+
+  // дальше — как у тебя сейчас: фон дороги + столбцы lukforrog
   frogCtx.fillStyle = '#020617'
   frogCtx.fillRect(0, 0, w, h)
 
-  // 2) Дорожка люков: вертикальные столбцы из lukforrog.png
   if (frogHatchSprite) {
     const tileImg = frogHatchSprite
-    const step = 220            // тот же, что в getHatchX
+    const step = 220
     const tileW = step
     const tileH = h
 
@@ -945,7 +970,6 @@ function drawFrogScene(showCar = false) {
       const worldX = getHatchX(i)
       const x = worldX - (frogScrollEl?.scrollLeft || 0)
 
-      // столбец от верха до низа, без зазоров
       frogCtx.drawImage(
         tileImg,
         x - tileW / 2,
@@ -959,20 +983,19 @@ function drawFrogScene(showCar = false) {
     }
   }
 
-  // 3) Лягушка
+  // лягушка на люке
   if (frogCurrentHatch >= 0 && frogSprite) {
     const x = getHatchX(frogCurrentHatch) - (frogScrollEl?.scrollLeft || 0)
     const size = 80
     frogCtx.drawImage(
       frogSprite,
       x - size / 2,
-      groundY - size - 8,
+      groundY - size - 16,
       size,
       size
     )
   }
 
-  // 4) Машина
   if (showCar && frogCarSprite && frogCurrentHatch >= 0) {
     const x = getHatchX(frogCurrentHatch) - (frogScrollEl?.scrollLeft || 0)
     const size = 110
@@ -2122,11 +2145,13 @@ async function frogStartBet() {
 
   frogBet = amount
 frogState = 'bet_placed'
-frogCurrentHatch = -1
-frogWinningHatch = 0
+frogCurrentHatch = -1          // ещё не прыгали, стоим на spawnfprog
+frogWinningHatch = Math.floor(Math.random() * FROG_HATCH_MULTS.length)
 frogAutoHatch = null
+// эти две переменные больше не нужны:
 frogWorldX = undefined
 frogJumpProgress = 0
+
 
 
 
@@ -2139,51 +2164,43 @@ frogJumpProgress = 0
 async function frogJump() {
   if (frogState !== 'bet_placed' && frogState !== 'running') return
 
+  // первый прыжок: со спавн-карты на люк 0
+  if (frogCurrentHatch < 0) {
+    frogState = 'running'
+    frogCurrentHatch = 0
+
+    await scrollFrogToHatch(frogCurrentHatch)
+    updateFrogUI()
+    drawFrogScene(false)
+    return
+  }
+
+  const nextIndex = frogCurrentHatch + 1
+  if (nextIndex >= FROG_HATCH_MULTS.length) {
+    return
+  }
+
   frogState = 'running'
-  frogWinningHatch = 0   // максимум 1.15x
+  frogCurrentHatch = nextIndex
 
-  const nextHatch = frogCurrentHatch + 1
+  await scrollFrogToHatch(frogCurrentHatch)
+  updateFrogUI()
+  drawFrogScene(false)
 
-  // стартовая мировая позиция
-  const startX = frogWorldX === undefined ? getHatchX(0) - 140 : frogWorldX
-  // целевая мировая позиция: лягушка должна «дойти» до центра следующего люка
-  const targetX = getHatchX(nextHatch <= 0 ? 0 : nextHatch)
+  if (frogAutoHatch !== null && frogCurrentHatch === frogAutoHatch) {
+    await frogCashout()
+    return
+  }
 
-  const duration = 600
-  const startTime = performance.now()
-
-  return new Promise(resolve => {
-    function step(time) {
-      const k = Math.min(1, (time - startTime) / duration)
-      const ease = k * (2 - k)
-
-      frogWorldX = startX + (targetX - startX) * ease
-      frogJumpProgress = ease
-      drawFrogScene(false)
-
-      if (k < 1) {
-        requestAnimationFrame(step)
-      } else {
-        frogCurrentHatch = nextHatch
-        frogWorldX = targetX
-        frogJumpProgress = 0
-        drawFrogScene(false)
-
-        if (frogCurrentHatch > frogWinningHatch) {
-          frogDie()
-        } else {
-          updateFrogUI()
-        }
-
-        resolve()
-      }
-    }
-    requestAnimationFrame(step)
-  })
+  if (frogWinningHatch >= 0 && frogCurrentHatch > frogWinningHatch) {
+    await frogDie()
+  }
 }
 
 async function frogCashout() {
   if (frogState !== 'bet_placed' && frogState !== 'running') return
+
+  // здесь по-хорошему надо считать win и отправлять на сервер
   await frogDie()
 }
 
@@ -2195,13 +2212,9 @@ async function frogDie() {
   alert('Лягушку сбила машина. Ставка проиграна.')
 
   frogBet = 0
-frogCurrentHatch = -1
-frogWinningHatch = 0
-frogAutoHatch = null
-frogWorldX = undefined
-frogJumpProgress = 0
-
-
+  frogCurrentHatch = -1
+  frogWinningHatch = -1
+  frogAutoHatch = null
 }
 
 
@@ -2383,6 +2396,7 @@ async function init() {
 
 
 init()
+
 
 
 
