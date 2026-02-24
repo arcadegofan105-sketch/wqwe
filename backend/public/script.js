@@ -984,13 +984,13 @@ function drawTrafficLight() {
 }
 
 // --- main draw ---
-
 function drawFrogScene(showCar = false) {
   if (!frogCtx || !frogCanvas) return
   clearFrogCanvas()
 
   const w = frogCanvas.width
   const groundY = getGroundY()
+  const scroll = frogScrollEl?.scrollLeft || 0
 
   drawRoadBackground()
 
@@ -1004,77 +1004,65 @@ function drawFrogScene(showCar = false) {
   frogCtx.textBaseline = 'top'
 
   for (let i = 0; i < FROG_HATCH_MULTS.length; i++) {
-  const xWorld = getHatchX(i)
-  const x = xWorld - (frogScrollEl?.scrollLeft || 0)
-  const mult = FROG_HATCH_MULTS[i]
+    const xWorld = getHatchX(i)
+    const x = xWorld - scroll
+    const mult = FROG_HATCH_MULTS[i]
 
-  const isPassed = frogCurrentHatch >= i
-  const isCurrent = Math.round(frogCurrentHatch) === i
-  const isSafe = frogWinningHatch >= 0 && i <= frogWinningHatch
+    const isCurrent = Math.round(frogCurrentHatch) === i
+    const isSafe = frogWinningHatch >= 0 && i <= frogWinningHatch
 
-  const hatchW = 76
-  const hatchH = 26
-  const hatchY = groundY - 30
+    const hatchW = 76
+    const hatchH = 26
+    const hatchY = groundY - 30
 
-  // фон плитки
-  let baseColor = '#111827'
-  if (isSafe) baseColor = '#15803d'        // зелёный путь
-  if (isCurrent) baseColor = '#4c1d95'     // фиолетовый, когда лягушка на люке
+    // фон плитки
+    let baseColor = '#111827'
+    if (isSafe) baseColor = '#15803d'
+    if (isCurrent) baseColor = '#4c1d95'
 
-  const glowColor = isCurrent ? 'rgba(168,85,247,0.8)'
-                  : isSafe ? 'rgba(34,197,94,0.7)'
-                  : 'rgba(15,23,42,0.8)'
+    const glowColor = isCurrent
+      ? 'rgba(168,85,247,0.8)'
+      : isSafe
+      ? 'rgba(34,197,94,0.7)'
+      : 'rgba(15,23,42,0.8)'
 
-  frogCtx.save()
-  frogCtx.shadowColor = glowColor
-  frogCtx.shadowBlur = isCurrent ? 24 : isSafe ? 14 : 8
+    frogCtx.save()
+    frogCtx.shadowColor = glowColor
+    frogCtx.shadowBlur = isCurrent ? 24 : isSafe ? 14 : 8
 
-  frogCtx.fillStyle = baseColor
-  frogCtx.beginPath()
-  frogCtx.roundRect(
-    x - hatchW / 2,
-    hatchY,
-    hatchW,
-    hatchH,
-    10
-  )
-  frogCtx.fill()
-  frogCtx.restore()
+    frogCtx.fillStyle = baseColor
+    frogCtx.beginPath()
+    frogCtx.roundRect(x - hatchW / 2, hatchY, hatchW, hatchH, 10)
+    frogCtx.fill()
+    frogCtx.restore()
 
-  // овальное отверстие
-  frogCtx.fillStyle = '#020617'
-  frogCtx.beginPath()
-  frogCtx.ellipse(
-    x,
-    hatchY + hatchH / 2 + 2,
-    hatchW * 0.32,
-    hatchH * 0.28,
-    0,
-    0,
-    Math.PI * 2
-  )
-  frogCtx.fill()
+    // овальное отверстие
+    frogCtx.fillStyle = '#020617'
+    frogCtx.beginPath()
+    frogCtx.ellipse(
+      x,
+      hatchY + hatchH / 2 + 2,
+      hatchW * 0.32,
+      hatchH * 0.28,
+      0,
+      0,
+      Math.PI * 2
+    )
+    frogCtx.fill()
 
-  // табличка с множителем
-  const labelW = 60
-  const labelH = 18
-  const labelY = groundY + 6
+    // табличка с множителем
+    const labelW = 60
+    const labelH = 18
+    const labelY = groundY + 6
 
-  frogCtx.fillStyle = 'rgba(15,23,42,0.95)'
-  frogCtx.beginPath()
-  frogCtx.roundRect(
-    x - labelW / 2,
-    labelY,
-    labelW,
-    labelH,
-    8
-  )
-  frogCtx.fill()
+    frogCtx.fillStyle = 'rgba(15,23,42,0.95)'
+    frogCtx.beginPath()
+    frogCtx.roundRect(x - labelW / 2, labelY, labelW, labelH, 8)
+    frogCtx.fill()
 
-  frogCtx.fillStyle = isSafe ? '#bbf7d0' : '#e5e7eb'
-  if (isCurrent) frogCtx.fillStyle = '#e9d5ff'  // чуть светлее на текущем
-  frogCtx.fillText(`${mult.toFixed(2)}x`, x, labelY + 3)
-}
+    frogCtx.fillStyle = isCurrent ? '#e9d5ff' : isSafe ? '#bbf7d0' : '#e5e7eb'
+    frogCtx.fillText(`${mult.toFixed(2)}x`, x, labelY + 3)
+  }
 
   // лягушка
   if (frogSprite) {
@@ -1086,7 +1074,7 @@ function drawFrogScene(showCar = false) {
     } else if (frogIsJumping) {
       x = frogAnimX
     } else {
-      x = getHatchX(frogCurrentHatch) - (frogScrollEl?.scrollLeft || 0)
+      x = getHatchX(frogCurrentHatch) - scroll
     }
 
     const jumpOffset = frogIsJumping
@@ -1105,7 +1093,9 @@ function drawFrogScene(showCar = false) {
   // машина
   if (showCar && frogCarSprite && frogCurrentHatch >= 0) {
     const size = 120
-    const x = frogIsJumping ? frogAnimX : getHatchX(frogCurrentHatch)
+    const x = (frogIsJumping
+      ? frogAnimX
+      : getHatchX(frogCurrentHatch) - scroll)
 
     frogCtx.drawImage(
       frogCarSprite,
@@ -2561,6 +2551,7 @@ async function init() {
 
 
 init()
+
 
 
 
