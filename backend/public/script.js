@@ -387,7 +387,7 @@ let frogAutoHatch = null        // для авто-кэшаута: индекс 
 
 let frogCtx = null
 let frogBgImage = null          // фон (fonfrogton.png)
-let frogSprite = null           // лягушка (frog.png)
+let frogSprite = null           // лягушка (froggame.png)
 let frogCarSprite = null        // машина (Cartonfrog.png)
 
 // ===== ADMIN STATE =====
@@ -2397,6 +2397,7 @@ async function init() {
 
 
 init()
+
 
 
 
