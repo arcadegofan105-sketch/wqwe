@@ -939,13 +939,11 @@ function drawFrogScene(showCar = false) {
   const groundY = getGroundY()
   const viewCenter = frogCanvas.width / 2
 
-  // 🌎 мировая X‑координата сцены
-  let curWorldX = 0
-  if (frogCurrentHatch < 0) {
-    curWorldX = getHatchX(0) - 150 // старт левее первого люка
-  } else {
-    curWorldX = getHatchX(frogCurrentHatch)
-  }
+  // Если лягушка ещё не появилась, ставим её левее первого люка
+  if (frogWorldX === undefined) frogWorldX = getHatchX(0) - 150
+
+  // 🌎 Смещаем сцену так, чтобы лягушка была по центру
+  const curWorldX = frogWorldX
 
   // Рисуем люки и множители
   frogCtx.font = '12px system-ui'
@@ -968,13 +966,15 @@ function drawFrogScene(showCar = false) {
     frogCtx.fillText(`${mult.toFixed(2)}x`, x, groundY + 3)
   }
 
-  // 🐸 Лягушка по центру
+  // 🐸 Лягушка по центру, с подпрыгиванием
   if (frogSprite) {
-    const size = 60 // чуть меньше для плавности
+    const size = 60
+    // подпрыгивание при игре
+    const jumpOffset = frogJumpProgress ? Math.sin(frogJumpProgress * Math.PI) * 15 : 0
     frogCtx.drawImage(
       frogSprite,
       viewCenter - size / 2,
-      groundY - size - 10,
+      groundY - size - 10 - jumpOffset,
       size,
       size
     )
@@ -2189,24 +2189,43 @@ async function frogStartBet() {
 async function frogJump() {
   if (frogState !== 'bet_placed' && frogState !== 'running') return
 
-  // Максимум 1.15x почти всегда
-  const nextIndex = frogCurrentHatch + 1
-  if (nextIndex >= FROG_HATCH_MULTS.length) return
-
   frogState = 'running'
 
-  // фиксируем шанс выигрыша: 1.15x
+  // Максимум что выпадает — 1.15x
   frogWinningHatch = 0
 
-  await scrollFrogToHatch(nextIndex)
-  updateFrogUI()
-  drawFrogScene(false)
+  const targetX = getHatchX(frogCurrentHatch + 1)
 
-  if (frogCurrentHatch > frogWinningHatch) {
-    await frogDie()
-  } else {
-    frogState = 'bet_placed'
-  }
+  // анимация плавного движения лягушки и подпрыгивания
+  const startX = frogWorldX
+  const duration = 600
+  const startTime = performance.now()
+
+  return new Promise(resolve => {
+    function step(time) {
+      const k = Math.min(1, (time - startTime) / duration)
+      const ease = k * (2 - k) // ease-out
+
+      frogWorldX = startX + (targetX - startX) * ease
+      frogJumpProgress = ease // для подпрыгивания
+
+      drawFrogScene(false)
+
+      if (k < 1) requestAnimationFrame(step)
+      else {
+        frogCurrentHatch += 1
+        frogWorldX = targetX
+        frogJumpProgress = 0
+        drawFrogScene(false)
+
+        // Проверка проигрыша
+        if (frogCurrentHatch > frogWinningHatch) frogDie()
+
+        resolve()
+      }
+    }
+    requestAnimationFrame(step)
+  })
 }
 
 async function frogCashout() {
@@ -2406,6 +2425,7 @@ async function init() {
 
 
 init()
+
 
 
 
