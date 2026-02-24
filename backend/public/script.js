@@ -885,6 +885,36 @@ async function initFrogGraphics() {
   } catch {}
 }
 
+// ===== FROGTON DRAW HELPERS =====
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.onload = () => resolve(img)
+    img.onerror = reject
+    img.src = src
+  })
+}
+
+async function initFrogGraphics() {
+  if (!frogCanvas) return
+  if (frogCtx) return
+
+  frogCanvas.width = frogCanvas.clientWidth
+  frogCanvas.height = frogCanvas.clientHeight
+  frogCtx = frogCanvas.getContext('2d')
+
+  try {
+    frogBgImage = frogBgImage || await loadImage('fonfrogton.png')
+  } catch {}
+  try {
+    frogSprite = frogSprite || await loadImage('froggame.png')
+  } catch {}
+  try {
+    frogCarSprite = frogCarSprite || await loadImage('Cartonfrog.png')
+  } catch {}
+}
+
+
 
 function getHatchX(index) {
   const paddingLeft = 120
@@ -2397,6 +2427,7 @@ async function init() {
 
 
 init()
+
 
 
 
