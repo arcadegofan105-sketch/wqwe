@@ -2266,43 +2266,45 @@ async function frogJump() {
 
     const w = frogCanvas.width
     const startX = w * 0.22
-    const endX = getHatchX(targetIndex)
+    const endX = getHatchX(targetIndex) - (frogScrollEl?.scrollLeft || 0)
 
     const duration = 500
     const startTime = performance.now()
 
     frogIsJumping = true
 
-   await new Promise(resolve => {
-  function step(t) {
-    const k = Math.min(1, (t - startTime) / duration)
-    const ease = k * (2 - k)
+    await new Promise(resolve => {
+      function step(t) {
+        const k = Math.min(1, (t - startTime) / duration)
+        const ease = k * (2 - k)
 
-    frogJumpProgress = ease
-    frogAnimX = startX + (endX - startX) * ease
+        frogJumpProgress = ease
+        frogAnimX = startX + (endX - startX) * ease
 
-    drawFrogScene(false)
+        drawFrogScene(false)
 
-    if (k < 1) requestAnimationFrame(step)
-    else {
-      frogIsJumping = false
-      frogJumpProgress = 0
-      frogCurrentHatch = targetIndex
+        if (k < 1) {
+          requestAnimationFrame(step)
+        } else {
+          frogIsJumping = false
+          frogJumpProgress = 0
+          frogCurrentHatch = targetIndex
 
-      if (frogScrollEl) {
-        const targetScroll = getHatchX(frogCurrentHatch) - frogScrollEl.clientWidth / 2
-        frogScrollEl.scrollLeft = Math.max(0, targetScroll)
+          if (frogScrollEl) {
+            const targetScroll = getHatchX(frogCurrentHatch) - frogScrollEl.clientWidth / 2
+            frogScrollEl.scrollLeft = Math.max(0, targetScroll)
+          }
+
+          drawFrogScene(false)
+          resolve()
+        }
       }
+      requestAnimationFrame(step)
+    })
 
-      drawFrogScene(false)
-      resolve()
-    }
-  }
-  requestAnimationFrame(step)
-})
-
-updateFrogUI()
-return
+    updateFrogUI()
+    return
+  } // ← ЭТОЙ СКОБКИ НЕ ХВАТАЛО
 
   // последующие прыжки: от люка к люку
   const fromIndex = frogCurrentHatch
@@ -2312,40 +2314,40 @@ return
   frogState = 'running'
 
   const startX = getHatchX(fromIndex) - (frogScrollEl?.scrollLeft || 0)
-const endX   = getHatchX(toIndex)   - (frogScrollEl?.scrollLeft || 0)
+  const endX   = getHatchX(toIndex)   - (frogScrollEl?.scrollLeft || 0)
   const duration = 500
   const startTime = performance.now()
 
   frogIsJumping = true
 
   await new Promise(resolve => {
-  function step(t) {
-    const k = Math.min(1, (t - startTime) / duration)
-    const ease = k * (2 - k)
+    function step(t) {
+      const k = Math.min(1, (t - startTime) / duration)
+      const ease = k * (2 - k)
 
-    frogJumpProgress = ease
-    frogAnimX = startX + (endX - startX) * ease
-
-    drawFrogScene(false)
-
-    if (k < 1) requestAnimationFrame(step)
-    else {
-      frogIsJumping = false
-      frogJumpProgress = 0
-      frogCurrentHatch = toIndex
-
-      if (frogScrollEl) {
-        const targetScroll = getHatchX(frogCurrentHatch) - frogScrollEl.clientWidth / 2
-        frogScrollEl.scrollLeft = Math.max(0, targetScroll)
-      }
+      frogJumpProgress = ease
+      frogAnimX = startX + (endX - startX) * ease
 
       drawFrogScene(false)
-      resolve()
-    }
-  }
-  requestAnimationFrame(step)
-})
 
+      if (k < 1) {
+        requestAnimationFrame(step)
+      } else {
+        frogIsJumping = false
+        frogJumpProgress = 0
+        frogCurrentHatch = toIndex
+
+        if (frogScrollEl) {
+          const targetScroll = getHatchX(frogCurrentHatch) - frogScrollEl.clientWidth / 2
+          frogScrollEl.scrollLeft = Math.max(0, targetScroll)
+        }
+
+        drawFrogScene(false)
+        resolve()
+      }
+    }
+    requestAnimationFrame(step)
+  })
 
   updateFrogUI()
 
@@ -2358,6 +2360,7 @@ const endX   = getHatchX(toIndex)   - (frogScrollEl?.scrollLeft || 0)
     await frogDie()
   }
 }
+
 
 async function frogCashout() {
   if (frogState !== 'bet_placed' && frogState !== 'running') return
@@ -2558,6 +2561,7 @@ async function init() {
 
 
 init()
+
 
 
 
