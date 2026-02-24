@@ -2212,22 +2212,10 @@ async function frogJump() {
   }
 }
 
-
-  // авто-кэшаута больше нет
-
-  if (frogWinningHatch >= 0 && frogCurrentHatch > frogWinningHatch) {
-    await frogDie()
-  }
-}
-
-
 async function frogCashout() {
-  // в этой версии игры кэшаут всегда считается проигрышем
   if (frogState !== 'bet_placed' && frogState !== 'running') return
-
   await frogDie()
 }
-
 
 async function frogDie() {
   frogState = 'dead'
@@ -2241,6 +2229,7 @@ async function frogDie() {
   frogWinningHatch = -1
   frogAutoHatch = null
 }
+
 
 // кнопки FrogTon
 frogMainActionBtn?.addEventListener('click', async () => {
@@ -2420,6 +2409,7 @@ async function init() {
 
 
 init()
+
 
 
 
