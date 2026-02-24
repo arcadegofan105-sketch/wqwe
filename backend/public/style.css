@@ -1650,13 +1650,12 @@ body {
   max-height: 620px;
   min-height: 420px;
   border-radius: 28px;
-  overflow-x: auto;      /* важно: auto/scroll */
+  overflow-x: auto;      /* можно листать вправо-влево */
   overflow-y: hidden;
   background: #020617;
-  white-space: nowrap;   /* чтобы содержимое шло в линию */
 }
 
-/* фон – длинная дорожка */
+/* длинный фон-трек */
 .frog-bg {
   display: block;
   height: 100%;
@@ -1664,7 +1663,7 @@ body {
   pointer-events: none;
 }
 
-/* canvas поверх всей области скролла */
+/* canvas поверх */
 #frog-canvas {
   position: absolute;
   inset: 0;
@@ -1673,6 +1672,7 @@ body {
   pointer-events: none;
   background: transparent;
 }
+
 
 
 
@@ -2918,6 +2918,7 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 }
+
 
 
 
