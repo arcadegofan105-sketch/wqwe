@@ -152,7 +152,9 @@ const screens = {
   bonus: document.getElementById('screen-bonus'),
   profile: document.getElementById('screen-profile'),
   admin: document.getElementById('screen-admin'),
+  frog: document.getElementById('screen-frog'), // НОВЫЙ ЭКРАН
 }
+
 
 
 const rewardsListEl = document.getElementById('rewards-list')
@@ -1507,6 +1509,8 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
   }
 })
 
+
+
 // ===== CRASH (logic + canvas animation: rocket -> moon) =====
 const crashCanvas = document.getElementById('crash-canvas')
 const crashCtx = crashCanvas ? crashCanvas.getContext('2d') : null
@@ -1986,6 +1990,224 @@ window.addEventListener('resize', () => {
   startCrashRenderLoop()
 })
 
+// ---------- FROGTONRUN ----------
+
+const FROG_MULTS = [1.15, 1.37, 1.64, 2, 2.5, 3, 4, 10, 50, 100]
+
+let frogState = 'idle'         // 'idle' | 'running' | 'finished'
+let frogBetAmount = 0
+let frogStep = 0               // 0..9
+let frogAutoStep = null
+let frogHasCashedOut = false
+
+const frogCanvas = document.getElementById('frog-canvas')
+const frogMainActionBtn = document.getElementById('frog-main-action')
+const frogBetInput = document.getElementById('frog-bet-input')
+const frogAutoInput = document.getElementById('frog-auto-input')
+const frogCurrentMultEl = document.getElementById('frog-current-mult')
+const frogPotentialWinEl = document.getElementById('frog-potential-win')
+
+const frogImg = new Image()
+frogImg.src = 'froggame.jpg'
+
+// обновление UI
+function updateFrogUI() {
+  const mult = FROG_MULTS[frogStep] || 1
+  if (frogCurrentMultEl) frogCurrentMultEl.textContent = `${mult.toFixed(2)}x`
+  if (frogPotentialWinEl && frogBetAmount > 0) {
+    frogPotentialWinEl.textContent = `${(frogBetAmount * mult).toFixed(2)} TON`
+  } else if (frogPotentialWinEl) {
+    frogPotentialWinEl.textContent = '—'
+  }
+
+  if (!frogMainActionBtn) return
+  if (frogState === 'idle') {
+    frogMainActionBtn.textContent = 'Сделать ставку'
+    frogMainActionBtn.disabled = false
+  } else if (frogState === 'running') {
+    frogMainActionBtn.textContent = 'Забрать'
+    frogMainActionBtn.disabled = false
+  } else {
+    frogMainActionBtn.textContent = 'Раунд завершён'
+    frogMainActionBtn.disabled = true
+  }
+}
+
+// анимация и подписи x
+function drawFrogScene() {
+  if (!frogCanvas) return
+  const ctx = frogCanvas.getContext('2d')
+  if (!ctx) return
+
+  const w = frogCanvas.width = frogCanvas.clientWidth
+  const h = frogCanvas.height = frogCanvas.clientHeight
+
+  ctx.clearRect(0, 0, w, h)
+
+  const pad = 80
+  const laneY = h * 0.7
+  const stepX = (w - pad * 2) / 9
+
+  const now = performance.now()
+
+  // подписи x под люками (можно удалить, если хочешь использовать только фон)
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.font = '14px system-ui'
+
+  for (let i = 0; i < FROG_MULTS.length; i++) {
+    const x = pad + stepX * i
+    const label = `${FROG_MULTS[i].toFixed(2)}x`
+
+    const bx = x
+    const by = laneY + 24
+    const bw = 64
+    const bh = 22
+
+    let alpha = 0.9
+    if (i === frogStep) {
+      alpha = 0.9 + 0.1 * Math.sin(now / 200)  // лёгкий пульс активного люка
+    }
+
+    ctx.fillStyle = `rgba(15,23,42,${alpha.toFixed(2)})`
+    ctx.beginPath()
+    if (ctx.roundRect) {
+      ctx.roundRect(bx - bw / 2, by - bh / 2, bw, bh, 6)
+    } else {
+      ctx.rect(bx - bw / 2, by - bh / 2, bw, bh)
+    }
+    ctx.fill()
+
+    ctx.fillStyle = '#e5e7eb'
+    ctx.fillText(label, bx, by + 1)
+  }
+
+  // анимация лягушки
+  const jump = Math.sin(now / 260) * 10
+  const tilt = Math.sin(now / 520) * 0.08
+
+  const frogX = pad + stepX * frogStep
+  const frogY = laneY - 54 + jump
+  const size = 90
+
+  ctx.save()
+  ctx.translate(frogX, frogY)
+  ctx.rotate(tilt)
+
+  if (frogImg.complete) {
+    ctx.drawImage(frogImg, -size / 2, -size / 2, size, size)
+  } else {
+    ctx.fillStyle = '#22c55e'
+    ctx.beginPath()
+    ctx.arc(0, 0, 30, 0, Math.PI * 2)
+    ctx.fill()
+  }
+
+  ctx.restore()
+
+  requestAnimationFrame(drawFrogScene)
+}
+
+frogImg.onload = () => requestAnimationFrame(drawFrogScene)
+
+// логика ставок и прыжков
+async function startFrogRound() {
+  if (frogState !== 'idle') return
+
+  frogBetAmount = parseFloat(frogBetInput?.value || '0')
+  if (!Number.isFinite(frogBetAmount) || frogBetAmount <= 0) {
+    alert('Введите ставку > 0')
+    return
+  }
+  if (balance < frogBetAmount) {
+    alert('Недостаточно средств.')
+    return
+  }
+
+  try {
+    const r = await apiPost('/frog/bet', { amount: frogBetAmount })
+    balance = Number(r.newBalance ?? balance)
+    updateBalanceUI()
+  } catch (err) {
+    alert(err.message || 'Ошибка ставки')
+    return
+  }
+
+  const rawAuto = String(frogAutoInput?.value || '').trim()
+  frogAutoStep = null
+  if (rawAuto) {
+    const v = Number(rawAuto)
+    if (!Number.isInteger(v) || v < 1 || v > 10) {
+      alert('Авто-вывод: введите целое число от 1 до 10')
+      return
+    }
+    frogAutoStep = v - 1
+  }
+
+  frogState = 'running'
+  frogStep = 0
+  frogHasCashedOut = false
+  updateFrogUI()
+  scheduleNextFrogStep()
+}
+
+function scheduleNextFrogStep() {
+  if (frogState !== 'running') return
+
+  // авто-вывод
+  if (frogAutoStep != null && frogStep >= frogAutoStep && !frogHasCashedOut) {
+    cashoutFrog(true)
+    return
+  }
+
+  if (frogStep >= FROG_MULTS.length - 1) {
+    cashoutFrog(false)
+    return
+  }
+
+  frogStep += 1
+  updateFrogUI()
+
+  const area = document.querySelector('.frog-game-area')
+  if (area) {
+    const segment = area.scrollWidth / 10
+    const target = segment * frogStep - area.clientWidth / 2
+    area.scrollTo({ left: Math.max(0, target), behavior: 'smooth' })
+  }
+
+  setTimeout(scheduleNextFrogStep, 1200)
+}
+
+async function cashoutFrog(isAuto = false) {
+  if (frogState !== 'running') return
+  if (frogHasCashedOut) return
+
+  const mult = FROG_MULTS[frogStep] || 1
+  const winAmount = frogBetAmount * mult
+
+  try {
+    const r = await apiPost('/frog/cashout', { amount: winAmount })
+    balance = Number(r.newBalance ?? balance)
+    updateBalanceUI()
+    frogHasCashedOut = true
+    frogState = 'finished'
+    alert(
+      (isAuto ? 'Авто-вывод: ' : 'Вы забрали: ') +
+      `x${mult.toFixed(2)}, ${winAmount.toFixed(2)} TON`
+    )
+  } catch (err) {
+    alert(err.message || 'Ошибка вывода')
+  } finally {
+    updateFrogUI()
+  }
+}
+
+// обработчик основной кнопки
+frogMainActionBtn?.addEventListener('click', () => {
+  if (frogState === 'idle') startFrogRound()
+  else if (frogState === 'running') cashoutFrog(false)
+})
+
 
 // ===== ADMIN EVENTS =====
 adminPromoType?.addEventListener('change', () => {
@@ -2146,6 +2368,7 @@ async function init() {
 }
 
 init()
+
 
 
 
