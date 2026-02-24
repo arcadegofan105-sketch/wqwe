@@ -47,7 +47,12 @@
   <button class="game-card game-card-wheel" data-home-target="wheel" type="button">
     <img src="colesocard.png" alt="Колесо" class="game-card-image" />
   </button>
+
+  <button class="game-card game-card-frog" data-home-target="frog" type="button">
+    <img src="fonfrogton.jpg" alt="FrogTonRun" class="game-card-image" />
+  </button>
 </div>
+
 </section>
 
         <!-- Экран КОЛЕСО -->
@@ -160,6 +165,64 @@
             </div>
           </div>
         </section>
+
+        <!-- Экран FROGTONRUN (НОВЫЙ) -->
+<section id="screen-frog" class="screen">
+  <div class="screen-title">FrogTonRun</div>
+  <div class="screen-subtitle">Сделайте ставку и заберите выигрыш вовремя.</div>
+
+  <div class="crash-container">
+    <div class="crash-game-area frog-game-area">
+      <img src="fonfrogton.jpg" class="frog-bg" alt="Frog track" />
+      <canvas id="frog-canvas"></canvas>
+    </div>
+
+    <button id="frog-main-action" class="crash-main-btn">Сделать ставку</button>
+
+    <div class="crash-panel">
+      <div class="crash-bet-block">
+        <div class="crash-bet-label">Ставка (TON)</div>
+        <div class="crash-bet-input-row">
+          <input
+            type="number"
+            id="frog-bet-input"
+            class="crash-bet-input"
+            placeholder="1.00"
+            min="0.1"
+            step="0.1"
+            value="1"
+          />
+        </div>
+      </div>
+
+      <div class="crash-auto-block">
+        <div class="crash-bet-label">Авто-вывод (люк)</div>
+        <div class="crash-bet-input-row">
+          <input
+            type="number"
+            id="frog-auto-input"
+            class="crash-bet-input"
+            placeholder="Например: 4"
+            min="1"
+            max="10"
+            step="1"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="crash-info">
+      <div class="crash-info-item">
+        <span class="crash-info-label">Текущий множитель:</span>
+        <span class="crash-info-value" id="frog-current-mult">1.00x</span>
+      </div>
+      <div class="crash-info-item">
+        <span class="crash-info-label">Потенциальный выигрыш:</span>
+        <span class="crash-info-value" id="frog-potential-win">—</span>
+      </div>
+    </div>
+  </div>
+</section>
 
         <!-- Экран КРАШ -->
         <section id="screen-crash" class="screen">
@@ -655,6 +718,7 @@
 
   </body>
 </html>
+
 
 
 
