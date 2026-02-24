@@ -1973,7 +1973,7 @@ body {
 /* колесо – чуть растягиваем по ширине */
 .game-card-wheel .game-card-image {
   object-fit: contain;        /* не режем */
-  transform: scaleX(1.06);    /* аккуратно расширяем по горизонтали */
+  transform: scaleX(1.09);    /* аккуратно расширяем по горизонтали */
   transform-origin: center;   /* растяжение из центра */
 }
 
@@ -2917,6 +2917,7 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 }
+
 
 
 
