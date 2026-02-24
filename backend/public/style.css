@@ -1914,7 +1914,11 @@ body {
   width: 100%;
   display: block;
   border-radius: 22px;
+  height: 140px;           /* добавь эту строку, можно подправить размер */
+  background-size: cover;  /* на всякий случай, если будешь использовать bg */
+  background-position: center;
 }
+
 
 /* Логотип FrogTon на главной */
 .game-card-image.frog-card-image {
@@ -1922,6 +1926,7 @@ body {
   background-size: cover;
   background-position: center;
 }
+
 
 .game-card:active {
   transform: translateY(1px) scale(0.98);
@@ -2852,6 +2857,7 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 }
+
 
 
 
