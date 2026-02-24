@@ -2371,26 +2371,33 @@ adminAdjApply?.addEventListener('click', async () => {
 
 // ===== INIT =====
 async function init() {
-  updateTelegramUserUI()
-  renderWheel()
-  renderPrizesList()
-  renderCasesMenuFromConfig()
-  setLastPrizeText(null)
-  updateInviteUI()
-
-  updateDepositButtonState()
+  updateTelegramUserUI();
+  renderWheel();
+  renderPrizesList();
+  renderCasesMenuFromConfig();
+  setLastPrizeText(null);
+  updateInviteUI();
+  updateDepositButtonState();
 
   try {
-    await fetchUserData()
-    if (isAdmin) await Promise.allSettled([loadAdminStats(), loadAdminPromos(), loadAdminUsers()])
+    await fetchUserData();
+    if (isAdmin) {
+      await Promise.allSettled([
+        loadAdminStats(),
+        loadAdminPromos(),
+        loadAdminUsers(),
+      ]);
+    }
   } catch (err) {
-    alert(err.message || 'Unknown error')
+    alert(err.message || 'Unknown error');
   }
 
-  // сразу подготовим графику лягушки
-  await initFrogGraphics()
-  updateFrogUI()
+  await initFrogGraphics();
+  drawFrogScene(false);   // ВАЖНО: первый кадр
+  updateFrogUI();
 }
 
+
 init()
+
 
