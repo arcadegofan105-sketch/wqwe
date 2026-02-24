@@ -939,13 +939,15 @@ function drawFrogScene(showCar = false) {
   const groundY = getGroundY()
   const viewCenter = frogCanvas.width / 2
 
-  // мировая X‑координата, относительно которой считаем сцену
-  const curWorldX =
-    frogCurrentHatch < 0
-      ? getHatchX(0) - 200   // стартовая точка левее самого первого люка
-      : getHatchX(frogCurrentHatch)
+  // 🌎 мировая X‑координата сцены
+  let curWorldX = 0
+  if (frogCurrentHatch < 0) {
+    curWorldX = getHatchX(0) - 150 // старт левее первого люка
+  } else {
+    curWorldX = getHatchX(frogCurrentHatch)
+  }
 
-  // рисуем люки и множители
+  // Рисуем люки и множители
   frogCtx.font = '12px system-ui'
   frogCtx.textAlign = 'center'
   frogCtx.textBaseline = 'top'
@@ -966,9 +968,9 @@ function drawFrogScene(showCar = false) {
     frogCtx.fillText(`${mult.toFixed(2)}x`, x, groundY + 3)
   }
 
-  // 🐸 лягушка — всегда по центру экрана
+  // 🐸 Лягушка по центру
   if (frogSprite) {
-    const size = 80
+    const size = 60 // чуть меньше для плавности
     frogCtx.drawImage(
       frogSprite,
       viewCenter - size / 2,
@@ -978,9 +980,9 @@ function drawFrogScene(showCar = false) {
     )
   }
 
-  // 🚗 машина
+  // 🚗 Машина
   if (showCar && frogCarSprite) {
-    const size = 120
+    const size = 100
     frogCtx.drawImage(
       frogCarSprite,
       viewCenter - size / 2,
@@ -991,28 +993,21 @@ function drawFrogScene(showCar = false) {
   }
 }
 
-
-function scrollFrogToHatch(index, duration = 400) {
-  // Только ради лёгкой анимации перерисовки
-  const start = frogCurrentHatch
-  const target = index
+function scrollFrogToHatch(targetIndex, duration = 600) {
+  if (targetIndex >= FROG_HATCH_MULTS.length) targetIndex = FROG_HATCH_MULTS.length - 1
+  const startHatch = frogCurrentHatch
   const startTime = performance.now()
 
   return new Promise(resolve => {
-    function step(t) {
-      const k = Math.min(1, (t - startTime) / duration)
-      const ease = k * (2 - k)              // ease-out
-      const cur = start + (target - start) * ease
-
-      // временно используем дробный индекс для плавного смещения люков
-      const old = frogCurrentHatch
-      frogCurrentHatch = cur
+    function step(time) {
+      const k = Math.min(1, (time - startTime) / duration)
+      const ease = k * (2 - k) // ease-out
+      frogCurrentHatch = startHatch + (targetIndex - startHatch) * ease
       drawFrogScene(false)
-      frogCurrentHatch = target
 
-      if (k < 1) {
-        requestAnimationFrame(step)
-      } else {
+      if (k < 1) requestAnimationFrame(step)
+      else {
+        frogCurrentHatch = targetIndex
         drawFrogScene(false)
         resolve()
       }
@@ -1020,7 +1015,6 @@ function scrollFrogToHatch(index, duration = 400) {
     requestAnimationFrame(step)
   })
 }
-
 
 function updateFrogUI() {
 
@@ -2180,35 +2174,38 @@ async function frogStartBet() {
 
   await initFrogGraphics()
 
- frogBet = amount
-frogState = 'bet_placed'
-frogCurrentHatch = -1          // старт перед люком 0
-frogWinningHatch = 0
-frogAutoHatch = null
-
+  frogBet = amount
+  frogState = 'bet_placed'
+  frogCurrentHatch = -1 // старт левее первого люка
+  frogWinningHatch = 0 // безопасный люк 0
+  frogAutoHatch = null
 
   if (frogScrollEl) frogScrollEl.scrollLeft = 0
 
   updateFrogUI()
   drawFrogScene(false)
-  frogScrollEl.scrollLeft = 0
 }
 
 async function frogJump() {
   if (frogState !== 'bet_placed' && frogState !== 'running') return
 
+  // Максимум 1.15x почти всегда
   const nextIndex = frogCurrentHatch + 1
   if (nextIndex >= FROG_HATCH_MULTS.length) return
 
   frogState = 'running'
-  frogCurrentHatch = nextIndex
 
-  await scrollFrogToHatch(frogCurrentHatch)
+  // фиксируем шанс выигрыша: 1.15x
+  frogWinningHatch = 0
+
+  await scrollFrogToHatch(nextIndex)
   updateFrogUI()
   drawFrogScene(false)
 
-  if (frogWinningHatch >= 0 && frogCurrentHatch > frogWinningHatch) {
+  if (frogCurrentHatch > frogWinningHatch) {
     await frogDie()
+  } else {
+    frogState = 'bet_placed'
   }
 }
 
@@ -2409,6 +2406,7 @@ async function init() {
 
 
 init()
+
 
 
 
