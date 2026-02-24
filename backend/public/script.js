@@ -867,23 +867,21 @@ function loadImage(src) {
 }
 
 async function initFrogGraphics() {
-  if (!frogCanvas) return;
-  if (frogCtx) return;
+  if (!frogCanvas) return
+  if (frogCtx) return
 
-  frogCanvas.width = frogCanvas.clientWidth;
-  frogCanvas.height = frogCanvas.clientHeight;
-  frogCtx = frogCanvas.getContext('2d');
+  frogCanvas.width = frogCanvas.clientWidth
+  frogCanvas.height = frogCanvas.clientHeight
+  frogCtx = frogCanvas.getContext('2d')
 
   try {
-    frogBgImage = frogBgImage || await loadImage('fonfrogton.png');
+    frogBgImage = frogBgImage || await loadImage('fonfrogton.png')
   } catch {}
-
   try {
-    frogSprite = frogSprite || await loadImage('froggame.png');
+    frogSprite = frogSprite || await loadImage('froggame.png')
   } catch {}
-
   try {
-    frogCarSprite = frogCarSprite || await loadImage('Cartonfrog.png');
+    frogCarSprite = frogCarSprite || await loadImage('Cartonfrog.png')
   } catch {}
 }
 
@@ -2399,5 +2397,6 @@ async function init() {
 
 
 init()
+
 
 
