@@ -939,7 +939,7 @@ function drawFrogScene(showCar = false) {
   const groundY = getGroundY()
   const viewCenter = frogCanvas.width / 2
 
-  // позиция текущего люка в «мировых» координатах
+  // текущее положение люка в мире
   const curWorldX = getHatchX(frogCurrentHatch)
 
   // люки и множители
@@ -949,7 +949,7 @@ function drawFrogScene(showCar = false) {
 
   for (let i = 0; i < FROG_HATCH_MULTS.length; i++) {
     const hatchWorldX = getHatchX(i)
-    const x = viewCenter + (hatchWorldX - curWorldX)  // смещение относительно лягушки по центру
+    const x = viewCenter + (hatchWorldX - curWorldX)
 
     const mult = FROG_HATCH_MULTS[i]
     const safe = frogWinningHatch >= 0 && i <= frogWinningHatch
@@ -963,7 +963,7 @@ function drawFrogScene(showCar = false) {
     frogCtx.fillText(`${mult.toFixed(2)}x`, x, groundY + 3)
   }
 
-  // 🐸 лягушка - всегда по центру
+  // 🐸 лягушка — всегда по центру
   if (frogSprite) {
     const size = 80
     frogCtx.drawImage(
@@ -988,8 +988,7 @@ function drawFrogScene(showCar = false) {
   }
 }
 
-
-function scrollFrogToHatch(index, duration = 300) {
+function scrollFrogToHatch(index, duration = 400) {
   // Только ради лёгкой анимации перерисовки
   const start = frogCurrentHatch
   const target = index
@@ -2416,6 +2415,7 @@ async function init() {
 
 
 init()
+
 
 
 
