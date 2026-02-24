@@ -874,8 +874,15 @@ let frogCarSprite = null     // Cartonfrog.png
 async function initFrogGraphics() {
   if (!frogCanvas) return
 
-  frogCanvas.width = frogCanvas.clientWidth
-  frogCanvas.height = frogCanvas.clientHeight
+  const visibleW = frogCanvas.clientWidth || 400
+  const visibleH = frogCanvas.clientHeight || 400
+
+  const step = 260          // должен совпадать с getHatchX
+  const paddingLeft = 140
+  const totalWidth = paddingLeft + step * (FROG_HATCH_MULTS.length + 1)
+
+  frogCanvas.width = totalWidth          // ДЛИННЫЙ холст
+  frogCanvas.height = visibleH
 
   frogCtx = frogCanvas.getContext('2d')
 
@@ -894,7 +901,7 @@ async function initFrogGraphics() {
 
 function getHatchX(index) {
   const paddingLeft = 140
-  const step = 220
+  const step = 260
   return paddingLeft + index * step
 }
 
@@ -2551,6 +2558,7 @@ async function init() {
 
 
 init()
+
 
 
 
