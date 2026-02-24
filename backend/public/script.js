@@ -372,26 +372,6 @@ const WHEEL_DEPOSIT_TARGET = 0.5
 let freeWheelAvailable = false
 let wheelDepositProgressTon = 0
 
-// ===== FROGTON STATE =====
-const FROG_HATCH_MULTS = [
-  1.15, 1.3, 1.6, 2.0, 3.0,
-  5.0, 10.0, 15.0, 25.0, 100.0,
-]
-
-let frogState = 'idle'
-let frogBet = 0
-let frogCurrentHatch = -1    // -1 = старт у светофора
-let frogWinningHatch = -1
-let frogAutoHatch = null
-
-// анимация
-let frogJumpProgress = 0     // 0..1
-let frogAnimX = 0
-let frogIsJumping = false
-
-let frogCtx = null
-let frogSprite = null        // froggame.png
-let frogCarSprite = null     // Cartonfrog.png
 
 // ===== HELPERS =====
 function updateBalanceUI() {
@@ -2256,12 +2236,12 @@ async function frogStartBet() {
 
   frogBet = amount
 frogState = 'bet_placed'
-frogCurrentHatch = -1          // ещё не прыгали, стоим на spawnfprog
+frogCurrentHatch = -1
 frogWinningHatch = Math.floor(Math.random() * FROG_HATCH_MULTS.length)
 frogAutoHatch = null
-// эти две переменные больше не нужны:
-frogWorldX = undefined
 frogJumpProgress = 0
+frogIsJumping = false
+
 
 
 
@@ -2562,6 +2542,7 @@ async function init() {
 
 
 init()
+
 
 
 
