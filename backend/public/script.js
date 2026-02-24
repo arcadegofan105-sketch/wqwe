@@ -904,7 +904,7 @@ async function initFrogGraphics() {
 
 
 function getHatchX(index) {
-  const paddingLeft = 120
+  const paddingLeft = 60
   const step = 220
   return paddingLeft + index * step
 }
@@ -932,100 +932,92 @@ function clearFrogCanvas() {
 }
 
 function drawFrogScene(showCar = false) {
-
   if (!frogCtx || !frogCanvas) return
 
   clearFrogCanvas()
 
   const groundY = getGroundY()
-  const scroll = frogScrollEl?.scrollLeft || 0
+  const viewCenter = frogCanvas.width / 2
 
+  // позиция текущего люка в «мировых» координатах
+  const curWorldX = getHatchX(frogCurrentHatch)
 
-  // ⭐ стартовая позиция
-  let worldX
+  // люки и множители
+  frogCtx.font = '12px system-ui'
+  frogCtx.textAlign = 'center'
+  frogCtx.textBaseline = 'top'
 
-  if (frogCurrentHatch <= 0)
-    worldX = 120
-  else
-    worldX = getHatchX(frogCurrentHatch)
+  for (let i = 0; i < FROG_HATCH_MULTS.length; i++) {
+    const hatchWorldX = getHatchX(i)
+    const x = viewCenter + (hatchWorldX - curWorldX)  // смещение относительно лягушки по центру
 
+    const mult = FROG_HATCH_MULTS[i]
+    const safe = frogWinningHatch >= 0 && i <= frogWinningHatch
 
-  const x = worldX - scroll
+    frogCtx.fillStyle = safe ? 'rgba(22,163,74,0.85)' : 'rgba(148,163,184,0.7)'
+    const hatchWidth = 80
+    const hatchHeight = 20
+    frogCtx.fillRect(x - hatchWidth / 2, groundY, hatchWidth, hatchHeight)
 
+    frogCtx.fillStyle = '#0b1120'
+    frogCtx.fillText(`${mult.toFixed(2)}x`, x, groundY + 3)
+  }
 
-  // 🐸 Лягушка
+  // 🐸 лягушка - всегда по центру
   if (frogSprite) {
-
     const size = 80
-
     frogCtx.drawImage(
       frogSprite,
-      x - size/2,
+      viewCenter - size / 2,
       groundY - size - 10,
       size,
       size
     )
-
   }
 
-
-  // 🚗 Машина
+  // 🚗 машина
   if (showCar && frogCarSprite) {
-
     const size = 120
-
     frogCtx.drawImage(
       frogCarSprite,
-      x - size/2,
+      viewCenter - size / 2,
       groundY - size - 30,
       size,
       size
     )
-
   }
-
 }
 
-function scrollFrogToHatch(index, duration = 400) {
 
-  if (!frogScrollEl) return Promise.resolve()
-
-  const frogWorldX = getHatchX(index)
-
-  // ⭐ держим лягушку почти по центру
-  const target =
-    frogWorldX - frogScrollEl.clientWidth * 0.4
-
-  const start = frogScrollEl.scrollLeft
-
-  const diff = target - start
-
+function scrollFrogToHatch(index, duration = 300) {
+  // Только ради лёгкой анимации перерисовки
+  const start = frogCurrentHatch
+  const target = index
   const startTime = performance.now()
 
-
   return new Promise(resolve => {
-
     function step(t) {
+      const k = Math.min(1, (t - startTime) / duration)
+      const ease = k * (2 - k)              // ease-out
+      const cur = start + (target - start) * ease
 
-      const k = Math.min(1,(t-startTime)/duration)
-
-      frogScrollEl.scrollLeft =
-        start + diff * k
-
+      // временно используем дробный индекс для плавного смещения люков
+      const old = frogCurrentHatch
+      frogCurrentHatch = cur
       drawFrogScene(false)
+      frogCurrentHatch = target
 
-      if (k < 1)
+      if (k < 1) {
         requestAnimationFrame(step)
-      else
+      } else {
+        drawFrogScene(false)
         resolve()
-
+      }
     }
-
     requestAnimationFrame(step)
-
   })
-
 }
+
 
 function updateFrogUI() {
 
@@ -2186,10 +2178,11 @@ async function frogStartBet() {
   await initFrogGraphics()
 
   frogBet = amount
-  frogState = 'bet_placed'
-  frogCurrentHatch = 0
-  frogWinningHatch = Math.floor(Math.random() * FROG_HATCH_MULTS.length)
-  frogAutoHatch = null
+frogState = 'bet_placed'
+frogCurrentHatch = 0
+frogWinningHatch = 0        // максимум всегда 1.15x
+frogAutoHatch = null        // авто-вывод отключаем полностью
+
 
   const auto = Number(frogAutoInput?.value || 0)
   if (Number.isFinite(auto) && auto >= 1 && auto <= FROG_HATCH_MULTS.length) {
@@ -2207,9 +2200,7 @@ async function frogJump() {
   if (frogState !== 'bet_placed' && frogState !== 'running') return
 
   const nextIndex = frogCurrentHatch + 1
-  if (nextIndex >= FROG_HATCH_MULTS.length) {
-    return
-  }
+  if (nextIndex >= FROG_HATCH_MULTS.length) return
 
   frogState = 'running'
   frogCurrentHatch = nextIndex
@@ -2218,45 +2209,21 @@ async function frogJump() {
   updateFrogUI()
   drawFrogScene(false)
 
-  if (frogAutoHatch !== null && frogCurrentHatch === frogAutoHatch) {
-    await frogCashout()
-    return
-  }
+  // авто-кэшаута больше нет
 
   if (frogWinningHatch >= 0 && frogCurrentHatch > frogWinningHatch) {
     await frogDie()
   }
 }
 
+
 async function frogCashout() {
+  // в этой версии игры кэшаут всегда считается проигрышем
   if (frogState !== 'bet_placed' && frogState !== 'running') return
-  if (frogCurrentHatch < 0) {
-    alert('Сначала сделай хотя бы один прыжок')
-    return
-  }
 
-  const mult = FROG_HATCH_MULTS[frogCurrentHatch] || 1
-  const win = frogBet * mult
-
-  try {
-    const r = await apiPost('/crash/cashout', { amount: win })
-    balance = Number(r.newBalance ?? balance)
-    updateBalanceUI()
-  } catch (e) {
-    alert(e.message || 'Ошибка кэшаута')
-    return
-  }
-
-  frogState = 'cashed'
-  updateFrogUI()
-  drawFrogScene(false)
-  alert(`Вы забрали ${win.toFixed(2)} TON (${mult.toFixed(2)}x)`)
-
-  frogBet = 0
-  frogCurrentHatch = -1
-  frogWinningHatch = -1
-  frogAutoHatch = null
+  await frogDie()
 }
+
 
 async function frogDie() {
   frogState = 'dead'
@@ -2449,6 +2416,7 @@ async function init() {
 
 
 init()
+
 
 
 
