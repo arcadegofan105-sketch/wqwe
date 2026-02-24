@@ -1643,6 +1643,16 @@ body {
 }
 
 /* --- FROGTONRUN --- */
+.frog-game-area {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 10;   /* форма окна игры */
+  max-height: 520px;
+  border-radius: 28px;
+  overflow: hidden;
+  background: #020617;
+}
+
 /* длинный фон-трек */
 .frog-bg {
   display: block;
@@ -2906,6 +2916,7 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 }
+
 
 
 
