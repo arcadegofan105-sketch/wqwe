@@ -990,8 +990,11 @@ function drawFrogScene(showCar = false) {
   const h = frogCanvas.height
   const groundY = getGroundY()
 
-  // фон
   drawRoadBackground()
+
+  if (frogCurrentHatch < 0) {
+    drawTrafficLight()
+  }
 
   // люки + множители
   frogCtx.font = '12px system-ui'
@@ -1000,29 +1003,25 @@ function drawFrogScene(showCar = false) {
 
   for (let i = 0; i < FROG_HATCH_MULTS.length; i++) {
     const worldX = getHatchX(i)
-    const x = worldX - frogCameraOffset   // камера
-
+    const x = worldX - frogCameraOffset
     const mult = FROG_HATCH_MULTS[i]
+
     const isCurrent = Math.round(frogCurrentHatch) === i
-    const isSafe = frogWinningHatch >= 0 && i <= frogWinningHatch
 
     const hatchW = 64
     const hatchH = 24
     const hatchY = groundY - 26
 
     let baseColor = '#020617'
-    if (isSafe) baseColor = '#15803d'
     if (isCurrent) baseColor = '#4c1d95'
 
     const glowColor = isCurrent
-      ? 'rgba(168,85,247,0.9)'
-      : isSafe
-      ? 'rgba(34,197,94,0.8)'
-      : 'rgba(15,23,42,0.8)'
+      ? 'rgba(216,180,254,0.98)'   // неоновый фиолетовый
+      : 'rgba(15,23,42,0.9)'
 
     frogCtx.save()
     frogCtx.shadowColor = glowColor
-    frogCtx.shadowBlur = isCurrent ? 18 : isSafe ? 12 : 6
+    frogCtx.shadowBlur = isCurrent ? 22 : 8
 
     frogCtx.fillStyle = baseColor
     frogCtx.beginPath()
@@ -1052,7 +1051,7 @@ function drawFrogScene(showCar = false) {
     frogCtx.roundRect(x - labelW / 2, labelY, labelW, labelH, 8)
     frogCtx.fill()
 
-    frogCtx.fillStyle = isCurrent ? '#e9d5ff' : isSafe ? '#bbf7d0' : '#e5e7eb'
+    frogCtx.fillStyle = isCurrent ? '#f5f3ff' : '#e5e7eb'
     frogCtx.fillText(`${mult.toFixed(2)}x`, x, labelY + 2)
   }
 
@@ -2542,6 +2541,7 @@ async function init() {
 
 
 init()
+
 
 
 
