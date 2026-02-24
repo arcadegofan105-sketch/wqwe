@@ -381,7 +381,7 @@ const FROG_HATCH_MULTS = [
 
 let frogState = 'idle'          // 'idle' | 'bet_placed' | 'running' | 'dead' | 'cashed'
 let frogBet = 0
-let frogCurrentHatch = -1       // индекс текущего люка (0..9)
+let frogCurrentHatch = 0       // индекс текущего люка (0..9)
 let frogWinningHatch = -1       // последний безопасный люк (0..9)
 let frogAutoHatch = null        // для авто-кэшаута: индекс (0..9) или null
 
@@ -856,36 +856,49 @@ function escapeHtml(s) {
     .replaceAll("'", '&#039;')
 }
 
-
 // ===== FROGTON DRAW HELPERS =====
+
 function loadImage(src) {
   return new Promise((resolve, reject) => {
     const img = new Image()
+
     img.onload = () => resolve(img)
-    img.onerror = reject
+
+    img.onerror = () => {
+      console.error("Image load error:", src)
+      reject(src)
+    }
+
     img.src = src
   })
 }
 
+
 async function initFrogGraphics() {
+
   if (!frogCanvas) return
-  if (frogCtx) return
 
   frogCanvas.width = frogCanvas.clientWidth
   frogCanvas.height = frogCanvas.clientHeight
+
   frogCtx = frogCanvas.getContext('2d')
 
+  // загрузка изображений
   try {
-    frogBgImage = frogBgImage || await loadImage('fonfrogton.png')
-  } catch {}
+    frogSprite = await loadImage('froggame.png')
+  } catch(e){}
+
   try {
-    frogSprite = frogSprite || await loadImage('froggame.png')
-  } catch {}
-  try {
-    frogCarSprite = frogCarSprite || await loadImage('Cartonfrog.png')
-  } catch {}
-  
-drawFrogScene()   // ← ВАЖНО
+    frogCarSprite = await loadImage('Cartonfrog.png')
+  } catch(e){}
+
+  // стартовая позиция
+  if (frogCurrentHatch < 0) {
+    frogCurrentHatch = 0
+  }
+
+  drawFrogScene(false)
+
 }
 
 
@@ -896,162 +909,191 @@ function getHatchX(index) {
   return paddingLeft + index * step
 }
 
+
+
 function getGroundY() {
   if (!frogCanvas) return 0
   return frogCanvas.height * 0.65
 }
 
+
+
 function clearFrogCanvas() {
+
   if (!frogCtx || !frogCanvas) return
-  frogCtx.clearRect(0, 0, frogCanvas.width, frogCanvas.height)
+
+  frogCtx.clearRect(
+    0,
+    0,
+    frogCanvas.width,
+    frogCanvas.height
+  )
+
 }
 
+
+
 function drawFrogScene(showCar = false) {
+
   if (!frogCtx || !frogCanvas) return
+
   clearFrogCanvas()
 
   const groundY = getGroundY()
 
-  frogCtx.font = '12px system-ui'
-  frogCtx.textAlign = 'center'
-  frogCtx.textBaseline = 'top'
+  const scroll = frogScrollEl?.scrollLeft || 0
 
-  for (let i = 0; i < FROG_HATCH_MULTS.length; i++) {
-    const x = getHatchX(i) - (frogScrollEl?.scrollLeft || 0)
-    const safe = frogWinningHatch >= 0 && i <= frogWinningHatch
+  const x = getHatchX(frogCurrentHatch) - scroll
 
-    frogCtx.fillStyle = safe ? 'rgba(22,163,74,0.85)' : 'rgba(148,163,184,0.7)'
-    const hatchWidth = 80
-    const hatchHeight = 20
-    frogCtx.fillRect(x - hatchWidth / 2, groundY, hatchWidth, hatchHeight)
 
-    const mult = FROG_HATCH_MULTS[i]
-    frogCtx.fillStyle = '#0b1120'
-    frogCtx.fillText(`${mult.toFixed(2)}x`, x, groundY + 3)
-  }
+  // ===== ЛЯГУШКА =====
+  if (frogSprite && frogCurrentHatch >= 0) {
 
-  if (frogCurrentHatch >= 0 && frogSprite) {
-    const x = getHatchX(frogCurrentHatch) - (frogScrollEl?.scrollLeft || 0)
-    const ground = groundY
-    const size = 80
+    const size = 130
 
     frogCtx.drawImage(
       frogSprite,
-      x - size / 2,
-      ground - size - 8,
+      x - size/2,
+      groundY - size - 15,
       size,
       size
     )
+
   }
 
+
+  // ===== МАШИНА (CRASH) =====
   if (showCar && frogCarSprite && frogCurrentHatch >= 0) {
-    const x = getHatchX(frogCurrentHatch) - (frogScrollEl?.scrollLeft || 0)
-    const size = 110
+
+    const size = 200
+
     frogCtx.drawImage(
       frogCarSprite,
-      x - size / 2,
+      x - size/2,
       groundY - size - 40,
       size,
       size
     )
+
   }
+
 }
 
+
+
 function scrollFrogToHatch(index, duration = 400) {
+
   if (!frogScrollEl) return Promise.resolve()
+
   const x = getHatchX(index) - frogScrollEl.clientWidth / 2
+
   const target = Math.max(0, x)
+
   const start = frogScrollEl.scrollLeft
+
   const diff = target - start
+
   const startTime = performance.now()
 
+
   return new Promise(resolve => {
+
     function step(t) {
+
       const k = Math.min(1, (t - startTime) / duration)
+
       frogScrollEl.scrollLeft = start + diff * k
+
+      drawFrogScene(false)
+
       if (k < 1) {
         requestAnimationFrame(step)
       } else {
         resolve()
       }
+
     }
+
     requestAnimationFrame(step)
+
   })
+
 }
+
+
 
 function updateFrogUI() {
+
   if (frogCurrentMultEl) {
+
     if (frogCurrentHatch >= 0) {
+
       const mult = FROG_HATCH_MULTS[frogCurrentHatch] || 1
-      frogCurrentMultEl.textContent = `${mult.toFixed(2)}x`
+
+      frogCurrentMultEl.textContent =
+        `${mult.toFixed(2)}x`
+
     } else {
-      frogCurrentMultEl.textContent = '1.00x'
+
+      frogCurrentMultEl.textContent =
+        '1.00x'
+
     }
+
   }
+
+
 
   if (frogPotentialWinEl) {
+
     if (frogCurrentHatch >= 0 && frogBet > 0) {
+
       const mult = FROG_HATCH_MULTS[frogCurrentHatch] || 1
+
       const win = frogBet * mult
-      frogPotentialWinEl.textContent = `${win.toFixed(2)} TON`
+
+      frogPotentialWinEl.textContent =
+        `${win.toFixed(2)} TON`
+
     } else {
-      frogPotentialWinEl.textContent = '—'
+
+      frogPotentialWinEl.textContent =
+        '—'
+
     }
+
   }
+
+
 
   if (!frogMainActionBtn) return
-  if (frogState === 'idle' || frogState === 'cashed' || frogState === 'dead') {
-    frogMainActionBtn.textContent = 'Сделать ставку'
-    frogMainActionBtn.disabled = false
-  } else if (frogState === 'bet_placed' || frogState === 'running') {
-    frogMainActionBtn.textContent = 'Играть (прыжок)'
-    frogMainActionBtn.disabled = false
-  }
-}
 
-// ===== REWARDS UI =====
-function renderRewards(items) {
-  if (!rewardsListEl) return
-  if (!Array.isArray(items) || items.length === 0) {
-    rewardsListEl.innerHTML = `<div class="bonus-card"><div class="bonus-title">Нет наград</div></div>`
-    return
+
+  if (
+    frogState === 'idle' ||
+    frogState === 'cashed' ||
+    frogState === 'dead'
+  ) {
+
+    frogMainActionBtn.textContent =
+      'Сделать ставку'
+
+    frogMainActionBtn.disabled = false
+
   }
 
-  rewardsListEl.innerHTML = items.map(it => {
-    const key = String(it.key || '')
-    const title = escapeHtml(it.title || '')
-    const desc = escapeHtml(it.desc || '')
-    const status = String(it.status || 'locked')
+  else if (
+    frogState === 'bet_placed' ||
+    frogState === 'running'
+  ) {
 
-    let text = 'Недоступно'
-    if (status === 'available') text = 'Получить'
-    if (status === 'claimed') text = 'Получено'
+    frogMainActionBtn.textContent =
+      'Играть (прыжок)'
 
-    const disabled = status !== 'available' ? 'disabled' : ''
+    frogMainActionBtn.disabled = false
 
-    let progress = ''
-    if (key === 'invite') {
-      progress = `<div class="bonus-text">Прогресс: ${Number(it.claimed || 0)}/${Number(it.max || 5)} • Приглашено: ${Number(it.invited || 0)}</div>`
-    }
+  }
 
-    return `
-      <div class="bonus-card" data-reward-key="${escapeHtml(key)}">
-        <div class="bonus-title">${title}</div>
-        <div class="bonus-text">${desc}</div>
-        ${progress}
-        <button class="action-btn action-blue reward-claim-btn" type="button" ${disabled}>
-          ${text}
-        </button>
-      </div>
-    `
-  }).join('')
-}
-
-async function loadRewards() {
-  if (!rewardsListEl) return
-  rewardsListEl.innerHTML = `<div class="bonus-card"><div class="bonus-title">Загрузка...</div></div>`
-  const r = await rewardsListApi()
-  renderRewards(r.items || [])
 }
 
 // ===== ADMIN RENDER =====
@@ -2401,6 +2443,7 @@ async function init() {
 
 
 init()
+
 
 
 
