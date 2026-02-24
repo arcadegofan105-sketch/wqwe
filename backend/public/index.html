@@ -40,21 +40,23 @@
         <!-- Главная: вход в режимы -->
         <section id="screen-home" class="screen active">
           <div class="screen-title">Главная</div>
-          <div class="screen-subtitle">Выберите режим: Краш, Колесо или Кейсы.</div>
+          <div class="screen-subtitle">Выберите режим: Краш, Колесо, Frog или Кейсы.</div>
 
-          <!-- Карточки КРАШ и КОЛЕСО с изображениями -->
+          <!-- Карточки КОЛЕСО и FROG -->
           <div class="info-row info-row-games">
-  <button class="game-card game-card-wheel" data-home-target="wheel" type="button">
-    <img src="colesocard.png" alt="Колесо" class="game-card-image" />
-  </button>
+            <button class="game-card game-card-wheel" data-home-target="wheel" type="button">
+              <img src="colesocard.png" alt="Колесо" class="game-card-image" />
+            </button>
 
-  <button class="game-card game-card-frog" data-home-target="frog" type="button">
-  <div class="game-card-image frog-card-image"></div>
-</button>
+            <button class="game-card game-card-frog" data-home-target="frog" type="button">
+              <div class="game-card-image frog-card-image"></div>
+            </button>
 
-</div>
-
-</section>
+            <button class="game-card game-card-cases" data-home-target="cases" type="button">
+              <div class="game-card-image cases-card-image"></div>
+            </button>
+          </div>
+        </section>
 
         <!-- Экран КОЛЕСО -->
         <section id="screen-wheel" class="screen">
@@ -74,11 +76,10 @@
             </div>
 
             <div class="wheel-center">
-  <button id="spin-button" class="spin-button">
-    <span>Крутить</span>
-  </button>
-</div>
-
+              <button id="spin-button" class="spin-button">
+                <span>Крутить</span>
+              </button>
+            </div>
           </div>
 
           <div class="info-row">
@@ -167,7 +168,68 @@
           </div>
         </section>
 
-        <!-- Кейсы под колесом (на главном экране) -->
+        <!-- Экран FROGTONRUN -->
+        <section id="screen-frog" class="screen">
+          <div class="crash-container frog-container-tight">
+            <div class="crash-game-area frog-game-area">
+              <canvas id="frog-canvas"></canvas>
+            </div>
+
+            <div class="crash-actions-row">
+              <button id="frog-main-action" class="crash-main-btn" type="button">
+                Сделать ставку
+              </button>
+              <button id="frog-cashout-btn" class="crash-secondary-btn" type="button">
+                Кэшаут
+              </button>
+            </div>
+
+            <div class="crash-panel">
+              <div class="crash-bet-block">
+                <div class="crash-bet-label">Ставка (TON)</div>
+                <div class="crash-bet-input-row">
+                  <input
+                    type="number"
+                    id="frog-bet-input"
+                    class="crash-bet-input"
+                    placeholder="1.00"
+                    min="0.1"
+                    step="0.1"
+                    value="1"
+                  />
+                </div>
+              </div>
+
+              <div class="crash-auto-block">
+                <div class="crash-bet-label">Авто-вывод (люк)</div>
+                <div class="crash-bet-input-row">
+                  <input
+                    type="number"
+                    id="frog-auto-input"
+                    class="crash-bet-input"
+                    placeholder="Например: 4"
+                    min="1"
+                    max="10"
+                    step="1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="crash-info">
+              <div class="crash-info-item">
+                <span class="crash-info-label">Текущий множитель:</span>
+                <span class="crash-info-value" id="frog-current-mult">1.00x</span>
+              </div>
+              <div class="crash-info-item">
+                <span class="crash-info-label">Потенциальный выигрыш:</span>
+                <span class="crash-info-value" id="frog-potential-win">—</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Экран КЕЙСЫ: сетка карточек -->
         <section id="screen-cases" class="screen">
           <div class="screen-title">🎁 Кейсы</div>
           <div class="screen-subtitle">
@@ -220,81 +282,16 @@
           </div>
         </section>
 
-        <!-- Экран FROGTONRUN (НОВЫЙ) -->
-<section id="screen-frog" class="screen">
-  <div class="crash-container frog-container-tight">
-
-    <div class="crash-game-area frog-game-area">
-  <canvas id="frog-canvas"></canvas>
-</div>
-
-
-
-    <div class="crash-actions-row">
-  <button id="frog-main-action" class="crash-main-btn" type="button">
-    Сделать ставку
-  </button>
-  <button id="frog-cashout-btn" class="crash-secondary-btn" type="button">
-    Кэшаут
-  </button>
-</div>
-
-
-    <div class="crash-panel">
-      <div class="crash-bet-block">
-        <div class="crash-bet-label">Ставка (TON)</div>
-        <div class="crash-bet-input-row">
-          <input
-            type="number"
-            id="frog-bet-input"
-            class="crash-bet-input"
-            placeholder="1.00"
-            min="0.1"
-            step="0.1"
-            value="1"
-          />
-        </div>
-      </div>
-
-      <div class="crash-auto-block">
-        <div class="crash-bet-label">Авто-вывод (люк)</div>
-        <div class="crash-bet-input-row">
-          <input
-            type="number"
-            id="frog-auto-input"
-            class="crash-bet-input"
-            placeholder="Например: 4"
-            min="1"
-            max="10"
-            step="1"
-          />
-        </div>
-      </div>
-    </div>
-
-    <div class="crash-info">
-      <div class="crash-info-item">
-        <span class="crash-info-label">Текущий множитель:</span>
-        <span class="crash-info-value" id="frog-current-mult">1.00x</span>
-      </div>
-      <div class="crash-info-item">
-        <span class="crash-info-label">Потенциальный выигрыш:</span>
-        <span class="crash-info-value" id="frog-potential-win">—</span>
-      </div>
-    </div>
-  </div>
-</section>
-
         <!-- Экран КРАШ -->
         <section id="screen-crash" class="screen">
           <div class="crash-container">
             <div class="crash-game-area">
-               <!-- ФОН (только для crash) -->
-  <div class="crash-bg">
-    <video class="crash-bg-video" autoplay muted loop playsinline preload="auto">
-      <source src="foncrash.MP4" type="video/mp4">
-    </video>
-  </div>
+              <!-- ФОН (только для crash) -->
+              <div class="crash-bg">
+                <video class="crash-bg-video" autoplay muted loop playsinline preload="auto">
+                  <source src="foncrash.MP4" type="video/mp4" />
+                </video>
+              </div>
               <div class="crash-stars crash-stars-back"></div>
               <div class="crash-stars crash-stars-front"></div>
 
@@ -347,14 +344,6 @@
                 <span class="crash-info-value" id="crash-potential-win">—</span>
               </div>
             </div>
-          </div>
-        </section>
-
-        <!-- Экран КЕЙСЫ (заглушка, без сетки) -->
-        <section id="screen-cases" class="screen">
-          <div class="screen-title">🎁 Кейсы</div>
-          <div class="screen-subtitle">
-            Кейсы доступны на главном экране.
           </div>
         </section>
 
@@ -412,38 +401,37 @@
           </div>
 
           <button class="action-btn action-blue" id="invite-copy-btn" type="button">
-            Скопировать ссылку 
+            Скопировать ссылку
           </button>
         </section>
 
         <!-- Экран БОНУСЫ -->
         <section id="screen-bonus" class="screen">
-  <div class="screen-title">Бонусы и промокоды</div>
-  <div class="screen-subtitle">
-    Введите промокод, чтобы получить бонус или скидку.
-  </div>
+          <div class="screen-title">Бонусы и промокоды</div>
+          <div class="screen-subtitle">
+            Введите промокод, чтобы получить бонус или скидку.
+          </div>
 
-  <div class="promo-block">
-    <input id="promo-input" type="text" placeholder="Введите промокод" />
-    <button id="promo-apply">Активировать</button>
-  </div>
+          <div class="promo-block">
+            <input id="promo-input" type="text" placeholder="Введите промокод" />
+            <button id="promo-apply">Активировать</button>
+          </div>
 
-  <div class="bonus-card">
-    <div class="bonus-title">Раздел промокоды</div>
-    <div class="bonus-text">
-      В данном разделе можно будет ввести промокод, промокоды будут публиковаться в тг‑канале.
-    </div>
-  </div>
+          <div class="bonus-card">
+            <div class="bonus-title">Раздел промокоды</div>
+            <div class="bonus-text">
+              В данном разделе можно будет ввести промокод, промокоды будут публиковаться в тг‑канале.
+            </div>
+          </div>
 
-  <!-- Награды за активность (бывший раздел Награды) -->
-  <div id="rewards-list" class="rewards-list">
-    <div class="bonus-card">
-      <div class="bonus-title">Загрузка...</div>
-      <div class="bonus-text">Получаем список наград</div>
-    </div>
-  </div>
-</section>
-
+          <!-- Награды за активность -->
+          <div id="rewards-list" class="rewards-list">
+            <div class="bonus-card">
+              <div class="bonus-title">Загрузка...</div>
+              <div class="bonus-text">Получаем список наград</div>
+            </div>
+          </div>
+        </section>
 
         <!-- Экран ПРОФИЛЬ -->
         <section id="screen-profile" class="screen">
@@ -589,7 +577,6 @@
       </main>
 
       <nav class="bottom-nav">
-
         <button class="nav-btn" data-target="invite">
           <span class="nav-icon">
             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -657,29 +644,29 @@
         </button>
       </nav>
 
-      <!-- Модалки -->
+      <!-- Модалка приза -->
       <div id="prize-modal" class="modal">
-  <div class="modal-content">
-    <div class="modal-prize-emoji" id="modal-prize-emoji">🧸</div>
-    <div class="modal-title">Поздравляем!</div>
-    <div class="modal-text">
-      Вы выиграли <span id="modal-prize-name">Мишка</span>
-    </div>
-    <div class="modal-price">
-      Стоимость: <span id="modal-prize-price">15</span> TON
-    </div>
-    <div class="modal-buttons">
-      <button id="modalSellBtn" class="modal-btn modal-btn-sell" type="button">
-        Продать
-      </button>
-      <button id="modalKeepBtn" class="modal-btn modal-btn-keep" type="button">
-        В инвентарь
-      </button>
-    </div>
-  </div>
-</div>
+        <div class="modal-content">
+          <div class="modal-prize-emoji" id="modal-prize-emoji">🧸</div>
+          <div class="modal-title">Поздравляем!</div>
+          <div class="modal-text">
+            Вы выиграли <span id="modal-prize-name">Мишка</span>
+          </div>
+          <div class="modal-price">
+            Стоимость: <span id="modal-prize-price">15</span> TON
+          </div>
+          <div class="modal-buttons">
+            <button id="modalSellBtn" class="modal-btn modal-btn-sell" type="button">
+              Продать
+            </button>
+            <button id="modalKeepBtn" class="modal-btn modal-btn-keep" type="button">
+              В инвентарь
+            </button>
+          </div>
+        </div>
+      </div>
 
-
+      <!-- Модалка вывода -->
       <div id="withdraw-modal" class="modal">
         <div class="modal-content">
           <div class="modal-title">Вывод TON</div>
@@ -710,6 +697,7 @@
         </div>
       </div>
 
+      <!-- Модалка депозита -->
       <div id="deposit-modal" class="modal">
         <div class="modal-content">
           <div class="modal-title">Пополнение баланса</div>
@@ -757,79 +745,28 @@
     </div>
 
     <!-- CASE OPEN ANIMATION OVERLAY -->
-<div id="case-anim-overlay" class="case-anim-overlay">
-  <div class="case-anim-window">
-    <div class="case-anim-track" id="case-anim-track"></div>
-    <div class="case-anim-pointer case-anim-pointer-top"></div>
-<div class="case-anim-pointer-line"></div>
-<div class="case-anim-pointer case-anim-pointer-bottom"></div>
+    <div id="case-anim-overlay" class="case-anim-overlay">
+      <div class="case-anim-window">
+        <div class="case-anim-track" id="case-anim-track"></div>
+        <div class="case-anim-pointer case-anim-pointer-top"></div>
+        <div class="case-anim-pointer-line"></div>
+        <div class="case-anim-pointer case-anim-pointer-bottom"></div>
+      </div>
+    </div>
 
+    <!-- Видео-ракета (рисуем на canvas, сам элемент скрыт) -->
+    <video
+      id="rocket-video"
+      src="rocket.mp4"
+      muted
+      playsinline
+      loop
+      preload="auto"
+      style="display:none"
+    ></video>
 
-
-  </div>
-</div>
-
-<!-- Видео-ракета (рисуем на canvas, сам элемент скрыт) -->
-<video
-  id="rocket-video"
-  src="rocket.mp4"
-  muted
-  playsinline
-  loop
-  preload="auto"
-  style="display:none"
-></video>
-
-    
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-<script src="script.js"></script>
-
-
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <script src="script.js"></script>
   </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
