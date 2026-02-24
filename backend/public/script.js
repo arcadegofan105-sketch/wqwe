@@ -874,34 +874,23 @@ let frogCarSprite = null     // Cartonfrog.png
 async function initFrogGraphics() {
   if (!frogCanvas) return
 
-  const visibleW = frogCanvas.clientWidth || 400
-  const visibleH = frogCanvas.clientHeight || 400
-
-  const step = 260          // должен совпадать с getHatchX
-  const paddingLeft = 140
-  const totalWidth = paddingLeft + step * (FROG_HATCH_MULTS.length + 1)
-
-  frogCanvas.width = totalWidth          // ДЛИННЫЙ холст
-  frogCanvas.height = visibleH
+  frogCanvas.width = frogCanvas.clientWidth
+  frogCanvas.height = frogCanvas.clientHeight
 
   frogCtx = frogCanvas.getContext('2d')
 
-  try {
-    frogSprite = await loadImage('froggame.png')
-  } catch (e) {}
-
-  try {
-    frogCarSprite = await loadImage('Cartonfrog.png')
-  } catch (e) {}
+  try { frogSprite = await loadImage('froggame.png') } catch (e) {}
+  try { frogCarSprite = await loadImage('Cartonfrog.png') } catch (e) {}
 
   drawFrogScene(false)
 }
 
+
 // --- geometry & background ---
 
 function getHatchX(index) {
-  const paddingLeft = 140
-  const step = 260
+  const paddingLeft = 120
+  const step = 90
   return paddingLeft + index * step
 }
 
@@ -996,8 +985,8 @@ function drawFrogScene(showCar = false) {
   clearFrogCanvas()
 
   const w = frogCanvas.width
+  const h = frogCanvas.height
   const groundY = getGroundY()
-  const scroll = frogScrollEl?.scrollLeft || 0
 
   drawRoadBackground()
 
@@ -1011,31 +1000,28 @@ function drawFrogScene(showCar = false) {
   frogCtx.textBaseline = 'top'
 
   for (let i = 0; i < FROG_HATCH_MULTS.length; i++) {
-    const xWorld = getHatchX(i)
-    const x = xWorld - scroll
+    const x = getHatchX(i)
     const mult = FROG_HATCH_MULTS[i]
-
     const isCurrent = Math.round(frogCurrentHatch) === i
     const isSafe = frogWinningHatch >= 0 && i <= frogWinningHatch
 
-    const hatchW = 76
-    const hatchH = 26
-    const hatchY = groundY - 30
+    const hatchW = 64
+    const hatchH = 24
+    const hatchY = groundY - 26
 
-    // фон плитки
-    let baseColor = '#111827'
+    let baseColor = '#020617'
     if (isSafe) baseColor = '#15803d'
     if (isCurrent) baseColor = '#4c1d95'
 
     const glowColor = isCurrent
-      ? 'rgba(168,85,247,0.8)'
+      ? 'rgba(168,85,247,0.9)'
       : isSafe
-      ? 'rgba(34,197,94,0.7)'
+      ? 'rgba(34,197,94,0.8)'
       : 'rgba(15,23,42,0.8)'
 
     frogCtx.save()
     frogCtx.shadowColor = glowColor
-    frogCtx.shadowBlur = isCurrent ? 24 : isSafe ? 14 : 8
+    frogCtx.shadowBlur = isCurrent ? 18 : isSafe ? 12 : 6
 
     frogCtx.fillStyle = baseColor
     frogCtx.beginPath()
@@ -1043,37 +1029,35 @@ function drawFrogScene(showCar = false) {
     frogCtx.fill()
     frogCtx.restore()
 
-    // овальное отверстие
     frogCtx.fillStyle = '#020617'
     frogCtx.beginPath()
     frogCtx.ellipse(
       x,
-      hatchY + hatchH / 2 + 2,
-      hatchW * 0.32,
-      hatchH * 0.28,
+      hatchY + hatchH / 2 + 1,
+      hatchW * 0.3,
+      hatchH * 0.26,
       0,
       0,
       Math.PI * 2
     )
     frogCtx.fill()
 
-    // табличка с множителем
-    const labelW = 60
-    const labelH = 18
-    const labelY = groundY + 6
+    const labelW = 56
+    const labelH = 16
+    const labelY = groundY + 4
 
-    frogCtx.fillStyle = 'rgba(15,23,42,0.95)'
+    frogCtx.fillStyle = 'rgba(15,23,42,0.96)'
     frogCtx.beginPath()
     frogCtx.roundRect(x - labelW / 2, labelY, labelW, labelH, 8)
     frogCtx.fill()
 
     frogCtx.fillStyle = isCurrent ? '#e9d5ff' : isSafe ? '#bbf7d0' : '#e5e7eb'
-    frogCtx.fillText(`${mult.toFixed(2)}x`, x, labelY + 3)
+    frogCtx.fillText(`${mult.toFixed(2)}x`, x, labelY + 2)
   }
 
   // лягушка
   if (frogSprite) {
-    const size = 82
+    const size = 80
     let x
 
     if (frogCurrentHatch < 0) {
@@ -1081,17 +1065,17 @@ function drawFrogScene(showCar = false) {
     } else if (frogIsJumping) {
       x = frogAnimX
     } else {
-      x = getHatchX(frogCurrentHatch) - scroll
+      x = getHatchX(frogCurrentHatch)
     }
 
     const jumpOffset = frogIsJumping
-      ? Math.sin(Math.PI * frogJumpProgress) * 20
+      ? Math.sin(Math.PI * frogJumpProgress) * 18
       : 0
 
     frogCtx.drawImage(
       frogSprite,
       x - size / 2,
-      groundY - size - 18 - jumpOffset,
+      groundY - size - 16 - jumpOffset,
       size,
       size
     )
@@ -1099,15 +1083,13 @@ function drawFrogScene(showCar = false) {
 
   // машина
   if (showCar && frogCarSprite && frogCurrentHatch >= 0) {
-    const size = 120
-    const x = (frogIsJumping
-      ? frogAnimX
-      : getHatchX(frogCurrentHatch) - scroll)
+    const size = 115
+    const x = frogIsJumping ? frogAnimX : getHatchX(frogCurrentHatch)
 
     frogCtx.drawImage(
       frogCarSprite,
       x - size / 2,
-      groundY - size - 44,
+      groundY - size - 40,
       size,
       size
     )
@@ -2263,7 +2245,7 @@ async function frogJump() {
 
     const w = frogCanvas.width
     const startX = w * 0.22
-    const endX = getHatchX(targetIndex) - (frogScrollEl?.scrollLeft || 0)
+    const endX = getHatchX(targetIndex)
 
     const duration = 500
     const startTime = performance.now()
@@ -2286,12 +2268,6 @@ async function frogJump() {
           frogIsJumping = false
           frogJumpProgress = 0
           frogCurrentHatch = targetIndex
-
-          if (frogScrollEl) {
-            const targetScroll = getHatchX(frogCurrentHatch) - frogScrollEl.clientWidth / 2
-            frogScrollEl.scrollLeft = Math.max(0, targetScroll)
-          }
-
           drawFrogScene(false)
           resolve()
         }
@@ -2301,17 +2277,17 @@ async function frogJump() {
 
     updateFrogUI()
     return
-  } // ← ЭТОЙ СКОБКИ НЕ ХВАТАЛО
+  }
 
-  // последующие прыжки: от люка к люку
+  // следующие прыжки: от люка к люку
   const fromIndex = frogCurrentHatch
   const toIndex = frogCurrentHatch + 1
   if (toIndex >= FROG_HATCH_MULTS.length) return
 
   frogState = 'running'
 
-  const startX = getHatchX(fromIndex) - (frogScrollEl?.scrollLeft || 0)
-  const endX   = getHatchX(toIndex)   - (frogScrollEl?.scrollLeft || 0)
+  const startX = getHatchX(fromIndex)
+  const endX = getHatchX(toIndex)
   const duration = 500
   const startTime = performance.now()
 
@@ -2333,12 +2309,6 @@ async function frogJump() {
         frogIsJumping = false
         frogJumpProgress = 0
         frogCurrentHatch = toIndex
-
-        if (frogScrollEl) {
-          const targetScroll = getHatchX(frogCurrentHatch) - frogScrollEl.clientWidth / 2
-          frogScrollEl.scrollLeft = Math.max(0, targetScroll)
-        }
-
         drawFrogScene(false)
         resolve()
       }
@@ -2357,6 +2327,7 @@ async function frogJump() {
     await frogDie()
   }
 }
+
 
 
 async function frogCashout() {
@@ -2558,6 +2529,7 @@ async function init() {
 
 
 init()
+
 
 
 
