@@ -381,7 +381,7 @@ const FROG_HATCH_MULTS = [
 
 let frogState = 'idle'          // 'idle' | 'bet_placed' | 'running' | 'dead' | 'cashed'
 let frogBet = 0
-let frogCurrentHatch = 0       // индекс текущего люка (0..9)
+let frogCurrentHatch = -1       // индекс текущего люка (0..9)
 let frogWinningHatch = -1       // последний безопасный люк (0..9)
 let frogAutoHatch = null        // для авто-кэшаута: индекс (0..9) или null
 
@@ -2178,9 +2178,10 @@ async function frogStartBet() {
 
   frogBet = amount
 frogState = 'bet_placed'
-frogCurrentHatch = 0
-frogWinningHatch = 0        // максимум всегда 1.15x
-frogAutoHatch = null        // авто-вывод отключаем полностью
+frogCurrentHatch = -1       // перед первым люком
+frogWinningHatch = 0        // максимум 1.15x
+frogAutoHatch = null
+
 
 
   const auto = Number(frogAutoInput?.value || 0)
@@ -2415,6 +2416,7 @@ async function init() {
 
 
 init()
+
 
 
 
