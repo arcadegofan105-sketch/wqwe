@@ -1017,26 +1017,29 @@ function scrollFrogToHatch(targetIndex, duration = 600) {
 }
 
 function updateFrogUI() {
-
-  if (frogCurrentMultEl) {
-
-    if (frogCurrentHatch >= 0) {
-
-      const mult = FROG_HATCH_MULTS[frogCurrentHatch] || 1
-
-      frogCurrentMultEl.textContent =
-        `${mult.toFixed(2)}x`
-
-    } else {
-
-      frogCurrentMultEl.textContent =
-        '1.00x'
-
-    }
-
+  if (!frogMainActionBtn) return
+  if (frogState === 'idle' || frogState === 'cashed' || frogState === 'dead') {
+    frogMainActionBtn.textContent = 'Сделать ставку'
+    frogMainActionBtn.disabled = false
+    frogCashoutBtn.disabled = true
+  } else if (frogState === 'bet_placed' || frogState === 'running') {
+    frogMainActionBtn.textContent = 'Играть (прыжок)'
+    frogMainActionBtn.disabled = false
+    frogCashoutBtn.disabled = false
   }
 
+  // обновление множителя и потенциального выигрыша
+  if (frogCurrentMultEl) {
+    const mult = FROG_HATCH_MULTS[Math.min(Math.floor(frogCurrentHatch), FROG_HATCH_MULTS.length - 1)] || 1
+    frogCurrentMultEl.textContent = `${mult.toFixed(2)}x`
+  }
 
+  if (frogPotentialWinEl) {
+    const mult = FROG_HATCH_MULTS[Math.min(Math.floor(frogCurrentHatch), FROG_HATCH_MULTS.length - 1)] || 1
+    const win = frogBet * mult
+    frogPotentialWinEl.textContent = frogBet > 0 ? `${win.toFixed(2)} TON` : '—'
+  }
+}
 
   if (frogPotentialWinEl) {
 
@@ -2425,6 +2428,7 @@ async function init() {
 
 
 init()
+
 
 
 
