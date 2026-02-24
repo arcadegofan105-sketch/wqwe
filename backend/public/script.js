@@ -860,6 +860,8 @@ let frogBet = 0
 let frogCurrentHatch = -1    // -1 = старт у светофора
 let frogWinningHatch = -1
 let frogAutoHatch = null
+let frogCameraOffset = 0    // смещение дороги влево/вправо
+
 
 let frogJumpProgress = 0     // 0..1
 let frogAnimX = 0
@@ -988,11 +990,8 @@ function drawFrogScene(showCar = false) {
   const h = frogCanvas.height
   const groundY = getGroundY()
 
+  // фон
   drawRoadBackground()
-
-  if (frogCurrentHatch < 0) {
-    drawTrafficLight()
-  }
 
   // люки + множители
   frogCtx.font = '12px system-ui'
@@ -1000,7 +999,9 @@ function drawFrogScene(showCar = false) {
   frogCtx.textBaseline = 'top'
 
   for (let i = 0; i < FROG_HATCH_MULTS.length; i++) {
-    const x = getHatchX(i)
+    const worldX = getHatchX(i)
+    const x = worldX - frogCameraOffset   // камера
+
     const mult = FROG_HATCH_MULTS[i]
     const isCurrent = Math.round(frogCurrentHatch) === i
     const isSafe = frogWinningHatch >= 0 && i <= frogWinningHatch
@@ -1065,7 +1066,8 @@ function drawFrogScene(showCar = false) {
     } else if (frogIsJumping) {
       x = frogAnimX
     } else {
-      x = getHatchX(frogCurrentHatch)
+      const worldX = getHatchX(frogCurrentHatch)
+      x = worldX - frogCameraOffset
     }
 
     const jumpOffset = frogIsJumping
@@ -1084,7 +1086,8 @@ function drawFrogScene(showCar = false) {
   // машина
   if (showCar && frogCarSprite && frogCurrentHatch >= 0) {
     const size = 115
-    const x = frogIsJumping ? frogAnimX : getHatchX(frogCurrentHatch)
+    const worldX = getHatchX(frogCurrentHatch)
+    const x = (frogIsJumping ? frogAnimX : worldX - frogCameraOffset)
 
     frogCtx.drawImage(
       frogCarSprite,
@@ -1095,6 +1098,7 @@ function drawFrogScene(showCar = false) {
     )
   }
 }
+
 
 // --- UI helpers (оставляем как было, только без scrollFrogToHatch) ---
 
@@ -2268,6 +2272,10 @@ async function frogJump() {
           frogIsJumping = false
           frogJumpProgress = 0
           frogCurrentHatch = targetIndex
+
+          // КАМЕРА ЗА ЛЯГУШКОЙ (1‑й раз)
+          frogCameraOffset = getHatchX(frogCurrentHatch) - frogCanvas.width * 0.4
+
           drawFrogScene(false)
           resolve()
         }
@@ -2279,7 +2287,7 @@ async function frogJump() {
     return
   }
 
-  // следующие прыжки: от люка к люку
+  // последующие прыжки: от люка к люку
   const fromIndex = frogCurrentHatch
   const toIndex = frogCurrentHatch + 1
   if (toIndex >= FROG_HATCH_MULTS.length) return
@@ -2309,6 +2317,10 @@ async function frogJump() {
         frogIsJumping = false
         frogJumpProgress = 0
         frogCurrentHatch = toIndex
+
+        // КАМЕРА ЗА ЛЯГУШКОЙ (2‑й раз)
+        frogCameraOffset = getHatchX(frogCurrentHatch) - frogCanvas.width * 0.4
+
         drawFrogScene(false)
         resolve()
       }
@@ -2327,6 +2339,7 @@ async function frogJump() {
     await frogDie()
   }
 }
+
 
 
 
@@ -2529,6 +2542,7 @@ async function init() {
 
 
 init()
+
 
 
 
