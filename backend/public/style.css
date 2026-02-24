@@ -1917,18 +1917,21 @@ body {
 }
 
 /* ОДИНАКОВЫЙ размер картинок для обеих карточек */
+/* базовый размер (как у FrogTon) */
 .game-card-image {
   width: 100%;
   display: block;
   border-radius: 22px;
-  height: 180px;        /* общая высота для колеса и FrogTon */
-  object-fit: contain;  /* чтобы всё влезало без растяжения */
+  height: 180px;
+  object-fit: contain;
   background-position: center;
 }
 
-/* колесо – это <img>, ему достаточно object-fit */
+/* колесо – чуть «шире» за счёт уменьшения свободных полей */
 .game-card-wheel .game-card-image {
-  object-fit: contain;
+  object-fit: cover;     /* заполняем ширину полностью */
+  padding: 0 6px;        /* чуть уменьшить поля слева/справа */
+  box-sizing: border-box;
 }
 
 /* FrogTon – фон-логотип */
@@ -1936,13 +1939,7 @@ body {
   background-image: url('FrogTonlogo.png');
   background-size: contain;
   background-repeat: no-repeat;
-}
-
-/* активное нажатие */
-.game-card:active {
-  transform: translateY(1px) scale(0.98);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.9);
-  filter: brightness(0.97);
+  background-position: center;
 }
 
 
@@ -2868,6 +2865,7 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 }
+
 
 
 
