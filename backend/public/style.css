@@ -1916,6 +1916,13 @@ body {
   border-radius: 22px;
 }
 
+/* Логотип FrogTon на главной */
+.game-card-image.frog-card-image {
+  background-image: url('FrogTonlogo.png');
+  background-size: cover;
+  background-position: center;
+}
+
 .game-card:active {
   transform: translateY(1px) scale(0.98);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.9);
@@ -2845,6 +2852,7 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 }
+
 
 
 
