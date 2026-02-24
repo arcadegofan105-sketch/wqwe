@@ -385,6 +385,10 @@ let frogCurrentHatch = -1       // индекс текущего люка (0..9)
 let frogWinningHatch = -1       // последний безопасный люк (0..9)
 let frogAutoHatch = null        // для авто-кэшаута: индекс (0..9) или null
 
+// переменные для анимации лягушки
+let frogWorldX = undefined      // «мировая» X‑позиция лягушки
+let frogJumpProgress = 0        // прогресс подпрыгивания (0..1)
+
 let frogCtx = null
 let frogBgImage = null          // фон (fonfrogton.png)
 let frogSprite = null           // лягушка (froggame.png)
@@ -875,7 +879,6 @@ function loadImage(src) {
 
 
 async function initFrogGraphics() {
-
   if (!frogCanvas) return
 
   frogCanvas.width = frogCanvas.clientWidth
@@ -883,7 +886,6 @@ async function initFrogGraphics() {
 
   frogCtx = frogCanvas.getContext('2d')
 
-  // загрузка изображений
   try {
     frogSprite = await loadImage('froggame.png')
   } catch(e){}
@@ -892,16 +894,8 @@ async function initFrogGraphics() {
     frogCarSprite = await loadImage('Cartonfrog.png')
   } catch(e){}
 
-  // стартовая позиция
-  if (frogCurrentHatch < 0) {
-    frogCurrentHatch = 0
-  }
-
   drawFrogScene(false)
-
 }
-
-
 
 function getHatchX(index) {
   const paddingLeft = 60
@@ -1041,57 +1035,6 @@ function updateFrogUI() {
   }
 }
 
-  if (frogPotentialWinEl) {
-
-    if (frogCurrentHatch >= 0 && frogBet > 0) {
-
-      const mult = FROG_HATCH_MULTS[frogCurrentHatch] || 1
-
-      const win = frogBet * mult
-
-      frogPotentialWinEl.textContent =
-        `${win.toFixed(2)} TON`
-
-    } else {
-
-      frogPotentialWinEl.textContent =
-        '—'
-
-    }
-
-  }
-
-
-
-  if (!frogMainActionBtn) return
-
-
-  if (
-    frogState === 'idle' ||
-    frogState === 'cashed' ||
-    frogState === 'dead'
-  ) {
-
-    frogMainActionBtn.textContent =
-      'Сделать ставку'
-
-    frogMainActionBtn.disabled = false
-
-  }
-
-  else if (
-    frogState === 'bet_placed' ||
-    frogState === 'running'
-  ) {
-
-    frogMainActionBtn.textContent =
-      'Играть (прыжок)'
-
-    frogMainActionBtn.disabled = false
-
-  }
-
-}
 
 // ===== ADMIN RENDER =====
 function renderAdminStats(stats) {
@@ -2428,6 +2371,7 @@ async function init() {
 
 
 init()
+
 
 
 
