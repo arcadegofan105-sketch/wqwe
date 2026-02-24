@@ -903,74 +903,63 @@ async function initFrogGraphics() {
 }
 
 function getHatchX(index) {
-  const paddingLeft = 60
-  const step = 220
+  const paddingLeft = 120
+  const step = 220         // ширина одной «полосы» люка
   return paddingLeft + index * step
 }
-
-
 
 function getGroundY() {
   if (!frogCanvas) return 0
   return frogCanvas.height * 0.65
 }
 
-
-
 function clearFrogCanvas() {
-
   if (!frogCtx || !frogCanvas) return
-
-  frogCtx.clearRect(
-    0,
-    0,
-    frogCanvas.width,
-    frogCanvas.height
-  )
-
+  frogCtx.clearRect(0, 0, frogCanvas.width, frogCanvas.height)
 }
 
 function drawFrogScene(showCar = false) {
   if (!frogCtx || !frogCanvas) return
   clearFrogCanvas()
 
+  const w = frogCanvas.width
+  const h = frogCanvas.height
   const groundY = getGroundY()
 
-  frogCtx.font = '12px system-ui'
-  frogCtx.textAlign = 'center'
-  frogCtx.textBaseline = 'top'
+  // 1) Фон дороги (просто тёмный)
+  frogCtx.fillStyle = '#020617'
+  frogCtx.fillRect(0, 0, w, h)
 
-  // Рисуем люки
-  for (let i = 0; i < FROG_HATCH_MULTS.length; i++) {
-    const x = getHatchX(i) - (frogScrollEl?.scrollLeft || 0)
-    const mult = FROG_HATCH_MULTS[i]
-    const safe = frogWinningHatch >= 0 && i <= frogWinningHatch
+  // 2) Дорожка люков: вертикальные столбцы из lukforrog.png
+  if (frogHatchSprite) {
+    const tileImg = frogHatchSprite
+    const step = 220            // тот же, что в getHatchX
+    const tileW = step
+    const tileH = h
 
-    const hatchWidth = 80
-    const hatchHeight = 20
+    frogCtx.font = '12px system-ui'
+    frogCtx.textAlign = 'center'
+    frogCtx.textBaseline = 'top'
 
-    if (frogHatchSprite) {
-      const img = frogHatchSprite
-      const scale = hatchWidth / img.width
-      const w = img.width * scale
-      const h = img.height * scale
+    for (let i = 0; i < FROG_HATCH_MULTS.length; i++) {
+      const worldX = getHatchX(i)
+      const x = worldX - (frogScrollEl?.scrollLeft || 0)
+
+      // столбец от верха до низа, без зазоров
       frogCtx.drawImage(
-        img,
-        x - w / 2,
-        groundY - (h - hatchHeight),
-        w,
-        h
+        tileImg,
+        x - tileW / 2,
+        0,
+        tileW,
+        tileH
       )
-    } else {
-      frogCtx.fillStyle = safe ? 'rgba(22,163,74,0.85)' : 'rgba(148,163,184,0.7)'
-      frogCtx.fillRect(x - hatchWidth / 2, groundY, hatchWidth, hatchHeight)
-    }
 
-    frogCtx.fillStyle = '#0b1120'
-    frogCtx.fillText(`${mult.toFixed(2)}x`, x, groundY + 3)
+      frogCtx.fillStyle = '#0b1120'
+      frogCtx.fillText(`${FROG_HATCH_MULTS[i].toFixed(2)}x`, x, groundY + 4)
+    }
   }
 
-  // Лягушка
+  // 3) Лягушка
   if (frogCurrentHatch >= 0 && frogSprite) {
     const x = getHatchX(frogCurrentHatch) - (frogScrollEl?.scrollLeft || 0)
     const size = 80
@@ -983,7 +972,7 @@ function drawFrogScene(showCar = false) {
     )
   }
 
-  // Машина
+  // 4) Машина
   if (showCar && frogCarSprite && frogCurrentHatch >= 0) {
     const x = getHatchX(frogCurrentHatch) - (frogScrollEl?.scrollLeft || 0)
     const size = 110
@@ -996,7 +985,6 @@ function drawFrogScene(showCar = false) {
     )
   }
 }
-
 
 
 function scrollFrogToHatch(targetIndex, duration = 600) {
@@ -2395,6 +2383,7 @@ async function init() {
 
 
 init()
+
 
 
 
