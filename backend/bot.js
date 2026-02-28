@@ -7,6 +7,12 @@ export function startBot() {
   const WEBAPP_URL =
     process.env.WEBAPP_URL || "https://wqwe-production.up.railway.app/";
 
+  const CHANNEL_URL = "https://t.me/GiftWheels";
+  const SUPPORT_URL = "https://t.me/modergw";
+  const OFFER_URL = "https://telegra.ph/1-Terminy-i-opredeleniya-01-13";
+  const PRIVACY_URL =
+    "https://telegra.ph/Polzovatelskoe-soglashenie-Publichnaya-oferta-01-13-2";
+
   const bot = new TelegramBot(token, { polling: true });
 
   function escapeHtml(s = "") {
@@ -16,8 +22,11 @@ export function startBot() {
       .replace(/>/g, "&gt;");
   }
 
-  // Если раньше был webhook — polling не будет работать (409)
-  bot.deleteWebHook?.().catch(() => {}); // безопасно, если метода нет
+  // Если когда-то включал webhook, лучше снять его (иначе бывает конфликт с polling).
+  const deleteWebhookFn = bot.deleteWebHook || bot.deleteWebhook;
+  if (typeof deleteWebhookFn === "function") {
+    deleteWebhookFn.call(bot).catch(() => {});
+  }
 
   bot.onText(/^\/start(?:\s+.*)?$/, async (msg) => {
     const chatId = msg.chat.id;
@@ -28,7 +37,12 @@ export function startBot() {
 
     const safeName = escapeHtml(name);
 
-    // Кнопка слева от поля ввода (Menu button -> WebApp)
+    const text =
+      `🎉 <b>${safeName}</b>, ты легенда! 🎉\n\n` +
+      `🎁 Подарки не ждут. Открывай. Выигрывай. Повторяй.\n` +
+      `🎮 GiftWheels — здесь сюрпризы каждый день.`;
+
+    // Кнопка слева от поля ввода (menu button) -> открывает WebApp
     try {
       await bot.setChatMenuButton({
         chat_id: chatId,
@@ -42,11 +56,6 @@ export function startBot() {
       console.error("setChatMenuButton failed:", err);
     }
 
-    const text =
-      `🎉 <b>${safeName}</b>, ты легенда! 🎉\n\n` +
-      `🎁 Подарки не ждут. Открывай. Выигрывай. Повторяй.\n` +
-      `🎮 GiftWheels — здесь сюрпризы каждый день.`;
-
     try {
       await bot.sendMessage(chatId, text, {
         parse_mode: "HTML",
@@ -54,8 +63,12 @@ export function startBot() {
         reply_markup: {
           inline_keyboard: [
             [{ text: "Начать", web_app: { url: WEBAPP_URL } }],
-            [{ text: "Канал", url: "https://t.me/GiftWheels" }],
-            [{ text: "Поддержка", url: "https://t.me/modergw" }],
+            [{ text: "Канал", url: CHANNEL_URL }],
+            [{ text: "Поддержка", url: SUPPORT_URL }],
+            [
+              { text: "Публичная оферта", url: OFFER_URL },
+              { text: "Политика конфиденциальности", url: PRIVACY_URL },
+            ],
           ],
         },
       });
