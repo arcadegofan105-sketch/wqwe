@@ -1,67 +1,73 @@
-require('dotenv').config();
-const { Telegraf, Markup } = require('telegraf');
+import TelegramBot from "node-telegram-bot-api";
 
-const BOT_TOKEN = process.env.BOT_TOKEN;
-if (!BOT_TOKEN) throw new Error('BOT_TOKEN is missing');
+export function startBot() {
+  const token = process.env.BOT_TOKEN;
+  if (!token) throw new Error("BOT_TOKEN is missing");
 
-const bot = new Telegraf(BOT_TOKEN);
+  const WEBAPP_URL =
+    process.env.WEBAPP_URL || "https://wqwe-production.up.railway.app/";
 
-const REF_URL = 'https://play.mori.win/referral/MNCHPMHI';
-const SUPPORT_URL = 'https://t.me/moriwinhelpbot';
-const COMMUNITY_URL = 'https://t.me/moricoin_official';
+  const bot = new TelegramBot(token, { polling: true });
 
-function escapeHtml(s = '') {
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+  function escapeHtml(s = "") {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  // Если раньше был webhook — polling не будет работать (409)
+  bot.deleteWebHook?.().catch(() => {}); // безопасно, если метода нет
+
+  bot.onText(/^\/start(?:\s+.*)?$/, async (msg) => {
+    const chatId = msg.chat.id;
+
+    const name =
+      msg.from?.first_name ||
+      (msg.from?.username ? `@${msg.from.username}` : "друг");
+
+    const safeName = escapeHtml(name);
+
+    // Кнопка слева от поля ввода (Menu button -> WebApp)
+    try {
+      await bot.setChatMenuButton({
+        chat_id: chatId,
+        menu_button: JSON.stringify({
+          type: "web_app",
+          text: "Open",
+          web_app: { url: WEBAPP_URL },
+        }),
+      });
+    } catch (err) {
+      console.error("setChatMenuButton failed:", err);
+    }
+
+    const text =
+      `🎉 <b>${safeName}</b>, ты легенда! 🎉\n\n` +
+      `🎁 Подарки не ждут. Открывай. Выигрывай. Повторяй.\n` +
+      `🎮 GiftWheels — здесь сюрпризы каждый день.`;
+
+    try {
+      await bot.sendMessage(chatId, text, {
+        parse_mode: "HTML",
+        disable_web_page_preview: true,
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: "Начать", web_app: { url: WEBAPP_URL } }],
+            [{ text: "Канал", url: "https://t.me/GiftWheels" }],
+            [{ text: "Поддержка", url: "https://t.me/modergw" }],
+          ],
+        },
+      });
+    } catch (err) {
+      console.error("sendMessage(/start) failed:", err);
+    }
+  });
+
+  bot.on("polling_error", (err) => {
+    console.error("polling_error:", err);
+  });
+
+  console.log("🤖 Bot started (polling)");
+  return bot;
 }
-
-bot.start(async (ctx) => {
-  const name =
-    ctx.from?.first_name ||
-    (ctx.from?.username ? `@${ctx.from.username}` : 'друг');
-
-  const safeName = escapeHtml(name);
-
-  // Кнопка слева от поля ввода: menu button -> Web App (Mini App). [web:85][web:19]
-  try {
-    await ctx.telegram.callApi('setChatMenuButton', {
-      chat_id: ctx.chat.id,
-      menu_button: {
-        type: 'web_app',
-        text: 'Open',
-        web_app: { url: REF_URL },
-      },
-    });
-  } catch (err) {
-    console.error('setChatMenuButton failed:', err);
-  }
-
-  const text =
-    `<b>${safeName}</b>, спасибо что присоединились к нам в проект!\n\n` +
-    `Выберите действие ниже:`;
-
-  try {
-    await ctx.reply(text, {
-      parse_mode: 'HTML',
-      disable_web_page_preview: true,
-      // Убираем reply-клавиатуру, если она когда-то показывалась. [web:101]
-      ...Markup.removeKeyboard(),
-      ...Markup.inlineKeyboard([
-        [Markup.button.webApp('Открыть', REF_URL)],
-        [Markup.button.url('Поддержка', SUPPORT_URL)],
-        [Markup.button.url('Сообщество', COMMUNITY_URL)],
-      ]),
-    });
-  } catch (err) {
-    console.error('reply(/start) failed:', err);
-  }
-});
-
-bot.catch((err) => console.error('bot error:', err));
-
-bot.launch().then(() => console.log('🤖 Bot started'));
-
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
