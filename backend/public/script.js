@@ -24,7 +24,7 @@ const CASES = {
   newyear: {
     id: 'newyear',
     title: 'calendar',
-    priceTon: 0.6,
+    priceTon: 0.5,
     imageSelector: '.case-image-newyear',
     contents: [
       { emoji: '📅', name: 'Celendar (random)', price: 1.5 },
@@ -2612,6 +2612,7 @@ async function init() {
 
 
 init()
+
 
 
 
