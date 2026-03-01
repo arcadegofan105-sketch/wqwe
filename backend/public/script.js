@@ -4,8 +4,7 @@ const SPIN_PRICE = 1
 const FULL_ROUNDS = 5
 const MIN_WITHDRAW_TON = 5
 const MIN_DEPOSIT_TON = 0.1
-
-let INITDATA = "";
+;
 
 // TODO: username -> GiftWheelsBot
 const BOT_USERNAME = 'GiftWheels_bot'
@@ -705,8 +704,11 @@ async function apiPost(path, body = {}) {
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ initData: INITDATA, ...body }),
-  });
+    body: JSON.stringify({
+  initData: String(window.Telegram?.WebApp?.initData || ""),
+  ...body,
+}),
+
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
@@ -2551,6 +2553,7 @@ async function init() {
 
 
 init()
+
 
 
 
