@@ -230,6 +230,11 @@ function safeNumber(x, def = 0) {
   return Number.isFinite(n) ? n : def;
 }
 
+// ===== COMPAT route helper =====
+function postMany(paths, ...handlers) {
+  for (const p of paths) app.post(p, ...handlers);
+}
+
 // ===== API =====
 app.post("/api/me", auth, (req, res) => {
   const tgUser = req.tgUser;
@@ -244,7 +249,7 @@ app.post("/api/me", auth, (req, res) => {
 
   const inventory = listInventory(tgUser.id);
 
-    res.json({
+  res.json({
     balance: safeNumber(u.balance, 0),
     inventory,
     totalDepositTon: safeNumber(u.total_deposit_ton, 0),
@@ -254,9 +259,7 @@ app.post("/api/me", auth, (req, res) => {
     freeWheelAvailable: !!u.free_wheel_available,
     wheelDepositProgressTon: safeNumber(u.wheel_deposit_progress_ton, 0),
   });
-
 });
-
 
 // spin: колесо — платно или бесплатно по депозитам
 app.post("/api/spin", auth, (req, res) => {
@@ -266,7 +269,7 @@ app.post("/api/spin", auth, (req, res) => {
   const user = mustGetUser(tgId);
   const balance = safeNumber(user.balance, 0);
 
-  const SPIN_PRICE = 1;          // цена платного спина
+  const SPIN_PRICE = 1; // цена платного спина
   const WHEEL_DEPOSIT_TARGET = 0.5;
 
   const freeWheelAvailable = !!user.free_wheel_available;
@@ -293,58 +296,52 @@ app.post("/api/spin", auth, (req, res) => {
 
   // если бесплатный спин — сбрасываем флаг
   if (freeWheelAvailable) {
-    db.prepare(
-      `UPDATE users SET free_wheel_available = 0 WHERE tg_id = ?`
-    ).run(tgId);
+    db.prepare(`UPDATE users SET free_wheel_available = 0 WHERE tg_id = ?`).run(tgId);
   }
 
   return res.json({
     prize,
     newBalance,
-    freeWheelAvailable: false,          // после спина бесплатного флага нет
-    wheelDepositProgressTon,            // прогресс не меняем тут, только при депозите
+    freeWheelAvailable: false, // после спина бесплатного флага нет
+    wheelDepositProgressTon, // прогресс не меняем тут, только при депозите
     isFreeSpin,
   });
 });
 
-
-
-
-
 // ===== CASES =====
 // Конфиг кейсов: названия + цены
 const CASES = {
-  newyear: { title: "calendar",       priceTon: 0.6 },
-  onlynft: { title: "Классический",   priceTon: 2.5 },
-  crypto:  { title: "Все или ничего", priceTon: 1.2 },
+  newyear: { title: "calendar", priceTon: 0.6 },
+  onlynft: { title: "Классический", priceTon: 2.5 },
+  crypto: { title: "Все или ничего", priceTon: 1.2 },
 };
 
 // Пул призов с шансами (для трёх кейсов)
 const CASE_PRIZES = {
   newyear: [
     // сумма весов = 10000 (удобно читать как проценты * 100)
-    { emoji: "📅", name: "Celendar (random)",   price: 1.5,  weight: 5 },   // 0.05%
-    { emoji: "🍭", name: "lolpop",              price: 7.0,  weight: 3 },   // 0.03%
-    { emoji: "🧦", name: "socks",               price: 10.0, weight: 2 },   // 0.02%
-    { emoji: "🪆", name: "Woodoo (random)",     price: 30.0, weight: 1 },   // 0.01%
-    { emoji: "🧸", name: "Bear",                price: 0.1,  weight: 9989 } // 99.89% ≈ 99.9%
+    { emoji: "📅", name: "Celendar (random)", price: 1.5, weight: 5 }, // 0.05%
+    { emoji: "🍭", name: "lolpop", price: 7.0, weight: 3 }, // 0.03%
+    { emoji: "🧦", name: "socks", price: 10.0, weight: 2 }, // 0.02%
+    { emoji: "🪆", name: "Woodoo (random)", price: 30.0, weight: 1 }, // 0.01%
+    { emoji: "🧸", name: "Bear", price: 0.1, weight: 9989 }, // 99.89% ≈ 99.9%
   ],
 
-onlynft: [
+  onlynft: [
     // сумма весов = 100000 (Bear ≈ 99%, остальные суммарно ≈ 1%)
-    { emoji: "🐸", name: "Plush Pepe Pink Latex", price: 10000.0, weight: 0 },    // 0%
-    { emoji: "💔", name: "Trapped Hearts",        price: 20.0,    weight: 100 },  // 0.10%
-    { emoji: "🐱", name: "Scared Cats",           price: 200.0,   weight: 0 },    // 0%
-    { emoji: "💵", name: "Snoop Cigars",          price: 15.0,    weight: 100 },  // 0.10%
-    { emoji: "🥃", name: "Vintage Cigars",        price: 40.0,    weight: 100 },  // 0.10%
-    { emoji: "🎩", name: "Witch Hats",            price: 7.0,     weight: 300 },  // 0.30%
-    { emoji: "🍪", name: "Happy Brownies",        price: 5.0,     weight: 400 },  // 0.40%
-    { emoji: "🧸", name: "Bear",                  price: 0.1,     weight: 99000 } // 99.0%
+    { emoji: "🐸", name: "Plush Pepe Pink Latex", price: 10000.0, weight: 0 }, // 0%
+    { emoji: "💔", name: "Trapped Hearts", price: 20.0, weight: 100 }, // 0.10%
+    { emoji: "🐱", name: "Scared Cats", price: 200.0, weight: 0 }, // 0%
+    { emoji: "💵", name: "Snoop Cigars", price: 15.0, weight: 100 }, // 0.10%
+    { emoji: "🥃", name: "Vintage Cigars", price: 40.0, weight: 100 }, // 0.10%
+    { emoji: "🎩", name: "Witch Hats", price: 7.0, weight: 300 }, // 0.30%
+    { emoji: "🍪", name: "Happy Brownies", price: 5.0, weight: 400 }, // 0.40%
+    { emoji: "🧸", name: "Bear", price: 0.1, weight: 99000 }, // 99.0%
   ],
 
   crypto: [
-    { emoji: "🍑", name: "Precious Peach (random)", price: 500.0, weight: 0 },    // 0%
-    { emoji: "🧸", name: "Bear",                    price: 0.1,   weight: 100 }   // 100%
+    { emoji: "🍑", name: "Precious Peach (random)", price: 500.0, weight: 0 }, // 0%
+    { emoji: "🧸", name: "Bear", price: 0.1, weight: 100 }, // 100%
   ],
 };
 
@@ -503,9 +500,6 @@ app.post("/api/prize/sell", auth, (req, res) => {
   const inventory = listInventory(tgId);
   res.json({ newBalance, inventory });
 });
-
-
-
 
 // withdraw TON
 app.post("/api/withdraw/ton", auth, async (req, res) => {
@@ -682,27 +676,19 @@ app.post("/api/deposit/check", auth, async (req, res) => {
 
   const user = mustGetUser(userId);
 
-  const newBalance = Number(
-    (safeNumber(user.balance, 0) + dep.amount).toFixed(2)
-  );
-  const newTotalDeposit = Number(
-    (safeNumber(user.total_deposit_ton, 0) + dep.amount).toFixed(2)
-  );
+  const newBalance = Number((safeNumber(user.balance, 0) + dep.amount).toFixed(2));
+  const newTotalDeposit = Number((safeNumber(user.total_deposit_ton, 0) + dep.amount).toFixed(2));
 
   // === прогресс к бесплатному колесу ===
   const WHEEL_DEPOSIT_TARGET = 0.5;
 
   const prevProgress = safeNumber(user.wheel_deposit_progress_ton, 0);
-  let wheelDepositProgressTon = Number(
-    (prevProgress + dep.amount).toFixed(4)
-  );
+  let wheelDepositProgressTon = Number((prevProgress + dep.amount).toFixed(4));
   let freeWheelAvailable = !!user.free_wheel_available;
 
   if (wheelDepositProgressTon >= WHEEL_DEPOSIT_TARGET) {
     freeWheelAvailable = true;
-    wheelDepositProgressTon = Number(
-      (wheelDepositProgressTon - WHEEL_DEPOSIT_TARGET).toFixed(4)
-    );
+    wheelDepositProgressTon = Number((wheelDepositProgressTon - WHEEL_DEPOSIT_TARGET).toFixed(4));
   }
 
   // сохраняем все значения разом
@@ -717,9 +703,7 @@ app.post("/api/deposit/check", auth, async (req, res) => {
   pendingDeposits.set(depositId, dep);
 
   sendAdminMessage(
-    `✅ Депозит зачислен\nID: ${userId}\nСумма: ${dep.amount.toFixed(
-      2
-    )} TON\nDepositId: ${depositId}`
+    `✅ Депозит зачислен\nID: ${userId}\nСумма: ${dep.amount.toFixed(2)} TON\nDepositId: ${depositId}`
   ).catch(() => {});
 
   return res.json({
@@ -730,7 +714,6 @@ app.post("/api/deposit/check", auth, async (req, res) => {
     wheelDepositProgressTon,
   });
 });
-
 
 // crash bet
 app.post("/api/crash/bet", auth, (req, res) => {
@@ -766,16 +749,30 @@ app.post("/api/crash/cashout", auth, (req, res) => {
   res.json({ newBalance });
 });
 
-// ===== ADMIN API =====
-app.post("/api/admin/stats", auth, requireAdmin, (req, res) => {
+// ===== ADMIN API (реальные + алиасы под фронт) =====
+function handleAdminStats(req, res) {
   res.json(getStats());
-});
+}
 
-app.post("/api/admin/users", auth, requireAdmin, (req, res) => {
+function handleAdminUsers(req, res) {
   const q = String(req.body?.q || "");
   const page = Number(req.body?.page || 1);
   res.json(listUsersPaged({ q, page, limit: 20 }));
-});
+}
+
+postMany(
+  ["/api/admin/stats", "/apiadminstats", "/api/adminstats"],
+  auth,
+  requireAdmin,
+  handleAdminStats
+);
+
+postMany(
+  ["/api/admin/users", "/apiadminusers", "/api/adminusers"],
+  auth,
+  requireAdmin,
+  handleAdminUsers
+);
 
 // adjust balance
 app.post("/api/admin/user/adjust-balance", auth, requireAdmin, (req, res) => {
@@ -825,8 +822,8 @@ app.post("/api/admin/promo/delete", auth, requireAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
-// ===== REWARDS =====
-app.post("/api/rewards/list", auth, (req, res) => {
+// ===== REWARDS (реальные + алиасы под фронт) =====
+function handleRewardsList(req, res) {
   const tgId = String(req.tgUser.id);
   touchUserVisit(req.tgUser);
 
@@ -842,11 +839,7 @@ app.post("/api/rewards/list", auth, (req, res) => {
   const maxInvites = 5;
 
   const inviteStatus =
-    claimedInvites >= maxInvites
-      ? "claimed"
-      : invited > claimedInvites
-        ? "available"
-        : "locked";
+    claimedInvites >= maxInvites ? "claimed" : invited > claimedInvites ? "available" : "locked";
 
   res.json({
     items: [
@@ -867,9 +860,9 @@ app.post("/api/rewards/list", auth, (req, res) => {
       },
     ],
   });
-});
+}
 
-app.post("/api/rewards/claim", auth, (req, res) => {
+function handleRewardsClaim(req, res) {
   const tgId = String(req.tgUser.id);
   touchUserVisit(req.tgUser);
 
@@ -914,12 +907,23 @@ app.post("/api/rewards/claim", auth, (req, res) => {
   });
 
   try {
-    const r = tx();
-    return res.json(r);
+    return res.json(tx());
   } catch (e) {
     return res.status(400).json({ error: e.message || "claim error" });
   }
-});
+}
+
+postMany(
+  ["/api/rewards/list", "/apirewardslist", "/api/rewardslist"],
+  auth,
+  handleRewardsList
+);
+
+postMany(
+  ["/api/rewards/claim", "/apirewardsclaim", "/api/rewardsclaim"],
+  auth,
+  handleRewardsClaim
+);
 
 // fallback
 app.get("*", (req, res) => {
@@ -929,26 +933,3 @@ app.get("*", (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
