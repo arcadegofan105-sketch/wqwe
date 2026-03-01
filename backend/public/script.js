@@ -696,16 +696,21 @@ tonConnectUI.onStatusChange(() => {
 
 // ===== API (initData auth) =====
 async function apiPost(path, body = {}) {
-  const res = await fetch(`${API_URL}${path}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ initData: INIT_DATA, ...body }),
-  })
+  const base = String(API_URL || "").replace(/\/$/, ""); // "/api"
+  const p = String(path || "").replace(/^\//, "");        // "me" или "rewards/list"
+  const url = `${base}/${p}`;                             // "/api/me"
 
-  const data = await res.json().catch(() => ({}))
-  if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`)
-  return data
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ initData: INITDATA, ...body }),
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+  return data;
 }
+
 
 // user
 async function fetchUserData() {
@@ -786,33 +791,36 @@ async function depositCheckApi(depositId) {
 }
 
 // ===== REWARDS APIs =====
-async function rewardsListApi() {
-  return apiPost('/rewards/list')
-}
+// REWARDS APIs
+async function rewardsListApi() { return apiPost("rewards/list"); }
+async function rewardsClaimApi(key) { return apiPost("rewards/claim", { key }); }
 
-async function rewardsClaimApi(key) {
-  return apiPost('/rewards/claim', { key })
-}
 
 // admin APIs
 async function adminStatsApi() {
-  return apiPost('/admin/stats')
+  return apiPost("admin/stats");
 }
-async function adminUsersApi({ q, page }) {
-  return apiPost('/admin/users', { q, page })
+
+async function adminUsersApi(q, page) {
+  return apiPost("admin/users", { q, page });
 }
+
 async function adminPromoCreateApi(payload) {
-  return apiPost('/admin/promo/create', payload)
+  return apiPost("admin/promo/create", payload);
 }
+
 async function adminPromoListApi() {
-  return apiPost('/admin/promo/list')
+  return apiPost("admin/promo/list");
 }
+
 async function adminPromoDeleteApi(code) {
-  return apiPost('/admin/promo/delete', { code })
+  return apiPost("admin/promo/delete", { code });
 }
+
 async function adminAdjustBalanceApi(tgId, delta) {
-  return apiPost('/admin/user/adjust-balance', { tgId, delta })
+  return apiPost("admin/user/adjust-balance", { tgId, delta });
 }
+
 
 // deposit helpers
 function toNanoString(tonAmount) {
@@ -2541,6 +2549,7 @@ async function init() {
 
 
 init()
+
 
 
 
