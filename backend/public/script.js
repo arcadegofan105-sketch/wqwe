@@ -23,7 +23,7 @@ const CASES = {
   newyear: {
     id: 'newyear',
     title: 'calendar',
-    priceTon: 0.2,
+    priceTon: 0.6,
     imageSelector: '.case-image-newyear',
     contents: [
       { emoji: '📅', name: 'Celendar (random)', price: 1.5 },
@@ -39,7 +39,7 @@ const CASES = {
   onlynft: {
     id: 'onlynft',
     title: 'Classic case',
-    priceTon: 1.0,
+    priceTon: 2.5,
     imageSelector: '.case-image-onlynft',
     contents: [
       { emoji: '🐸', name: 'Plush Pepe Pink Latex', price: 10000.0 },
@@ -58,7 +58,7 @@ const CASES = {
   crypto: {
     id: 'crypto',
     title: 'All or nothing',
-    priceTon: 0.5,
+    priceTon: 1.20,
     imageSelector: '.case-image-crypto',
     contents: [
       { emoji: '🍑', name: 'Precious Peach (random)', price: 500.0 },
@@ -2541,6 +2541,7 @@ async function init() {
 
 
 init()
+
 
 
 
