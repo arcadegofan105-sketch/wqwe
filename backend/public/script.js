@@ -695,24 +695,25 @@ tonConnectUI.onStatusChange(() => {
   updateDepositButtonState()
 })
 
+
 // ===== API (initData auth) =====
 async function apiPost(path, body = {}) {
-  const base = String(API_URL || "").replace(/\/$/, ""); // "/api"
-  const p = String(path || "").replace(/^\//, "");        // "me" или "rewards/list"
-  const url = `${base}/${p}`;                             // "/api/me"
+  const base = String(API_URL || '').replace(/\/+$/, '')   // "/api"
+  const p = String(path || '').replace(/^\/+/, '')         // "me" или "admin/users"
+  const url = `${base}/${p}`                               // "/api/me"
 
   const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-  initData: String(window.Telegram?.WebApp?.initData || ""),
-  ...body,
-}),
+      initData: String(window.Telegram?.WebApp?.initData || ''),
+      ...body,
+    }),
+  })
 
-
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
-  return data;
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`)
+  return data
 }
 
 
@@ -1242,13 +1243,14 @@ function renderAdminPager() {
 
 async function loadAdminUsers() {
   if (!isAdmin) return
-  const r = await adminUsersApi({ q: adminState.q, page: adminState.page })
+  const r = await adminUsersApi(adminState.q, adminState.page)
   const items = Array.isArray(r.items) ? r.items : []
   adminState.pages = Number(r.pages || 1) || 1
   adminState.page = Number(r.page || adminState.page) || 1
   renderAdminUsersGrid(items)
   renderAdminPager()
 }
+
 
 async function loadAdminStats() {
   if (!isAdmin) return
@@ -2553,6 +2555,7 @@ async function init() {
 
 
 init()
+
 
 
 
