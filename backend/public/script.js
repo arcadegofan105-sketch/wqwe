@@ -12,7 +12,7 @@ const BOT_USERNAME = 'GiftWheels_bot'
 const wheelSectors = [
   { emoji: '🐸', name: 'Pepe', nameKey: 'Pepe', price: 0.0 },                    // 0
   { emoji: '🗡️', name: 'Lightsword', nameKey: 'lightsword', price: 7.0 },       // 1
-  { emoji: '📅', name: 'Celendar (random)', nameKey: 'Celendar (random)', price: 1.5 },       // 2
+  { emoji: '📅', name: 'Celendar (random)', nameKey: 'Celendar (random)', price: 4.5 },       // 2
   { emoji: '🧪', name: 'Hexpot', nameKey: 'Hexpot', price: 10.0 },               // 3
   { emoji: '🧸', name: 'Bear', nameKey: 'Bear', price: 0.1 },                    // 4
   { emoji: '🍑', name: 'Precious Peach (random)', nameKey: 'Precious Peach (random)', price: 500.0 }, // 5
@@ -27,7 +27,7 @@ const CASES = {
     priceTon: 0.5,
     imageSelector: '.case-image-newyear',
     contents: [
-      { emoji: '📅', name: 'Celendar (random)', price: 1.5 },
+      { emoji: '📅', name: 'Celendar (random)', price: 4.5 },
       { emoji: '🍭', name: 'lolpop',            price: 7.0 },
       { emoji: '🧸', name: 'Bear',              price: 0.1 },
       { emoji: '🧦', name: 'socks',             price: 10.0 },
@@ -2612,6 +2612,7 @@ async function init() {
 
 
 init()
+
 
 
 
