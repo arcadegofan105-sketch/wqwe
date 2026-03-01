@@ -368,6 +368,13 @@ let isAdmin = false
 let selectedCaseType = null
 let isCaseOpening = false
 
+const adminState = {
+  q: '',
+  page: 1,
+  pages: 1,
+}
+
+
 // прогресс к бесплатному колесу
 const WHEEL_DEPOSIT_TARGET = 0.5
 let freeWheelAvailable = false
@@ -1264,6 +1271,49 @@ async function loadAdminPromos() {
   renderAdminPromos(r.items || [])
 }
 
+async function loadRewards() {
+  if (!rewardsListEl) return
+
+  rewardsListEl.innerHTML = `
+    <div class="bonus-card">
+      <div class="bonus-title">Загрузка...</div>
+      <div class="bonus-text">Получаем список наград</div>
+    </div>
+  `
+
+  const r = await rewardsListApi()
+  const items = Array.isArray(r.items) ? r.items : []
+
+  if (!items.length) {
+    rewardsListEl.innerHTML = `
+      <div class="bonus-card">
+        <div class="bonus-title">Наград нет</div>
+        <div class="bonus-text">Пока нечего показывать</div>
+      </div>
+    `
+    return
+  }
+
+  rewardsListEl.innerHTML = items.map(it => {
+    const key = escapeHtml(it.key || '')
+    const title = escapeHtml(it.title || 'Награда')
+    const desc = escapeHtml(it.desc || '')
+    const status = String(it.status || 'locked')
+    const canClaim = status === 'available'
+
+    return `
+      <div class="bonus-card" data-reward-key="${key}">
+        <div class="bonus-title">${title}</div>
+        <div class="bonus-text">${desc}</div>
+        <button class="action-btn action-green reward-claim-btn" type="button" ${canClaim ? '' : 'disabled'}>
+          ${canClaim ? 'Забрать' : 'Недоступно'}
+        </button>
+      </div>
+    `
+  }).join('')
+}
+
+
 // ===== EVENTS =====
 
 // навигация по вкладкам
@@ -1276,8 +1326,15 @@ navButtons.forEach(btn => {
     if (target === 'bonus') {
       loadRewards().catch(e => alert(e.message || 'Ошибка наград'))
     }
+
+    if (target === 'admin') {
+      loadAdminStats().catch(() => {})
+      loadAdminPromos().catch(() => {})
+      loadAdminUsers().catch(e => alert(e.message || 'Ошибка админки'))
+    }
   })
 })
+
 
 document.addEventListener('click', async (e) => {
   const btn = e.target.closest('.reward-claim-btn')
@@ -2555,6 +2612,7 @@ async function init() {
 
 
 init()
+
 
 
 
