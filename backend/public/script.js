@@ -5,6 +5,8 @@ const FULL_ROUNDS = 5
 const MIN_WITHDRAW_TON = 5
 const MIN_DEPOSIT_TON = 0.1
 
+let INITDATA = "";
+
 // TODO: username -> GiftWheelsBot
 const BOT_USERNAME = 'GiftWheels_bot'
 
@@ -2549,6 +2551,7 @@ async function init() {
 
 
 init()
+
 
 
 
