@@ -1008,16 +1008,15 @@ async function runBroadcastWorkerOnce() {
     for (const tgId of ids) {
   try {
     await sendUserMessage(
-  tgId,
-  job.text,
-  job.parse_mode || "HTML",
-  {
-    inline_keyboard: [[
-      { text: "Открыть Gift Wheels", web_app: { url: WEBAPP_URL } }
-    ]]
-  }
-);
-
+      tgId,
+      job.text,
+      job.parse_mode || "HTML",
+      {
+        inline_keyboard: [[
+          { text: "Открыть Gift Wheels", web_app: { url: WEBAPP_URL } }
+        ]]
+      }
+    );
     sent++;
   } catch (e) {
     failed++;
@@ -1032,11 +1031,11 @@ async function runBroadcastWorkerOnce() {
     updateBroadcastJob(job.id, { sent, failed });
   }
 
-  await new Promise((r) => setTimeout(r, 40));
-}
+  await new Promise((r) => setTimeout(r, 40)); // ~25 msg/sec
+} // ✅ закрыли for
 
+updateBroadcastJob(job.id, { sent, failed, status: "done" });
 
-    updateBroadcastJob(job.id, { sent, failed, status: "done" });
   } finally {
     broadcastRunning = false;
   }
@@ -1049,6 +1048,8 @@ setInterval(() => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
+
 
 
 
