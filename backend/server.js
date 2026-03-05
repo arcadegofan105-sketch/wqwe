@@ -50,6 +50,13 @@ if (!ADMIN_CHAT_ID) {
 
 const ADMIN_TG_ID = String(process.env.ADMIN_TG_ID || "").trim(); // кто видит админку/админ API
 
+const WEBAPP_URL = String(process.env.WEBAPP_URL || "").trim();
+if (!WEBAPP_URL) {
+  console.error("❌ WEBAPP_URL is not set");
+  process.exit(1);
+}
+
+
 // ✅ Deposit config (Railway Variables)
 const TON_DEPOSIT_ADDRESS = String(process.env.TON_DEPOSIT_ADDRESS || "")
   .replace(/\s+/g, "")
@@ -183,6 +190,7 @@ async function sendUserMessage(chatId, text, parseMode = "HTML", replyMarkup = n
   }
   return data;
 }
+
 
 
 
@@ -1000,15 +1008,16 @@ async function runBroadcastWorkerOnce() {
     for (const tgId of ids) {
   try {
     await sendUserMessage(
-      tgId,
-      job.text,
-      job.parse_mode || "HTML",
-      {
-        inline_keyboard: [[
-          { text: "Открыть Gift Wheels", url: "https://t.me/GiftWheelsbot" }
-        ]]
-      }
-    );
+  tgId,
+  job.text,
+  job.parse_mode || "HTML",
+  {
+    inline_keyboard: [[
+      { text: "Открыть Gift Wheels", web_app: { url: WEBAPP_URL } }
+    ]]
+  }
+);
+
     sent++;
   } catch (e) {
     failed++;
@@ -1040,6 +1049,7 @@ setInterval(() => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
 
 
 
