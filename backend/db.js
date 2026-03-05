@@ -304,6 +304,26 @@ export function countInviteClaims(tgId) {
   return Number(row?.c || 0);
 }
 
+// ===== broadcast jobs =====
+db.prepare(`
+  CREATE TABLE IF NOT EXISTS broadcast_jobs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    created_at INTEGER NOT NULL,
+    run_at INTEGER NOT NULL,
+    status TEXT NOT NULL,      -- 'pending' | 'running' | 'done' | 'failed'
+    text TEXT NOT NULL,
+    parse_mode TEXT NOT NULL DEFAULT 'HTML',
+    total INTEGER NOT NULL DEFAULT 0,
+    sent INTEGER NOT NULL DEFAULT 0,
+    failed INTEGER NOT NULL DEFAULT 0,
+    last_error TEXT
+  )
+`).run();
+
+db.prepare(`CREATE INDEX IF NOT EXISTS idx_broadcast_jobs_run_at ON broadcast_jobs(run_at)`).run();
+db.prepare(`CREATE INDEX IF NOT EXISTS idx_broadcast_jobs_status ON broadcast_jobs(status)`).run();
+
+
 // ===== Admin stats =====
 export function getStats() {
   return db.prepare(
@@ -467,3 +487,4 @@ export function redeemPromo(tgId, code) {
 }
 
 export default db;
+
