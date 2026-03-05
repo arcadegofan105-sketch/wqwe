@@ -213,6 +213,15 @@ const adminAdjDelta = document.getElementById('admin-adj-delta')
 const adminAdjApply = document.getElementById('admin-adj-apply')
 const adminAdjResult = document.getElementById('admin-adj-result')
 
+// Broadcast UI
+const adminBcText = document.getElementById('admin-bc-text')
+const adminBcNow = document.getElementById('admin-bc-now')
+const adminBc10m = document.getElementById('admin-bc-10m')
+const adminBc1h = document.getElementById('admin-bc-1h')
+const adminBc24h = document.getElementById('admin-bc-24h')
+const adminBcResult = document.getElementById('admin-bc-result')
+
+
 // Invite UI
 const inviteLinkText = document.getElementById('invite-link-text')
 const inviteCopyBtn = document.getElementById('invite-copy-btn')
@@ -832,6 +841,11 @@ async function adminPromoDeleteApi(code) {
 async function adminAdjustBalanceApi(tgId, delta) {
   return apiPost("admin/user/adjust-balance", { tgId, delta });
 }
+
+async function adminBroadcastCreateApi(text, delaySec) {
+  return apiPost("admin/broadcast/create", { text, delaySec })
+}
+
 
 
 // deposit helpers
@@ -2582,6 +2596,28 @@ adminAdjApply?.addEventListener('click', async () => {
   }
 })
 
+async function createBroadcast(delaySec) {
+  if (!isAdmin) return
+  const text = String(adminBcText?.value || '').trim()
+  if (!text) { alert('Введите текст рассылки'); return }
+
+  try {
+    const r = await adminBroadcastCreateApi(text, delaySec)
+    const when = new Date(Number(r.runAt || Date.now())).toLocaleString()
+    if (adminBcResult) adminBcResult.textContent = `✅ Задача создана (#${r.jobId}). Отправка: ${when}`
+    alert('Задача рассылки создана')
+  } catch (e) {
+    if (adminBcResult) adminBcResult.textContent = `❌ Ошибка: ${e?.message || e}`
+    alert(e?.message || 'Ошибка рассылки')
+  }
+}
+
+adminBcNow?.addEventListener('click', () => createBroadcast(0))
+adminBc10m?.addEventListener('click', () => createBroadcast(10 * 60))
+adminBc1h?.addEventListener('click', () => createBroadcast(60 * 60))
+adminBc24h?.addEventListener('click', () => createBroadcast(24 * 60 * 60))
+
+
 // ===== INIT =====
 async function init() {
   updateTelegramUserUI();
@@ -2612,6 +2648,7 @@ async function init() {
 
 
 init()
+
 
 
 
