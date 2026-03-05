@@ -19,6 +19,11 @@ import db, {
   listPromos,
   deletePromo,
   redeemPromo,
+  listAllUserTgIds,
+  createBroadcastJob,
+  takeDueBroadcastJob,
+  updateBroadcastJob,
+
   // NEW:
   tryBindReferral,
   countInvitedByInviter,
@@ -155,6 +160,29 @@ async function sendAdminMessage(text) {
   }
   return data;
 }
+
+async function sendUserMessage(chatId, text, parseMode = "HTML") {
+  const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: String(chatId),
+      text,
+      parse_mode: parseMode,
+      disable_web_page_preview: true,
+    }),
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data?.ok === false) {
+    const err = new Error(data?.description || `HTTP ${res.status}`);
+    err.retry_after = Number(data?.parameters?.retry_after || 0);
+    throw err;
+  }
+  return data;
+}
+
 
 // ===== TON Center helper (getTransactions) =====
 async function toncenterGetTransactions(address, limit = 25) {
@@ -791,6 +819,20 @@ app.post("/api/admin/user/adjust-balance", auth, requireAdmin, (req, res) => {
   res.json({ ok: true, tgId, newBalance });
 });
 
+app.post("/api/admin/broadcast/create", auth, requireAdmin, (req, res) => {
+  const text = String(req.body?.text || "").trim();
+  const delaySec = Number(req.body?.delaySec || 0);
+
+  if (!text) return res.status(400).json({ error: "text required" });
+  if (!Number.isFinite(delaySec) || delaySec < 0) {
+    return res.status(400).json({ error: "delaySec invalid" });
+  }
+
+  const r = createBroadcastJob({ text, delaySec, parseMode: "HTML" });
+  res.json({ ok: true, jobId: r.jobId, runAt: r.runAt });
+});
+
+
 app.post("/api/admin/promo/create", auth, requireAdmin, (req, res) => {
   const type = String(req.body?.type || "").trim(); // balance | gift
   const code = String(req.body?.code || "").trim();
@@ -931,6 +973,60 @@ app.get("*", (req, res) => {
   res.sendFile(INDEX_PATH);
 });
 
+let broadcastRunning = false;
+
+async function runBroadcastWorkerOnce() {
+  if (broadcastRunning) return;
+  broadcastRunning = true;
+
+  try {
+    const job = takeDueBroadcastJob();
+    if (!job) return;
+
+    const ids = listAllUserTgIds();
+
+    let sent = 0;
+    let failed = 0;
+
+    updateBroadcastJob(job.id, {
+      total: ids.length,
+      sent: 0,
+      failed: 0,
+      last_error: null,
+    });
+
+    for (const tgId of ids) {
+      try {
+        await sendUserMessage(tgId, job.text, job.parse_mode || "HTML");
+        sent++;
+      } catch (e) {
+        failed++;
+
+        const ra = Number(e?.retry_after || 0);
+        if (ra > 0) {
+          await new Promise((r) => setTimeout(r, (ra + 1) * 1000));
+        }
+      }
+
+      if ((sent + failed) % 50 === 0) {
+        updateBroadcastJob(job.id, { sent, failed });
+      }
+
+      await new Promise((r) => setTimeout(r, 40)); // ~25 msg/sec
+    }
+
+    updateBroadcastJob(job.id, { sent, failed, status: "done" });
+  } finally {
+    broadcastRunning = false;
+  }
+}
+
+setInterval(() => {
+  runBroadcastWorkerOnce().catch(() => {});
+}, 5000);
+
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
 
