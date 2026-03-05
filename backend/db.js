@@ -136,6 +136,29 @@ db.prepare(`
   )
 `).run();
 
+// ===== broadcast jobs =====
+db.prepare(`
+  CREATE TABLE IF NOT EXISTS broadcast_jobs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    created_at INTEGER NOT NULL,
+    run_at INTEGER NOT NULL,
+    status TEXT NOT NULL,      -- 'pending' | 'running' | 'done' | 'failed'
+    text TEXT NOT NULL,
+    parse_mode TEXT NOT NULL DEFAULT 'HTML',
+    total INTEGER NOT NULL DEFAULT 0,
+    sent INTEGER NOT NULL DEFAULT 0,
+    failed INTEGER NOT NULL DEFAULT 0,
+    last_error TEXT
+  )
+`).run();
+
+db.prepare(
+  `CREATE INDEX IF NOT EXISTS idx_broadcast_jobs_run_at ON broadcast_jobs(run_at)`
+).run();
+db.prepare(
+  `CREATE INDEX IF NOT EXISTS idx_broadcast_jobs_status ON broadcast_jobs(status)`
+).run();
+
 // ===== Users =====
 export function getUserByTgId(tgId) {
   return db.prepare(`SELECT * FROM users WHERE tg_id = ?`).get(String(tgId));
@@ -206,7 +229,9 @@ export function updateUserBalanceAndDeposit(
 
   const nextFree =
     typeof freeWheelAvailable === "boolean"
-      ? (freeWheelAvailable ? 1 : 0)
+      ? freeWheelAvailable
+        ? 1
+        : 0
       : Number(user?.free_wheel_available || 0);
 
   const nextProgress =
@@ -247,7 +272,6 @@ export function tryBindReferral(invitedTgId, inviterTgId) {
   }
   if (invited === inviter) return { ok: false, reason: "self" };
 
-  // Привязка "один раз": если уже есть запись на invited_tg_id, то ничего не меняем
   const r = db.prepare(
     `
     INSERT INTO referrals (invited_tg_id, inviter_tg_id, created_at)
@@ -304,37 +328,88 @@ export function countInviteClaims(tgId) {
   return Number(row?.c || 0);
 }
 
-// ===== broadcast jobs =====
-db.prepare(`
-  CREATE TABLE IF NOT EXISTS broadcast_jobs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    created_at INTEGER NOT NULL,
-    run_at INTEGER NOT NULL,
-    status TEXT NOT NULL,      -- 'pending' | 'running' | 'done' | 'failed'
-    text TEXT NOT NULL,
-    parse_mode TEXT NOT NULL DEFAULT 'HTML',
-    total INTEGER NOT NULL DEFAULT 0,
-    sent INTEGER NOT NULL DEFAULT 0,
-    failed INTEGER NOT NULL DEFAULT 0,
-    last_error TEXT
-  )
-`).run();
+// ===== Broadcast helpers =====
+export function listAllUserTgIds() {
+  return db.prepare(`SELECT tg_id FROM users`).all().map((r) => String(r.tg_id));
+}
 
-db.prepare(`CREATE INDEX IF NOT EXISTS idx_broadcast_jobs_run_at ON broadcast_jobs(run_at)`).run();
-db.prepare(`CREATE INDEX IF NOT EXISTS idx_broadcast_jobs_status ON broadcast_jobs(status)`).run();
+export function createBroadcastJob({ text, delaySec = 0, parseMode = "HTML" }) {
+  const now = Date.now();
+  const runAt = now + Math.max(0, Number(delaySec || 0)) * 1000;
 
+  const r = db
+    .prepare(
+      `
+    INSERT INTO broadcast_jobs (created_at, run_at, status, text, parse_mode)
+    VALUES (?, ?, 'pending', ?, ?)
+  `
+    )
+    .run(now, runAt, String(text), String(parseMode));
+
+  return { jobId: Number(r.lastInsertRowid), runAt };
+}
+
+export function takeDueBroadcastJob() {
+  const now = Date.now();
+
+  const job = db
+    .prepare(
+      `
+    SELECT *
+    FROM broadcast_jobs
+    WHERE status = 'pending' AND run_at <= ?
+    ORDER BY run_at ASC
+    LIMIT 1
+  `
+    )
+    .get(now);
+
+  if (!job) return null;
+
+  const r = db
+    .prepare(
+      `
+    UPDATE broadcast_jobs
+    SET status = 'running'
+    WHERE id = ? AND status = 'pending'
+  `
+    )
+    .run(Number(job.id));
+
+  if (r.changes !== 1) return null;
+  return job;
+}
+
+export function updateBroadcastJob(id, patch = {}) {
+  const fields = [];
+  const params = [];
+
+  for (const [k, v] of Object.entries(patch)) {
+    fields.push(`${k} = ?`);
+    params.push(v === undefined ? null : v);
+  }
+
+  if (!fields.length) return;
+
+  params.push(Number(id));
+  db.prepare(`UPDATE broadcast_jobs SET ${fields.join(", ")} WHERE id = ?`).run(
+    ...params
+  );
+}
 
 // ===== Admin stats =====
 export function getStats() {
-  return db.prepare(
-    `
+  return db
+    .prepare(
+      `
     SELECT
       COUNT(*) as usersCount,
       COALESCE(SUM(balance), 0) as totalBalance,
       COALESCE(SUM(total_deposit_ton), 0) as totalDeposits
     FROM users
   `
-  ).get();
+    )
+    .get();
 }
 
 // ===== Users list (paged + search) =====
@@ -358,17 +433,21 @@ export function listUsersPaged({ q = "", page = 1, limit = 20 }) {
     }
   }
 
-  const total = db.prepare(`SELECT COUNT(*) as c FROM users ${where}`).get(...params).c;
+  const total = db
+    .prepare(`SELECT COUNT(*) as c FROM users ${where}`)
+    .get(...params).c;
 
-  const items = db.prepare(
-    `
+  const items = db
+    .prepare(
+      `
     SELECT tg_id, username, first_name, last_name, balance, total_deposit_ton, last_seen_at
     FROM users
     ${where}
     ORDER BY last_seen_at DESC
     LIMIT ? OFFSET ?
   `
-  ).all(...params, lim, off);
+    )
+    .all(...params, lim, off);
 
   return { items, total, page: p, pages: Math.ceil(total / lim), limit: lim };
 }
@@ -421,12 +500,19 @@ export function removeInventoryItemByIndexNewestFirst(tgId, idx) {
   const item = db
     .prepare(`SELECT emoji, name, price FROM user_inventory WHERE id = ?`)
     .get(row.id);
+
   db.prepare(`DELETE FROM user_inventory WHERE id = ?`).run(row.id);
   return item;
 }
 
 // ===== Promo =====
-export function createPromo({ code, type, amount = null, giftName = null, maxUses = 1 }) {
+export function createPromo({
+  code,
+  type,
+  amount = null,
+  giftName = null,
+  maxUses = 1,
+}) {
   const now = Date.now();
   db.prepare(
     `
@@ -461,9 +547,13 @@ export function deletePromo(code) {
 }
 
 export function redeemPromo(tgId, code) {
-  const c = db.prepare(`SELECT * FROM promo_codes WHERE code = ?`).get(String(code));
+  const c = db
+    .prepare(`SELECT * FROM promo_codes WHERE code = ?`)
+    .get(String(code));
+
   if (!c || !c.is_active) throw new Error("Промокод не найден");
-  if (c.used_count >= c.max_uses) throw new Error("Лимит использований исчерпан");
+  if (c.used_count >= c.max_uses)
+    throw new Error("Лимит использований исчерпан");
 
   const used = db
     .prepare(`SELECT 1 FROM promo_uses WHERE code = ? AND tg_id = ?`)
@@ -472,19 +562,17 @@ export function redeemPromo(tgId, code) {
 
   const now = Date.now();
   const tx = db.transaction(() => {
-    db.prepare(`INSERT INTO promo_uses (code, tg_id, used_at) VALUES (?, ?, ?)`).run(
-      String(code),
-      String(tgId),
-      now
-    );
-    db.prepare(`UPDATE promo_codes SET used_count = used_count + 1 WHERE code = ?`).run(
-      String(code)
-    );
-  });
-  tx();
+    db.prepare(
+      `INSERT INTO promo_uses (code, tg_id, used_at) VALUES (?, ?, ?)`
+    ).run(String(code), String(tgId), now);
 
+    db.prepare(
+      `UPDATE promo_codes SET used_count = used_count + 1 WHERE code = ?`
+    ).run(String(code));
+  });
+
+  tx();
   return c;
 }
 
 export default db;
-
