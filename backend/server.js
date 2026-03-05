@@ -161,7 +161,7 @@ async function sendAdminMessage(text) {
   return data;
 }
 
-async function sendUserMessage(chatId, text, parseMode = "HTML") {
+async function sendUserMessage(chatId, text, parseMode = "HTML", replyMarkup = null) {
   const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
   const res = await fetch(url, {
     method: "POST",
@@ -171,6 +171,7 @@ async function sendUserMessage(chatId, text, parseMode = "HTML") {
       text,
       parse_mode: parseMode,
       disable_web_page_preview: true,
+      ...(replyMarkup ? { reply_markup: replyMarkup } : {}),
     }),
   });
 
@@ -182,6 +183,7 @@ async function sendUserMessage(chatId, text, parseMode = "HTML") {
   }
   return data;
 }
+
 
 
 // ===== TON Center helper (getTransactions) =====
@@ -996,24 +998,34 @@ async function runBroadcastWorkerOnce() {
     });
 
     for (const tgId of ids) {
-      try {
-        await sendUserMessage(tgId, job.text, job.parse_mode || "HTML");
-        sent++;
-      } catch (e) {
-        failed++;
-
-        const ra = Number(e?.retry_after || 0);
-        if (ra > 0) {
-          await new Promise((r) => setTimeout(r, (ra + 1) * 1000));
-        }
+  try {
+    await sendUserMessage(
+      tgId,
+      job.text,
+      job.parse_mode || "HTML",
+      {
+        inline_keyboard: [[
+          { text: "Открыть Gift Wheels", url: "https://t.me/GiftWheelsbot" }
+        ]]
       }
+    );
+    sent++;
+  } catch (e) {
+    failed++;
 
-      if ((sent + failed) % 50 === 0) {
-        updateBroadcastJob(job.id, { sent, failed });
-      }
-
-      await new Promise((r) => setTimeout(r, 40)); // ~25 msg/sec
+    const ra = Number(e?.retry_after || 0);
+    if (ra > 0) {
+      await new Promise((r) => setTimeout(r, (ra + 1) * 1000));
     }
+  }
+
+  if ((sent + failed) % 50 === 0) {
+    updateBroadcastJob(job.id, { sent, failed });
+  }
+
+  await new Promise((r) => setTimeout(r, 40));
+}
+
 
     updateBroadcastJob(job.id, { sent, failed, status: "done" });
   } finally {
@@ -1028,5 +1040,6 @@ setInterval(() => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
 
 
