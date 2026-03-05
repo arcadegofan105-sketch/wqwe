@@ -563,6 +563,31 @@
 
             <div class="admin-stats" id="admin-adj-result"></div>
           </div>
+
+
+          <!-- 5) Рассылка -->
+<div class="bonus-card">
+  <div class="bonus-title">📣 Рассылка</div>
+  <div class="bonus-text">
+    Напиши текст и выбери, когда отправить. Поддерживается HTML (например: &lt;b&gt;жирный&lt;/b&gt;).
+  </div>
+
+  <textarea
+    id="admin-bc-text"
+    style="width:100%; min-height:140px; resize:vertical; margin-top:10px;"
+    placeholder="Текст рассылки..."
+  ></textarea>
+
+  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+    <button id="admin-bc-now" class="action-btn action-green" type="button">Отправить сейчас</button>
+    <button id="admin-bc-10m" class="action-btn action-blue" type="button">Через 10 минут</button>
+    <button id="admin-bc-1h" class="action-btn action-blue" type="button">Через 1 час</button>
+    <button id="admin-bc-24h" class="action-btn action-blue" type="button">Через 24 часа</button>
+  </div>
+
+  <div id="admin-bc-result" class="admin-stats" style="margin-top:10px;">—</div>
+</div>
+
         </section>
       </main>
 
@@ -758,4 +783,5 @@
     <script src="script.js"></script>
   </body>
 </html>
+
 
