@@ -1032,7 +1032,7 @@ async function runBroadcastWorkerOnce() {
   }
 
   await new Promise((r) => setTimeout(r, 40)); // ~25 msg/sec
-} // ✅ закрыли for
+} // ✅ закрыли f
 
 updateBroadcastJob(job.id, { sent, failed, status: "done" });
 
@@ -1048,6 +1048,7 @@ setInterval(() => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, "0.0.0.0", () => console.log("✅ Listening on", PORT));
+
 
 
 
