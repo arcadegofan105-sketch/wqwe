@@ -186,6 +186,10 @@ const depositAmountInput = document.getElementById('deposit-amount-input')
 const depositConfirmBtn = document.getElementById('deposit-confirm')
 const depositCancelBtn = document.getElementById('deposit-cancel')
 const connectTonBtn = document.getElementById('connect-ton-btn')
+const depositTabs = document.querySelectorAll('.deposit-tab')
+const depositBodyTon = document.querySelector('.deposit-body-ton')
+const depositBodyNft = document.querySelector('.deposit-body-nft')
+const depositNftContactBtn = document.getElementById('deposit-nft-contact')
 
 // Admin UI
 const adminNavBtn = document.getElementById('admin-nav-btn')
@@ -1651,8 +1655,42 @@ promoApplyBtn?.addEventListener('click', async () => {
 })
 
 // ===== DEPOSIT TON =====
+let currentDepositTab = 'ton'
+
+function setDepositTab(tab) {
+  currentDepositTab = tab === 'nft' ? 'nft' : 'ton'
+
+  depositTabs.forEach(btn => {
+    const val = btn.dataset.depositTab || 'ton'
+    btn.classList.toggle('active', val === currentDepositTab)
+  })
+
+  if (depositBodyTon) depositBodyTon.style.display = currentDepositTab === 'ton' ? 'block' : 'none'
+  if (depositBodyNft) depositBodyNft.style.display = currentDepositTab === 'nft' ? 'block' : 'none'
+
+  if (depositConfirmBtn) {
+    depositConfirmBtn.style.display = currentDepositTab === 'ton' ? '' : 'none'
+  }
+}
+
+depositTabs.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.depositTab || 'ton'
+    setDepositTab(tab)
+  })
+})
+
+depositNftContactBtn?.addEventListener('click', () => {
+  if (!tg || !tg.openTelegramLink) {
+    window.open('https://t.me/modergw', '_blank')
+    return
+  }
+  tg.openTelegramLink('https://t.me/modergw')
+})
+
 function openDepositModalFromAnyButton() {
   if (!depositModal) return
+  setDepositTab('ton')
   const connected = isWalletConnected()
   if (depositAmountInput) depositAmountInput.disabled = !connected
   if (depositConfirmBtn) depositConfirmBtn.disabled = !connected
