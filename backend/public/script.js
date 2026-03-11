@@ -238,6 +238,7 @@ const caseOpenRewardsListEl = document.getElementById('case-open-rewards-list')
 const caseOpenTrack = document.getElementById('case-open-track')
 const caseOpenTitleEl = document.getElementById('case-open-title')
 const caseOpenImageEl = document.getElementById('case-open-image')
+const caseOpenBackBtn = document.getElementById('case-open-back')
 
 // Case animation overlay
 const caseAnimOverlay = document.getElementById('case-anim-overlay')
@@ -538,6 +539,10 @@ function setScreen(name) {
   navButtons.forEach(btn => {
     btn.classList.toggle('active', btn.dataset.target === name)
   })
+
+  const content = document.querySelector('.content')
+  if (content) content.scrollTop = 0
+  window.scrollTo?.(0, 0)
 }
 
 function updateTelegramUserUI() {
@@ -1417,6 +1422,10 @@ caseCards.forEach(card => {
 
     openCase(type)
   })
+})
+
+caseOpenBackBtn?.addEventListener('click', () => {
+  setScreen('home')
 })
 
 // Открыть кейс через сервер
