@@ -1996,6 +1996,30 @@ body {
   gap: 14px;
 }
 
+.case-view-header{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.case-back-btn{
+  border:none;
+  background:rgba(15,23,42,0.9);
+  color:#e5e7eb;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:13px;
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  cursor:pointer;
+}
+
+.case-back-btn:active{
+  transform:translateY(1px) scale(.98);
+}
+
 .case-view-hero{
   border-radius: 22px;
   padding: 14px;
