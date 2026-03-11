@@ -716,10 +716,11 @@
           <div class="modal-title">Пополнение баланса</div>
 
           <div class="deposit-tabs">
-            <button class="deposit-tab active">TON</button>
+            <button class="deposit-tab active" data-deposit-tab="ton">TON</button>
+            <button class="deposit-tab" data-deposit-tab="nft">NFT подарком</button>
           </div>
 
-          <div class="deposit-body">
+          <div class="deposit-body deposit-body-ton" style="display: block;">
             <div class="deposit-subtitle">Заполните данные</div>
 
             <button id="connect-ton-btn" class="modal-btn modal-btn-keep" type="button">
@@ -738,6 +739,16 @@
                 disabled
               />
             </div>
+          </div>
+
+          <div class="deposit-body deposit-body-nft" style="display: none;">
+            <div class="deposit-subtitle">Пополнение подарком (NFT)</div>
+            <div class="deposit-text">
+              Для депозита подарком (NFT) напишите нашему модератору в Telegram. Он примет подарок и зачислит эквивалент на баланс.
+            </div>
+            <button id="deposit-nft-contact" class="modal-btn modal-btn-keep" type="button">
+              Написать @modergw
+            </button>
           </div>
 
           <div class="modal-buttons">
