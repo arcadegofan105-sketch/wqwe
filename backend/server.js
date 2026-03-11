@@ -75,6 +75,12 @@ if (!TONCENTER_API_KEY) {
 const TONCENTER_BASE = "https://toncenter.com/api/v2";
 const MIN_DEPOSIT_TON = 0.1;
 
+// ===== TONNEL (optional integration) =====
+const TONNEL_WEB_INIT_DATA = process.env.TONNEL_WEB_INIT_DATA || "";
+if (!TONNEL_WEB_INIT_DATA) {
+  console.warn("⚠ TONNEL_WEB_INIT_DATA is not set – Tonnel gifts integration disabled");
+}
+
 // ===== STATIC =====
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -268,6 +274,111 @@ function safeNumber(x, def = 0) {
   return Number.isFinite(n) ? n : def;
 }
 
+// ===== TONNEL HELPERS =====
+const TONNEL_GIFTS_URL = "https://gifts2.tonnel.network/api/pageGifts";
+
+// Карта соответствий внутренних подарков к Tonnel (правь под себя)
+// key — наше внутреннее имя (item.name / nameKey),
+// значения — как искать на Tonnel.
+const TONNEL_GIFT_MAP = {
+  // пример: Pepe
+  Pepe: {
+    gift_name: "Plush Pepe",
+    model: "Plush Pepe Pink Latex",
+  },
+  "Plush Pepe Pink Latex": {
+    gift_name: "Plush Pepe",
+    model: "Plush Pepe Pink Latex",
+  },
+  // пример: Desk Calendar
+  "Celendar (random)": {
+    gift_name: "Desk Calendar",
+    model: "Desk Calendar",
+  },
+};
+
+function buildTonnelFilter({ giftName, model }) {
+  const filter = {
+    price: { $exists: true },
+    buyer: { $exists: false },
+    asset: "TON",
+    refunded: { $ne: true },
+    export_at: { $exists: true },
+  };
+
+  if (giftName) filter.gift_name = giftName;
+  if (model) {
+    // упрощённо: точное совпадение модели
+    filter.model = model;
+  }
+  return filter;
+}
+
+async function tonnelFetchOneGift({ giftName, model }) {
+  if (!TONNEL_WEB_INIT_DATA) {
+    throw new Error("TONNEL_WEB_INIT_DATA not configured");
+  }
+
+  const filter = buildTonnelFilter({ giftName, model });
+
+  const payload = {
+    filter: JSON.stringify(filter),
+    limit: 1,
+    page: 1,
+    sort: '{"price":1,"gift_id":-1}',
+    price_range: 0,
+    ref: 0,
+    user_auth: TONNEL_WEB_INIT_DATA,
+  };
+
+  const res = await fetch(TONNEL_GIFTS_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      Origin: "https://market.tonnel.network",
+      Referer: "https://market.tonnel.network/",
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122 Safari/537.36",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await res.json().catch(() => null);
+  if (!res.ok || !data) {
+    throw new Error(`Tonnel error HTTP ${res.status}`);
+  }
+
+  //ответ tonnelmp: list[dict]; иногда объект с полем docs
+  const list =
+    Array.isArray(data) ? data : Array.isArray(data.docs) ? data.docs : Array.isArray(data.items) ? data.items : [];
+
+  if (!list.length) {
+    throw new Error("Gift not found on Tonnel");
+  }
+
+  const g = list[0];
+
+  const price =
+    safeNumber(g.price ?? g.floorPrice ?? g.price_ton ?? g.min_price ?? 0, 0);
+
+  const imageUrl =
+    g.image ??
+    g.image_url ??
+    g.preview ??
+    g.preview_url ??
+    g.giftImg ??
+    g.icon ??
+    null;
+
+  return {
+    raw: g,
+    priceTon: price,
+    imageUrl,
+    gift_id: g.gift_id ?? g.id ?? null,
+  };
+}
+
 // ===== COMPAT route helper =====
 function postMany(paths, ...handlers) {
   for (const p of paths) app.post(p, ...handlers);
@@ -297,6 +408,47 @@ app.post("/api/me", auth, (req, res) => {
     freeWheelAvailable: !!u.free_wheel_available,
     wheelDepositProgressTon: safeNumber(u.wheel_deposit_progress_ton, 0),
   });
+});
+
+// ===== TONNEL GIFTS API (helper for frontend / admin) =====
+app.post("/api/tonnel/gift", auth, async (req, res) => {
+  if (!TONNEL_WEB_INIT_DATA) {
+    return res.status(500).json({ error: "TONNEL_WEB_INIT_DATA is not configured on server" });
+  }
+
+  try {
+    const keyRaw = String(req.body?.key || req.body?.nameKey || req.body?.name || "").trim();
+    const giftNameRaw = String(req.body?.gift_name || "").trim();
+    const modelRaw = String(req.body?.model || "").trim();
+
+    let cfg = null;
+    if (keyRaw && TONNEL_GIFT_MAP[keyRaw]) {
+      cfg = TONNEL_GIFT_MAP[keyRaw];
+    } else if (giftNameRaw || modelRaw) {
+      cfg = { gift_name: giftNameRaw || undefined, model: modelRaw || undefined };
+    }
+
+    if (!cfg || (!cfg.gift_name && !cfg.model)) {
+      return res.status(400).json({ error: "Unknown gift mapping (provide key or gift_name/model)" });
+    }
+
+    const info = await tonnelFetchOneGift({
+      giftName: cfg.gift_name,
+      model: cfg.model,
+    });
+
+    return res.json({
+      ok: true,
+      key: keyRaw || null,
+      gift_name: cfg.gift_name || null,
+      model: cfg.model || null,
+      priceTon: info.priceTon,
+      imageUrl: info.imageUrl,
+      gift_id: info.gift_id,
+    });
+  } catch (e) {
+    return res.status(500).json({ error: e.message || "Tonnel request failed" });
+  }
 });
 
 // spin: колесо — платно или бесплатно по депозитам
