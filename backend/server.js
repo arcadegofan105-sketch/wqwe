@@ -991,8 +991,12 @@ app.post("/api/deposit/check", auth, async (req, res) => {
 // ===== CRASH ONLINE (rounds + state) =====
 function generateCrashPoint(hasBets) {
   if (!hasBets) {
-    return 1.1 + Math.random() * (20 - 1.1);
+    // Никто не ставил: 80% — 2.00–3.00x, 20% — 3.00–50.00x
+    const r = Math.random();
+    if (r < 0.8) return 2 + Math.random(); // 2.00–3.00
+    return 3 + Math.random() * 47; // 3.00–50.00
   }
+  // Кто-то поставил: чаще 1.00–1.20x
   const r = Math.random();
   if (r < 0.7) return 1 + Math.random() * 0.2;
   if (r < 0.95) return 1.2 + Math.random() * 0.2;
