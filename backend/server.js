@@ -295,6 +295,11 @@ const TONNEL_GIFT_MAP = {
     gift_name: "Desk Calendar",
     model: "Desk Calendar",
   },
+  // Classic case: Tonnel gifts → Trapped Heart, model Empty Silent
+  "Trapped Hearts": {
+    gift_name: "Trapped Heart",
+    model: "Empty Silent",
+  },
 };
 
 function buildTonnelFilter({ giftName, model }) {
@@ -349,9 +354,18 @@ async function tonnelFetchOneGift({ giftName, model }) {
     throw new Error(`Tonnel error HTTP ${res.status}`);
   }
 
-  //ответ tonnelmp: list[dict]; иногда объект с полем docs
-  const list =
-    Array.isArray(data) ? data : Array.isArray(data.docs) ? data.docs : Array.isArray(data.items) ? data.items : [];
+  // ответ Tonnel: может быть массив или объект с docs/items/gifts/data
+  const list = Array.isArray(data)
+    ? data
+    : Array.isArray(data.docs)
+      ? data.docs
+      : Array.isArray(data.items)
+        ? data.items
+        : Array.isArray(data.gifts)
+          ? data.gifts
+          : Array.isArray(data.data)
+            ? data.data
+            : [];
 
   if (!list.length) {
     throw new Error("Gift not found on Tonnel");
@@ -556,7 +570,7 @@ function pickWeighted(prizes) {
 }
 
 // Открытие кейса на сервере (со списанием и шансами)
-app.post("/api/cases/open", auth, (req, res) => {
+app.post("/api/cases/open", auth, async (req, res) => {
   const tgId = String(req.tgUser.id);
   touchUserVisit(req.tgUser);
 
@@ -576,7 +590,21 @@ app.post("/api/cases/open", auth, (req, res) => {
   updateUserBalance(tgId, newBalance);
 
   const pool = CASE_PRIZES[caseType] || [{ emoji: "🧸", name: "Bear", price: 0.1 }];
-  const winner = pickWeighted(pool);
+  let winner = pickWeighted(pool);
+
+  // Trapped Hearts: цена и картинка с Tonnel
+  if (winner.name === "Trapped Hearts" && TONNEL_WEB_INIT_DATA && TONNEL_GIFT_MAP["Trapped Hearts"]) {
+    try {
+      const info = await tonnelFetchOneGift(TONNEL_GIFT_MAP["Trapped Hearts"]);
+      winner = {
+        ...winner,
+        price: info.priceTon,
+        imageUrl: info.imageUrl || undefined,
+      };
+    } catch (e) {
+      console.warn("Tonnel fetch for Trapped Hearts failed:", e.message);
+    }
+  }
 
   // Кладём приз в инвентарь
   addInventoryItem(tgId, {
@@ -595,12 +623,15 @@ app.post("/api/cases/open", auth, (req, res) => {
   const rollItems = [];
   for (let i = 0; i < 28; i++) rollItems.push(base[i % base.length]);
 
+  const prizeResponse = { ...winner };
+  if (winner.imageUrl) prizeResponse.imageUrl = winner.imageUrl;
+
   return res.json({
     ok: true,
     caseType,
     caseTitle: cfg.title,
     priceTon: price,
-    prize: winner,
+    prize: prizeResponse,
     newBalance,
     rollItems,
   });
