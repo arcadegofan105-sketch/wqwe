@@ -1392,7 +1392,13 @@ navButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     const target = btn.dataset.target
     if (target === 'admin' && !isAdmin) return
+    if (target !== 'crash') stopCrashPolling()
     setScreen(target)
+
+    if (target === 'crash') {
+      startCrashPolling()
+      fetchCrashState().then((s) => s && applyCrashState(s))
+    }
 
     if (target === 'bonus') {
       loadRewards().catch(e => alert(e.message || 'Ошибка наград'))
@@ -1911,8 +1917,12 @@ const crashAutoInput = document.getElementById('crash-auto-input')
 const crashMainActionBtn = document.getElementById('crash-main-action')
 const crashCurrentBetEl = document.getElementById('crash-current-bet')
 const crashPotentialWinEl = document.getElementById('crash-potential-win')
+const crashCountdownEl = document.getElementById('crash-countdown')
+const crashCountdownNumEl = document.getElementById('crash-countdown-num')
+const crashBetsListEl = document.getElementById('crash-bets-list')
+const crashHistoryListEl = document.getElementById('crash-history-list')
 
-let crashState = 'idle' // idle | playing | crashed
+let crashState = 'idle' // idle | counting | playing | crashed
 let crashMultiplier = 1.0
 let crashPoint = null
 
@@ -1923,8 +1933,12 @@ let crashHasCashedOut = false
 let crashAnimFrame = null
 let crashStartTime = null
 
-// Скорость роста НЕ зависит от crashPoint, иначе палится
-// m(t) = exp(k*t)
+let crashRoundState = null
+let crashPollTimer = null
+let crashCountdownTimer = null
+let crashLastRoundId = null
+
+// m(t) = exp(k*t), синхронно с сервером
 let crashK = 0.07
 
 // визуальные состояния
@@ -1955,21 +1969,131 @@ async function ensureRocketVideoPlaying() {
   }
 }
 
-function generateCrashPoint() {
-  const rand = Math.random() * 100
+async function fetchCrashState() {
+  try {
+    const data = await apiPost('/crash/state', {})
+    crashRoundState = data
+    return data
+  } catch (e) {
+    return null
+  }
+}
 
-  // 80% — совсем низкие (1.01–1.09)
-  if (rand < 80) {
-    return 1.01 + Math.random() * (1.09 - 1.01)
+function renderCrashBets(bets) {
+  if (!crashBetsListEl) return
+  if (!Array.isArray(bets) || bets.length === 0) {
+    crashBetsListEl.innerHTML = '<div class="crash-bets-empty">Пока нет ставок</div>'
+    return
+  }
+  crashBetsListEl.innerHTML = bets
+    .map((b) => {
+      const name = escapeHtml(b.firstName || b.username || 'User')
+      const username = b.username ? `@${escapeHtml(b.username)}` : ''
+      const photo = b.photoUrl ? `style="background-image:url('${String(b.photoUrl).replace(/'/g, "\\'")}')"` : ''
+      const amount = Number(b.amount || 0).toFixed(2)
+      return `
+        <div class="crash-bet-item">
+          <div class="crash-bet-amount-row">
+            <span class="crash-ton-logo"></span>
+            <span class="crash-bet-amount">${amount}</span>
+          </div>
+          <div class="crash-bet-user" ${photo}></div>
+          <div class="crash-bet-username">${username || name}</div>
+        </div>
+      `
+    })
+    .join('')
+}
+
+function renderCrashHistory(history) {
+  if (!crashHistoryListEl) return
+  if (!Array.isArray(history) || history.length === 0) {
+    crashHistoryListEl.innerHTML = ''
+    return
+  }
+  crashHistoryListEl.innerHTML = history
+    .map((h) => {
+      const mult = Number(h.multiplier || 0).toFixed(2)
+      return `<div class="crash-history-item crashed">${mult}x</div>`
+    })
+    .join('')
+}
+
+function runCrashCountdown(countdownEndsAt) {
+  if (!crashCountdownEl || !crashCountdownNumEl) return
+  crashCountdownEl.classList.remove('hidden')
+
+  function tick() {
+    const now = Date.now()
+    const left = Math.max(0, countdownEndsAt - now)
+    const num = left > 0 ? Math.min(7, Math.ceil(left / 1000)) : 0
+    crashCountdownNumEl.textContent = num || '1'
+    if (num > 0) {
+      crashCountdownNumEl.style.animation = 'none'
+      crashCountdownNumEl.offsetHeight
+      crashCountdownNumEl.style.animation = 'crashCountdownPop 0.9s ease-out'
+      crashCountdownTimer = setTimeout(tick, 1000)
+    } else {
+      crashCountdownEl.classList.add('hidden')
+      crashCountdownTimer = null
+    }
+  }
+  tick()
+}
+
+function applyCrashState(state) {
+  if (!state) return
+  renderCrashBets(state.bets || [])
+  renderCrashHistory(state.history || [])
+
+  const round = state.round
+  if (!round) {
+    crashState = 'idle'
+    crashLastRoundId = null
+    setCrashStatus('Скоро взлетаем', '#e5e7eb')
+    updateCrashButtonUI()
+    return
   }
 
-  // 19% — низкие (1.09–1.8)
-  if (rand < 99) {
-    return 1.09 + Math.random() * (1.8 - 1.09)
+  if (round.status === 'counting') {
+    if (crashState === 'playing') return
+    if (crashLastRoundId !== round.id) {
+      crashLastRoundId = round.id
+      crashState = 'counting'
+      if (round.countdownEndsAt && round.countdownEndsAt > Date.now() + 500) runCrashCountdown(round.countdownEndsAt)
+    }
+    const myBet = state.myBet
+    crashBetAmount = myBet ? myBet.amount : 0
+    crashHasCashedOut = myBet ? !!myBet.cashedOut : false
+    setCrashStatus('Ставки принимаются', '#e5e7eb')
+    updateCrashButtonUI()
+    return
   }
 
-  // 1% — средние (1.8–4.0)
-  return 1.8 + Math.random() * (4.0 - 1.8)
+  if (round.status === 'flying') {
+    if (crashLastRoundId !== round.id || crashState === 'counting') {
+      if (crashCountdownTimer) {
+        clearTimeout(crashCountdownTimer)
+        crashCountdownTimer = null
+      }
+      if (crashCountdownEl) crashCountdownEl.classList.add('hidden')
+      crashLastRoundId = round.id
+      crashState = 'playing'
+      crashPoint = round.crashPoint
+      crashStartTime = round.flyingStartedAt || Date.now()
+      crashBetAmount = state.myBet ? state.myBet.amount : 0
+      crashHasCashedOut = state.myBet ? !!state.myBet.cashedOut : false
+      setCrashStatus('Летим...', '#e5e7eb')
+      startCrashRenderLoop()
+    }
+    updateCrashButtonUI()
+    return
+  }
+
+  crashLastRoundId = null
+  crashState = 'idle'
+  setCrashStatus('Скоро взлетаем', '#e5e7eb')
+  updateCrashButtonUI()
 }
 
 function getSceneSize() {
@@ -2140,12 +2264,12 @@ function drawRocketVideo(ctx, x, y, ang, size = 70) {
 // ---------- UI ----------
 function updateCrashButtonUI() {
   if (!crashMainActionBtn) return
-  if (crashState === 'idle') {
+  if (crashState === 'idle' || crashState === 'counting') {
     crashMainActionBtn.textContent = 'Сделать ставку'
     crashMainActionBtn.disabled = false
   } else if (crashState === 'playing') {
     crashMainActionBtn.textContent = 'Забрать'
-    crashMainActionBtn.disabled = false
+    crashMainActionBtn.disabled = !(crashBetAmount > 0 && !crashHasCashedOut)
   } else {
     crashMainActionBtn.textContent = 'Раунд завершён'
     crashMainActionBtn.disabled = true
@@ -2171,9 +2295,10 @@ function setCrashStatus(text, color) {
 
 // ---------- logic ----------
 function stepCrashMultiplier() {
-  const t = Math.max(0, Date.now() - crashStartTime) / 1000
+  const t = Math.max(0, (Date.now() - crashStartTime) / 1000)
   crashMultiplier = Math.exp(crashK * t)
   if (!Number.isFinite(crashMultiplier) || crashMultiplier < 1) crashMultiplier = 1
+  if (crashPoint != null && crashMultiplier > crashPoint) crashMultiplier = crashPoint
 }
 
 async function cashoutCrash(isAuto = false) {
@@ -2235,49 +2360,32 @@ function endCrash() {
 }
 
 async function startCrash() {
-  if (crashState !== 'idle') return
+  if (crashState !== 'idle' && crashState !== 'counting') return
 
-  crashBetAmount = parseFloat(crashBetInput?.value || '0')
-  if (isNaN(crashBetAmount) || crashBetAmount < 0.1) {
+  const amount = parseFloat(crashBetInput?.value || '0')
+  if (isNaN(amount) || amount < 0.1) {
     alert('Минимум 0.1 TON')
     return
   }
-  if (balance < crashBetAmount) {
+  if (balance < amount) {
     alert('Недостаточно средств.')
     return
   }
 
-  const rawAuto = String(crashAutoInput?.value || '').replace(',', '.').trim()
-  crashAutoCashoutAt = null
-  if (rawAuto) {
-    const val = Number(rawAuto)
-    if (!Number.isFinite(val) || val < 1.1) {
-      alert('Авто-вывод: введите число не меньше 1.1')
-      return
-    }
-    crashAutoCashoutAt = val
-  }
-
   try {
-    const r = await apiPost('/crash/bet', { amount: crashBetAmount })
+    const r = await apiPost('/crash/bet', { amount })
     balance = Number(r.newBalance ?? balance)
     updateBalanceUI()
+    crashBetAmount = amount
+    crashHasCashedOut = false
+    const state = await fetchCrashState()
+    if (state) {
+      applyCrashState(state)
+      renderCrashBets(state.bets || [])
+    }
   } catch (err) {
     alert(err.message || 'Ошибка ставки')
-    return
   }
-
-  crashPoint = generateCrashPoint()
-  crashMultiplier = 1.0
-  crashState = 'playing'
-  crashHasCashedOut = false
-  crashStartTime = Date.now()
-  crashImpact = null
-  crashShake = 0
-
-  setCrashStatus('Летим...', '#e5e7eb')
-  updateCrashMultiplierUI()
-  startCrashRenderLoop()
 }
 
 // ---------- render loop ----------
@@ -2360,10 +2468,33 @@ function renderCrash(ts) {
   if (needMore) crashAnimFrame = requestAnimationFrame(renderCrash)
 }
 
+function startCrashPolling() {
+  if (crashPollTimer) return
+  function poll() {
+    if (!screens.crash?.classList.contains('active')) return
+    fetchCrashState().then((state) => {
+      if (state) applyCrashState(state)
+      crashPollTimer = setTimeout(poll, 1500)
+    })
+  }
+  poll()
+}
+
+function stopCrashPolling() {
+  if (crashPollTimer) {
+    clearTimeout(crashPollTimer)
+    crashPollTimer = null
+  }
+  if (crashCountdownTimer) {
+    clearTimeout(crashCountdownTimer)
+    crashCountdownTimer = null
+  }
+}
+
 // ---------- controls ----------
 crashMainActionBtn?.addEventListener('click', async () => {
   await ensureRocketVideoPlaying()
-  if (crashState === 'idle') startCrash()
+  if (crashState === 'idle' || crashState === 'counting') startCrash()
   else if (crashState === 'playing') cashoutCrash(false)
 })
 
