@@ -2073,16 +2073,20 @@ function applyCrashState(state) {
       crashCountdownTimer = null
     }
     if (crashCountdownEl) crashCountdownEl.classList.add('hidden')
-    crashLastRoundId = round.id
-    crashState = 'playing'
-    crashPoint = round.crashPoint
-    // всегда начинаем полёт с 1.00x для плавной анимации
-    crashStartTime = Date.now()
-    crashBetAmount = state.myBet ? state.myBet.amount : 0
-    crashHasCashedOut = state.myBet ? !!state.myBet.cashedOut : false
-    setCrashStatus('Летим...', '#e5e7eb')
-    ensureRocketVideoPlaying().catch?.(() => {})
-    startCrashRenderLoop()
+
+    // Входим в новый летящий раунд: инициализируем один раз
+    if (crashLastRoundId !== round.id || crashState !== 'playing') {
+      crashLastRoundId = round.id
+      crashState = 'playing'
+      crashPoint = round.crashPoint
+      crashStartTime = round.flyingStartedAt || Date.now()
+      crashBetAmount = state.myBet ? state.myBet.amount : 0
+      crashHasCashedOut = state.myBet ? !!state.myBet.cashedOut : false
+      setCrashStatus('Летим...', '#e5e7eb')
+      ensureRocketVideoPlaying().catch?.(() => {})
+      startCrashRenderLoop()
+    }
+
     updateCrashButtonUI()
     return
   }
