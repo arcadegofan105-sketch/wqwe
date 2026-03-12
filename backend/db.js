@@ -685,7 +685,7 @@ export function countBetsInRound(roundId) {
   return Number(r?.c || 0);
 }
 
-export function getLastCrashPoints(limit = 15) {
+export function getLastCrashPoints(limit = 10) {
   return db
     .prepare(
       `SELECT id, crash_point, crashed_at FROM crash_rounds WHERE status = 'crashed' AND crash_point IS NOT NULL ORDER BY id DESC LIMIT ?`
