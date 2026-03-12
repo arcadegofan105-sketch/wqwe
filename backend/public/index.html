@@ -39,6 +39,8 @@
       <main class="content">
         <!-- Главная: вход в режимы + кейсы -->
         <section id="screen-home" class="screen active">
+          <div class="screen-title">Главная</div>
+          <div class="screen-subtitle">Выберите режим: Краш, Колесо или Frog. Кейсы ниже.</div>
 
           <!-- Карточки КОЛЕСО и FROG -->
           <div class="info-row info-row-games">
@@ -48,6 +50,8 @@
           </div>
 
           <!-- Кейсы прямо на главной, ниже режимов -->
+          <div class="screen-title" style="margin-top: 20px;">🎁 Кейсы</div>
+          <div class="screen-subtitle">Выберите кейс для открытия.</div>
 
           <div class="cases-grid">
             <!-- Celendar case (newyear) -->
@@ -291,18 +295,10 @@
               <div class="crash-status" id="crash-status">Скоро взлетаем</div>
             </div>
 
-            <!-- Лента ставок: TON + сумма, ниже аватарки и ники -->
-            <div class="crash-bets-strip">
-              <div id="crash-bets-list" class="crash-bets-list"></div>
-            </div>
-
             <!-- Лента последних множителей -->
             <div class="crash-history-strip">
               <div id="crash-history-list" class="crash-history-list"></div>
             </div>
-
-            <!-- ОДНА основная кнопка: Сделать ставку / Забрать -->
-            <button id="crash-main-action" class="crash-main-btn">Сделать ставку</button>
 
             <div class="crash-panel">
               <div class="crash-bet-block">
@@ -319,31 +315,14 @@
                   />
                 </div>
               </div>
-
-              <div class="crash-auto-block">
-                <div class="crash-bet-label">Авто-вывод (x)</div>
-                <div class="crash-bet-input-row">
-                  <input
-                    type="number"
-                    id="crash-auto-input"
-                    class="crash-bet-input"
-                    placeholder="Например: 2.5"
-                    min="1.1"
-                    step="0.1"
-                  />
-                </div>
-              </div>
             </div>
 
-            <div class="crash-info">
-              <div class="crash-info-item">
-                <span class="crash-info-label">Ваша ставка:</span>
-                <span class="crash-info-value" id="crash-current-bet">—</span>
-              </div>
-              <div class="crash-info-item">
-                <span class="crash-info-label">Потенциальный выигрыш:</span>
-                <span class="crash-info-value" id="crash-potential-win">—</span>
-              </div>
+            <!-- ОДНА основная кнопка: Сделать ставку / Забрать -->
+            <button id="crash-main-action" class="crash-main-btn">Сделать ставку</button>
+
+            <!-- Лента ставок: TON + сумма, ниже аватарки и ники -->
+            <div class="crash-bets-strip">
+              <div id="crash-bets-list" class="crash-bets-list"></div>
             </div>
           </div>
         </section>
@@ -809,6 +788,5 @@
     <script src="script.js"></script>
   </body>
 </html>
-
 
 
