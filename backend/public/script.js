@@ -2019,6 +2019,11 @@ function renderCrashHistory(history) {
 
 function runCrashCountdown(countdownEndsAt) {
   if (!crashCountdownEl || !crashCountdownNumEl) return
+  // сбрасываем предыдущий таймер, чтобы не было нескольких параллельных отсчётов
+  if (crashCountdownTimer) {
+    clearTimeout(crashCountdownTimer)
+    crashCountdownTimer = null
+  }
   crashCountdownEl.classList.remove('hidden')
 
   function tick() {
@@ -2051,6 +2056,12 @@ function applyCrashState(state) {
     setCrashStatus('Скоро взлетаем', '#e5e7eb')
     updateCrashButtonUI()
     return
+  }
+
+  // если до этого летели, а теперь сервер прислал не flying — принудительно докручиваем взрыв
+  if (crashState === 'playing' && round.status !== 'flying') {
+    crashBoomIntoMoon()
+    endCrash()
   }
 
   if (round.status === 'counting') {
