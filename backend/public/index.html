@@ -285,9 +285,24 @@
               <div class="crash-stars crash-stars-back"></div>
               <div class="crash-stars crash-stars-front"></div>
 
+              <!-- Обратный отсчёт 7→1 -->
+              <div id="crash-countdown" class="crash-countdown hidden" aria-hidden="true">
+                <span id="crash-countdown-num">7</span>
+              </div>
+
               <canvas id="crash-canvas"></canvas>
               <div class="crash-multiplier" id="crash-multiplier">1.00x</div>
               <div class="crash-status" id="crash-status">Скоро взлетаем</div>
+            </div>
+
+            <!-- Лента ставок: TON + сумма, ниже аватарки и ники -->
+            <div class="crash-bets-strip">
+              <div id="crash-bets-list" class="crash-bets-list"></div>
+            </div>
+
+            <!-- Лента последних множителей -->
+            <div class="crash-history-strip">
+              <div id="crash-history-list" class="crash-history-list"></div>
             </div>
 
             <!-- ОДНА основная кнопка: Сделать ставку / Забрать -->
