@@ -1913,7 +1913,6 @@ const rocketKeyCtx = rocketKeyCanvas.getContext('2d', { willReadFrequently: true
 const crashMultiplierEl = document.getElementById('crash-multiplier')
 const crashStatusEl = document.getElementById('crash-status')
 const crashBetInput = document.getElementById('crash-bet-input')
-const crashAutoInput = document.getElementById('crash-auto-input')
 const crashMainActionBtn = document.getElementById('crash-main-action')
 const crashCurrentBetEl = document.getElementById('crash-current-bet')
 const crashPotentialWinEl = document.getElementById('crash-potential-win')
@@ -1927,7 +1926,6 @@ let crashMultiplier = 1.0
 let crashPoint = null
 
 let crashBetAmount = 0
-let crashAutoCashoutAt = null
 let crashHasCashedOut = false
 
 let crashAnimFrame = null
@@ -2056,7 +2054,6 @@ function applyCrashState(state) {
   }
 
   if (round.status === 'counting') {
-    if (crashState === 'playing') return
     if (crashLastRoundId !== round.id) {
       crashLastRoundId = round.id
       crashState = 'counting'
@@ -2084,6 +2081,7 @@ function applyCrashState(state) {
       crashBetAmount = state.myBet ? state.myBet.amount : 0
       crashHasCashedOut = state.myBet ? !!state.myBet.cashedOut : false
       setCrashStatus('Летим...', '#e5e7eb')
+      ensureRocketVideoPlaying().catch?.(() => {})
       startCrashRenderLoop()
     }
     updateCrashButtonUI()
@@ -2278,12 +2276,6 @@ function updateCrashButtonUI() {
 
 function updateCrashMultiplierUI() {
   if (crashMultiplierEl) crashMultiplierEl.textContent = `${crashMultiplier.toFixed(2)}x`
-  if (crashBetAmount > 0 && crashPotentialWinEl) {
-    crashPotentialWinEl.textContent = `${(crashBetAmount * crashMultiplier).toFixed(2)} TON`
-  }
-  if (crashCurrentBetEl) {
-    crashCurrentBetEl.textContent = crashBetAmount > 0 ? `${crashBetAmount.toFixed(2)} TON` : '—'
-  }
   updateCrashButtonUI()
 }
 
@@ -2344,7 +2336,6 @@ function endCrash() {
     crashMultiplier = 1.0
     crashBetAmount = 0
     crashPoint = null
-    crashAutoCashoutAt = null
     crashHasCashedOut = false
     crashImpact = null
     crashShake = 0
@@ -2405,18 +2396,10 @@ function renderCrash(ts) {
   // 1) логика каждый кадр
   if (crashState === 'playing') {
     stepCrashMultiplier()
-
-    if (crashAutoCashoutAt && crashMultiplier >= crashAutoCashoutAt && !crashHasCashedOut) {
-      cashoutCrash(true)
-    }
-
-    if (crashPoint && crashMultiplier >= crashPoint) {
-      crashMultiplier = crashPoint
-      updateCrashMultiplierUI()
+    updateCrashMultiplierUI()
+    if (crashPoint && crashMultiplier >= crashPoint && !crashHasCashedOut) {
       crashBoomIntoMoon()
       endCrash()
-    } else {
-      updateCrashMultiplierUI()
     }
   }
 
