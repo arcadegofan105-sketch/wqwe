@@ -2054,10 +2054,10 @@ function applyCrashState(state) {
   }
 
   if (round.status === 'counting') {
-    if (crashLastRoundId !== round.id) {
-      crashLastRoundId = round.id
-      crashState = 'counting'
-      if (round.countdownEndsAt && round.countdownEndsAt > Date.now() + 500) runCrashCountdown(round.countdownEndsAt)
+    crashLastRoundId = round.id
+    crashState = 'counting'
+    if (round.countdownEndsAt && round.countdownEndsAt > Date.now() + 500) {
+      runCrashCountdown(round.countdownEndsAt)
     }
     const myBet = state.myBet
     crashBetAmount = myBet ? myBet.amount : 0
@@ -2068,22 +2068,21 @@ function applyCrashState(state) {
   }
 
   if (round.status === 'flying') {
-    if (crashLastRoundId !== round.id || crashState === 'counting') {
-      if (crashCountdownTimer) {
-        clearTimeout(crashCountdownTimer)
-        crashCountdownTimer = null
-      }
-      if (crashCountdownEl) crashCountdownEl.classList.add('hidden')
-      crashLastRoundId = round.id
-      crashState = 'playing'
-      crashPoint = round.crashPoint
-      crashStartTime = round.flyingStartedAt || Date.now()
-      crashBetAmount = state.myBet ? state.myBet.amount : 0
-      crashHasCashedOut = state.myBet ? !!state.myBet.cashedOut : false
-      setCrashStatus('Летим...', '#e5e7eb')
-      ensureRocketVideoPlaying().catch?.(() => {})
-      startCrashRenderLoop()
+    if (crashCountdownTimer) {
+      clearTimeout(crashCountdownTimer)
+      crashCountdownTimer = null
     }
+    if (crashCountdownEl) crashCountdownEl.classList.add('hidden')
+    crashLastRoundId = round.id
+    crashState = 'playing'
+    crashPoint = round.crashPoint
+    // всегда начинаем полёт с 1.00x для плавной анимации
+    crashStartTime = Date.now()
+    crashBetAmount = state.myBet ? state.myBet.amount : 0
+    crashHasCashedOut = state.myBet ? !!state.myBet.cashedOut : false
+    setCrashStatus('Летим...', '#e5e7eb')
+    ensureRocketVideoPlaying().catch?.(() => {})
+    startCrashRenderLoop()
     updateCrashButtonUI()
     return
   }
