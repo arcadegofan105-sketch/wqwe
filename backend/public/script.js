@@ -617,6 +617,7 @@ async function getTonnelGift(key) {
     tonnelGiftCache[key] = { priceTon: r.priceTon, imageUrl: r.imageUrl || null }
     return tonnelGiftCache[key]
   } catch (e) {
+    console.warn('[Tonnel] getTonnelGift failed for', key, e?.message || e)
     return null
   }
 }
