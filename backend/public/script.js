@@ -2054,10 +2054,14 @@ function applyCrashState(state) {
   }
 
   if (round.status === 'counting') {
-    crashLastRoundId = round.id
-    crashState = 'counting'
-    if (round.countdownEndsAt && round.countdownEndsAt > Date.now() + 500) {
-      runCrashCountdown(round.countdownEndsAt)
+    // запускаем отсчёт только при входе в новый раунд,
+    // чтобы не дёргать анимацию на каждом опросе и при ставке
+    if (crashLastRoundId !== round.id || crashState !== 'counting') {
+      crashLastRoundId = round.id
+      crashState = 'counting'
+      if (round.countdownEndsAt && round.countdownEndsAt > Date.now() + 500) {
+        runCrashCountdown(round.countdownEndsAt)
+      }
     }
     const myBet = state.myBet
     crashBetAmount = myBet ? myBet.amount : 0
@@ -2327,7 +2331,8 @@ function crashBoomIntoMoon() {
   crashShake = 1
   spawnExplosion(ix, iy)
 
-  if (!crashHasCashedOut) setCrashStatus('Краш!', '#f97373')
+  // показываем взрыв всегда, даже если игрок успел забрать
+  setCrashStatus('Краш!', '#f97373')
 }
 
 function endCrash() {
