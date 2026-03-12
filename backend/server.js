@@ -302,6 +302,16 @@ const TONNEL_GIFT_MAP = {
   },
 };
 
+// Title case как в tonnelmp (первая буква каждого слова)
+function tonnelTitle(str) {
+  if (!str || typeof str !== "string") return "";
+  return str
+    .trim()
+    .split(/\s+/)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
+}
+
 function buildTonnelFilter({ giftName, model }) {
   const filter = {
     price: { $exists: true },
@@ -311,10 +321,14 @@ function buildTonnelFilter({ giftName, model }) {
     export_at: { $exists: true },
   };
 
-  if (giftName) filter.gift_name = giftName;
+  if (giftName) filter.gift_name = tonnelTitle(giftName);
   if (model) {
-    // упрощённо: точное совпадение модели
-    filter.model = model;
+    const m = tonnelTitle(model);
+    if (m.includes("(")) {
+      filter.model = m;
+    } else {
+      filter.model = { $regex: `^${m.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")} \\(` };
+    }
   }
   return filter;
 }
@@ -351,6 +365,7 @@ async function tonnelFetchOneGift({ giftName, model }) {
 
   const data = await res.json().catch(() => null);
   if (!res.ok || !data) {
+    console.warn("[Tonnel] HTTP", res.status, typeof data === "object" ? JSON.stringify(data).slice(0, 200) : "");
     throw new Error(`Tonnel error HTTP ${res.status}`);
   }
 
@@ -368,6 +383,7 @@ async function tonnelFetchOneGift({ giftName, model }) {
             : [];
 
   if (!list.length) {
+    console.warn("[Tonnel] Empty list, keys in response:", Object.keys(data || {}));
     throw new Error("Gift not found on Tonnel");
   }
 
@@ -381,8 +397,10 @@ async function tonnelFetchOneGift({ giftName, model }) {
     g.image_url ??
     g.preview ??
     g.preview_url ??
+    g.preview_image ??
     g.giftImg ??
     g.icon ??
+    (g.preview_urls && g.preview_urls[0]) ??
     null;
 
   return {
