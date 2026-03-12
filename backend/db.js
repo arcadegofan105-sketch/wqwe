@@ -159,6 +159,36 @@ db.prepare(
   `CREATE INDEX IF NOT EXISTS idx_broadcast_jobs_status ON broadcast_jobs(status)`
 ).run();
 
+// ===== crash (online rounds) =====
+db.prepare(`
+  CREATE TABLE IF NOT EXISTS crash_rounds (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    status TEXT NOT NULL,
+    crash_point REAL,
+    started_at INTEGER NOT NULL,
+    countdown_ends_at INTEGER,
+    flying_started_at INTEGER,
+    crashed_at INTEGER
+  )
+`).run();
+db.prepare(`
+  CREATE TABLE IF NOT EXISTS crash_bets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    round_id INTEGER NOT NULL,
+    tg_id TEXT NOT NULL,
+    amount REAL NOT NULL,
+    cashed_out INTEGER NOT NULL DEFAULT 0,
+    cashout_multiplier REAL,
+    placed_at INTEGER NOT NULL,
+    first_name TEXT,
+    username TEXT,
+    photo_url TEXT,
+    FOREIGN KEY (round_id) REFERENCES crash_rounds(id)
+  )
+`).run();
+db.prepare(`CREATE INDEX IF NOT EXISTS idx_crash_bets_round ON crash_bets(round_id)`).run();
+db.prepare(`CREATE INDEX IF NOT EXISTS idx_crash_rounds_status ON crash_rounds(status)`).run();
+
 // ===== Users =====
 export function getUserByTgId(tgId) {
   return db.prepare(`SELECT * FROM users WHERE tg_id = ?`).get(String(tgId));
@@ -573,6 +603,94 @@ export function redeemPromo(tgId, code) {
 
   tx();
   return c;
+}
+
+// ===== Crash (online) =====
+export function getCurrentCrashRound() {
+  return db
+    .prepare(
+      `SELECT * FROM crash_rounds WHERE status IN ('counting', 'flying') ORDER BY id DESC LIMIT 1`
+    )
+    .get();
+}
+
+export function getCrashRoundById(id) {
+  return db.prepare(`SELECT * FROM crash_rounds WHERE id = ?`).get(Number(id));
+}
+
+export function createCrashRound(countdownMs = 7000) {
+  const now = Date.now();
+  const countdownEndsAt = now + countdownMs;
+  db.prepare(
+    `INSERT INTO crash_rounds (status, started_at, countdown_ends_at) VALUES ('counting', ?, ?)`
+  ).run(now, countdownEndsAt);
+  return getCurrentCrashRound();
+}
+
+export function setCrashRoundFlying(roundId, crashPoint, crashK = 0.07) {
+  const now = Date.now();
+  const crashTimeSec = Math.log(Math.max(1.001, crashPoint)) / crashK;
+  const crashedAt = now + Math.round(crashTimeSec * 1000);
+  db.prepare(
+    `UPDATE crash_rounds SET status = 'flying', crash_point = ?, countdown_ends_at = NULL, flying_started_at = ?, crashed_at = ? WHERE id = ? AND status = 'counting'`
+  ).run(crashPoint, now, crashedAt, roundId);
+  return getCrashRoundById(roundId);
+}
+
+export function setCrashRoundCrashed(roundId) {
+  db.prepare(`UPDATE crash_rounds SET status = 'crashed' WHERE id = ?`).run(roundId);
+}
+
+export function getCrashBetsForRound(roundId) {
+  return db
+    .prepare(
+      `SELECT b.tg_id, b.amount, b.cashed_out, b.cashout_multiplier, b.first_name, b.username, b.photo_url
+       FROM crash_bets b WHERE b.round_id = ? ORDER BY b.placed_at ASC`
+    )
+    .all(roundId);
+}
+
+export function placeCrashBet(roundId, tgId, amount, tgUser = null) {
+  const now = Date.now();
+  db.prepare(
+    `INSERT INTO crash_bets (round_id, tg_id, amount, placed_at, first_name, username, photo_url)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`
+  ).run(
+    roundId,
+    String(tgId),
+    amount,
+    now,
+    tgUser?.first_name ?? null,
+    tgUser?.username ?? null,
+    tgUser?.photo_url ?? null
+  );
+}
+
+export function getCrashBet(roundId, tgId) {
+  return db
+    .prepare(`SELECT * FROM crash_bets WHERE round_id = ? AND tg_id = ?`)
+    .get(roundId, String(tgId));
+}
+
+export function cashoutCrashBet(roundId, tgId, cashoutMultiplier) {
+  return db
+    .prepare(
+      `UPDATE crash_bets SET cashed_out = 1, cashout_multiplier = ? WHERE round_id = ? AND tg_id = ? AND cashed_out = 0`
+    )
+    .run(cashoutMultiplier, roundId, String(tgId));
+}
+
+export function countBetsInRound(roundId) {
+  const r = db.prepare(`SELECT COUNT(*) as c FROM crash_bets WHERE round_id = ?`).get(roundId);
+  return Number(r?.c || 0);
+}
+
+export function getLastCrashPoints(limit = 15) {
+  return db
+    .prepare(
+      `SELECT id, crash_point, crashed_at FROM crash_rounds WHERE status = 'crashed' AND crash_point IS NOT NULL ORDER BY id DESC LIMIT ?`
+    )
+    .all(limit);
 }
 
 export default db;
