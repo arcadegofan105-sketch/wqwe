@@ -1471,8 +1471,7 @@ body {
   width: 20px;
   height: 20px;
   flex-shrink: 0;
-  background: url("https://ton.org/download/ton_symbol.png") center/contain no-repeat;
-  background-color: #0098ea;
+  background: url("toncoin-ton-logo.png") center/contain no-repeat;
   border-radius: 50%;
 }
 
