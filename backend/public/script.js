@@ -97,6 +97,10 @@ const GIFT_IMAGES = {
 
 function giftVisual(item) {
   if (!item) return ''
+  if (item.imageUrl) {
+    const url = String(item.imageUrl).replace(/'/g, "\\'").replace(/"/g, '%22')
+    return `<span class="gift-icon" style="background-image:url('${url}')"></span>`
+  }
   const name = item.nameKey || item.name
   const file = GIFT_IMAGES[name]
   if (file) {
@@ -494,14 +498,8 @@ function renderPrizesList() {
   })
 }
 
-function renderInventory() {
-  if (!inventoryList) return
-
-  if (!Array.isArray(inventory) || inventory.length === 0) {
-    inventoryList.innerHTML = `<div class="inventory-empty">У вас пока нет подарков</div>`
-    return
-  }
-
+function renderInventoryContent() {
+  if (!inventoryList || !Array.isArray(inventory) || inventory.length === 0) return
   inventoryList.innerHTML = inventory
     .map((item, idx) => {
       const price = Number(item.price || 0).toFixed(2)
@@ -530,6 +528,25 @@ function renderInventory() {
       `
     })
     .join('')
+}
+
+function renderInventory() {
+  if (!inventoryList) return
+
+  if (!Array.isArray(inventory) || inventory.length === 0) {
+    inventoryList.innerHTML = `<div class="inventory-empty">У вас пока нет подарков</div>`
+    return
+  }
+
+  const hasTrappedHearts = inventory.some(i => (i.name || '') === 'Trapped Hearts')
+  if (hasTrappedHearts) {
+    getTonnelGift('Trapped Hearts').then(r => {
+      if (r && r.imageUrl) GIFT_IMAGES['Trapped Hearts'] = r.imageUrl
+      renderInventoryContent()
+    })
+  }
+
+  renderInventoryContent()
 }
 
 function setScreen(name) {
@@ -590,6 +607,20 @@ inviteCopyBtn?.addEventListener('click', async () => {
   }
 })
 
+// Кэш Tonnel: ключ -> { priceTon, imageUrl }
+let tonnelGiftCache = {}
+
+async function getTonnelGift(key) {
+  if (tonnelGiftCache[key]) return tonnelGiftCache[key]
+  try {
+    const r = await apiPost('/tonnel/gift', { key })
+    tonnelGiftCache[key] = { priceTon: r.priceTon, imageUrl: r.imageUrl || null }
+    return tonnelGiftCache[key]
+  } catch (e) {
+    return null
+  }
+}
+
 // ===== CASES HELPERS =====
 function renderCaseRewardsList(cfg) {
   if (!caseOpenRewardsListEl) return
@@ -603,9 +634,10 @@ function renderCaseRewardsList(cfg) {
   caseOpenRewardsListEl.innerHTML = items.map(it => {
     const name = escapeHtml(it?.name || '')
     const priceText = formatTonHuman(it?.price)
+    const giftName = (it?.name || '').trim()
 
     return `
-      <div class="case-prize-card">
+      <div class="case-prize-card" data-gift-name="${escapeHtml(giftName)}">
         <div class="case-prize-emoji">${giftVisual(it)}</div>
         <div class="case-prize-name">${name}</div>
 
@@ -616,6 +648,21 @@ function renderCaseRewardsList(cfg) {
       </div>
     `
   }).join('')
+
+  // Trapped Hearts: подтянуть цену и картинку с Tonnel для Classic case
+  if (cfg.id === 'onlynft') {
+    getTonnelGift('Trapped Hearts').then(r => {
+      if (!r || !caseOpenRewardsListEl) return
+      const card = caseOpenRewardsListEl.querySelector('[data-gift-name="Trapped Hearts"]')
+      if (!card) return
+      const emojiEl = card.querySelector('.case-prize-emoji')
+      const priceEl = card.querySelector('.case-prize-price-text')
+      if (priceEl) priceEl.textContent = formatTonHuman(r.priceTon)
+      if (emojiEl && r.imageUrl) {
+        emojiEl.innerHTML = `<span class="gift-icon" style="background-image:url('${r.imageUrl.replace(/'/g, "\\'")}')"></span>`
+      }
+    })
+  }
 }
 
 function renderCasePreviewTrack(cfg) {
