@@ -929,14 +929,34 @@ app.post("/api/deposit/check", auth, async (req, res) => {
 
   const user = mustGetUser(userId);
 
-  const newBalance = Number((safeNumber(user.balance, 0) + dep.amount).toFixed(2));
-  const newTotalDeposit = Number((safeNumber(user.total_deposit_ton, 0) + dep.amount).toFixed(2));
+  // Безопасность: проверяем реальную сумму входящего платежа по данным TON Center
+  let valueTon = 0;
+  try {
+    const rawValue = found?.in_msg?.value ?? found?.in_msg?.value_nanoton ?? found?.in_msg?.valueNanoton;
+    valueTon = safeNumber(rawValue, 0) / 1e9;
+  } catch {
+    valueTon = 0;
+  }
+
+  // Если TON Center не вернул сумму или она меньше ожидаемой — не зачисляем
+  if (!Number.isFinite(valueTon) || valueTon + 1e-9 < dep.amount) {
+    return res.status(400).json({
+      error: "Сумма депозита меньше ожидаемой",
+      expectedTon: dep.amount,
+      actualTon: Number.isFinite(valueTon) ? Number(valueTon.toFixed(6)) : 0,
+    });
+  }
+
+  const creditedAmount = Number(valueTon.toFixed(2));
+
+  const newBalance = Number((safeNumber(user.balance, 0) + creditedAmount).toFixed(2));
+  const newTotalDeposit = Number((safeNumber(user.total_deposit_ton, 0) + creditedAmount).toFixed(2));
 
   // === прогресс к бесплатному колесу ===
   const WHEEL_DEPOSIT_TARGET = 0.5;
 
   const prevProgress = safeNumber(user.wheel_deposit_progress_ton, 0);
-  let wheelDepositProgressTon = Number((prevProgress + dep.amount).toFixed(4));
+  let wheelDepositProgressTon = Number((prevProgress + creditedAmount).toFixed(4));
   let freeWheelAvailable = !!user.free_wheel_available;
 
   if (wheelDepositProgressTon >= WHEEL_DEPOSIT_TARGET) {
@@ -956,7 +976,7 @@ app.post("/api/deposit/check", auth, async (req, res) => {
   pendingDeposits.set(depositId, dep);
 
   sendAdminMessage(
-    `✅ Депозит зачислен\nID: ${userId}\nСумма: ${dep.amount.toFixed(2)} TON\nDepositId: ${depositId}`
+    `✅ Депозит зачислен\nID: ${userId}\nСумма: ${creditedAmount.toFixed(2)} TON\nDepositId: ${depositId}`
   ).catch(() => {});
 
   return res.json({
