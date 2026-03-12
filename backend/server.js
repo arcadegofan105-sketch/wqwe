@@ -30,7 +30,21 @@ import db, {
   addClaim,
   hasClaim,
   countInviteClaims,
+
+  getCurrentCrashRound,
+  createCrashRound,
+  getCrashRoundById,
+  setCrashRoundFlying,
+  setCrashRoundCrashed,
+  getCrashBetsForRound,
+  placeCrashBet,
+  getCrashBet,
+  cashoutCrashBet,
+  countBetsInRound,
+  getLastCrashPoints,
 } from "./db.js";
+
+const CRASH_K = 0.07;
 
 const app = express();
 app.use(express.json());
@@ -954,38 +968,134 @@ app.post("/api/deposit/check", auth, async (req, res) => {
   });
 });
 
-// crash bet
+// ===== CRASH ONLINE (rounds + state) =====
+function generateCrashPoint(hasBets) {
+  if (!hasBets) {
+    return 1.1 + Math.random() * (20 - 1.1);
+  }
+  const r = Math.random();
+  if (r < 0.7) return 1 + Math.random() * 0.2;
+  if (r < 0.95) return 1.2 + Math.random() * 0.2;
+  return 1.4 + Math.random() * 0.1;
+}
+
+function runCrashRoundTick() {
+  const round = getCurrentCrashRound();
+  if (!round) {
+    createCrashRound(7000);
+    return;
+  }
+  const now = Date.now();
+  if (round.status === "counting" && round.countdown_ends_at && now >= round.countdown_ends_at) {
+    const numBets = countBetsInRound(round.id);
+    const crashPoint = generateCrashPoint(numBets > 0);
+    setCrashRoundFlying(round.id, crashPoint, CRASH_K);
+    return;
+  }
+  if (round.status === "flying" && round.crashed_at && now >= round.crashed_at) {
+    setCrashRoundCrashed(round.id);
+    createCrashRound(7000);
+  }
+}
+
+setInterval(runCrashRoundTick, 500);
+runCrashRoundTick();
+
+app.post("/api/crash/state", auth, (req, res) => {
+  touchUserVisit(req.tgUser);
+  let round = getCurrentCrashRound();
+  if (!round) {
+    createCrashRound(7000);
+    round = getCurrentCrashRound();
+  }
+  const bets = round ? getCrashBetsForRound(round.id) : [];
+  const history = getLastCrashPoints(15);
+  const myBet = round && req.tgUser ? getCrashBet(round.id, String(req.tgUser.id)) : null;
+
+  res.json({
+    round: round
+      ? {
+          id: round.id,
+          status: round.status,
+          countdownEndsAt: round.countdown_ends_at,
+          flyingStartedAt: round.flying_started_at,
+          crashPoint: round.crash_point,
+          crashedAt: round.crashed_at,
+        }
+      : null,
+    bets: bets.map((b) => ({
+      tgId: b.tg_id,
+      amount: b.amount,
+      cashedOut: !!b.cashed_out,
+      cashoutMultiplier: b.cashout_multiplier,
+      firstName: b.first_name,
+      username: b.username,
+      photoUrl: b.photo_url,
+    })),
+    history: history.map((h) => ({ roundId: h.id, multiplier: h.crash_point })),
+    myBet: myBet
+      ? { amount: myBet.amount, cashedOut: !!myBet.cashed_out, cashoutMultiplier: myBet.cashout_multiplier }
+      : null,
+  });
+});
+
 app.post("/api/crash/bet", auth, (req, res) => {
   const tgId = String(req.tgUser.id);
-  touchUserVisit(req.tgUser);
+  const tgUser = req.tgUser;
+  touchUserVisit(tgUser);
 
   const amount = safeNumber(req.body?.amount, 0);
   if (!Number.isFinite(amount) || amount <= 0) return res.status(400).json({ error: "amount required" });
 
   const user = mustGetUser(tgId);
   const balance = safeNumber(user.balance, 0);
-
   if (balance < amount) return res.status(400).json({ error: "Недостаточно средств" });
+
+  const round = getCurrentCrashRound();
+  if (!round || round.status !== "counting") {
+    return res.status(400).json({ error: "Ставки принимаются только во время отсчёта" });
+  }
+  if (getCrashBet(round.id, tgId)) {
+    return res.status(400).json({ error: "Вы уже поставили в этом раунде" });
+  }
 
   const newBalance = Number((balance - amount).toFixed(2));
   updateUserBalance(tgId, newBalance);
+  placeCrashBet(round.id, tgId, amount, {
+    first_name: tgUser.first_name,
+    username: tgUser.username,
+    photo_url: tgUser.photo_url,
+  });
 
-  res.json({ newBalance });
+  res.json({ newBalance, roundId: round.id });
 });
 
-// crash cashout
 app.post("/api/crash/cashout", auth, (req, res) => {
   const tgId = String(req.tgUser.id);
   touchUserVisit(req.tgUser);
 
-  const amount = safeNumber(req.body?.amount, 0);
-  if (!Number.isFinite(amount) || amount <= 0) return res.status(400).json({ error: "amount required" });
+  const round = getCurrentCrashRound();
+  if (!round || round.status !== "flying" || !round.flying_started_at || round.crash_point == null) {
+    return res.status(400).json({ error: "Сейчас нельзя забрать" });
+  }
+
+  const bet = getCrashBet(round.id, tgId);
+  if (!bet || bet.cashed_out) {
+    return res.status(400).json({ error: "Нет активной ставки" });
+  }
+
+  const elapsedSec = (Date.now() - round.flying_started_at) / 1000;
+  const mult = Math.min(Math.exp(CRASH_K * elapsedSec), round.crash_point);
+  const winAmount = Number((bet.amount * mult).toFixed(2));
+
+  const r = cashoutCrashBet(round.id, tgId, mult);
+  if (r.changes !== 1) return res.status(400).json({ error: "Уже забрали" });
 
   const user = mustGetUser(tgId);
-  const newBalance = Number((safeNumber(user.balance, 0) + amount).toFixed(2));
+  const newBalance = Number((safeNumber(user.balance, 0) + winAmount).toFixed(2));
   updateUserBalance(tgId, newBalance);
 
-  res.json({ newBalance });
+  res.json({ newBalance, cashoutMultiplier: mult, winAmount });
 });
 
 // ===== ADMIN API (реальные + алиасы под фронт) =====
