@@ -550,6 +550,7 @@ const CASES = {
   newyear: { title: "calendar", priceTon: 0.5 },
   onlynft: { title: "Классический", priceTon: 2.5 },
   crypto: { title: "Все или ничего", priceTon: 1.2 },
+  elite: { title: "50/50 case", priceTon: 12.5 },
 };
 
 // Пул призов с шансами (для трёх кейсов)
@@ -578,6 +579,14 @@ const CASE_PRIZES = {
   crypto: [
     { emoji: "🍑", name: "Precious Peach (random)", price: 500.0, weight: 0 }, // 0%
     { emoji: "🧸", name: "Bear", price: 0.1, weight: 100 }, // 100%
+  ],
+
+  // 50 / 50 визуально, но по шансам:
+  // 99.99% — календарь, 0.01% — Woodoo
+  elite: [
+    // сумма весов = 10000 → 9999 / 1 = 99.99% / 0.01%
+    { emoji: "📅", name: "Celendar (random)", price: 4.5, weight: 9999 },
+    { emoji: "🪆", name: "Woodoo (random)", price: 30.0, weight: 1 },
   ],
 };
 
