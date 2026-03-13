@@ -294,11 +294,10 @@ function setCaseAnimVisible(v) {
   caseAnimOverlay.classList.toggle('active', !!v)
 }
 
-function makeAnimItemHTML(prize, isWinner = false) {
+function makeAnimItemHTML(prize) {
   const v = giftVisual(prize)
   const isIcon = String(v).includes('gift-icon')
-  const extra = isWinner ? ' case-anim-item-winner' : ''
-  return `<div class="case-anim-item${extra}">${isIcon ? v : `<div class="emoji">${v}</div>`}</div>`
+  return `<div class="case-anim-item">${isIcon ? v : `<div class="emoji">${v}</div>`}</div>`
 }
 
 // Рулетка-анимация в оверлее (если захочешь использовать)
@@ -308,10 +307,10 @@ async function playCaseOpenAnimation({ pool, winner }) {
   const base = Array.isArray(pool) && pool.length ? pool : [winner]
   const items = []
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
-  const winIndex = items.length - 5
+  const winIndex = Math.floor(items.length / 2)
   items[winIndex] = winner
 
-  caseAnimTrack.innerHTML = items.map((p, idx) => makeAnimItemHTML(p, idx === winIndex)).join('')
+  caseAnimTrack.innerHTML = items.map(makeAnimItemHTML).join('')
   caseAnimTrack.style.transition = 'none'
   caseAnimTrack.style.transform = 'translateX(0px)'
 
@@ -320,13 +319,16 @@ async function playCaseOpenAnimation({ pool, winner }) {
   caseAnimTrack.offsetHeight
   await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))
 
-  const itemW = 96
-  const gap = 22
-  const step = itemW + gap
-
-  const target = -(winIndex * step)
-  const jitter = -Math.round(step * 0.35 + Math.random() * step * 0.25)
-  const finalX = target + jitter
+  const container = caseAnimTrack.parentElement
+  const winnerEl = caseAnimTrack.children[winIndex]
+  let finalX = 0
+  if (container && winnerEl) {
+    const containerRect = container.getBoundingClientRect()
+    const itemRect = winnerEl.getBoundingClientRect()
+    const centerX = containerRect.left + containerRect.width / 2
+    const itemCenter = itemRect.left + itemRect.width / 2
+    finalX = centerX - itemCenter
+  }
 
   caseAnimTrack.style.transition = 'transform 5.6s cubic-bezier(.08,.82,.12,1)'
   caseAnimTrack.style.transform = `translateX(${finalX}px)`
@@ -348,22 +350,25 @@ async function playInlineCaseAnimation(pool, winner) {
   const items = []
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
 
-  caseOpenTrack.innerHTML = items.map(p => makeAnimItemHTML(p, false)).join('')
+  caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
   caseOpenTrack.style.transition = 'none'
   caseOpenTrack.style.transform = 'translateX(0px)'
   void caseOpenTrack.offsetHeight
 
-  const itemW = 96
-  const gap = 22
-  const step = itemW + gap
-  const WIN_INDEX = 18
-  const clampedIndex = Math.min(Math.max(WIN_INDEX, 0), items.length - 1)
+  const centerIndex = Math.floor(items.length / 2)
+  items[centerIndex] = winner
+  caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
 
-  items[clampedIndex] = winner
-  caseOpenTrack.innerHTML = items.map((p, idx) => makeAnimItemHTML(p, idx === clampedIndex)).join('')
-
-  const target = -clampedIndex * step
-  const finalX = target
+  const container = caseOpenTrack.parentElement
+  const winnerEl = caseOpenTrack.children[centerIndex]
+  let finalX = 0
+  if (container && winnerEl) {
+    const containerRect = container.getBoundingClientRect()
+    const itemRect = winnerEl.getBoundingClientRect()
+    const centerX = containerRect.left + containerRect.width / 2
+    const itemCenter = itemRect.left + itemRect.width / 2
+    finalX = centerX - itemCenter
+  }
   const DURATION_MS = 6500
 
   await new Promise(resolve => {
@@ -1507,12 +1512,11 @@ document.querySelectorAll('[data-home-target]').forEach(card => {
 caseCards.forEach(card => {
   card.addEventListener('click', () => {
     const type = card.getAttribute('data-case-type')
-
-    if (!['newyear', 'onlynft', 'crypto'].includes(type)) {
+    const cfg = CASES?.[type]
+    if (!cfg) {
       alert('Этот кейс скоро добавим.')
       return
     }
-
     openCase(type)
   })
 })
