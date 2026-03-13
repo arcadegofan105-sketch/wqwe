@@ -490,7 +490,7 @@ function renderPrizesList() {
   const DISPLAY = [
     { idx: 4, title: "Bear",            priceText: "0.1 TON" },
     { idx: 0, title: "Pepe",            priceText: "10000 TON" },
-    { idx: 2, title: "Desk Calendar",   priceText: "1.5 TON" },
+    { idx: 2, title: "Desk Calendar",   priceText: "4.5 TON" },
     { idx: 1, title: "Lightsword",      priceText: "7 TON" },
     { idx: 3, title: "Hexpot",          priceText: "10 TON" },
     { idx: 6, title: "Bear",            priceText: "0.1 TON" },
