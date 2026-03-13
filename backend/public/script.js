@@ -2041,23 +2041,31 @@ function renderCrashHistory(history) {
 
 function runCrashCountdown(countdownEndsAt) {
   if (!crashCountdownEl || !crashCountdownNumEl) return
-  // сбрасываем предыдущий таймер, чтобы не было нескольких параллельных отсчётов
   if (crashCountdownTimer) {
     clearTimeout(crashCountdownTimer)
     crashCountdownTimer = null
   }
   crashCountdownEl.classList.remove('hidden')
 
+  let lastNum = -1
   function tick() {
     const now = Date.now()
     const left = Math.max(0, countdownEndsAt - now)
     const num = left > 0 ? Math.min(7, Math.ceil(left / 1000)) : 0
-    crashCountdownNumEl.textContent = num || '1'
+
+    if (num !== lastNum) {
+      lastNum = num
+      crashCountdownNumEl.textContent = num > 0 ? String(num) : '1'
+      if (num > 0) {
+        crashCountdownNumEl.style.animation = 'none'
+        crashCountdownNumEl.offsetHeight
+        crashCountdownNumEl.style.animation = 'crashCountdownPop 0.9s ease-out'
+      }
+    }
+
     if (num > 0) {
-      crashCountdownNumEl.style.animation = 'none'
-      crashCountdownNumEl.offsetHeight
-      crashCountdownNumEl.style.animation = 'crashCountdownPop 0.9s ease-out'
-      crashCountdownTimer = setTimeout(tick, 1000)
+      const msToNext = (left % 1000) || 1000
+      crashCountdownTimer = setTimeout(tick, Math.min(msToNext, 1000))
     } else {
       crashCountdownEl.classList.add('hidden')
       crashCountdownTimer = null
@@ -2095,7 +2103,7 @@ function applyCrashState(state) {
     if (crashLastRoundId !== round.id || crashState !== 'counting') {
       crashLastRoundId = round.id
       crashState = 'counting'
-      if (round.countdownEndsAt && round.countdownEndsAt > Date.now() + 500) {
+      if (round.countdownEndsAt && round.countdownEndsAt > Date.now() + 100) {
         runCrashCountdown(round.countdownEndsAt)
       }
     }
@@ -2108,6 +2116,7 @@ function applyCrashState(state) {
   }
 
   if (round.status === 'flying') {
+    if (crashState === 'crashed') return
     screens.crash?.classList.add('playing')
     if (crashCountdownTimer) {
       clearTimeout(crashCountdownTimer)
@@ -2123,6 +2132,8 @@ function applyCrashState(state) {
       crashStartTime = round.flyingStartedAt || Date.now()
       crashBetAmount = state.myBet ? state.myBet.amount : 0
       crashHasCashedOut = state.myBet ? !!state.myBet.cashedOut : false
+      crashMultiplier = 1.0
+      if (crashMultiplierEl) crashMultiplierEl.textContent = '1.00x'
       setCrashStatus('Летим...', '#e5e7eb')
       ensureRocketVideoPlaying().catch?.(() => {})
       startCrashRenderLoop()
@@ -2443,7 +2454,8 @@ function renderCrash(ts) {
   if (crashState === 'playing') {
     stepCrashMultiplier()
     updateCrashMultiplierUI()
-    if (crashPoint && crashMultiplier >= crashPoint && !crashHasCashedOut) {
+    if (crashPoint != null && crashMultiplier >= crashPoint && !crashHasCashedOut) {
+      crashState = 'crashed'
       crashBoomIntoMoon()
       endCrash()
     }
@@ -2502,8 +2514,19 @@ function startCrashPolling() {
   function poll() {
     if (!screens.crash?.classList.contains('active')) return
     fetchCrashState().then((state) => {
-      if (state) applyCrashState(state)
-      crashPollTimer = setTimeout(poll, 1500)
+      if (state) {
+        applyCrashState(state)
+        const round = state.round
+        let interval = 1500
+        if (round?.status === 'counting' && round?.countdownEndsAt) {
+          const left = round.countdownEndsAt - Date.now()
+          if (left > 0 && left < 4000) interval = 300
+          else if (left > 0 && left < 7000) interval = 600
+        } else if (round?.status === 'flying') interval = 800
+        crashPollTimer = setTimeout(poll, interval)
+      } else {
+        crashPollTimer = setTimeout(poll, 1500)
+      }
     })
   }
   poll()
