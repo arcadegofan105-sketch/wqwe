@@ -934,6 +934,123 @@ body {
 	transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
 }
 
+/* ========== SKELETONS & LOADING ========== */
+@keyframes skeletonShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(51, 65, 85, 0.4) 25%,
+    rgba(71, 85, 105, 0.6) 50%,
+    rgba(51, 65, 85, 0.4) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+.skeleton-text {
+  height: 14px;
+  min-width: 60px;
+}
+
+.skeleton-text-lg {
+  height: 18px;
+  min-width: 100px;
+}
+
+.skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.skeleton-card {
+  height: 120px;
+}
+
+.skeleton-reward-card {
+  height: 80px;
+}
+
+.skeleton-inv-card {
+  min-height: 160px;
+}
+
+@keyframes spinnerRotate {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(148, 163, 184, 0.3);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spinnerRotate 0.7s linear infinite;
+}
+
+.btn-loading {
+  position: relative;
+  pointer-events: none;
+  color: transparent !important;
+}
+
+.btn-loading .spinner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: -10px 0 0 -10px;
+}
+
+.app-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #020617;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.app-loading.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.app-loading .skeleton-avatar {
+  width: 64px;
+  height: 64px;
+}
+
+.app-loading-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(56, 189, 248, 0.2));
+}
+
+.skeleton-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.skeleton-list-vertical .skeleton-reward-card {
+  margin-bottom: 8px;
+}
+
+.skeleton-list-vertical .skeleton-reward-card:last-child {
+  margin-bottom: 0;
+}
+
 .inventory-btn:hover {
 	filter: brightness(1.05);
 	box-shadow: 0 0 0 1px rgba(165, 243, 252, 0.35), 0 14px 28px rgba(0, 0, 0, 0.45);
@@ -3152,10 +3269,87 @@ body {
   box-shadow: 0 0 0 1px rgba(55,65,81,0.9);
 }
 
+/* ========== SKELETONS & LOADING ========== */
+@keyframes skeletonShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
 
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(51, 65, 85, 0.4) 25%,
+    rgba(71, 85, 105, 0.6) 50%,
+    rgba(51, 65, 85, 0.4) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
 
+.skeleton-text { height: 14px; min-width: 60px; }
+.skeleton-text-lg { height: 18px; min-width: 100px; }
+.skeleton-avatar { width: 40px; height: 40px; border-radius: 50%; }
+.skeleton-card { height: 120px; }
+.skeleton-reward-card { height: 80px; }
+.skeleton-inv-card { min-height: 160px; }
 
+@keyframes spinnerRotate {
+  to { transform: rotate(360deg); }
+}
 
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(148, 163, 184, 0.3);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spinnerRotate 0.7s linear infinite;
+}
+
+.btn-loading {
+  position: relative;
+  pointer-events: none;
+  color: transparent !important;
+}
+
+.btn-loading .spinner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: -10px 0 0 -10px;
+}
+
+.app-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #020617;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.app-loading.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.app-loading .skeleton-avatar {
+  width: 64px;
+  height: 64px;
+}
+
+.app-loading-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(56, 189, 248, 0.2));
+}
 
 
 
