@@ -11,6 +11,11 @@
   </head>
   <body>
     <div class="app">
+      <div id="app-loading" class="app-loading">
+        <div class="app-loading-logo skeleton"></div>
+        <div class="skeleton skeleton-text" style="width: 120px;"></div>
+        <div class="skeleton skeleton-text" style="width: 80px;"></div>
+      </div>
       <header class="top-bar">
         <div class="user">
           <div class="avatar"></div>
@@ -406,10 +411,9 @@
 
           <!-- Награды за активность (бывший раздел Награды) -->
           <div id="rewards-list" class="rewards-list">
-            <div class="bonus-card">
-              <div class="bonus-title">Загрузка...</div>
-              <div class="bonus-text">Получаем список наград</div>
-            </div>
+            <div class="bonus-card skeleton skeleton-reward-card"></div>
+            <div class="bonus-card skeleton skeleton-reward-card"></div>
+            <div class="bonus-card skeleton skeleton-reward-card"></div>
           </div>
         </section>
 
