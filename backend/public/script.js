@@ -1977,26 +1977,44 @@ async function fetchCrashState() {
   }
 }
 
-function renderCrashBets(bets) {
+function renderCrashBets(bets, roundStatus) {
   if (!crashBetsListEl) return
   if (!Array.isArray(bets) || bets.length === 0) {
     crashBetsListEl.innerHTML = '<div class="crash-bets-empty">Пока нет ставок</div>'
     return
   }
+  const showStatus = roundStatus === 'flying' || roundStatus === 'crashed'
   crashBetsListEl.innerHTML = bets
     .map((b) => {
       const name = escapeHtml(b.firstName || b.username || 'User')
-      const username = b.username ? `@${escapeHtml(b.username)}` : ''
+      const username = b.username ? `@${escapeHtml(b.username)}` : name
       const photo = b.photoUrl ? `style="background-image:url('${String(b.photoUrl).replace(/'/g, "\\'")}')"` : ''
       const amount = Number(b.amount || 0).toFixed(2)
+      const cashed = !!b.cashedOut
+      const mult = Number(b.cashoutMultiplier || 0)
+      let statusClass = ''
+      let statusHtml = ''
+      if (showStatus) {
+        statusClass = cashed ? 'cashed-out' : 'busted'
+        statusHtml = cashed
+          ? `<span class="crash-bet-cashout win">${mult > 0 ? mult.toFixed(2) + 'x' : '✓'}</span>`
+          : `<span class="crash-bet-cashout loss">0x</span>`
+      }
       return `
-        <div class="crash-bet-item">
-          <div class="crash-bet-amount-row">
-            <span class="crash-ton-logo"></span>
-            <span class="crash-bet-amount">${amount}</span>
+        <div class="crash-bet-item ${statusClass}">
+          <div class="crash-bet-avatar-wrap">
+            <div class="crash-bet-user" ${photo}></div>
           </div>
-          <div class="crash-bet-user" ${photo}></div>
-          <div class="crash-bet-username">${username || name}</div>
+          <div class="crash-bet-info">
+            <span class="crash-bet-username">${escapeHtml(username)}</span>
+            <div class="crash-bet-right">
+              <div class="crash-bet-amount-row">
+                <span class="crash-ton-logo"></span>
+                <span class="crash-bet-amount">${amount}</span>
+              </div>
+              ${statusHtml}
+            </div>
+          </div>
         </div>
       `
     })
@@ -2011,8 +2029,12 @@ function renderCrashHistory(history) {
   }
   crashHistoryListEl.innerHTML = history
     .map((h) => {
-      const mult = Number(h.multiplier || 0).toFixed(2)
-      return `<div class="crash-history-item crashed">${mult}x</div>`
+      const mult = Number(h.multiplier || 0)
+      const multStr = mult.toFixed(2)
+      let cls = 'history-low'
+      if (mult > 10) cls = 'history-high'
+      else if (mult >= 2) cls = 'history-mid'
+      return `<div class="crash-history-item ${cls}">${multStr}x</div>`
     })
     .join('')
 }
@@ -2046,11 +2068,13 @@ function runCrashCountdown(countdownEndsAt) {
 
 function applyCrashState(state) {
   if (!state) return
-  renderCrashBets(state.bets || [])
+  const roundStatus = state.round ? state.round.status : null
+  renderCrashBets(state.bets || [], roundStatus)
   renderCrashHistory(state.history || [])
 
   const round = state.round
   if (!round) {
+    screens.crash?.classList.remove('playing')
     crashState = 'idle'
     crashLastRoundId = null
     setCrashStatus('Скоро взлетаем', '#e5e7eb')
@@ -2065,6 +2089,7 @@ function applyCrashState(state) {
   }
 
   if (round.status === 'counting') {
+    screens.crash?.classList.remove('playing')
     // запускаем отсчёт только при входе в новый раунд,
     // чтобы не дёргать анимацию на каждом опросе и при ставке
     if (crashLastRoundId !== round.id || crashState !== 'counting') {
@@ -2083,6 +2108,7 @@ function applyCrashState(state) {
   }
 
   if (round.status === 'flying') {
+    screens.crash?.classList.add('playing')
     if (crashCountdownTimer) {
       clearTimeout(crashCountdownTimer)
       crashCountdownTimer = null
@@ -2106,6 +2132,7 @@ function applyCrashState(state) {
     return
   }
 
+  screens.crash?.classList.remove('playing')
   crashLastRoundId = null
   crashState = 'idle'
   setCrashStatus('Скоро взлетаем', '#e5e7eb')
@@ -2325,6 +2352,8 @@ async function cashoutCrash(isAuto = false) {
     crashHasCashedOut = true
     setCrashStatus(isAuto ? 'Авто-вывод!' : 'Вы забрали!', '#22c55e')
     updateCrashButtonUI()
+    const state = await fetchCrashState()
+    if (state) applyCrashState(state)
   } catch (err) {
     alert(err.message || 'Ошибка вывода')
   }
@@ -2348,6 +2377,7 @@ function crashBoomIntoMoon() {
 
 function endCrash() {
   crashState = 'crashed'
+  screens.crash?.classList.remove('playing')
   updateCrashButtonUI()
 
   setTimeout(() => {
@@ -2389,10 +2419,7 @@ async function startCrash() {
     crashBetAmount = amount
     crashHasCashedOut = false
     const state = await fetchCrashState()
-    if (state) {
-      applyCrashState(state)
-      renderCrashBets(state.bets || [])
-    }
+    if (state) applyCrashState(state)
   } catch (err) {
     alert(err.message || 'Ошибка ставки')
   }
