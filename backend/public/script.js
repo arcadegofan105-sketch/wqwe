@@ -66,6 +66,17 @@ const CASES = {
       { emoji: '🧸', name: 'Bear', price: 0.1 },
     ],
   },
+
+  elite: {
+    id: 'elite',
+    title: '50/50 case',
+    priceTon: 12.5,
+    imageSelector: '.case-image-elite',
+    contents: [
+      { emoji: '📅', name: 'Celendar (random)', price: 4.5 },
+      { emoji: '🪆', name: 'Woodoo (random)',   price: 30.0 },
+    ],
+  },
 }
 
 // Всегда выдаваемый приз (winner).
@@ -283,10 +294,11 @@ function setCaseAnimVisible(v) {
   caseAnimOverlay.classList.toggle('active', !!v)
 }
 
-function makeAnimItemHTML(prize) {
+function makeAnimItemHTML(prize, isWinner = false) {
   const v = giftVisual(prize)
   const isIcon = String(v).includes('gift-icon')
-  return `<div class="case-anim-item">${isIcon ? v : `<div class="emoji">${v}</div>`}</div>`
+  const extra = isWinner ? ' case-anim-item-winner' : ''
+  return `<div class="case-anim-item${extra}">${isIcon ? v : `<div class="emoji">${v}</div>`}</div>`
 }
 
 // Рулетка-анимация в оверлее (если захочешь использовать)
@@ -296,9 +308,10 @@ async function playCaseOpenAnimation({ pool, winner }) {
   const base = Array.isArray(pool) && pool.length ? pool : [winner]
   const items = []
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
-  items[items.length - 5] = winner
+  const winIndex = items.length - 5
+  items[winIndex] = winner
 
-  caseAnimTrack.innerHTML = items.map(makeAnimItemHTML).join('')
+  caseAnimTrack.innerHTML = items.map((p, idx) => makeAnimItemHTML(p, idx === winIndex)).join('')
   caseAnimTrack.style.transition = 'none'
   caseAnimTrack.style.transform = 'translateX(0px)'
 
@@ -311,7 +324,6 @@ async function playCaseOpenAnimation({ pool, winner }) {
   const gap = 22
   const step = itemW + gap
 
-  const winIndex = items.length - 6
   const target = -(winIndex * step)
   const jitter = -Math.round(step * 0.35 + Math.random() * step * 0.25)
   const finalX = target + jitter
@@ -336,7 +348,7 @@ async function playInlineCaseAnimation(pool, winner) {
   const items = []
   for (let i = 0; i < 28; i++) items.push(base[i % base.length])
 
-  caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
+  caseOpenTrack.innerHTML = items.map(p => makeAnimItemHTML(p, false)).join('')
   caseOpenTrack.style.transition = 'none'
   caseOpenTrack.style.transform = 'translateX(0px)'
   void caseOpenTrack.offsetHeight
@@ -348,11 +360,11 @@ async function playInlineCaseAnimation(pool, winner) {
   const clampedIndex = Math.min(Math.max(WIN_INDEX, 0), items.length - 1)
 
   items[clampedIndex] = winner
-  caseOpenTrack.innerHTML = items.map(makeAnimItemHTML).join('')
+  caseOpenTrack.innerHTML = items.map((p, idx) => makeAnimItemHTML(p, idx === clampedIndex)).join('')
 
   const target = -clampedIndex * step
   const finalX = target
-  const DURATION_MS = 8000
+  const DURATION_MS = 6500
 
   await new Promise(resolve => {
     let done = false
