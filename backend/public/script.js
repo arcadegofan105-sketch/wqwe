@@ -1321,6 +1321,13 @@ function renderAdminPager() {
 
 async function loadAdminUsers() {
   if (!isAdmin) return
+  if (adminUsersGrid) {
+    adminUsersGrid.innerHTML = `
+      <div class="skeleton skeleton-card" style="grid-column: 1/-1;"></div>
+      <div class="skeleton skeleton-card" style="grid-column: 1/-1;"></div>
+      <div class="skeleton skeleton-card" style="grid-column: 1/-1;"></div>
+    `
+  }
   const r = await adminUsersApi(adminState.q, adminState.page)
   const items = Array.isArray(r.items) ? r.items : []
   adminState.pages = Number(r.pages || 1) || 1
@@ -1332,25 +1339,35 @@ async function loadAdminUsers() {
 
 async function loadAdminStats() {
   if (!isAdmin) return
+  if (adminStatsBox) {
+    adminStatsBox.innerHTML = '<div class="skeleton skeleton-text-lg" style="width:100%;"></div><div class="skeleton skeleton-text" style="width:80%; margin-top:8px;"></div><div class="skeleton skeleton-text" style="width:60%; margin-top:8px;"></div>'
+  }
   const stats = await adminStatsApi()
   renderAdminStats(stats)
 }
 
 async function loadAdminPromos() {
   if (!isAdmin) return
+  if (adminPromosList) {
+    adminPromosList.innerHTML = '<div class="skeleton skeleton-text" style="width:100%;"></div><div class="skeleton skeleton-text" style="width:90%; margin-top:6px;"></div>'
+  }
   const r = await adminPromoListApi()
   renderAdminPromos(r.items || [])
+}
+
+function renderRewardsSkeleton() {
+  if (!rewardsListEl) return
+  rewardsListEl.innerHTML = `
+    <div class="bonus-card skeleton-reward-card skeleton"></div>
+    <div class="bonus-card skeleton-reward-card skeleton"></div>
+    <div class="bonus-card skeleton-reward-card skeleton"></div>
+  `
 }
 
 async function loadRewards() {
   if (!rewardsListEl) return
 
-  rewardsListEl.innerHTML = `
-    <div class="bonus-card">
-      <div class="bonus-title">Загрузка...</div>
-      <div class="bonus-text">Получаем список наград</div>
-    </div>
-  `
+  renderRewardsSkeleton()
 
   const r = await rewardsListApi()
   const items = Array.isArray(r.items) ? r.items : []
@@ -1396,6 +1413,12 @@ navButtons.forEach(btn => {
     setScreen(target)
 
     if (target === 'crash') {
+      if (crashBetsListEl) {
+        crashBetsListEl.innerHTML = `
+          <div class="crash-bet-item"><div class="crash-bet-avatar-wrap"><div class="skeleton skeleton-avatar" style="width:42px;height:42px;"></div></div><div class="crash-bet-info"><div class="skeleton skeleton-text" style="width:80px;"></div><div class="skeleton skeleton-text" style="width:60px;"></div></div></div>
+          <div class="crash-bet-item"><div class="crash-bet-avatar-wrap"><div class="skeleton skeleton-avatar" style="width:42px;height:42px;"></div></div><div class="crash-bet-info"><div class="skeleton skeleton-text" style="width:70px;"></div><div class="skeleton skeleton-text" style="width:50px;"></div></div></div>
+        `
+      }
       startCrashPolling()
       fetchCrashState().then((s) => s && applyCrashState(s))
     }
@@ -1422,6 +1445,7 @@ document.addEventListener('click', async (e) => {
   if (!key) return
 
   btn.disabled = true
+  setButtonLoading(btn, true)
   try {
     const r = await rewardsClaimApi(key)
 
@@ -1434,6 +1458,9 @@ document.addEventListener('click', async (e) => {
     await fetchUserData()
   } catch (err) {
     alert(err.message || 'Ошибка награды')
+  } finally {
+    setButtonLoading(btn, false)
+    btn.disabled = false
   }
 })
 
@@ -1493,6 +1520,7 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
 
   isCaseOpening = true
   caseOpenSpinBtn.disabled = true
+  setButtonLoading(caseOpenSpinBtn, true)
 
   try {
     const r = await openCaseApi(selectedCaseType)
@@ -1520,6 +1548,7 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
   } catch (e) {
     alert(e?.message || 'Ошибка открытия кейса')
   } finally {
+    setButtonLoading(caseOpenSpinBtn, false)
     isCaseOpening = false
     caseOpenSpinBtn.disabled = false
   }
@@ -1548,11 +1577,14 @@ spinButton?.addEventListener('click', async e => {
 
   isSpinning = true
   spinButton.disabled = true
+  setButtonLoading(spinButton, true)
 
   let prizeData = null
   try {
     prizeData = await spinApi()
+    setButtonLoading(spinButton, false)
   } catch (err) {
+    setButtonLoading(spinButton, false)
     alert(err.message || 'Ошибка при прокрутке')
     isSpinning = false
     spinButton.disabled = false
@@ -1688,6 +1720,7 @@ promoApplyBtn?.addEventListener('click', async () => {
     return
   }
 
+  setButtonLoading(promoApplyBtn, true)
   try {
     const data = await applyPromoApi(code)
 
@@ -1714,6 +1747,8 @@ promoApplyBtn?.addEventListener('click', async () => {
     await fetchUserData()
   } catch (err) {
     alert(err.message || 'Ошибка промокода')
+  } finally {
+    setButtonLoading(promoApplyBtn, false)
   }
 })
 
@@ -1805,6 +1840,7 @@ depositConfirmBtn?.addEventListener('click', async () => {
     }
 
     depositConfirmBtn.disabled = true
+    setButtonLoading(depositConfirmBtn, true)
 
     const dep = await depositCreateApi(amountTon)
 
@@ -1851,6 +1887,7 @@ depositConfirmBtn?.addEventListener('click', async () => {
   } catch (err) {
     alert(err.message || 'Ошибка депозита')
   } finally {
+    setButtonLoading(depositConfirmBtn, false)
     depositConfirmBtn.disabled = false
     updateDepositButtonState()
   }
@@ -1882,6 +1919,7 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
 
   try {
     withdrawConfirmBtn.disabled = true
+    setButtonLoading(withdrawConfirmBtn, true)
     const r = await withdrawTonApi(amount)
     balance = Number(r.newBalance ?? balance)
     updateBalanceUI()
@@ -1896,6 +1934,7 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
       alert(msg || 'Ошибка заявки на вывод')
     }
   } finally {
+    setButtonLoading(withdrawConfirmBtn, false)
     withdrawConfirmBtn.disabled = false
   }
 })
@@ -2896,6 +2935,28 @@ adminBc1h?.addEventListener('click', () => createBroadcast(60 * 60))
 adminBc24h?.addEventListener('click', () => createBroadcast(24 * 60 * 60))
 
 
+// ===== LOADING HELPERS =====
+const appLoadingEl = document.getElementById('app-loading')
+
+function hideAppLoading() {
+  appLoadingEl?.classList.add('hidden')
+}
+
+function setButtonLoading(btn, loading) {
+  if (!btn) return
+  if (loading) {
+    btn.classList.add('btn-loading')
+    if (!btn.querySelector('.spinner')) {
+      const s = document.createElement('span')
+      s.className = 'spinner'
+      btn.appendChild(s)
+    }
+  } else {
+    btn.classList.remove('btn-loading')
+    btn.querySelector('.spinner')?.remove()
+  }
+}
+
 // ===== INIT =====
 async function init() {
   updateTelegramUserUI();
@@ -2908,6 +2969,7 @@ async function init() {
 
   try {
     await fetchUserData();
+    hideAppLoading();
     if (isAdmin) {
       await Promise.allSettled([
         loadAdminStats(),
@@ -2916,6 +2978,7 @@ async function init() {
       ]);
     }
   } catch (err) {
+    hideAppLoading();
     alert(err.message || 'Unknown error');
   }
 
