@@ -245,6 +245,9 @@ const adminBcResult = document.getElementById('admin-bc-result')
 const inviteLinkText = document.getElementById('invite-link-text')
 const inviteCopyBtn = document.getElementById('invite-copy-btn')
 
+// Live gifts carousel
+const liveGiftsCarouselEl = document.getElementById('live-gifts-carousel')
+
 // Cases UI
 const caseCards = document.querySelectorAll('.case-card')
 const caseOpenPriceEl = document.getElementById('case-open-price')
@@ -409,6 +412,10 @@ const adminState = {
   pages: 1,
 }
 
+// Live carousel state
+let liveGifts = []
+let liveCarouselTimer = null
+
 
 // прогресс к бесплатному колесу
 const WHEEL_DEPOSIT_TARGET = 0.5
@@ -490,7 +497,7 @@ function renderPrizesList() {
   const DISPLAY = [
     { idx: 4, title: "Bear",            priceText: "0.1 TON" },
     { idx: 0, title: "Pepe",            priceText: "10000 TON" },
-    { idx: 2, title: "Desk Calendar",   priceText: "4.5 TON" },
+    { idx: 2, title: "Desk Calendar",   priceText: "1.5 TON" },
     { idx: 1, title: "Lightsword",      priceText: "7 TON" },
     { idx: 3, title: "Hexpot",          priceText: "10 TON" },
     { idx: 6, title: "Bear",            priceText: "0.1 TON" },
@@ -564,6 +571,41 @@ function renderInventory() {
   }
 
   renderInventoryContent()
+}
+
+// ===== LIVE GIFTS CAROUSEL =====
+function pushLiveGiftRandom() {
+  const allPrizes = Object.keys(GIFT_IMAGES).map(name => ({ name, emoji: '🎁', price: 0, nameKey: name }))
+  if (!allPrizes.length) return
+  const idx = Math.floor(Math.random() * allPrizes.length)
+  const prize = allPrizes[idx]
+  pushLiveGift(prize)
+}
+
+function pushLiveGift(prize) {
+  if (!liveGiftsCarouselEl || !prize) return
+  const visual = giftVisual(prize)
+  liveGifts.push(visual)
+  if (liveGifts.length > 20) liveGifts.shift()
+
+  const latest = liveGifts.slice(-8)
+  liveGiftsCarouselEl.innerHTML = latest
+    .map(v => `<div class="live-gift-card">${v}</div>`)
+    .join('')
+}
+
+function scheduleRandomLiveGift() {
+  if (liveCarouselTimer) {
+    clearTimeout(liveCarouselTimer)
+    liveCarouselTimer = null
+  }
+  const delayMin = 1
+  const delayMax = 60
+  const ms = (delayMin + Math.random() * (delayMax - delayMin)) * 60_000
+  liveCarouselTimer = setTimeout(() => {
+    pushLiveGiftRandom()
+    scheduleRandomLiveGift()
+  }, ms)
 }
 
 function setScreen(name) {
@@ -2997,6 +3039,8 @@ async function init() {
     hideAppLoading();
     alert(err.message || 'Unknown error');
   }
+
+  scheduleRandomLiveGift();
 
   await initFrogGraphics();
   drawFrogScene(false);   // ВАЖНО: первый кадр
