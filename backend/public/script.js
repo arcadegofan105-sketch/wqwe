@@ -574,8 +574,17 @@ function renderInventory() {
 }
 
 // ===== LIVE GIFTS CAROUSEL =====
+// Дорогие/редкие подарки не показываем в ленте Live
+const LIVE_CAROUSEL_EXCLUDED = [
+  'Pepe',
+  'Plush Pepe Pink Latex',
+  'Precious Peach (random)',
+]
+
 function pushLiveGiftRandom() {
-  const allPrizes = Object.keys(GIFT_IMAGES).map(name => ({ name, emoji: '🎁', price: 0, nameKey: name }))
+  const allPrizes = Object.keys(GIFT_IMAGES)
+    .filter(name => !LIVE_CAROUSEL_EXCLUDED.includes(name))
+    .map(name => ({ name, emoji: '🎁', price: 0, nameKey: name }))
   if (!allPrizes.length) return
   const idx = Math.floor(Math.random() * allPrizes.length)
   const prize = allPrizes[idx]
