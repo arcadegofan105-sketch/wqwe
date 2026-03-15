@@ -425,6 +425,43 @@ async function tonnelFetchOneGift({ giftName, model }) {
   };
 }
 
+// ===== LIVE FEED (глобальная лента для всех, не сбрасывается при перезаходе) =====
+const LIVE_FEED_ALLOWED = [
+  "Celendar (random)", "Hexpot", "lightsword", "lolpop", "socks", "Woodoo (random)",
+  "Bear", "Trapped Hearts", "Scared Cats", "Snoop Cigars", "Vintage Cigars",
+  "Witch Hats", "Happy Brownies",
+];
+const LIVE_FEED_MAX = 20;
+let liveFeedItems = [];
+let liveFeedTimer = null;
+
+function runLiveFeedTick() {
+  if (LIVE_FEED_ALLOWED.length === 0) return;
+  const name = LIVE_FEED_ALLOWED[Math.floor(Math.random() * LIVE_FEED_ALLOWED.length)];
+  liveFeedItems.push({ name, nameKey: name, emoji: "🎁" });
+  if (liveFeedItems.length > LIVE_FEED_MAX) liveFeedItems.shift();
+  scheduleLiveFeedTick();
+}
+
+function scheduleLiveFeedTick() {
+  if (liveFeedTimer) clearTimeout(liveFeedTimer);
+  const ms = (1 + Math.random() * 59) * 60 * 1000; // 1–60 мин
+  liveFeedTimer = setTimeout(runLiveFeedTick, ms);
+}
+
+// Старт: сразу 8 подарков, потом по таймеру
+for (let i = 0; i < 8; i++) {
+  if (LIVE_FEED_ALLOWED.length) {
+    const name = LIVE_FEED_ALLOWED[Math.floor(Math.random() * LIVE_FEED_ALLOWED.length)];
+    liveFeedItems.push({ name, nameKey: name, emoji: "🎁" });
+  }
+}
+scheduleLiveFeedTick();
+
+app.post("/api/live-feed", auth, (req, res) => {
+  res.json({ items: liveFeedItems });
+});
+
 // ===== COMPAT route helper =====
 function postMany(paths, ...handlers) {
   for (const p of paths) app.post(p, ...handlers);
