@@ -413,8 +413,6 @@ const adminState = {
 }
 
 // Live carousel state
-let liveGifts = []
-let liveCarouselTimer = null
 
 
 // прогресс к бесплатному колесу
@@ -573,51 +571,53 @@ function renderInventory() {
   renderInventoryContent()
 }
 
-// ===== LIVE GIFTS CAROUSEL =====
-// Дорогие/редкие подарки не показываем в ленте Live
-const LIVE_CAROUSEL_EXCLUDED = [
-  'Pepe',
-  'Plush Pepe Pink Latex',
-  'Precious Peach (random)',
-]
+// ===== LIVE GIFTS CAROUSEL (глобальная лента с сервера, без сброса при перезаходе) =====
+let liveFeedLastCount = 0
+let liveFeedPollTimer = null
+const LIVE_FEED_POLL_MS = 25_000
 
-function pushLiveGiftRandom() {
-  const allPrizes = Object.keys(GIFT_IMAGES)
-    .filter(name => !LIVE_CAROUSEL_EXCLUDED.includes(name))
-    .map(name => ({ name, emoji: '🎁', price: 0, nameKey: name }))
-  if (!allPrizes.length) return
-  const idx = Math.floor(Math.random() * allPrizes.length)
-  const prize = allPrizes[idx]
-  pushLiveGift(prize)
-}
-
-function pushLiveGift(prize) {
-  if (!liveGiftsCarouselEl || !prize) return
-  const visual = giftVisual(prize)
-  liveGifts.push(visual)
-  if (liveGifts.length > 20) liveGifts.shift()
-
-  const latest = liveGifts.slice(-8)
+function renderLiveFeed(items, opts = {}) {
+  if (!liveGiftsCarouselEl || !Array.isArray(items)) return
+  const latest = items.slice(-8)
+  const animateNew = !!opts.animateNew
   liveGiftsCarouselEl.innerHTML = latest
-    .map(v => `<div class="live-gift-card">${v}</div>`)
+    .map((item, i) => {
+      const isNew = animateNew && i === latest.length - 1
+      const cls = isNew ? 'live-gift-card live-gift-card--enter' : 'live-gift-card'
+      return `<div class="${cls}">${giftVisual(item)}</div>`
+    })
     .join('')
+  if (animateNew && latest.length) {
+    const last = liveGiftsCarouselEl.lastElementChild
+    if (last) {
+      last.addEventListener('animationend', () => last.classList.remove('live-gift-card--enter'), { once: true })
+    }
+  }
 }
 
-function scheduleRandomLiveGift() {
-  if (liveCarouselTimer) {
-    clearTimeout(liveCarouselTimer)
-    liveCarouselTimer = null
+async function fetchLiveFeed() {
+  try {
+    const r = await apiPost('live-feed', {})
+    const items = Array.isArray(r.items) ? r.items : []
+    const prevCount = liveFeedLastCount
+    const onHome = (typeof currentScreen === 'string' && currentScreen === 'home')
+    const hasNew = items.length > prevCount
+    renderLiveFeed(items, { animateNew: onHome && hasNew && prevCount > 0 })
+    liveFeedLastCount = items.length
+  } catch (_) {
+    // без ленты при ошибке авторизации/сети просто не обновляем
   }
-  const delayMin = 1
-  const delayMax = 60
-  const ms = (delayMin + Math.random() * (delayMax - delayMin)) * 60_000
-  liveCarouselTimer = setTimeout(() => {
-    pushLiveGiftRandom()
-    scheduleRandomLiveGift()
-  }, ms)
 }
+
+function startLiveFeedPoll() {
+  if (liveFeedPollTimer) return
+  liveFeedPollTimer = setInterval(fetchLiveFeed, LIVE_FEED_POLL_MS)
+}
+
+let currentScreen = 'home'
 
 function setScreen(name) {
+  currentScreen = name
   Object.keys(screens).forEach(key => {
     screens[key]?.classList.toggle('active', key === name)
   })
@@ -3049,9 +3049,9 @@ async function init() {
     alert(err.message || 'Unknown error');
   }
 
-  // Сразу показываем несколько подарков в лайве, дальше по таймеру (1–60 мин)
-  for (let i = 0; i < 5; i++) pushLiveGiftRandom();
-  scheduleRandomLiveGift();
+  // Лента Live — общая для всех с сервера, без сброса при перезаходе
+  await fetchLiveFeed()
+  startLiveFeedPoll()
 
   await initFrogGraphics();
   drawFrogScene(false);   // ВАЖНО: первый кадр
