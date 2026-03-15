@@ -3040,6 +3040,8 @@ async function init() {
     alert(err.message || 'Unknown error');
   }
 
+  // Сразу показываем несколько подарков в лайве, дальше по таймеру (1–60 мин)
+  for (let i = 0; i < 5; i++) pushLiveGiftRandom();
   scheduleRandomLiveGift();
 
   await initFrogGraphics();
