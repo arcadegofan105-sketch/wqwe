@@ -3398,6 +3398,21 @@ body {
   50% { transform: scale(1.18); opacity: 0.85; }
 }
 
+/* Появление нового приза в ленте Live */
+.live-gift-card--enter {
+  animation: liveGiftEnter 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes liveGiftEnter {
+  from {
+    transform: translateX(120%) scale(0.6);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
 /* ========== SKELETONS & LOADING ========== */
 @keyframes skeletonShimmer {
   0% { background-position: -200% 0; }
