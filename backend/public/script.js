@@ -416,6 +416,22 @@ function setLang(lang) {
 	applyTranslations()
 }
 
+// ===== LANG BUTTON EVENTS =====
+document.addEventListener('DOMContentLoaded', () => {
+	document
+		.getElementById('lang-ru')
+		?.addEventListener('click', () => setLang('ru'))
+	document
+		.getElementById('lang-en')
+		?.addEventListener('click', () => setLang('en'))
+})
+
+// Также вешаем через делегирование на случай если DOMContentLoaded уже прошёл
+document.addEventListener('click', e => {
+	if (e.target.id === 'lang-ru') setLang('ru')
+	if (e.target.id === 'lang-en') setLang('en')
+})
+
 // ===== CONFIG =====
 const API_URL = '/api'
 const SPIN_PRICE = 1
