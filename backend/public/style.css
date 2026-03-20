@@ -2426,6 +2426,129 @@ body {
 	font-weight: 600;
 }
 
+/* ===== WHEEL BANNER CARD (главная) ===== */
+
+.wheel-banner-card {
+	width: 100%;
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 16px 14px;
+	border-radius: 20px;
+	border: none;
+	cursor: pointer;
+	text-align: left;
+	color: #e5e7eb;
+
+	background:
+		radial-gradient(
+			circle at top left,
+			rgba(129, 140, 248, 0.22),
+			transparent 55%
+		),
+		radial-gradient(
+			circle at bottom right,
+			rgba(56, 189, 248, 0.14),
+			transparent 60%
+		),
+		rgba(15, 23, 42, 0.97);
+	box-shadow:
+		0 0 0 1px rgba(99, 102, 241, 0.35),
+		0 14px 34px rgba(0, 0, 0, 0.85);
+
+	transition:
+		transform 0.14s ease,
+		box-shadow 0.14s ease,
+		filter 0.14s ease;
+}
+
+.wheel-banner-card:hover {
+	transform: translateY(-2px);
+	box-shadow:
+		0 0 0 1px rgba(129, 140, 248, 0.7),
+		0 18px 40px rgba(0, 0, 0, 0.95);
+	filter: brightness(1.04);
+}
+
+.wheel-banner-card:active {
+	transform: translateY(1px) scale(0.98);
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.9);
+}
+
+.wheel-banner-left {
+	flex-shrink: 0;
+}
+
+.wheel-banner-icon {
+	width: 52px;
+	height: 52px;
+	border-radius: 16px;
+	background:
+		radial-gradient(
+			circle at 30% 30%,
+			rgba(251, 191, 36, 0.35),
+			transparent 60%
+		),
+		rgba(15, 23, 42, 0.9);
+	box-shadow:
+		0 0 0 1px rgba(251, 191, 36, 0.4),
+		0 10px 24px rgba(0, 0, 0, 0.6);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 28px;
+}
+
+.wheel-banner-body {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 5px;
+}
+
+.wheel-banner-title-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.wheel-banner-title {
+	font-size: 16px;
+	font-weight: 800;
+	color: #f9fafb;
+	letter-spacing: 0.01em;
+}
+
+.wheel-banner-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 9px;
+	border-radius: 999px;
+	background: linear-gradient(135deg, #3b82f6, #6366f1);
+	color: #fff;
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: 0.06em;
+	box-shadow:
+		0 0 0 1px rgba(99, 102, 241, 0.7),
+		0 6px 14px rgba(99, 102, 241, 0.45);
+}
+
+.wheel-banner-desc {
+	font-size: 13px;
+	color: rgba(148, 163, 184, 0.95);
+	line-height: 1.35;
+}
+
+.wheel-banner-arrow {
+	flex-shrink: 0;
+	font-size: 22px;
+	color: rgba(148, 163, 184, 0.6);
+	line-height: 1;
+}
+
 /* === GAME CARDS: РљР РђРЁ Рё РљРћР›Р•РЎРћ РЅР° РіР»Р°РІРЅРѕР№ === */
 
 .info-row-games {
