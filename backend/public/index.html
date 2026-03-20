@@ -1,802 +1,1011 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <title>Gift Wheels</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="app">
-      <div id="app-loading" class="app-loading">
-        <div class="app-loading-logo skeleton"></div>
-        <div class="skeleton skeleton-text" style="width: 120px;"></div>
-        <div class="skeleton skeleton-text" style="width: 80px;"></div>
-      </div>
-      <header class="top-bar">
-        <div class="user">
-          <div class="avatar"></div>
-          <div class="user-info">
-            <div class="user-name">Nick</div>
-            <div class="user-subtitle">Gift Wheels</div>
-          </div>
-        </div>
-
-        <div class="balance">
-          <span class="balance-label">Баланс</span>
-          <span class="balance-icon"></span>
-          <span id="balance-value">5</span>
-          <span class="balance-currency">TON</span>
-
-          <button
-            id="wallet-status-btn"
-            class="wallet-status wallet-status-disconnected"
-            type="button"
-          >
-            +
-          </button>
-        </div>
-      </header>
-
-      <main class="content">
-        <!-- Главная: вход в режимы + кейсы -->
-        <section id="screen-home" class="screen active">
-
-          <!-- Live карусель подарков -->
-          <div class="live-strip">
-            <div class="live-label">
-              <span class="live-dot"></span>
-              <span class="live-text">Live</span>
-            </div>
-            <div class="live-carousel" id="live-gifts-carousel">
-              <!-- элементы будут добавляться через JS -->
-            </div>
-          </div>
-
-          <!-- Карточки КОЛЕСО и FROG -->
-          <div class="info-row info-row-games">
-            <button class="game-card game-card-wheel" data-home-target="wheel" type="button">
-              <img src="colesocard.png" alt="Колесо" class="game-card-image" />
-            </button>
-          </div>
-
-          <!-- Кейсы прямо на главной, ниже режимов -->
-
-          <div class="cases-grid">
-            <!-- Celendar case (newyear) -->
-            <div class="case-card" data-case-type="newyear">
-              <div class="case-image case-image-newyear"></div>
-              <div class="case-info">
-                <div class="case-name">Celendar case</div>
-                <div class="case-price">0.2 TON</div>
-              </div>
-            </div>
-
-            <!-- Classic case (onlynft) -->
-            <div class="case-card" data-case-type="onlynft">
-              <div class="case-image case-image-onlynft"></div>
-              <div class="case-info">
-                <div class="case-name">Classic case</div>
-                <div class="case-price">1 TON</div>
-              </div>
-            </div>
-
-            <!-- All or nothing (crypto) -->
-            <div class="case-card" data-case-type="crypto">
-              <div class="case-image case-image-crypto"></div>
-              <div class="case-info">
-                <div class="case-name">All or nothing</div>
-                <div class="case-price">0.5 TON</div>
-              </div>
-            </div>
-
-            <!-- Genesis -->
-            <div class="case-card" data-case-type="genesis">
-              <div class="case-image case-image-genesis"></div>
-              <div class="case-info">
-                <div class="case-name">Genesis case</div>
-                <div class="case-price">5 TON</div>
-              </div>
-            </div>
-
-            <!-- Elite -->
-            <div class="case-card" data-case-type="elite">
-              <div class="case-image case-image-elite"></div>
-              <div class="case-info">
-                <div class="case-name">50/50 case</div>
-                <div class="case-price">12.5 TON</div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Экран КОЛЕСО -->
-        <section id="screen-wheel" class="screen">
-          <div class="screen-title">Колесо фортуны</div>
-          <div class="screen-subtitle">Бесплатное колесо</div>
-
-          <div class="wheel-wrapper">
-            <div class="wheel-arrow">▼</div>
-            <div id="wheel" class="wheel">
-              <div class="sector" data-index="0"><span class="sector-inner">🧸</span></div>
-              <div class="sector" data-index="1"><span class="sector-inner">🐸</span></div>
-              <div class="sector" data-index="2"><span class="sector-inner">💋</span></div>
-              <div class="sector" data-index="3"><span class="sector-inner">📅</span></div>
-              <div class="sector" data-index="4"><span class="sector-inner">🍀</span></div>
-              <div class="sector" data-index="5"><span class="sector-inner">🧸</span></div>
-              <div class="sector" data-index="6"><span class="sector-inner">🍑</span></div>
-            </div>
-
-            <div class="wheel-center">
-              <button id="spin-button" class="spin-button">
-                <span>Крутить</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="info-row">
-            <div class="info-card">
-              <div class="info-label">Ваш баланс</div>
-              <div class="info-value"><span id="balance-value-2">5</span> TON</div>
-            </div>
-            <div class="info-card">
-              <div class="info-label">Последний выигрыш</div>
-              <div class="info-value" id="last-prize">—</div>
-            </div>
-          </div>
-
-          <div class="wheel-prizes">
-            <div class="wheel-prizes-head">
-              <div class="wheel-prizes-title">
-                <span class="wheel-prizes-cube"></span>
-                Что в колесе?
-              </div>
-            </div>
-
-            <div class="wheel-prizes-grid prizes-grid">
-              <div class="wheel-prize-card prize-item">
-                <div class="wheel-prize-emoji prize-emoji"></div>
-                <div class="wheel-prize-name prize-name"></div>
-                <div class="wheel-prize-price">
-                  <span class="wheel-prize-ton"></span>
-                  <span class="wheel-prize-price-text"></span>
-                </div>
-              </div>
-
-              <div class="wheel-prize-card prize-item">
-                <div class="wheel-prize-emoji prize-emoji"></div>
-                <div class="wheel-prize-name prize-name"></div>
-                <div class="wheel-prize-price">
-                  <span class="wheel-prize-ton"></span>
-                  <span class="wheel-prize-price-text"></span>
-                </div>
-              </div>
-
-              <div class="wheel-prize-card prize-item">
-                <div class="wheel-prize-emoji prize-emoji"></div>
-                <div class="wheel-prize-name prize-name"></div>
-                <div class="wheel-prize-price">
-                  <span class="wheel-prize-ton"></span>
-                  <span class="wheel-prize-price-text"></span>
-                </div>
-              </div>
-
-              <div class="wheel-prize-card prize-item">
-                <div class="wheel-prize-emoji prize-emoji"></div>
-                <div class="wheel-prize-name prize-name"></div>
-                <div class="wheel-prize-price">
-                  <span class="wheel-prize-ton"></span>
-                  <span class="wheel-prize-price-text"></span>
-                </div>
-              </div>
-
-              <div class="wheel-prize-card prize-item">
-                <div class="wheel-prize-emoji prize-emoji"></div>
-                <div class="wheel-prize-name prize-name"></div>
-                <div class="wheel-prize-price">
-                  <span class="wheel-prize-ton"></span>
-                  <span class="wheel-prize-price-text"></span>
-                </div>
-              </div>
-
-              <div class="wheel-prize-card prize-item">
-                <div class="wheel-prize-emoji prize-emoji"></div>
-                <div class="wheel-prize-name prize-name"></div>
-                <div class="wheel-prize-price">
-                  <span class="wheel-prize-ton"></span>
-                  <span class="wheel-prize-price-text"></span>
-                </div>
-              </div>
-
-              <div class="wheel-prize-card prize-item">
-                <div class="wheel-prize-emoji prize-emoji"></div>
-                <div class="wheel-prize-name prize-name"></div>
-                <div class="wheel-prize-price">
-                  <span class="wheel-prize-ton"></span>
-                  <span class="wheel-prize-price-text"></span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Экран FROGTONRUN -->
-        <section id="screen-frog" class="screen">
-          <div class="crash-container frog-container-tight">
-            <div class="crash-game-area frog-game-area">
-              <canvas id="frog-canvas"></canvas>
-            </div>
-
-            <div class="crash-actions-row">
-              <button id="frog-main-action" class="crash-main-btn" type="button">
-                Сделать ставку
-              </button>
-              <button id="frog-cashout-btn" class="crash-secondary-btn" type="button">
-                Кэшаут
-              </button>
-            </div>
-
-            <div class="crash-panel">
-              <div class="crash-bet-block">
-                <div class="crash-bet-label">Ставка (TON)</div>
-                <div class="crash-bet-input-row">
-                  <input
-                    type="number"
-                    id="frog-bet-input"
-                    class="crash-bet-input"
-                    placeholder="1.00"
-                    min="0.1"
-                    step="0.1"
-                    value="1"
-                  />
-                </div>
-              </div>
-
-              <div class="crash-auto-block">
-                <div class="crash-bet-label">Авто-вывод (люк)</div>
-                <div class="crash-bet-input-row">
-                  <input
-                    type="number"
-                    id="frog-auto-input"
-                    class="crash-bet-input"
-                    placeholder="Например: 4"
-                    min="1"
-                    max="10"
-                    step="1"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div class="crash-info">
-              <div class="crash-info-item">
-                <span class="crash-info-label">Текущий множитель:</span>
-                <span class="crash-info-value" id="frog-current-mult">1.00x</span>
-              </div>
-              <div class="crash-info-item">
-                <span class="crash-info-label">Потенциальный выигрыш:</span>
-                <span class="crash-info-value" id="frog-potential-win">—</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Экран КРАШ -->
-        <section id="screen-crash" class="screen crash-section">
-          <div class="crash-container">
-            <div class="crash-game-area">
-              <!-- ФОН (только для crash) -->
-              <div class="crash-bg">
-                <video class="crash-bg-video" autoplay muted loop playsinline preload="auto">
-                  <source src="foncrash.MP4" type="video/mp4" />
-                </video>
-              </div>
-              <div class="crash-stars crash-stars-back"></div>
-              <div class="crash-stars crash-stars-front"></div>
-
-              <!-- Обратный отсчёт 7→1 -->
-              <div id="crash-countdown" class="crash-countdown hidden" aria-hidden="true">
-                <span id="crash-countdown-num">7</span>
-              </div>
-
-              <canvas id="crash-canvas"></canvas>
-              <div class="crash-multiplier" id="crash-multiplier">1.00x</div>
-              <div class="crash-status" id="crash-status">Скоро взлетаем</div>
-            </div>
-
-            <!-- Лента последних множителей -->
-            <div class="crash-history-strip">
-              <div id="crash-history-list" class="crash-history-list"></div>
-            </div>
-
-            <div class="crash-panel">
-              <div class="crash-bet-block">
-                <div class="crash-bet-label">Ставка (TON)</div>
-                <div class="crash-bet-input-row">
-                  <input
-                    type="number"
-                    id="crash-bet-input"
-                    class="crash-bet-input"
-                    placeholder="0.10"
-                    min="0.1"
-                    step="0.1"
-                    value="1"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <!-- ОДНА основная кнопка: Сделать ставку / Забрать -->
-            <button id="crash-main-action" class="crash-main-btn">Сделать ставку</button>
-
-            <!-- Лента ставок: TON + сумма, ниже аватарки и ники -->
-            <div class="crash-bets-strip">
-              <div id="crash-bets-list" class="crash-bets-list"></div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Экран ОТКРЫТИЯ ОДНОГО КЕЙСА (NEW UI) -->
-        <section id="screen-case-open" class="screen">
-          <div class="case-view-header">
-            <button id="case-open-back" class="case-back-btn" type="button">← Назад</button>
-            <div class="screen-title">Кейс</div>
-          </div>
-          <div class="case-view">
-            <!-- рулетка / лента подарков -->
-            <div class="case-view-reel">
-              <div class="case-anim-window case-view-reel-window">
-                <div class="case-anim-track" id="case-open-track"></div>
-
-                <div class="case-anim-pointer case-anim-pointer-top"></div>
-                <div class="case-anim-pointer-line"></div>
-                <div class="case-anim-pointer case-anim-pointer-bottom"></div>
-              </div>
-            </div>
-
-            <!-- большая кнопка -->
-            <button
-              id="case-open-spin"
-              class="case-open-main-btn case-open-main-btn--big"
-              type="button"
-            >
-              Открыть кейс
-            </button>
-
-            <!-- заголовок + цена -->
-            <div class="case-view-collections-head">
-              <div class="case-view-collections-title">
-                <span class="case-view-cube"></span>
-                Коллекции в этом кейсе
-              </div>
-
-              <div class="case-view-price">
-                <span class="balance-icon"></span>
-                <span id="case-open-price">0</span> TON
-              </div>
-            </div>
-
-            <!-- список подарков -->
-            <div id="case-open-rewards-list" class="case-view-grid"></div>
-          </div>
-        </section>
-
-        <!-- Экран ПРИГЛАСИТЬ -->
-        <section id="screen-invite" class="screen">
-          <div class="screen-title">Пригласить друзей</div>
-          <div class="screen-subtitle">
-            Делитесь ссылкой и получайте процент с игры друзей.
-          </div>
-
-          <div class="bonus-card">
-            <div class="bonus-title">Ваша пригласительная ссылка</div>
-            <div class="bonus-text" id="invite-link-text">Скоро добавим генерацию ссылки.</div>
-          </div>
-
-          <button class="action-btn action-blue" id="invite-copy-btn" type="button">
-            Скопировать ссылку 
-          </button>
-        </section>
-
-        <!-- Экран БОНУСЫ -->
-        <section id="screen-bonus" class="screen">
-          <div class="screen-title">Бонусы и промокоды</div>
-          <div class="screen-subtitle">
-            Введите промокод, чтобы получить бонус или скидку.
-          </div>
-
-          <div class="promo-block">
-            <input id="promo-input" type="text" placeholder="Введите промокод" />
-            <button id="promo-apply">Активировать</button>
-          </div>
-
-          <div class="bonus-card">
-            <div class="bonus-title">Раздел промокоды</div>
-            <div class="bonus-text">
-              В данном разделе можно будет ввести промокод, промокоды будут публиковаться в тг‑канале.
-            </div>
-          </div>
-
-          <!-- Награды за активность (бывший раздел Награды) -->
-          <div id="rewards-list" class="rewards-list">
-            <div class="bonus-card skeleton skeleton-reward-card"></div>
-            <div class="bonus-card skeleton skeleton-reward-card"></div>
-            <div class="bonus-card skeleton skeleton-reward-card"></div>
-          </div>
-        </section>
-
-        <!-- Экран ПРОФИЛЬ -->
-        <section id="screen-profile" class="screen">
-          <div class="profile-header">
-            <div class="profile-avatar"></div>
-            <div class="profile-main">
-              <div class="profile-name">Nick</div>
-              <div class="profile-id">ID: тестовый пользователь</div>
-            </div>
-          </div>
-
-          <div class="profile-balance-card">
-            <div class="profile-balance-top">
-              <span>Общий баланс</span>
-              <span class="ton-chip">
-                <span class="balance-icon">⚡</span>
-                <span id="balance-value-3">5</span> TON
-              </span>
-            </div>
-
-            <div class="profile-balance-bottom">
-              <button id="deposit-btn" class="action-btn action-green">Депозит TON</button>
-              <button id="withdraw-btn" class="action-btn action-blue">Вывод TON</button>
-            </div>
-
-            <div class="wallet-note">
-              Прежде чем пополнять баланс, нужно сначала привязать (подключить) кошелёк.
-            </div>
-
-            <div id="ton-connect" style="margin-top: 10px;"></div>
-
-            <div class="inventory-section">
-              <div class="inventory-title">Инвентарь подарков</div>
-              <div id="inventory-list" class="inventory-list">
-                <div class="inventory-empty">У вас пока нет подарков</div>
-              </div>
-            </div>
-
-            <div class="ref-card">
-              <div class="ref-title">Реферальная программа</div>
-              <div class="ref-text">
-                Делимся частью дохода с активными игроками. Ниже можно будет создать свой промокод для друзей.
-              </div>
-              <button class="action-btn action-outline" disabled>
-                Создать промокод (скоро)
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <!-- Экран АДМИН -->
-        <section id="screen-admin" class="screen">
-          <div class="screen-title">Админ-панель</div>
-          <div class="screen-subtitle">Доступ только для администратора.</div>
-
-          <!-- 1) Промокоды -->
-          <div class="bonus-card">
-            <div class="bonus-title">Промокоды</div>
-
-            <div class="promo-admin-row">
-              <select id="admin-promo-type">
-                <option value="gift">На мишку</option>
-                <option value="balance">На TON</option>
-              </select>
-              <input id="admin-promo-code" type="text" placeholder="PROMO123" />
-            </div>
-
-            <div class="promo-admin-row">
-              <input
-                id="admin-promo-amount"
-                type="number"
-                step="0.01"
-                placeholder="Сумма TON (если TON)"
-              />
-              <input
-                id="admin-promo-maxuses"
-                type="number"
-                step="1"
-                min="1"
-                value="1"
-                placeholder="Max uses"
-              />
-            </div>
-
-            <button id="admin-promo-create" class="action-btn action-green" type="button">
-              Создать промокод
-            </button>
-
-            <div style="height: 10px;"></div>
-
-            <div id="admin-promos-list" class="admin-promos-list">—</div>
-
-            <button id="admin-promos-refresh" class="action-btn action-blue" type="button">
-              Обновить список
-            </button>
-          </div>
-
-          <!-- 2) Статистика -->
-          <div class="bonus-card">
-            <div class="bonus-title">Статистика</div>
-            <div class="admin-stats" id="admin-stats">—</div>
-            <button id="admin-stats-refresh" class="action-btn action-blue" type="button">
-              Обновить
-            </button>
-          </div>
-
-          <!-- 3) Пользователи -->
-          <div class="bonus-card">
-            <div class="bonus-title">Пользователи</div>
-
-            <div class="promo-admin-row">
-              <input id="admin-users-q" type="text" placeholder="@username или ID" />
-              <button id="admin-users-search" class="action-btn action-blue" type="button">
-                Поиск
-              </button>
-            </div>
-
-            <div class="admin-users-grid" id="admin-users-grid"></div>
-
-            <div class="admin-pager">
-              <button id="admin-prev" class="action-btn action-outline" type="button">←</button>
-              <div id="admin-page-info">1 / 1</div>
-              <button id="admin-next" class="action-btn action-outline" type="button">→</button>
-            </div>
-          </div>
-
-          <!-- 4) Корректировка баланса -->
-          <div class="bonus-card">
-            <div class="bonus-title">Выдать / снять TON</div>
-
-            <div class="promo-admin-row">
-              <input id="admin-adj-tgid" type="text" placeholder="tg_id (число)" />
-              <input id="admin-adj-delta" type="number" step="0.01" placeholder="+1 или -1" />
-            </div>
-
-            <button id="admin-adj-apply" class="action-btn action-green" type="button">
-              Применить
-            </button>
-
-            <div class="admin-stats" id="admin-adj-result"></div>
-          </div>
-
-
-          <!-- 5) Рассылка -->
-<div class="bonus-card">
-  <div class="bonus-title">📣 Рассылка</div>
-  <div class="bonus-text">
-    Напиши текст и выбери, когда отправить. Поддерживается HTML (например: &lt;b&gt;жирный&lt;/b&gt;).
-  </div>
-
-  <textarea
-    id="admin-bc-text"
-    style="width:100%; min-height:140px; resize:vertical; margin-top:10px;"
-    placeholder="Текст рассылки..."
-  ></textarea>
-
-  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
-    <button id="admin-bc-now" class="action-btn action-green" type="button">Отправить сейчас</button>
-    <button id="admin-bc-10m" class="action-btn action-blue" type="button">Через 10 минут</button>
-    <button id="admin-bc-1h" class="action-btn action-blue" type="button">Через 1 час</button>
-    <button id="admin-bc-24h" class="action-btn action-blue" type="button">Через 24 часа</button>
-  </div>
-
-  <div id="admin-bc-result" class="admin-stats" style="margin-top:10px;">—</div>
-</div>
-
-        </section>
-      </main>
-
-      <nav class="bottom-nav">
-        <button class="nav-btn" data-target="invite">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-              <path d="M12 11v6M9 14h6" />
-            </svg>
-          </span>
-          <span>Пригласить</span>
-        </button>
-
-        <button class="nav-btn" data-target="crash">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
-              <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
-              <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
-              <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
-            </svg>
-          </span>
-          <span>Краш</span>
-        </button>
-
-        <button class="nav-btn active" data-target="home">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
-          </span>
-          <span>Главная</span>
-        </button>
-
-        <button class="nav-btn" data-target="bonus">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-              <path d="M12 6v4M12 14h.01" />
-            </svg>
-          </span>
-          <span>Бонусы</span>
-        </button>
-
-        <button class="nav-btn" data-target="profile">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-          </span>
-          <span>Профиль</span>
-        </button>
-
-        <button class="nav-btn" data-target="admin" id="admin-nav-btn" style="display:none;">
-          <span class="nav-icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
-          </span>
-          <span>Админ</span>
-        </button>
-      </nav>
-
-      <!-- Модалки -->
-      <div id="prize-modal" class="modal">
-        <div class="modal-content">
-          <div class="modal-prize-emoji" id="modal-prize-emoji">🧸</div>
-          <div class="modal-title">Поздравляем!</div>
-          <div class="modal-text">
-            Вы выиграли <span id="modal-prize-name">Мишка</span>
-          </div>
-          <div class="modal-price">
-            Стоимость: <span id="modal-prize-price">15</span> TON
-          </div>
-          <div class="modal-buttons">
-            <button id="modalSellBtn" class="modal-btn modal-btn-sell" type="button">
-              Продать
-            </button>
-            <button id="modalKeepBtn" class="modal-btn modal-btn-keep" type="button">
-              В инвентарь
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div id="withdraw-modal" class="modal">
-        <div class="modal-content">
-          <div class="modal-title">Вывод TON</div>
-          <div class="modal-text">Укажи сумму вывода (минимум 5 TON).</div>
-
-          <input
-            id="withdraw-amount-input"
-            class="modal-input"
-            type="number"
-            min="5"
-            step="0.01"
-            placeholder="Например: 5"
-            inputmode="decimal"
-          />
-
-          <div id="withdraw-hint" class="modal-hint">
-            Баланс: <span id="withdraw-balance-hint">0</span> TON
-          </div>
-
-          <div class="modal-buttons">
-            <button id="withdraw-cancel" class="modal-btn modal-btn-sell" type="button">
-              Отмена
-            </button>
-            <button id="withdraw-confirm" class="modal-btn modal-btn-keep" type="button">
-              Подтвердить
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div id="deposit-modal" class="modal">
-        <div class="modal-content">
-          <div class="modal-title">Пополнение баланса</div>
-
-          <div class="deposit-tabs">
-            <button class="deposit-tab active" data-deposit-tab="ton">TON</button>
-            <button class="deposit-tab" data-deposit-tab="nft">NFT подарком</button>
-          </div>
-
-          <div class="deposit-body deposit-body-ton" style="display: block;">
-            <div class="deposit-subtitle">Заполните данные</div>
-
-            <button id="connect-ton-btn" class="modal-btn modal-btn-keep" type="button">
-              Подключите TON кошелёк
-            </button>
-
-            <div class="deposit-form">
-              <label class="deposit-label">Сумма пополнения (TON)</label>
-              <input
-                id="deposit-amount-input"
-                class="modal-input"
-                type="number"
-                min="0.1"
-                step="0.01"
-                placeholder="Введите сумму..."
-                disabled
-              />
-            </div>
-          </div>
-
-          <div class="deposit-body deposit-body-nft" style="display: none;">
-            <div class="deposit-subtitle">Пополнение подарком (NFT)</div>
-            <div class="deposit-text">
-              Для депозита подарком (NFT) напишите нашему модератору в Telegram. Он примет подарок и зачислит эквивалент на баланс.
-            </div>
-            <button id="deposit-nft-contact" class="modal-btn modal-btn-keep" type="button">
-              Написать @modergw
-            </button>
-          </div>
-
-          <div class="modal-buttons">
-            <button id="deposit-cancel" class="modal-btn modal-btn-sell" type="button">
-              Закрыть
-            </button>
-            <button
-              id="deposit-confirm"
-              class="modal-btn modal-btn-keep"
-              type="button"
-              disabled
-            >
-              Пополнить
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- CASE OPEN ANIMATION OVERLAY -->
-    <div id="case-anim-overlay" class="case-anim-overlay">
-      <div class="case-anim-window">
-        <div class="case-anim-track" id="case-anim-track"></div>
-        <div class="case-anim-pointer case-anim-pointer-top"></div>
-        <div class="case-anim-pointer-line"></div>
-        <div class="case-anim-pointer case-anim-pointer-bottom"></div>
-      </div>
-    </div>
-
-    <!-- Видео-ракета (рисуем на canvas, сам элемент скрыт) -->
-    <video
-      id="rocket-video"
-      src="rocket.mp4"
-      muted
-      playsinline
-      loop
-      preload="auto"
-      style="display:none"
-    ></video>
-
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
-    <script src="script.js"></script>
-  </body>
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+		/>
+		<title>Gift Wheels</title>
+		<link rel="stylesheet" href="style.css" />
+	</head>
+	<body>
+		<div class="app">
+			<div id="app-loading" class="app-loading">
+				<div class="app-loading-logo skeleton"></div>
+				<div class="skeleton skeleton-text" style="width: 120px"></div>
+				<div class="skeleton skeleton-text" style="width: 80px"></div>
+			</div>
+			<header class="top-bar">
+				<div class="user">
+					<div class="avatar"></div>
+					<div class="user-info">
+						<div class="user-name">Nick</div>
+						<div class="user-subtitle">Gift Wheels</div>
+					</div>
+				</div>
+
+				<div class="balance">
+					<span class="balance-label">Баланс</span>
+					<span class="balance-icon"></span>
+					<span id="balance-value">5</span>
+					<span class="balance-currency">TON</span>
+
+					<button
+						id="wallet-status-btn"
+						class="wallet-status wallet-status-disconnected"
+						type="button"
+					>
+						+
+					</button>
+				</div>
+			</header>
+
+			<main class="content">
+				<!-- Главная: вход в режимы + кейсы -->
+				<section id="screen-home" class="screen active">
+					<!-- Live карусель подарков -->
+					<div class="live-strip">
+						<div class="live-label">
+							<span class="live-dot"></span>
+							<span class="live-text">Live</span>
+						</div>
+						<div class="live-carousel" id="live-gifts-carousel">
+							<!-- элементы будут добавляться через JS -->
+						</div>
+					</div>
+
+					<!-- Карточки КОЛЕСО и FROG -->
+					<div class="info-row info-row-games">
+						<button
+							class="game-card game-card-wheel"
+							data-home-target="wheel"
+							type="button"
+						>
+							<img src="colesocard.png" alt="Колесо" class="game-card-image" />
+						</button>
+					</div>
+
+					<!-- Кейсы прямо на главной, ниже режимов -->
+
+					<div class="cases-grid">
+						<!-- Celendar case (newyear) -->
+						<div class="case-card" data-case-type="newyear">
+							<div class="case-image case-image-newyear"></div>
+							<div class="case-info">
+								<div class="case-name">Celendar case</div>
+								<div class="case-price">0.2 TON</div>
+							</div>
+						</div>
+
+						<!-- Classic case (onlynft) -->
+						<div class="case-card" data-case-type="onlynft">
+							<div class="case-image case-image-onlynft"></div>
+							<div class="case-info">
+								<div class="case-name">Classic case</div>
+								<div class="case-price">1 TON</div>
+							</div>
+						</div>
+
+						<!-- All or nothing (crypto) -->
+						<div class="case-card" data-case-type="crypto">
+							<div class="case-image case-image-crypto"></div>
+							<div class="case-info">
+								<div class="case-name">All or nothing</div>
+								<div class="case-price">0.5 TON</div>
+							</div>
+						</div>
+
+						<!-- Genesis -->
+						<div class="case-card" data-case-type="genesis">
+							<div class="case-image case-image-genesis"></div>
+							<div class="case-info">
+								<div class="case-name">Genesis case</div>
+								<div class="case-price">5 TON</div>
+							</div>
+						</div>
+
+						<!-- Elite -->
+						<div class="case-card" data-case-type="elite">
+							<div class="case-image case-image-elite"></div>
+							<div class="case-info">
+								<div class="case-name">50/50 case</div>
+								<div class="case-price">12.5 TON</div>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<!-- Экран КОЛЕСО -->
+				<section id="screen-wheel" class="screen">
+					<div class="screen-title">Колесо фортуны</div>
+					<div class="screen-subtitle">Бесплатное колесо</div>
+
+					<div class="wheel-wrapper">
+						<div class="wheel-arrow">▼</div>
+						<div id="wheel" class="wheel">
+							<div class="sector" data-index="0">
+								<span class="sector-inner">🧸</span>
+							</div>
+							<div class="sector" data-index="1">
+								<span class="sector-inner">🐸</span>
+							</div>
+							<div class="sector" data-index="2">
+								<span class="sector-inner">💋</span>
+							</div>
+							<div class="sector" data-index="3">
+								<span class="sector-inner">📅</span>
+							</div>
+							<div class="sector" data-index="4">
+								<span class="sector-inner">🍀</span>
+							</div>
+							<div class="sector" data-index="5">
+								<span class="sector-inner">🧸</span>
+							</div>
+							<div class="sector" data-index="6">
+								<span class="sector-inner">🍑</span>
+							</div>
+						</div>
+
+						<div class="wheel-center">
+							<button id="spin-button" class="spin-button">
+								<span>Крутить</span>
+							</button>
+						</div>
+					</div>
+
+					<div class="info-row">
+						<div class="info-card">
+							<div class="info-label">Ваш баланс</div>
+							<div class="info-value">
+								<span id="balance-value-2">5</span> TON
+							</div>
+						</div>
+						<div class="info-card">
+							<div class="info-label">Последний выигрыш</div>
+							<div class="info-value" id="last-prize">—</div>
+						</div>
+					</div>
+
+					<div class="wheel-prizes">
+						<div class="wheel-prizes-head">
+							<div class="wheel-prizes-title">
+								<span class="wheel-prizes-cube"></span>
+								Что в колесе?
+							</div>
+						</div>
+
+						<div class="wheel-prizes-grid prizes-grid">
+							<div class="wheel-prize-card prize-item">
+								<div class="wheel-prize-emoji prize-emoji"></div>
+								<div class="wheel-prize-name prize-name"></div>
+								<div class="wheel-prize-price">
+									<span class="wheel-prize-ton"></span>
+									<span class="wheel-prize-price-text"></span>
+								</div>
+							</div>
+
+							<div class="wheel-prize-card prize-item">
+								<div class="wheel-prize-emoji prize-emoji"></div>
+								<div class="wheel-prize-name prize-name"></div>
+								<div class="wheel-prize-price">
+									<span class="wheel-prize-ton"></span>
+									<span class="wheel-prize-price-text"></span>
+								</div>
+							</div>
+
+							<div class="wheel-prize-card prize-item">
+								<div class="wheel-prize-emoji prize-emoji"></div>
+								<div class="wheel-prize-name prize-name"></div>
+								<div class="wheel-prize-price">
+									<span class="wheel-prize-ton"></span>
+									<span class="wheel-prize-price-text"></span>
+								</div>
+							</div>
+
+							<div class="wheel-prize-card prize-item">
+								<div class="wheel-prize-emoji prize-emoji"></div>
+								<div class="wheel-prize-name prize-name"></div>
+								<div class="wheel-prize-price">
+									<span class="wheel-prize-ton"></span>
+									<span class="wheel-prize-price-text"></span>
+								</div>
+							</div>
+
+							<div class="wheel-prize-card prize-item">
+								<div class="wheel-prize-emoji prize-emoji"></div>
+								<div class="wheel-prize-name prize-name"></div>
+								<div class="wheel-prize-price">
+									<span class="wheel-prize-ton"></span>
+									<span class="wheel-prize-price-text"></span>
+								</div>
+							</div>
+
+							<div class="wheel-prize-card prize-item">
+								<div class="wheel-prize-emoji prize-emoji"></div>
+								<div class="wheel-prize-name prize-name"></div>
+								<div class="wheel-prize-price">
+									<span class="wheel-prize-ton"></span>
+									<span class="wheel-prize-price-text"></span>
+								</div>
+							</div>
+
+							<div class="wheel-prize-card prize-item">
+								<div class="wheel-prize-emoji prize-emoji"></div>
+								<div class="wheel-prize-name prize-name"></div>
+								<div class="wheel-prize-price">
+									<span class="wheel-prize-ton"></span>
+									<span class="wheel-prize-price-text"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<!-- Экран FROGTONRUN -->
+				<section id="screen-frog" class="screen">
+					<div class="crash-container frog-container-tight">
+						<div class="crash-game-area frog-game-area">
+							<canvas id="frog-canvas"></canvas>
+						</div>
+
+						<div class="crash-actions-row">
+							<button
+								id="frog-main-action"
+								class="crash-main-btn"
+								type="button"
+							>
+								Сделать ставку
+							</button>
+							<button
+								id="frog-cashout-btn"
+								class="crash-secondary-btn"
+								type="button"
+							>
+								Кэшаут
+							</button>
+						</div>
+
+						<div class="crash-panel">
+							<div class="crash-bet-block">
+								<div class="crash-bet-label">Ставка (TON)</div>
+								<div class="crash-bet-input-row">
+									<input
+										type="number"
+										id="frog-bet-input"
+										class="crash-bet-input"
+										placeholder="1.00"
+										min="0.1"
+										step="0.1"
+										value="1"
+									/>
+								</div>
+							</div>
+
+							<div class="crash-auto-block">
+								<div class="crash-bet-label">Авто-вывод (люк)</div>
+								<div class="crash-bet-input-row">
+									<input
+										type="number"
+										id="frog-auto-input"
+										class="crash-bet-input"
+										placeholder="Например: 4"
+										min="1"
+										max="10"
+										step="1"
+									/>
+								</div>
+							</div>
+						</div>
+
+						<div class="crash-info">
+							<div class="crash-info-item">
+								<span class="crash-info-label">Текущий множитель:</span>
+								<span class="crash-info-value" id="frog-current-mult"
+									>1.00x</span
+								>
+							</div>
+							<div class="crash-info-item">
+								<span class="crash-info-label">Потенциальный выигрыш:</span>
+								<span class="crash-info-value" id="frog-potential-win">—</span>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<!-- Экран КРАШ -->
+				<section id="screen-crash" class="screen crash-section">
+					<div class="crash-container">
+						<div class="crash-game-area">
+							<!-- ФОН (только для crash) -->
+							<div class="crash-bg">
+								<video
+									class="crash-bg-video"
+									autoplay
+									muted
+									loop
+									playsinline
+									preload="auto"
+								>
+									<source src="foncrash.MP4" type="video/mp4" />
+								</video>
+							</div>
+							<div class="crash-stars crash-stars-back"></div>
+							<div class="crash-stars crash-stars-front"></div>
+
+							<!-- Обратный отсчёт 7→1 -->
+							<div
+								id="crash-countdown"
+								class="crash-countdown hidden"
+								aria-hidden="true"
+							>
+								<span id="crash-countdown-num">7</span>
+							</div>
+
+							<canvas id="crash-canvas"></canvas>
+							<div class="crash-multiplier" id="crash-multiplier">1.00x</div>
+							<div class="crash-status" id="crash-status">Скоро взлетаем</div>
+						</div>
+
+						<!-- Лента последних множителей -->
+						<div class="crash-history-strip">
+							<div id="crash-history-list" class="crash-history-list"></div>
+						</div>
+
+						<div class="crash-panel">
+							<div class="crash-bet-block">
+								<div class="crash-bet-label">Ставка (TON)</div>
+								<div class="crash-bet-input-row">
+									<input
+										type="number"
+										id="crash-bet-input"
+										class="crash-bet-input"
+										placeholder="0.10"
+										min="0.1"
+										step="0.1"
+										value="1"
+									/>
+								</div>
+							</div>
+						</div>
+
+						<!-- ОДНА основная кнопка: Сделать ставку / Забрать -->
+						<button id="crash-main-action" class="crash-main-btn">
+							Сделать ставку
+						</button>
+
+						<!-- Лента ставок: TON + сумма, ниже аватарки и ники -->
+						<div class="crash-bets-strip">
+							<div id="crash-bets-list" class="crash-bets-list"></div>
+						</div>
+					</div>
+				</section>
+
+				<!-- Экран ОТКРЫТИЯ ОДНОГО КЕЙСА (NEW UI) -->
+				<section id="screen-case-open" class="screen">
+					<div class="case-view-header">
+						<button id="case-open-back" class="case-back-btn" type="button">
+							← Назад
+						</button>
+						<div class="screen-title">Кейс</div>
+					</div>
+					<div class="case-view">
+						<!-- рулетка / лента подарков -->
+						<div class="case-view-reel">
+							<div class="case-anim-window case-view-reel-window">
+								<div class="case-anim-track" id="case-open-track"></div>
+
+								<div class="case-anim-pointer case-anim-pointer-top"></div>
+								<div class="case-anim-pointer-line"></div>
+								<div class="case-anim-pointer case-anim-pointer-bottom"></div>
+							</div>
+						</div>
+
+						<!-- большая кнопка -->
+						<button
+							id="case-open-spin"
+							class="case-open-main-btn case-open-main-btn--big"
+							type="button"
+						>
+							Открыть кейс
+						</button>
+
+						<!-- заголовок + цена -->
+						<div class="case-view-collections-head">
+							<div class="case-view-collections-title">
+								<span class="case-view-cube"></span>
+								Коллекции в этом кейсе
+							</div>
+
+							<div class="case-view-price">
+								<span class="balance-icon"></span>
+								<span id="case-open-price">0</span> TON
+							</div>
+						</div>
+
+						<!-- список подарков -->
+						<div id="case-open-rewards-list" class="case-view-grid"></div>
+					</div>
+				</section>
+
+				<!-- Экран ПРИГЛАСИТЬ -->
+				<section id="screen-invite" class="screen">
+					<div class="screen-title">Пригласить друзей</div>
+					<div class="screen-subtitle">
+						Делитесь ссылкой и получайте процент с игры друзей.
+					</div>
+
+					<div class="bonus-card">
+						<div class="bonus-title">Ваша пригласительная ссылка</div>
+						<div class="bonus-text" id="invite-link-text">
+							Скоро добавим генерацию ссылки.
+						</div>
+					</div>
+
+					<button
+						class="action-btn action-blue"
+						id="invite-copy-btn"
+						type="button"
+					>
+						Скопировать ссылку
+					</button>
+				</section>
+
+				<!-- Экран БОНУСЫ -->
+				<section id="screen-bonus" class="screen">
+					<div class="screen-title">Бонусы и промокоды</div>
+					<div class="screen-subtitle">
+						Введите промокод, чтобы получить бонус или скидку.
+					</div>
+
+					<div class="promo-block">
+						<input
+							id="promo-input"
+							type="text"
+							placeholder="Введите промокод"
+						/>
+						<button id="promo-apply">Активировать</button>
+					</div>
+
+					<div class="bonus-card">
+						<div class="bonus-title">Раздел промокоды</div>
+						<div class="bonus-text">
+							В данном разделе можно будет ввести промокод, промокоды будут
+							публиковаться в тг‑канале.
+						</div>
+					</div>
+
+					<!-- Награды за активность (бывший раздел Награды) -->
+					<div id="rewards-list" class="rewards-list">
+						<div class="bonus-card skeleton skeleton-reward-card"></div>
+						<div class="bonus-card skeleton skeleton-reward-card"></div>
+						<div class="bonus-card skeleton skeleton-reward-card"></div>
+					</div>
+				</section>
+
+				<!-- Экран ПРОФИЛЬ -->
+				<section id="screen-profile" class="screen">
+					<div class="profile-header">
+						<div class="profile-avatar"></div>
+						<div class="profile-main">
+							<div class="profile-name">Nick</div>
+							<div class="profile-id">ID: тестовый пользователь</div>
+						</div>
+					</div>
+
+					<div class="profile-balance-card">
+						<div class="profile-balance-top">
+							<span>Общий баланс</span>
+							<span class="ton-chip">
+								<span class="balance-icon">⚡</span>
+								<span id="balance-value-3">5</span> TON
+							</span>
+						</div>
+
+						<div class="profile-balance-bottom">
+							<button id="deposit-btn" class="action-btn action-green">
+								Депозит TON
+							</button>
+							<button id="withdraw-btn" class="action-btn action-blue">
+								Вывод TON
+							</button>
+						</div>
+
+						<div class="wallet-note">
+							Прежде чем пополнять баланс, нужно сначала привязать (подключить)
+							кошелёк.
+						</div>
+
+						<div id="ton-connect" style="margin-top: 10px"></div>
+
+						<!-- Смена языка -->
+						<div class="lang-section">
+							<div class="lang-section-title" data-i18n="lang_title">
+								Изменить язык
+							</div>
+							<div class="lang-switcher">
+								<button
+									class="lang-btn lang-btn-active"
+									id="lang-ru"
+									type="button"
+								>
+									🇷🇺 Русский
+								</button>
+								<button class="lang-btn" id="lang-en" type="button">
+									🇬🇧 English
+								</button>
+							</div>
+						</div>
+
+						<div class="inventory-section">
+							<div class="inventory-title" data-i18n="inventory_title">
+								Инвентарь подарков
+							</div>
+							<div id="inventory-list" class="inventory-list">
+								<div class="inventory-empty">У вас пока нет подарков</div>
+							</div>
+						</div>
+
+						<div class="ref-card">
+							<div class="ref-title">Реферальная программа</div>
+							<div class="ref-text">
+								Делимся частью дохода с активными игроками. Ниже можно будет
+								создать свой промокод для друзей.
+							</div>
+							<button class="action-btn action-outline" disabled>
+								Создать промокод (скоро)
+							</button>
+						</div>
+					</div>
+				</section>
+
+				<!-- Экран АДМИН -->
+				<section id="screen-admin" class="screen">
+					<div class="screen-title">Админ-панель</div>
+					<div class="screen-subtitle">Доступ только для администратора.</div>
+
+					<!-- 1) Промокоды -->
+					<div class="bonus-card">
+						<div class="bonus-title">Промокоды</div>
+
+						<div class="promo-admin-row">
+							<select id="admin-promo-type">
+								<option value="gift">На мишку</option>
+								<option value="balance">На TON</option>
+							</select>
+							<input id="admin-promo-code" type="text" placeholder="PROMO123" />
+						</div>
+
+						<div class="promo-admin-row">
+							<input
+								id="admin-promo-amount"
+								type="number"
+								step="0.01"
+								placeholder="Сумма TON (если TON)"
+							/>
+							<input
+								id="admin-promo-maxuses"
+								type="number"
+								step="1"
+								min="1"
+								value="1"
+								placeholder="Max uses"
+							/>
+						</div>
+
+						<button
+							id="admin-promo-create"
+							class="action-btn action-green"
+							type="button"
+						>
+							Создать промокод
+						</button>
+
+						<div style="height: 10px"></div>
+
+						<div id="admin-promos-list" class="admin-promos-list">—</div>
+
+						<button
+							id="admin-promos-refresh"
+							class="action-btn action-blue"
+							type="button"
+						>
+							Обновить список
+						</button>
+					</div>
+
+					<!-- 2) Статистика -->
+					<div class="bonus-card">
+						<div class="bonus-title">Статистика</div>
+						<div class="admin-stats" id="admin-stats">—</div>
+						<button
+							id="admin-stats-refresh"
+							class="action-btn action-blue"
+							type="button"
+						>
+							Обновить
+						</button>
+					</div>
+
+					<!-- 3) Пользователи -->
+					<div class="bonus-card">
+						<div class="bonus-title">Пользователи</div>
+
+						<div class="promo-admin-row">
+							<input
+								id="admin-users-q"
+								type="text"
+								placeholder="@username или ID"
+							/>
+							<button
+								id="admin-users-search"
+								class="action-btn action-blue"
+								type="button"
+							>
+								Поиск
+							</button>
+						</div>
+
+						<div class="admin-users-grid" id="admin-users-grid"></div>
+
+						<div class="admin-pager">
+							<button
+								id="admin-prev"
+								class="action-btn action-outline"
+								type="button"
+							>
+								←
+							</button>
+							<div id="admin-page-info">1 / 1</div>
+							<button
+								id="admin-next"
+								class="action-btn action-outline"
+								type="button"
+							>
+								→
+							</button>
+						</div>
+					</div>
+
+					<!-- 4) Корректировка баланса -->
+					<div class="bonus-card">
+						<div class="bonus-title">Выдать / снять TON</div>
+
+						<div class="promo-admin-row">
+							<input
+								id="admin-adj-tgid"
+								type="text"
+								placeholder="tg_id (число)"
+							/>
+							<input
+								id="admin-adj-delta"
+								type="number"
+								step="0.01"
+								placeholder="+1 или -1"
+							/>
+						</div>
+
+						<button
+							id="admin-adj-apply"
+							class="action-btn action-green"
+							type="button"
+						>
+							Применить
+						</button>
+
+						<div class="admin-stats" id="admin-adj-result"></div>
+					</div>
+
+					<!-- 5) Рассылка -->
+					<div class="bonus-card">
+						<div class="bonus-title">📣 Рассылка</div>
+						<div class="bonus-text">
+							Напиши текст и выбери, когда отправить. Поддерживается HTML
+							(например: &lt;b&gt;жирный&lt;/b&gt;).
+						</div>
+
+						<textarea
+							id="admin-bc-text"
+							style="
+								width: 100%;
+								min-height: 140px;
+								resize: vertical;
+								margin-top: 10px;
+							"
+							placeholder="Текст рассылки..."
+						></textarea>
+
+						<div
+							style="
+								display: flex;
+								gap: 10px;
+								flex-wrap: wrap;
+								margin-top: 10px;
+							"
+						>
+							<button
+								id="admin-bc-now"
+								class="action-btn action-green"
+								type="button"
+							>
+								Отправить сейчас
+							</button>
+							<button
+								id="admin-bc-10m"
+								class="action-btn action-blue"
+								type="button"
+							>
+								Через 10 минут
+							</button>
+							<button
+								id="admin-bc-1h"
+								class="action-btn action-blue"
+								type="button"
+							>
+								Через 1 час
+							</button>
+							<button
+								id="admin-bc-24h"
+								class="action-btn action-blue"
+								type="button"
+							>
+								Через 24 часа
+							</button>
+						</div>
+
+						<div
+							id="admin-bc-result"
+							class="admin-stats"
+							style="margin-top: 10px"
+						>
+							—
+						</div>
+					</div>
+				</section>
+			</main>
+
+			<nav class="bottom-nav">
+				<button class="nav-btn" data-target="invite">
+					<span class="nav-icon">
+						<svg viewBox="0 0 24 24" aria-hidden="true">
+							<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+							<circle cx="9" cy="7" r="4" />
+							<path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+							<path d="M16 3.13a4 4 0 0 1 0 7.75" />
+							<path d="M12 11v6M9 14h6" />
+						</svg>
+					</span>
+					<span>Пригласить</span>
+				</button>
+
+				<button class="nav-btn" data-target="crash">
+					<span class="nav-icon">
+						<svg viewBox="0 0 24 24" aria-hidden="true">
+							<path
+								d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"
+							/>
+							<path
+								d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"
+							/>
+							<path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+							<path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+						</svg>
+					</span>
+					<span>Краш</span>
+				</button>
+
+				<button class="nav-btn active" data-target="home">
+					<span class="nav-icon">
+						<svg viewBox="0 0 24 24" aria-hidden="true">
+							<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+							<polyline points="9 22 9 12 15 12 15 22" />
+						</svg>
+					</span>
+					<span>Главная</span>
+				</button>
+
+				<button class="nav-btn" data-target="bonus">
+					<span class="nav-icon">
+						<svg viewBox="0 0 24 24" aria-hidden="true">
+							<polygon
+								points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+							/>
+							<path d="M12 6v4M12 14h.01" />
+						</svg>
+					</span>
+					<span>Бонусы</span>
+				</button>
+
+				<button class="nav-btn" data-target="profile">
+					<span class="nav-icon">
+						<svg viewBox="0 0 24 24" aria-hidden="true">
+							<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+							<circle cx="12" cy="7" r="4" />
+						</svg>
+					</span>
+					<span>Профиль</span>
+				</button>
+
+				<button
+					class="nav-btn"
+					data-target="admin"
+					id="admin-nav-btn"
+					style="display: none"
+				>
+					<span class="nav-icon">
+						<svg viewBox="0 0 24 24" aria-hidden="true">
+							<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+						</svg>
+					</span>
+					<span>Админ</span>
+				</button>
+			</nav>
+
+			<!-- Модалки -->
+			<div id="prize-modal" class="modal">
+				<div class="modal-content">
+					<div class="modal-prize-emoji" id="modal-prize-emoji">🧸</div>
+					<div class="modal-title">Поздравляем!</div>
+					<div class="modal-text">
+						Вы выиграли <span id="modal-prize-name">Мишка</span>
+					</div>
+					<div class="modal-price">
+						Стоимость: <span id="modal-prize-price">15</span> TON
+					</div>
+					<div class="modal-buttons">
+						<button
+							id="modalSellBtn"
+							class="modal-btn modal-btn-sell"
+							type="button"
+						>
+							Продать
+						</button>
+						<button
+							id="modalKeepBtn"
+							class="modal-btn modal-btn-keep"
+							type="button"
+						>
+							В инвентарь
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<div id="withdraw-modal" class="modal">
+				<div class="modal-content">
+					<div class="modal-title">Вывод TON</div>
+					<div class="modal-text">Укажи сумму вывода (минимум 5 TON).</div>
+
+					<input
+						id="withdraw-amount-input"
+						class="modal-input"
+						type="number"
+						min="5"
+						step="0.01"
+						placeholder="Например: 5"
+						inputmode="decimal"
+					/>
+
+					<div id="withdraw-hint" class="modal-hint">
+						Баланс: <span id="withdraw-balance-hint">0</span> TON
+					</div>
+
+					<div class="modal-buttons">
+						<button
+							id="withdraw-cancel"
+							class="modal-btn modal-btn-sell"
+							type="button"
+						>
+							Отмена
+						</button>
+						<button
+							id="withdraw-confirm"
+							class="modal-btn modal-btn-keep"
+							type="button"
+						>
+							Подтвердить
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<div id="deposit-modal" class="modal">
+				<div class="modal-content">
+					<div class="modal-title">Пополнение баланса</div>
+
+					<div class="deposit-tabs">
+						<button class="deposit-tab active" data-deposit-tab="ton">
+							TON
+						</button>
+						<button class="deposit-tab" data-deposit-tab="nft">
+							NFT подарком
+						</button>
+					</div>
+
+					<div class="deposit-body deposit-body-ton" style="display: block">
+						<div class="deposit-subtitle">Заполните данные</div>
+
+						<button
+							id="connect-ton-btn"
+							class="modal-btn modal-btn-keep"
+							type="button"
+						>
+							Подключите TON кошелёк
+						</button>
+
+						<div class="deposit-form">
+							<label class="deposit-label">Сумма пополнения (TON)</label>
+							<input
+								id="deposit-amount-input"
+								class="modal-input"
+								type="number"
+								min="0.1"
+								step="0.01"
+								placeholder="Введите сумму..."
+								disabled
+							/>
+						</div>
+					</div>
+
+					<div class="deposit-body deposit-body-nft" style="display: none">
+						<div class="deposit-subtitle">Пополнение подарком (NFT)</div>
+						<div class="deposit-text">
+							Для депозита подарком (NFT) напишите нашему модератору в Telegram.
+							Он примет подарок и зачислит эквивалент на баланс.
+						</div>
+						<button
+							id="deposit-nft-contact"
+							class="modal-btn modal-btn-keep"
+							type="button"
+						>
+							Написать @modergw
+						</button>
+					</div>
+
+					<div class="modal-buttons">
+						<button
+							id="deposit-cancel"
+							class="modal-btn modal-btn-sell"
+							type="button"
+						>
+							Закрыть
+						</button>
+						<button
+							id="deposit-confirm"
+							class="modal-btn modal-btn-keep"
+							type="button"
+							disabled
+						>
+							Пополнить
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- CASE OPEN ANIMATION OVERLAY -->
+		<div id="case-anim-overlay" class="case-anim-overlay">
+			<div class="case-anim-window">
+				<div class="case-anim-track" id="case-anim-track"></div>
+				<div class="case-anim-pointer case-anim-pointer-top"></div>
+				<div class="case-anim-pointer-line"></div>
+				<div class="case-anim-pointer case-anim-pointer-bottom"></div>
+			</div>
+		</div>
+
+		<!-- Видео-ракета (рисуем на canvas, сам элемент скрыт) -->
+		<video
+			id="rocket-video"
+			src="rocket.mp4"
+			muted
+			playsinline
+			loop
+			preload="auto"
+			style="display: none"
+		></video>
+
+		<script src="https://telegram.org/js/telegram-web-app.js"></script>
+		<script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+		<script src="script.js"></script>
+	</body>
 </html>
-
-
-
