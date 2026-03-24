@@ -2031,7 +2031,19 @@ document.querySelectorAll('[data-home-target]').forEach(card => {
 		}
 
 		if (target === 'crash') {
+			stopCrashPolling()
 			setScreen('crash')
+			// инициализируем canvas и запускаем polling — так же как при нажатии nav-btn
+			initCrashCanvas()
+			startCrashRenderLoop()
+			if (crashBetsListEl) {
+				crashBetsListEl.innerHTML = `
+          <div class="crash-bet-item"><div class="crash-bet-avatar-wrap"><div class="skeleton skeleton-avatar" style="width:42px;height:42px;"></div></div><div class="crash-bet-info"><div class="skeleton skeleton-text" style="width:80px;"></div><div class="skeleton skeleton-text" style="width:60px;"></div></div></div>
+          <div class="crash-bet-item"><div class="crash-bet-avatar-wrap"><div class="skeleton skeleton-avatar" style="width:42px;height:42px;"></div></div><div class="crash-bet-info"><div class="skeleton skeleton-text" style="width:70px;"></div><div class="skeleton skeleton-text" style="width:50px;"></div></div></div>
+        `
+			}
+			startCrashPolling()
+			fetchCrashState().then(s => s && applyCrashState(s))
 			return
 		}
 	})
