@@ -615,6 +615,11 @@ const screens = {
 	frog: document.getElementById('screen-frog'),
 }
 
+// Кнопка "Назад" на экране кейсов
+document.getElementById('cases-back')?.addEventListener('click', () => {
+	setScreen('home')
+})
+
 const rewardsListEl = document.getElementById('rewards-list')
 
 const depositBtn = document.getElementById('deposit-btn')
@@ -2046,7 +2051,7 @@ caseCards.forEach(card => {
 })
 
 caseOpenBackBtn?.addEventListener('click', () => {
-	setScreen('home')
+	setScreen('cases')
 })
 
 // Открыть кейс через сервер
