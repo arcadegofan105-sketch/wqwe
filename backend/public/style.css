@@ -2497,6 +2497,21 @@ body {
 	font-size: 28px;
 }
 
+/* ВИДЕО-ИКОПКИ НА ГЛАВНОЙ (колесо, краш, кейсы) */
+.game-card-video {
+	width: 52px;
+	height: 52px;
+	border-radius: 16px;
+	object-fit: cover;
+	display: block;
+	pointer-events: none;
+}
+
+/* при желании можно потом поиграться с размерами по отдельным играм */
+.game-card-video--wheel {}
+.game-card-video--crash {}
+.game-card-video--cases {}
+
 .wheel-banner-body {
 	flex: 1;
 	min-width: 0;
