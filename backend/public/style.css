@@ -4056,3 +4056,20 @@ body {
 		rgba(56, 189, 248, 0.2)
 	);
 }
+
+.game-card-video,
+.crash-bg-video {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	pointer-events: none;
+	-webkit-user-select: none;
+	user-select: none;
+	-webkit-touch-callout: none;
+}
+
+.wheel-banner-left,
+.crash-bg {
+	overflow: hidden;
+}
