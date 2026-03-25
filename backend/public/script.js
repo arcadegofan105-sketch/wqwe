@@ -717,6 +717,21 @@ const frogAutoInput = document.getElementById('frog-auto-input')
 const frogCurrentMultEl = document.getElementById('frog-current-mult')
 const frogPotentialWinEl = document.getElementById('frog-potential-win')
 
+// === GAME CARD VIDEOS (wheel / crash / cases) ===
+const wheelCardVideo = document.querySelector('.game-card-video--wheel');
+const crashCardVideo = document.querySelector('.game-card-video--crash');
+const casesCardVideo = document.querySelector('.game-card-video--cases');
+
+// offscreen canvases для хромакея
+const wheelCardKeyCanvas = document.createElement('canvas');
+const wheelCardKeyCtx = wheelCardKeyCanvas.getContext('2d', { willReadFrequently: true });
+
+const crashCardKeyCanvas = document.createElement('canvas');
+const crashCardKeyCtx = crashCardKeyCanvas.getContext('2d', { willReadFrequently: true });
+
+const casesCardKeyCanvas = document.createElement('canvas');
+const casesCardKeyCtx = casesCardKeyCanvas.getContext('2d', { willReadFrequently: true });
+
 // ===== CASES: helpers =====
 function formatTonHuman(v) {
 	const n = Number(v)
@@ -1465,6 +1480,39 @@ function escapeHtml(s) {
 		.replaceAll('>', '&gt;')
 		.replaceAll('"', '&quot;')
 		.replaceAll("'", '&#039;')
+}
+
+
+// === Общий рендер видео с вырезанием чёрного цвета ===
+function drawVideoWithChromaKey(ctx, videoEl, keyCanvas, keyCtx, x, y, width, height) {
+  if (!videoEl || videoEl.readyState < 2 || !keyCtx) return;
+
+  const vw = videoEl.videoWidth;
+  const vh = videoEl.videoHeight;
+  if (!vw || !vh) return;
+
+  keyCanvas.width = vw;
+  keyCanvas.height = vh;
+  keyCtx.clearRect(0, 0, vw, vh);
+  keyCtx.drawImage(videoEl, 0, 0, vw, vh);
+
+  const frame = keyCtx.getImageData(0, 0, vw, vh);
+  const d = frame.data;
+  const threshold = 30; // порог чёрного
+
+  for (let i = 0; i < d.length; i += 4) {
+    const r = d[i];
+    const g = d[i + 1];
+    const b = d[i + 2];
+
+    // почти чёрные пиксели делаем прозрачными
+    if (r < threshold && g < threshold && b < threshold) {
+      d[i + 3] = 0;
+    }
+  }
+
+  keyCtx.putImageData(frame, 0, 0);
+  ctx.drawImage(keyCanvas, x, y, width, height);
 }
 
 // ===== FROGTON DRAW HELPERS =====
