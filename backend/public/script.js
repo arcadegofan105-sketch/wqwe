@@ -3146,15 +3146,29 @@ function renderCrash(ts) {
 	}
 
 	// canvas прозрачный, фон = видео под ним
-	crashCtx.clearRect(0, 0, w, h)
+crashCtx.clearRect(0, 0, w, h)
 
-	// Ракета фиксированно сверху
-	if (crashState === 'playing') {
-		const rx = w * 0.5
-		const ry = h * 0.6
-		const ang = -0.25
-		drawRocketVideo(crashCtx, rx, ry, ang, 92)
-	}
+// рисуем видео краш-карточки с вырезанным чёрным фоном
+if (crashCardVideo && crashCardKeyCtx) {
+	drawVideoWithChromaKey(
+		crashCtx,
+		crashCardVideo,
+		crashCardKeyCanvas,
+		crashCardKeyCtx,
+		0,
+		0,
+		w,
+		h
+	)
+}
+
+// Ракета фиксированно сверху
+if (crashState === 'playing') {
+	const rx = w * 0.5
+	const ry = h * 0.6
+	const ang = -0.25
+	drawRocketVideo(crashCtx, rx, ry, ang, 92)
+}
 
 	if (crashState === 'crashed' && crashImpact) {
 		const t = (performance.now() - crashImpact.ts) / 1000
