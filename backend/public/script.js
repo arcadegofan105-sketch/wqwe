@@ -3145,22 +3145,8 @@ function renderCrash(ts) {
 		crashCtx.translate((Math.random() - 0.5) * mag, (Math.random() - 0.5) * mag)
 	}
 
-	// canvas прозрачный, фон = видео под ним
+// canvas прозрачный, фон = видео под ним
 crashCtx.clearRect(0, 0, w, h)
-
-// рисуем видео краш-карточки с вырезанным чёрным фоном
-if (crashCardVideo && crashCardKeyCtx) {
-	drawVideoWithChromaKey(
-		crashCtx,
-		crashCardVideo,
-		crashCardKeyCanvas,
-		crashCardKeyCtx,
-		0,
-		0,
-		w,
-		h
-	)
-}
 
 // Ракета фиксированно сверху
 if (crashState === 'playing') {
