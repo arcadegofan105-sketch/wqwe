@@ -4073,3 +4073,19 @@ body {
 .crash-bg {
 	overflow: hidden;
 }
+
+
+.wheel-banner-left {
+	isolation: isolate;
+}
+
+.game-card-video {
+	mix-blend-mode: screen;
+	background: transparent;
+}
+
+.game-card-video--wheel,
+.game-card-video--crash,
+.game-card-video--cases {
+	mix-blend-mode: screen;
+}
