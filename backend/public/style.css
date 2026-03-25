@@ -2475,6 +2475,23 @@ body {
 
 .wheel-banner-left {
 	flex-shrink: 0;
+	width: 52px;
+	height: 52px;
+	border-radius: 16px;
+	background:
+		radial-gradient(
+			circle at 30% 30%,
+			rgba(251, 191, 36, 0.35),
+			transparent 60%
+		),
+		rgba(15, 23, 42, 0.9);
+	box-shadow:
+		0 0 0 1px rgba(251, 191, 36, 0.4),
+		0 10px 24px rgba(0, 0, 0, 0.6);
+	overflow: hidden; /* чтобы видео не вылезало за бордер */
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .wheel-banner-icon {
@@ -2505,6 +2522,7 @@ body {
 	object-fit: cover;
 	display: block;
 	pointer-events: none;
+	background: transparent; /* на всякий */
 }
 
 /* при желании можно потом поиграться с размерами по отдельным играм */
