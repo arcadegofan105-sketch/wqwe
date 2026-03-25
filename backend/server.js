@@ -295,24 +295,20 @@ const TONNEL_GIFTS_URL = "https://gifts2.tonnel.network/api/pageGifts";
 // key — наше внутреннее имя (item.name / nameKey),
 // значения — как искать на Tonnel.
 const TONNEL_GIFT_MAP = {
-  // пример: Pepe
   Pepe: {
-    gift_name: "Plush Pepe",
-    model: "Plush Pepe Pink Latex",
+    gift_name: 'Plush Pepe'
   },
-  "Plush Pepe Pink Latex": {
-    gift_name: "Plush Pepe",
-    model: "Plush Pepe Pink Latex",
+  'Plush Pepe Pink Latex': {
+    gift_name: 'Plush Pepe',
+    model: 'Plush Pepe Pink Latex'
   },
-  // пример: Desk Calendar
-  "Celendar (random)": {
-    gift_name: "Desk Calendar",
-    model: "Desk Calendar",
+  'Celendar (random)': {
+    gift_name: 'Desk Calendar',
+    model: 'Desk Calendar'
   },
-  // Classic case: Tonnel gifts → Trapped Heart, model Empty Silent
-  "Trapped Hearts": {
-    gift_name: "Trapped Heart",
-    model: "Empty Silent",
+  'Trapped Hearts': {
+    gift_name: 'Trapped Heart',
+    model: 'Empty Silent'
   },
 };
 
