@@ -722,6 +722,46 @@ const wheelCardVideo = document.querySelector('.game-card-video--wheel');
 const crashCardVideo = document.querySelector('.game-card-video--crash');
 const casesCardVideo = document.querySelector('.game-card-video--cases');
 
+const crashBgVideo = document.querySelector('.crash-bg-video')
+
+const autoplayVideos = [
+	wheelCardVideo,
+	crashCardVideo,
+	casesCardVideo,
+	crashBgVideo,
+].filter(Boolean)
+
+function prepareAutoplayVideo(video) {
+	if (!video) return
+	video.muted = true
+	video.defaultMuted = true
+	video.loop = true
+	video.playsInline = true
+	video.autoplay = true
+	video.preload = 'auto'
+	video.controls = false
+	video.setAttribute('muted', '')
+	video.setAttribute('autoplay', '')
+	video.setAttribute('playsinline', '')
+	video.setAttribute('webkit-playsinline', '')
+	video.removeAttribute('controls')
+}
+
+function forcePlayVideo(video) {
+	if (!video) return
+	try {
+		prepareAutoplayVideo(video)
+		const p = video.play()
+		if (p && typeof p.catch === 'function') {
+			p.catch(() => {})
+		}
+	} catch (_) {}
+}
+
+function forcePlayAllVideos() {
+	autoplayVideos.forEach(forcePlayVideo)
+}
+
 // offscreen canvases для хромакея
 const wheelCardKeyCanvas = document.createElement('canvas');
 const wheelCardKeyCtx = wheelCardKeyCanvas.getContext('2d', { willReadFrequently: true });
@@ -1092,16 +1132,18 @@ let currentScreen = 'home'
 
 function setScreen(name) {
 	currentScreen = name
-	Object.keys(screens).forEach(key => {
-		screens[key]?.classList.toggle('active', key === name)
-	})
-	navButtons.forEach(btn => {
-		btn.classList.toggle('active', btn.dataset.target === name)
-	})
-
+	Object.keys(screens).forEach(key =>
+		screens[key]?.classList.toggle('active', key === name),
+	)
+	navButtons.forEach(btn =>
+		btn.classList.toggle('active', btn.dataset.target === name),
+	)
 	const content = document.querySelector('.content')
 	if (content) content.scrollTop = 0
 	window.scrollTo?.(0, 0)
+
+	requestAnimationFrame(() => forcePlayAllVideos())
+	setTimeout(() => forcePlayAllVideos(), 120)
 }
 
 function updateTelegramUserUI() {
@@ -3633,5 +3675,35 @@ async function init() {
 	drawFrogScene(false) // ВАЖНО: первый кадр
 	updateFrogUI()
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+	forcePlayAllVideos()
+	requestAnimationFrame(() => forcePlayAllVideos())
+	setTimeout(() => forcePlayAllVideos(), 250)
+	setTimeout(() => forcePlayAllVideos(), 1000)
+})
+
+document.addEventListener(
+	'touchstart',
+	() => {
+		forcePlayAllVideos()
+	},
+	{ passive: true },
+)
+
+document.addEventListener(
+	'click',
+	() => {
+		forcePlayAllVideos()
+	},
+	{ passive: true },
+)
+
+document.addEventListener('visibilitychange', () => {
+	if (!document.hidden) {
+		forcePlayAllVideos()
+		setTimeout(() => forcePlayAllVideos(), 150)
+	}
+})
 
 init()
