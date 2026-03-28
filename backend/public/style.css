@@ -3,23 +3,100 @@
 	margin: 0;
 	padding: 0;
 	font-family:
-		system-ui,
+		'SF Pro Display',
+		'Segoe UI',
 		-apple-system,
 		BlinkMacSystemFont,
-		'Segoe UI',
 		sans-serif;
+}
+
+:root {
+	--bg-ink: #061322;
+	--bg-deep: #08182a;
+	--bg-night: #0b1f2f;
+	--accent-cyan: #22d3ee;
+	--accent-aqua: #06b6d4;
+	--accent-lime: #84cc16;
+	--accent-amber: #f59e0b;
+	--surface-1: rgba(8, 24, 42, 0.72);
+	--surface-2: rgba(6, 19, 34, 0.88);
 }
 
 body {
 	margin: 0;
 	font-family:
-		system-ui,
+		'SF Pro Display',
+		'Segoe UI',
 		-apple-system,
 		BlinkMacSystemFont,
-		'SF Pro Text',
 		sans-serif;
-	background-color: #020617;
+	background:
+		radial-gradient(
+			1200px 800px at 12% -15%,
+			rgba(34, 211, 238, 0.23),
+			transparent 60%
+		),
+		radial-gradient(
+			1100px 760px at 88% -25%,
+			rgba(245, 158, 11, 0.2),
+			transparent 62%
+		),
+		linear-gradient(165deg, var(--bg-ink), var(--bg-deep) 42%, var(--bg-night));
 	color: #e5e7eb;
+	position: relative;
+	overflow-x: hidden;
+}
+
+body::before,
+body::after {
+	content: '';
+	position: fixed;
+	inset: -20%;
+	pointer-events: none;
+	z-index: -2;
+}
+
+body::before {
+	background:
+		radial-gradient(circle at 18% 24%, rgba(34, 211, 238, 0.22), transparent 32%),
+		radial-gradient(circle at 82% 28%, rgba(132, 204, 22, 0.12), transparent 30%),
+		radial-gradient(circle at 50% 82%, rgba(245, 158, 11, 0.12), transparent 36%);
+	filter: blur(18px);
+	animation: bgFloat 22s ease-in-out infinite alternate;
+}
+
+body::after {
+	z-index: -1;
+	opacity: 0.35;
+	background-image:
+		radial-gradient(rgba(255, 255, 255, 0.22) 0.6px, transparent 0.8px),
+		radial-gradient(rgba(255, 255, 255, 0.14) 0.5px, transparent 0.75px);
+	background-size:
+		3px 3px,
+		5px 5px;
+	background-position:
+		0 0,
+		1.5px 1.5px;
+	mix-blend-mode: soft-light;
+	animation: bgGrain 14s steps(10) infinite;
+}
+
+@keyframes bgFloat {
+	0% {
+		transform: translate3d(0, 0, 0) scale(1);
+	}
+	100% {
+		transform: translate3d(0, -2.5%, 0) scale(1.04);
+	}
+}
+
+@keyframes bgGrain {
+	0% {
+		transform: translate3d(0, 0, 0);
+	}
+	100% {
+		transform: translate3d(2%, -1.5%, 0);
+	}
 }
 
 .app {
@@ -28,7 +105,8 @@ body {
 	flex-direction: column;
 	position: relative;
 	overflow: hidden;
-	background-color: #020617;
+	background: transparent;
+	isolation: isolate;
 }
 
 .content {
@@ -50,15 +128,11 @@ body {
 	display: flex;
 	justify-content: space-between;
 	padding: 0;
-	background: linear-gradient(
-		to top,
-		rgba(15, 23, 42, 0.98),
-		rgba(15, 23, 42, 0.92)
-	);
+	background: linear-gradient(to top, var(--surface-2), var(--surface-1));
 	backdrop-filter: blur(20px);
 	-webkit-backdrop-filter: blur(20px);
 	box-shadow:
-		0 -1px 0 rgba(99, 102, 241, 0.15),
+		0 -1px 0 rgba(34, 211, 238, 0.2),
 		0 -20px 45px rgba(0, 0, 0, 0.9);
 }
 
@@ -133,14 +207,14 @@ body {
 	color: #f9fafb;
 	background: radial-gradient(
 		circle at top,
-		rgba(139, 92, 246, 0.28),
+		rgba(34, 211, 238, 0.3),
 		transparent 65%,
-		rgba(15, 23, 42, 1)
+		rgba(6, 19, 34, 1)
 	);
 }
 
 .nav-btn.active::before {
-	background: linear-gradient(to right, #8b5cf6, #7c3aed);
+	background: linear-gradient(to right, var(--accent-cyan), var(--accent-amber));
 	opacity: 1;
 	transform: translateY(0);
 }
@@ -166,11 +240,11 @@ body {
 	-webkit-backdrop-filter: blur(20px);
 	background: linear-gradient(
 		to bottom,
-		rgba(30, 27, 75, 0.95),
-		rgba(15, 23, 42, 0.9)
+		rgba(4, 16, 30, 0.95),
+		rgba(8, 24, 42, 0.9)
 	);
 	box-shadow:
-		0 1px 0 rgba(99, 102, 241, 0.2),
+		0 1px 0 rgba(34, 211, 238, 0.25),
 		0 20px 45px rgba(0, 0, 0, 0.85);
 }
 
@@ -2475,23 +2549,6 @@ body {
 
 .wheel-banner-left {
 	flex-shrink: 0;
-	width: 52px;
-	height: 52px;
-	border-radius: 16px;
-	background:
-		radial-gradient(
-			circle at 30% 30%,
-			rgba(251, 191, 36, 0.35),
-			transparent 60%
-		),
-		rgba(15, 23, 42, 0.9);
-	box-shadow:
-		0 0 0 1px rgba(251, 191, 36, 0.4),
-		0 10px 24px rgba(0, 0, 0, 0.6);
-	overflow: hidden; /* чтобы видео не вылезало за бордер */
-	display: flex;
-	align-items: center;
-	justify-content: center;
 }
 
 .wheel-banner-icon {
@@ -2513,22 +2570,6 @@ body {
 	justify-content: center;
 	font-size: 28px;
 }
-
-/* ВИДЕО-ИКОПКИ НА ГЛАВНОЙ (колесо, краш, кейсы) */
-.game-card-video {
-	width: 52px;
-	height: 52px;
-	border-radius: 16px;
-	object-fit: cover;
-	display: block;
-	pointer-events: none;
-	background: transparent; /* на всякий */
-}
-
-/* при желании можно потом поиграться с размерами по отдельным играм */
-.game-card-video--wheel {}
-.game-card-video--crash {}
-.game-card-video--cases {}
 
 .wheel-banner-body {
 	flex: 1;
@@ -4055,65 +4096,4 @@ body {
 		rgba(139, 92, 246, 0.3),
 		rgba(56, 189, 248, 0.2)
 	);
-}
-
-.game-card-video,
-.crash-bg-video {
-	display: block;
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	pointer-events: none;
-	-webkit-user-select: none;
-	user-select: none;
-	-webkit-touch-callout: none;
-}
-
-.wheel-banner-left,
-.crash-bg {
-	overflow: hidden;
-}
-
-
-.wheel-banner-left {
-	isolation: isolate;
-}
-
-.game-card-video {
-	mix-blend-mode: screen;
-	background: transparent;
-}
-
-.game-card-video--wheel,
-.game-card-video--crash,
-.game-card-video--cases {
-	mix-blend-mode: screen;
-}
-
-
-html,
-body {
-	height: 100%;
-	overflow: hidden;
-}
-
-body {
-	position: fixed;
-	inset: 0;
-	width: 100%;
-}
-
-.app {
-	height: 100dvh;
-	min-height: 100dvh;
-	overflow: hidden;
-}
-
-.content {
-	flex: 1 1 auto;
-	min-height: 0;
-	overflow-y: auto;
-	overflow-x: hidden;
-	-webkit-overflow-scrolling: touch;
-	overscroll-behavior-y: contain;
 }
