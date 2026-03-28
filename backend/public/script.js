@@ -688,10 +688,49 @@ if (!tg) {
 
 tg.ready()
 tg.expand()
+if (typeof tg.disableVerticalSwipes === 'function') {
+	tg.disableVerticalSwipes()
+}
+if (typeof tg.onEvent === 'function') {
+	tg.onEvent('viewportChanged', () => {
+		if (typeof tg.disableVerticalSwipes === 'function') {
+			tg.disableVerticalSwipes()
+		}
+	})
+}
 document.body.style.backgroundColor = tg.themeParams?.bg_color || '#02051a'
 
 const INIT_DATA = tg.initData
 const telegramUser = tg.initDataUnsafe?.user || null
+
+function setupTouchEdgeGuard() {
+	const el = document.querySelector('.content')
+	if (!el) return
+
+	let startY = 0
+	el.addEventListener(
+		'touchstart',
+		e => {
+			startY = e.touches?.[0]?.clientY || 0
+		},
+		{ passive: true },
+	)
+
+	el.addEventListener(
+		'touchmove',
+		e => {
+			const currentY = e.touches?.[0]?.clientY || 0
+			const dy = currentY - startY
+			const atTop = el.scrollTop <= 0
+			const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1
+
+			if ((atTop && dy > 0) || (atBottom && dy < 0)) {
+				e.preventDefault()
+			}
+		},
+		{ passive: false },
+	)
+}
 
 // ===== TON CONNECT =====
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
@@ -3685,6 +3724,7 @@ async function init() {
 	setLastPrizeText(null)
 	updateInviteUI()
 	updateDepositButtonState()
+	setupTouchEdgeGuard()
 
 	try {
 		await fetchUserData()
