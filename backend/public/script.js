@@ -86,59 +86,9 @@ const TRANSLATIONS = {
 		alert_min_withdraw: 'Недостаточно средств',
 		alert_confirm_wallet: 'Подтверди транзакцию в кошельке...',
 		alert_request_sent: 'Запрос отправлен в кошелёк. Подтверди транзакцию.',
-		alert_wait_wallet:
-			'Ожидаем подтверждение... (если кошелёк не открылся — открой вручную)',
 		alert_deposit_required:
 			'Прежде чем вывести, нужно сделать минимальное пополнение 1 TON',
 		alert_min_withdraw_ton: 'Минимум {min} TON',
-		alert_open_telegram: 'Открой приложение через Telegram.',
-		alert_set_bot_username: 'Укажи BOT_USERNAME в script.js',
-		alert_set_bot_username_first: 'Сначала укажи BOT_USERNAME в script.js',
-		alert_case_soon: 'Этот кейс скоро добавим.',
-		alert_server_no_prize: 'Сервер не вернул приз',
-		alert_unknown_error: 'Неизвестная ошибка',
-		error_rewards: 'Ошибка наград',
-		error_admin: 'Ошибка админки',
-		error_reward_claim: 'Ошибка награды',
-		error_case_open: 'Ошибка открытия кейса',
-		error_spin: 'Ошибка при прокрутке',
-		error_sell: 'Ошибка продажи',
-		error_withdraw_gift: 'Ошибка вывода подарка',
-		error_promo: 'Ошибка промокода',
-		error_deposit: 'Ошибка депозита',
-		error_withdraw_request: 'Ошибка заявки на вывод',
-		error_bet: 'Ошибка ставки',
-		wheel_free: 'Бесплатно',
-		wheel_deposit_more: 'Сделайте депозит ещё {need} TON, чтобы колесо стало бесплатным',
-		wheel_deposit_start: 'Сделайте депозит 0.5 TON, чтобы колесо стало бесплатным.',
-		rewards_empty_title: 'Наград нет',
-		rewards_empty_text: 'Пока нечего показывать',
-		reward_default_title: 'Награда',
-		connect_wallet_modal_hint: 'Сначала подключи TON-кошелёк в модалке',
-		connect_wallet_change: 'Изменить',
-		crash_status_soon: 'Скоро взлетаем',
-		crash_status_bets: 'Ставки принимаются',
-		crash_status_flying: 'Летим...',
-		crash_status_auto_cashout: 'Авто-вывод!',
-		crash_status_cashout: 'Вы забрали!',
-		crash_status_crash: 'Краш!',
-		crash_btn_bet: 'Сделать ставку',
-		crash_btn_take: 'Забрать',
-		crash_btn_finished: 'Раунд завершён',
-		alert_min_bet_ton: 'Минимум {min} TON',
-		alert_enter_bet_ton: 'Укажи ставку (TON)',
-		alert_frog_lost: 'Лягушку сбила машина. Ставка проиграна.',
-		alert_enter_code: 'Введите код',
-		alert_max_uses_invalid: 'maxUses должен быть >= 1',
-		alert_ton_amount_positive: 'Сумма TON должна быть > 0',
-		alert_promo_created: 'Промокод создан',
-		alert_enter_tg_id: 'Введите tg_id',
-		alert_enter_delta: 'Введите delta (например +1 или -1)',
-		alert_enter_broadcast_text: 'Введите текст рассылки',
-		alert_broadcast_created: 'Задача рассылки создана',
-		error_promo_create: 'Ошибка создания промокода',
-		error_delete: 'Ошибка удаления',
-		error_broadcast: 'Ошибка рассылки',
 	},
 	en: {
 		// Top bar
@@ -227,79 +177,13 @@ const TRANSLATIONS = {
 		alert_min_withdraw: 'Insufficient funds',
 		alert_confirm_wallet: 'Confirm the transaction in your wallet...',
 		alert_request_sent: 'Request sent to wallet. Confirm the transaction.',
-		alert_wait_wallet:
-			'Waiting for confirmation... (if wallet did not open, open it manually)',
 		alert_deposit_required:
 			'You need to make a minimum deposit of 1 TON before withdrawing',
 		alert_min_withdraw_ton: 'Minimum {min} TON',
-		alert_open_telegram: 'Open the app via Telegram.',
-		alert_set_bot_username: 'Set BOT_USERNAME in script.js',
-		alert_set_bot_username_first: 'Please set BOT_USERNAME in script.js first',
-		alert_case_soon: 'This case will be added soon.',
-		alert_server_no_prize: 'Server did not return a prize',
-		alert_unknown_error: 'Unknown error',
-		error_rewards: 'Rewards error',
-		error_admin: 'Admin panel error',
-		error_reward_claim: 'Reward claim error',
-		error_case_open: 'Case opening error',
-		error_spin: 'Spin error',
-		error_sell: 'Sell error',
-		error_withdraw_gift: 'Gift withdrawal error',
-		error_promo: 'Promo code error',
-		error_deposit: 'Deposit error',
-		error_withdraw_request: 'Withdrawal request error',
-		error_bet: 'Bet error',
-		wheel_free: 'Free',
-		wheel_deposit_more: 'Deposit {need} TON more to unlock free wheel',
-		wheel_deposit_start: 'Make a 0.5 TON deposit to unlock free wheel.',
-		rewards_empty_title: 'No rewards yet',
-		rewards_empty_text: 'Nothing to show yet',
-		reward_default_title: 'Reward',
-		connect_wallet_modal_hint: 'Connect TON wallet in the modal first',
-		connect_wallet_change: 'Change',
-		crash_status_soon: 'Takeoff soon',
-		crash_status_bets: 'Bets are open',
-		crash_status_flying: 'Flying...',
-		crash_status_auto_cashout: 'Auto cashout!',
-		crash_status_cashout: 'Cashed out!',
-		crash_status_crash: 'Crash!',
-		crash_btn_bet: 'Place bet',
-		crash_btn_take: 'Take',
-		crash_btn_finished: 'Round finished',
-		alert_min_bet_ton: 'Minimum {min} TON',
-		alert_enter_bet_ton: 'Enter bet amount (TON)',
-		alert_frog_lost: 'The frog got hit by a car. Bet lost.',
-		alert_enter_code: 'Enter code',
-		alert_max_uses_invalid: 'maxUses must be >= 1',
-		alert_ton_amount_positive: 'TON amount must be > 0',
-		alert_promo_created: 'Promo code created',
-		alert_enter_tg_id: 'Enter tg_id',
-		alert_enter_delta: 'Enter delta (for example +1 or -1)',
-		alert_enter_broadcast_text: 'Enter broadcast text',
-		alert_broadcast_created: 'Broadcast task created',
-		error_promo_create: 'Promo code creation error',
-		error_delete: 'Delete error',
-		error_broadcast: 'Broadcast error',
 	},
 }
 
-function detectDefaultLang() {
-	const tgLang = String(
-		window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code || '',
-	).toLowerCase()
-	if (tgLang.startsWith('ru')) return 'ru'
-	if (tgLang.startsWith('en')) return 'en'
-
-	const browserLang = String(navigator.language || '').toLowerCase()
-	if (browserLang.startsWith('ru')) return 'ru'
-	return 'en'
-}
-
-const savedLang = localStorage.getItem('gw_lang')
-let currentLang =
-	savedLang && (savedLang === 'ru' || savedLang === 'en')
-		? savedLang
-		: detectDefaultLang()
+let currentLang = localStorage.getItem('gw_lang') || 'ru'
 
 function t(key, vars = {}) {
 	const dict = TRANSLATIONS[currentLang] || TRANSLATIONS.ru
@@ -527,7 +411,6 @@ function applyTranslations() {
 }
 
 function setLang(lang) {
-	if (lang !== 'ru' && lang !== 'en') return
 	currentLang = lang
 	localStorage.setItem('gw_lang', lang)
 	applyTranslations()
@@ -682,55 +565,16 @@ function giftVisual(item) {
 // ===== TELEGRAM =====
 const tg = window.Telegram?.WebApp || null
 if (!tg) {
-	alert(t('alert_open_telegram'))
+	alert('Открой приложение через Telegram.')
 	throw new Error('Telegram WebApp not found')
 }
 
 tg.ready()
 tg.expand()
-if (typeof tg.disableVerticalSwipes === 'function') {
-	tg.disableVerticalSwipes()
-}
-if (typeof tg.onEvent === 'function') {
-	tg.onEvent('viewportChanged', () => {
-		if (typeof tg.disableVerticalSwipes === 'function') {
-			tg.disableVerticalSwipes()
-		}
-	})
-}
 document.body.style.backgroundColor = tg.themeParams?.bg_color || '#02051a'
 
 const INIT_DATA = tg.initData
 const telegramUser = tg.initDataUnsafe?.user || null
-
-function setupTouchEdgeGuard() {
-	const el = document.querySelector('.content')
-	if (!el) return
-
-	let startY = 0
-	el.addEventListener(
-		'touchstart',
-		e => {
-			startY = e.touches?.[0]?.clientY || 0
-		},
-		{ passive: true },
-	)
-
-	el.addEventListener(
-		'touchmove',
-		e => {
-			const currentY = e.touches?.[0]?.clientY || 0
-			const dy = currentY - startY
-			const atTop = el.scrollTop <= 0
-			const atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 1
-
-			if ((atTop && dy > 0) || (atBottom && dy < 0)) {
-				e.preventDefault()
-			}
-		},
-		{ passive: false },
-	)
-}
 
 // ===== TON CONNECT =====
 const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
@@ -1276,20 +1120,20 @@ function buildInviteLink() {
 function updateInviteUI() {
 	const link = buildInviteLink()
 	if (inviteLinkText)
-		inviteLinkText.textContent = link || t('alert_set_bot_username')
+		inviteLinkText.textContent = link || 'Укажи BOT_USERNAME в script.js'
 }
 
 inviteCopyBtn?.addEventListener('click', async () => {
 	const link = buildInviteLink()
 	if (!link) {
-		alert(t('alert_set_bot_username_first'))
+		alert('Сначала укажи BOT_USERNAME в script.js')
 		return
 	}
 	try {
 		await navigator.clipboard.writeText(link)
-		alert(t('alert_link_copied'))
+		alert('Ссылка скопирована')
 	} catch (e) {
-		alert(t('alert_copy_fail'))
+		alert('Не удалось скопировать ссылку (попробуй вручную).')
 	}
 })
 
@@ -1379,7 +1223,7 @@ function renderCasePreviewTrack(cfg) {
 function openCase(caseType) {
 	const cfg = CASES[caseType]
 	if (!cfg) {
-		alert(t('alert_case_soon'))
+		alert('Этот кейс скоро добавим.')
 		return
 	}
 
@@ -1443,7 +1287,7 @@ function updateConnectButtonUI() {
 
 	if (!connected) {
 		connectTonBtn.classList.remove('connect-wallet-bound')
-		connectTonBtn.textContent = t('connect_wallet_btn')
+		connectTonBtn.textContent = 'Подключите TON кошелёк'
 		return
 	}
 
@@ -1451,7 +1295,7 @@ function updateConnectButtonUI() {
 	connectTonBtn.classList.add('connect-wallet-bound')
 	connectTonBtn.innerHTML = `
     <span>${formatAddress(addr)}</span>
-    <span>${t('connect_wallet_change')}</span>
+    <span>Изменить</span>
   `
 }
 
@@ -1459,7 +1303,7 @@ function updateDepositButtonState() {
 	if (depositBtn) {
 		const connected = isWalletConnected()
 		depositBtn.disabled = false
-		depositBtn.title = connected ? '' : t('connect_wallet_modal_hint')
+		depositBtn.title = connected ? '' : 'Сначала подключи TON-кошелёк в модалке'
 	}
 	updateWalletStatusUI()
 	updateConnectButtonUI()
@@ -1512,15 +1356,15 @@ function updateWheelPriceLabel() {
 	if (!priceLabelEl) return
 
 	if (freeWheelAvailable) {
-		priceLabelEl.textContent = t('wheel_free')
+		priceLabelEl.textContent = 'Бесплатно'
 	} else {
 		const need = Math.max(0, WHEEL_DEPOSIT_TARGET - wheelDepositProgressTon)
 			.toFixed(2)
 			.replace(/\.?0+$/, '')
 		priceLabelEl.textContent =
 			need === '0'
-				? t('wheel_free')
-				: t('wheel_deposit_more', { need })
+				? 'Бесплатно'
+				: `Сделайте депозит ещё ${need} TON, чтобы колесо стало бесплатным`
 	}
 }
 
@@ -2077,8 +1921,8 @@ async function loadRewards() {
 	if (!items.length) {
 		rewardsListEl.innerHTML = `
       <div class="bonus-card">
-        <div class="bonus-title">${t('rewards_empty_title')}</div>
-        <div class="bonus-text">${t('rewards_empty_text')}</div>
+        <div class="bonus-title">Наград нет</div>
+        <div class="bonus-text">Пока нечего показывать</div>
       </div>
     `
 		return
@@ -2087,7 +1931,7 @@ async function loadRewards() {
 	rewardsListEl.innerHTML = items
 		.map(it => {
 			const key = escapeHtml(it.key || '')
-			const title = escapeHtml(it.title || t('reward_default_title'))
+			const title = escapeHtml(it.title || 'Награда')
 			const desc = escapeHtml(it.desc || '')
 			const status = String(it.status || 'locked')
 			const canClaim = status === 'available'
@@ -2097,7 +1941,7 @@ async function loadRewards() {
         <div class="bonus-title">${title}</div>
         <div class="bonus-text">${desc}</div>
         <button class="action-btn action-green reward-claim-btn" type="button" ${canClaim ? '' : 'disabled'}>
-          ${canClaim ? t('reward_claim_available') : t('reward_claim_locked')}
+          ${canClaim ? 'Забрать' : 'Недоступно'}
         </button>
       </div>
     `
@@ -2127,13 +1971,13 @@ navButtons.forEach(btn => {
 		}
 
 		if (target === 'bonus') {
-			loadRewards().catch(e => alert(e.message || t('error_rewards')))
+			loadRewards().catch(e => alert(e.message || 'Ошибка наград'))
 		}
 
 		if (target === 'admin') {
 			loadAdminStats().catch(() => {})
 			loadAdminPromos().catch(() => {})
-			loadAdminUsers().catch(e => alert(e.message || t('error_admin')))
+			loadAdminUsers().catch(e => alert(e.message || 'Ошибка админки'))
 		}
 	})
 })
@@ -2159,7 +2003,7 @@ document.addEventListener('click', async e => {
 		await loadRewards()
 		await fetchUserData()
 	} catch (err) {
-		alert(err.message || t('error_reward_claim'))
+		alert(err.message || 'Ошибка награды')
 	} finally {
 		setButtonLoading(btn, false)
 		btn.disabled = false
@@ -2211,7 +2055,7 @@ caseCards.forEach(card => {
 		const type = card.getAttribute('data-case-type')
 		const cfg = CASES?.[type]
 		if (!cfg) {
-			alert(t('alert_case_soon'))
+			alert('Этот кейс скоро добавим.')
 			return
 		}
 		openCase(type)
@@ -2243,7 +2087,7 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
 
 		const prize = r?.prize
 		if (!prize) {
-			alert(t('alert_server_no_prize'))
+			alert('Сервер не вернул приз')
 			return
 		}
 
@@ -2261,7 +2105,7 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
 		setLastPrizeText(currentPrize)
 		openModal(currentPrize)
 	} catch (e) {
-		alert(e?.message || t('error_case_open'))
+		alert(e?.message || 'Ошибка открытия кейса')
 	} finally {
 		setButtonLoading(caseOpenSpinBtn, false)
 		isCaseOpening = false
@@ -2284,8 +2128,8 @@ spinButton?.addEventListener('click', async e => {
 	if (!freeWheelAvailable) {
 		alert(
 			need === '0'
-				? t('wheel_deposit_start')
-				: t('wheel_deposit_more', { need }),
+				? 'Сделайте депозит 0.5 TON, чтобы колесо стало бесплатным.'
+				: `Сделайте депозит ещё ${need} TON, чтобы колесо стало бесплатным.`,
 		)
 		return
 	}
@@ -2300,7 +2144,7 @@ spinButton?.addEventListener('click', async e => {
 		setButtonLoading(spinButton, false)
 	} catch (err) {
 		setButtonLoading(spinButton, false)
-		alert(err.message || t('error_spin'))
+		alert(err.message || 'Ошибка при прокрутке')
 		isSpinning = false
 		spinButton.disabled = false
 		return
@@ -2386,7 +2230,7 @@ modalSellBtn?.addEventListener('click', async () => {
 			await fetchUserData()
 		}
 	} catch (err) {
-		alert(err.message || t('error_sell'))
+		alert(err.message || 'Ошибка продажи')
 	} finally {
 		currentPrize = null
 		currentPrizeIdx = null
@@ -2411,7 +2255,7 @@ inventoryList?.addEventListener('click', async e => {
 			updateBalanceUI()
 			await fetchUserData()
 		} catch (err) {
-			alert(err.message || t('error_sell'))
+			alert(err.message || 'Ошибка продажи')
 		}
 	}
 
@@ -2420,9 +2264,9 @@ inventoryList?.addEventListener('click', async e => {
 			const r = await withdrawGiftApi(idx)
 			inventory = Array.isArray(r.inventory) ? r.inventory : inventory
 			renderInventory()
-			alert(t('alert_withdraw_gift_sent'))
+			alert('Заявка на вывод подарка отправлена админу.')
 		} catch (err) {
-			alert(err.message || t('error_withdraw_gift'))
+			alert(err.message || 'Ошибка вывода подарка')
 		}
 	}
 })
@@ -2431,7 +2275,7 @@ inventoryList?.addEventListener('click', async e => {
 promoApplyBtn?.addEventListener('click', async () => {
 	const code = (promoInput?.value || '').trim()
 	if (!code) {
-		alert(t('alert_promo_empty'))
+		alert('Введите промокод')
 		return
 	}
 
@@ -2443,11 +2287,7 @@ promoApplyBtn?.addEventListener('click', async () => {
 			balance = Number(data.newBalance ?? balance)
 			updateBalanceUI()
 			promoInput.value = ''
-			alert(
-				t('alert_promo_applied_balance', {
-					amount: Number(data.amount || 0).toFixed(2),
-				}),
-			)
+			alert(`Промокод применён: +${Number(data.amount || 0).toFixed(2)} TON`)
 			await fetchUserData()
 			return
 		}
@@ -2456,16 +2296,16 @@ promoApplyBtn?.addEventListener('click', async () => {
 			if (Array.isArray(data.inventory)) inventory = data.inventory
 			renderInventory()
 			promoInput.value = ''
-			alert(t('alert_promo_applied_gift'))
+			alert('Промокод применён: подарок зачислен в инвентарь.')
 			await fetchUserData()
 			return
 		}
 
-		alert(t('alert_promo_applied'))
+		alert('Промокод применён')
 		promoInput.value = ''
 		await fetchUserData()
 	} catch (err) {
-		alert(err.message || t('error_promo'))
+		alert(err.message || 'Ошибка промокода')
 	} finally {
 		setButtonLoading(promoApplyBtn, false)
 	}
@@ -2540,7 +2380,7 @@ connectTonBtn?.addEventListener('click', async () => {
 depositConfirmBtn?.addEventListener('click', async () => {
 	try {
 		if (!isWalletConnected()) {
-			alert(t('alert_wallet_required'))
+			alert('Сначала подключи TON-кошелёк.')
 			return
 		}
 
@@ -2556,11 +2396,11 @@ depositConfirmBtn?.addEventListener('click', async () => {
 		const amountTon = Number(raw)
 
 		if (!Number.isFinite(amountTon) || amountTon <= 0) {
-			alert(t('alert_amount_invalid'))
+			alert('Введите корректную сумму')
 			return
 		}
 		if (amountTon < minDeposit) {
-			alert(t('alert_min_deposit', { min: minDeposit }))
+			alert(`Минимум ${minDeposit} TON`)
 			return
 		}
 
@@ -2580,7 +2420,7 @@ depositConfirmBtn?.addEventListener('click', async () => {
 			],
 		}
 
-		alert(t('alert_confirm_wallet'))
+		alert('Подтверди транзакцию в кошельке...')
 		let requestSent = false
 
 		await tonConnectUI.sendTransaction(tx, {
@@ -2589,12 +2429,14 @@ depositConfirmBtn?.addEventListener('click', async () => {
 			skipRedirectToWallet: 'never',
 			onRequestSent: () => {
 				requestSent = true
-				alert(t('alert_request_sent'))
+				alert('Запрос отправлен в кошелёк. Подтверди транзакцию.')
 			},
 		})
 
 		if (!requestSent) {
-			alert(t('alert_wait_wallet'))
+			alert(
+				'Ожидаем подтверждение... (если кошелёк не открылся — открой вручную)',
+			)
 		}
 
 		for (let i = 0; i < 12; i++) {
@@ -2602,19 +2444,17 @@ depositConfirmBtn?.addEventListener('click', async () => {
 			const r = await depositCheckApi(dep.depositId)
 			if (r.credited) {
 				await fetchUserData()
-				alert(
-					t('alert_deposit_credited', {
-						amount: Number(dep.amount).toFixed(2),
-					}),
-				)
+				alert(`Депозит зачислен: +${Number(dep.amount).toFixed(2)} TON`)
 				depositModal.classList.remove('active')
 				return
 			}
 		}
 
-		alert(t('alert_deposit_pending'))
+		alert(
+			'Транзакция отправлена. Если не зачислилось — подожди 1–2 минуты и попробуй ещё раз.',
+		)
 	} catch (err) {
-		alert(err.message || t('error_deposit'))
+		alert(err.message || 'Ошибка депозита')
 	} finally {
 		setButtonLoading(depositConfirmBtn, false)
 		depositConfirmBtn.disabled = false
@@ -2636,15 +2476,15 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
 	const amount = Number(raw)
 
 	if (!Number.isFinite(amount)) {
-		alert(t('alert_amount_invalid'))
+		alert('Введите корректную сумму')
 		return
 	}
 	if (amount < MIN_WITHDRAW_TON) {
-		alert(t('alert_min_withdraw_ton', { min: MIN_WITHDRAW_TON }))
+		alert(`Минимум ${MIN_WITHDRAW_TON} TON`)
 		return
 	}
 	if (amount > balance) {
-		alert(t('alert_min_withdraw'))
+		alert('Недостаточно средств')
 		return
 	}
 
@@ -2655,14 +2495,14 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
 		balance = Number(r.newBalance ?? balance)
 		updateBalanceUI()
 		closeWithdrawModal()
-		alert(t('alert_withdraw_ton_sent', { amount: amount.toFixed(2) }))
+		alert(`Заявка на вывод ${amount.toFixed(2)} TON отправлена админу.`)
 		await fetchUserData()
 	} catch (err) {
 		const msg = String(err.message || '')
 		if (msg.includes('минимальное пополнение')) {
-			alert(t('alert_deposit_required'))
+			alert('Прежде чем вывести, нужно сделать минимальное пополнение 1 TON')
 		} else {
-			alert(msg || t('error_withdraw_request'))
+			alert(msg || 'Ошибка заявки на вывод')
 		}
 	} finally {
 		setButtonLoading(withdrawConfirmBtn, false)
@@ -2860,7 +2700,7 @@ function applyCrashState(state) {
 		screens.crash?.classList.remove('playing')
 		crashState = 'idle'
 		crashLastRoundId = null
-		setCrashStatus(t('crash_status_soon'), '#e5e7eb')
+		setCrashStatus('Скоро взлетаем', '#e5e7eb')
 		updateCrashButtonUI()
 		return
 	}
@@ -2885,7 +2725,7 @@ function applyCrashState(state) {
 		const myBet = state.myBet
 		crashBetAmount = myBet ? myBet.amount : 0
 		crashHasCashedOut = myBet ? !!myBet.cashedOut : false
-		setCrashStatus(t('crash_status_bets'), '#e5e7eb')
+		setCrashStatus('Ставки принимаются', '#e5e7eb')
 		updateCrashButtonUI()
 		return
 	}
@@ -2909,7 +2749,7 @@ function applyCrashState(state) {
 			crashHasCashedOut = state.myBet ? !!state.myBet.cashedOut : false
 			crashMultiplier = 1.0
 			if (crashMultiplierEl) crashMultiplierEl.textContent = '1.00x'
-			setCrashStatus(t('crash_status_flying'), '#e5e7eb')
+			setCrashStatus('Летим...', '#e5e7eb')
 			ensureRocketVideoPlaying().catch?.(() => {})
 			startCrashRenderLoop()
 		}
@@ -2921,7 +2761,7 @@ function applyCrashState(state) {
 	screens.crash?.classList.remove('playing')
 	crashLastRoundId = null
 	crashState = 'idle'
-	setCrashStatus(t('crash_status_soon'), '#e5e7eb')
+	setCrashStatus('Скоро взлетаем', '#e5e7eb')
 	updateCrashButtonUI()
 }
 
@@ -3094,13 +2934,13 @@ function drawRocketVideo(ctx, x, y, ang, size = 70) {
 function updateCrashButtonUI() {
 	if (!crashMainActionBtn) return
 	if (crashState === 'idle' || crashState === 'counting') {
-		crashMainActionBtn.textContent = t('crash_btn_bet')
+		crashMainActionBtn.textContent = 'Сделать ставку'
 		crashMainActionBtn.disabled = false
 	} else if (crashState === 'playing') {
-		crashMainActionBtn.textContent = t('crash_btn_take')
+		crashMainActionBtn.textContent = 'Забрать'
 		crashMainActionBtn.disabled = !(crashBetAmount > 0 && !crashHasCashedOut)
 	} else {
-		crashMainActionBtn.textContent = t('crash_btn_finished')
+		crashMainActionBtn.textContent = 'Раунд завершён'
 		crashMainActionBtn.disabled = true
 	}
 }
@@ -3139,15 +2979,12 @@ async function cashoutCrash(isAuto = false) {
 		updateBalanceUI()
 
 		crashHasCashedOut = true
-		setCrashStatus(
-			isAuto ? t('crash_status_auto_cashout') : t('crash_status_cashout'),
-			'#22c55e',
-		)
+		setCrashStatus(isAuto ? 'Авто-вывод!' : 'Вы забрали!', '#22c55e')
 		updateCrashButtonUI()
 		const state = await fetchCrashState()
 		if (state) applyCrashState(state)
 	} catch (err) {
-		alert(err.message || t('error_withdraw_request'))
+		alert(err.message || 'Ошибка вывода')
 	}
 }
 
@@ -3164,7 +3001,7 @@ function crashBoomIntoMoon() {
 	spawnExplosion(ix, iy)
 
 	// показываем взрыв всегда, даже если игрок успел забрать
-	setCrashStatus(t('crash_status_crash'), '#f97373')
+	setCrashStatus('Краш!', '#f97373')
 }
 
 function endCrash() {
@@ -3181,7 +3018,7 @@ function endCrash() {
 		crashImpact = null
 		crashShake = 0
 
-		setCrashStatus(t('crash_status_soon'), '#e5e7eb')
+		setCrashStatus('Скоро взлетаем', '#e5e7eb')
 		if (crashMultiplierEl) crashMultiplierEl.textContent = '1.00x'
 		if (crashCurrentBetEl) crashCurrentBetEl.textContent = '—'
 		if (crashPotentialWinEl) crashPotentialWinEl.textContent = '—'
@@ -3196,11 +3033,11 @@ async function startCrash() {
 
 	const amount = parseFloat(crashBetInput?.value || '0')
 	if (isNaN(amount) || amount < 0.1) {
-		alert(t('alert_min_bet_ton', { min: 0.1 }))
+		alert('Минимум 0.1 TON')
 		return
 	}
 	if (balance < amount) {
-		alert(t('alert_min_withdraw'))
+		alert('Недостаточно средств.')
 		return
 	}
 
@@ -3213,7 +3050,7 @@ async function startCrash() {
 		const state = await fetchCrashState()
 		if (state) applyCrashState(state)
 	} catch (err) {
-		alert(err.message || t('error_bet'))
+		alert(err.message || 'Ошибка ставки')
 	}
 }
 
@@ -3352,12 +3189,12 @@ async function frogStartBet() {
 
 	const amount = Number(frogBetInput.value || 0)
 	if (!Number.isFinite(amount) || amount <= 0) {
-		alert(t('alert_enter_bet_ton'))
+		alert('Укажи ставку (TON)')
 		return
 	}
 
 	if (amount > balance) {
-		alert(t('alert_min_withdraw'))
+		alert('Недостаточно средств')
 		return
 	}
 
@@ -3366,7 +3203,7 @@ async function frogStartBet() {
 		balance = Number(r.newBalance ?? balance)
 		updateBalanceUI()
 	} catch (e) {
-		alert(e.message || t('error_bet'))
+		alert(e.message || 'Ошибка ставки')
 		return
 	}
 
@@ -3503,7 +3340,7 @@ async function frogDie() {
 	updateFrogUI()
 	drawFrogScene(true)
 
-alert(t('alert_frog_lost'))
+	alert('Лягушку сбила машина. Ставка проиграна.')
 
 	frogBet = 0
 	frogCurrentHatch = -1
@@ -3539,11 +3376,11 @@ adminPromoCreateBtn?.addEventListener('click', async () => {
 	const maxUses = Number(adminPromoMaxUses?.value || 1)
 
 	if (!code) {
-		alert(t('alert_enter_code'))
+		alert('Введите код')
 		return
 	}
 	if (!Number.isInteger(maxUses) || maxUses < 1) {
-		alert(t('alert_max_uses_invalid'))
+		alert('maxUses должен быть >= 1')
 		return
 	}
 
@@ -3555,7 +3392,7 @@ adminPromoCreateBtn?.addEventListener('click', async () => {
 				String(adminPromoAmount?.value || '').replace(',', '.'),
 			)
 			if (!Number.isFinite(amount) || amount <= 0) {
-				alert(t('alert_ton_amount_positive'))
+				alert('Сумма TON должна быть > 0')
 				return
 			}
 			await adminPromoCreateApi({ type: 'balance', code, amount, maxUses })
@@ -3571,9 +3408,9 @@ adminPromoCreateBtn?.addEventListener('click', async () => {
 		if (adminPromoCode) adminPromoCode.value = ''
 		if (adminPromoAmount) adminPromoAmount.value = ''
 		await loadAdminPromos()
-		alert(t('alert_promo_created'))
+		alert('Промокод создан')
 	} catch (e) {
-		alert(e.message || t('error_promo_create'))
+		alert(e.message || 'Ошибка создания промокода')
 	} finally {
 		adminPromoCreateBtn.disabled = false
 	}
@@ -3583,7 +3420,7 @@ adminPromosRefresh?.addEventListener('click', async () => {
 	try {
 		await loadAdminPromos()
 	} catch (e) {
-		alert(e.message || t('error_admin'))
+		alert(e.message || 'Ошибка')
 	}
 })
 
@@ -3597,7 +3434,7 @@ adminPromosList?.addEventListener('click', async e => {
 		await adminPromoDeleteApi(code)
 		await loadAdminPromos()
 	} catch (e) {
-		alert(e.message || t('error_delete'))
+		alert(e.message || 'Ошибка удаления')
 	}
 })
 
@@ -3605,7 +3442,7 @@ adminStatsRefresh?.addEventListener('click', async () => {
 	try {
 		await loadAdminStats()
 	} catch (e) {
-		alert(e.message || t('error_admin'))
+		alert(e.message || 'Ошибка')
 	}
 })
 
@@ -3615,7 +3452,7 @@ adminUsersSearch?.addEventListener('click', async () => {
 	try {
 		await loadAdminUsers()
 	} catch (e) {
-		alert(e.message || t('error_admin'))
+		alert(e.message || 'Ошибка')
 	}
 })
 
@@ -3625,7 +3462,7 @@ adminPrev?.addEventListener('click', async () => {
 	try {
 		await loadAdminUsers()
 	} catch (e) {
-		alert(e.message || t('error_admin'))
+		alert(e.message || 'Ошибка')
 	}
 })
 
@@ -3635,7 +3472,7 @@ adminNext?.addEventListener('click', async () => {
 	try {
 		await loadAdminUsers()
 	} catch (e) {
-		alert(e.message || t('error_admin'))
+		alert(e.message || 'Ошибка')
 	}
 })
 
@@ -3645,11 +3482,11 @@ adminAdjApply?.addEventListener('click', async () => {
 	const delta = Number(String(adminAdjDelta?.value || '').replace(',', '.'))
 
 	if (!tgId) {
-		alert(t('alert_enter_tg_id'))
+		alert('Введите tg_id')
 		return
 	}
 	if (!Number.isFinite(delta) || delta === 0) {
-		alert(t('alert_enter_delta'))
+		alert('Введите delta (например +1 или -1)')
 		return
 	}
 
@@ -3660,8 +3497,8 @@ adminAdjApply?.addEventListener('click', async () => {
 			adminAdjResult.textContent = `OK. New balance: ${Number(r.newBalance || 0).toFixed(2)} TON`
 		await loadAdminStats()
 	} catch (e) {
-		if (adminAdjResult) adminAdjResult.textContent = e.message || t('error_admin')
-		alert(e.message || t('error_admin'))
+		if (adminAdjResult) adminAdjResult.textContent = e.message || 'Ошибка'
+		alert(e.message || 'Ошибка')
 	} finally {
 		adminAdjApply.disabled = false
 	}
@@ -3671,7 +3508,7 @@ async function createBroadcast(delaySec) {
 	if (!isAdmin) return
 	const text = String(adminBcText?.value || '').trim()
 	if (!text) {
-		alert(t('alert_enter_broadcast_text'))
+		alert('Введите текст рассылки')
 		return
 	}
 
@@ -3680,11 +3517,11 @@ async function createBroadcast(delaySec) {
 		const when = new Date(Number(r.runAt || Date.now())).toLocaleString()
 		if (adminBcResult)
 			adminBcResult.textContent = `✅ Задача создана (#${r.jobId}). Отправка: ${when}`
-		alert(t('alert_broadcast_created'))
+		alert('Задача рассылки создана')
 	} catch (e) {
 		if (adminBcResult)
 			adminBcResult.textContent = `❌ Ошибка: ${e?.message || e}`
-		alert(e?.message || t('error_broadcast'))
+		alert(e?.message || 'Ошибка рассылки')
 	}
 }
 
@@ -3724,7 +3561,6 @@ async function init() {
 	setLastPrizeText(null)
 	updateInviteUI()
 	updateDepositButtonState()
-	setupTouchEdgeGuard()
 
 	try {
 		await fetchUserData()
@@ -3738,7 +3574,7 @@ async function init() {
 		}
 	} catch (err) {
 		hideAppLoading()
-		alert(err.message || t('alert_unknown_error'))
+		alert(err.message || 'Unknown error')
 	}
 
 	// Лента Live — общая для всех с сервера, без сброса при перезаходе
