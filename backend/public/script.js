@@ -640,10 +640,10 @@ const screens = {
 document.getElementById('cases-back')?.addEventListener('click', () => {
 	setScreen('home')
 })
-document.getElementById('wheel-back')?.addEventListener('click', () => {
+bindTap(document.getElementById('wheel-back'), () => {
 	setScreen('home')
 })
-document.getElementById('crash-back')?.addEventListener('click', () => {
+bindTap(document.getElementById('crash-back'), () => {
 	stopCrashPolling()
 	setScreen('home')
 })
@@ -1116,7 +1116,21 @@ function startLiveFeedPoll() {
 
 let currentScreen = 'home'
 
+function bindTap(el, handler) {
+	if (!el || typeof handler !== 'function') return
+	el.addEventListener('click', handler)
+	el.addEventListener(
+		'touchend',
+		e => {
+			e.preventDefault()
+			handler(e)
+		},
+		{ passive: false },
+	)
+}
+
 function setScreen(name) {
+	if (!screens[name]) name = 'home'
 	currentScreen = name
 	Object.keys(screens).forEach(key => {
 		screens[key]?.classList.toggle('active', key === name)
@@ -2154,7 +2168,7 @@ document.addEventListener('click', async e => {
 
 // клики по карточкам на главной
 document.querySelectorAll('[data-home-target]').forEach(card => {
-	card.addEventListener('click', () => {
+	bindTap(card, () => {
 		const target = card.getAttribute('data-home-target')
 
 		if (target === 'wheel') {
@@ -2193,7 +2207,7 @@ document.querySelectorAll('[data-home-target]').forEach(card => {
 
 // Кейсы: клик по карточке
 caseCards.forEach(card => {
-	card.addEventListener('click', () => {
+	bindTap(card, () => {
 		const type = card.getAttribute('data-case-type')
 		const cfg = CASES?.[type]
 		if (!cfg) {
