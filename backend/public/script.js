@@ -587,6 +587,13 @@ if (!tg) {
 	throw new Error('Telegram WebApp not found')
 }
 
+const isAndroidClient =
+	/Android/i.test(navigator.userAgent || '') ||
+	String(tg.platform || '').toLowerCase() === 'android'
+if (isAndroidClient) {
+	document.documentElement.classList.add('is-android')
+}
+
 tg.ready()
 tg.expand()
 if (typeof tg.disableVerticalSwipes === 'function') {
@@ -1118,15 +1125,21 @@ let currentScreen = 'home'
 
 function bindTap(el, handler) {
 	if (!el || typeof handler !== 'function') return
-	let lastTouchAt = 0
+	let touchFiredAt = 0
 
-	el.addEventListener('touchend', e => {
-		lastTouchAt = Date.now()
-		handler(e)
-	})
+	el.addEventListener(
+		'touchend',
+		e => {
+			touchFiredAt = Date.now()
+			e.preventDefault()
+			handler(e)
+		},
+		{ passive: false },
+	)
 
 	el.addEventListener('click', e => {
-		if (Date.now() - lastTouchAt < 500) return
+		// На touch-устройствах после touchend прилетает synthetic click.
+		if (Date.now() - touchFiredAt < 700) return
 		handler(e)
 	})
 }
