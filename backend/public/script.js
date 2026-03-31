@@ -2,93 +2,93 @@
 const TRANSLATIONS = {
 	ru: {
 		// Top bar
-		balance_label: 'Баланс',
+		balance_label: 'Р‘Р°Р»Р°РЅСЃ',
 		// Bottom nav
-		nav_invite: 'Пригласить',
-		nav_crash: 'Краш',
-		nav_home: 'Главная',
-		nav_bonus: 'Бонусы',
-		nav_profile: 'Профиль',
-		nav_admin: 'Админ',
+		nav_invite: 'РџСЂРёРіР»Р°СЃРёС‚СЊ',
+		nav_crash: 'РљСЂР°С€',
+		nav_home: 'Р“Р»Р°РІРЅР°СЏ',
+		nav_bonus: 'Р‘РѕРЅСѓСЃС‹',
+		nav_profile: 'РџСЂРѕС„РёР»СЊ',
+		nav_admin: 'РђРґРјРёРЅ',
 		// Profile
-		profile_total_balance: 'Общий баланс',
-		deposit_btn: 'Депозит TON',
-		withdraw_btn: 'Вывод TON',
+		profile_total_balance: 'РћР±С‰РёР№ Р±Р°Р»Р°РЅСЃ',
+		deposit_btn: 'Р”РµРїРѕР·РёС‚ TON',
+		withdraw_btn: 'Р’С‹РІРѕРґ TON',
 		wallet_note:
-			'Прежде чем пополнять баланс, нужно сначала привязать (подключить) кошелёк.',
-		lang_title: 'Изменить язык',
-		inventory_title: 'Инвентарь подарков',
-		inventory_empty: 'У вас пока нет подарков',
-		ref_title: 'Реферальная программа',
+			'РџСЂРµР¶РґРµ С‡РµРј РїРѕРїРѕР»РЅСЏС‚СЊ Р±Р°Р»Р°РЅСЃ, РЅСѓР¶РЅРѕ СЃРЅР°С‡Р°Р»Р° РїСЂРёРІСЏР·Р°С‚СЊ (РїРѕРґРєР»СЋС‡РёС‚СЊ) РєРѕС€РµР»С‘Рє.',
+		lang_title: 'РР·РјРµРЅРёС‚СЊ СЏР·С‹Рє',
+		inventory_title: 'РРЅРІРµРЅС‚Р°СЂСЊ РїРѕРґР°СЂРєРѕРІ',
+		inventory_empty: 'РЈ РІР°СЃ РїРѕРєР° РЅРµС‚ РїРѕРґР°СЂРєРѕРІ',
+		ref_title: 'Р РµС„РµСЂР°Р»СЊРЅР°СЏ РїСЂРѕРіСЂР°РјРјР°',
 		ref_text:
-			'Делимся частью дохода с активными игроками. Ниже можно будет создать свой промокод для друзей.',
-		ref_btn: 'Создать промокод (скоро)',
-		inv_sell: 'Продать',
-		inv_withdraw: 'Вывести',
+			'Р”РµР»РёРјСЃСЏ С‡Р°СЃС‚СЊСЋ РґРѕС…РѕРґР° СЃ Р°РєС‚РёРІРЅС‹РјРё РёРіСЂРѕРєР°РјРё. РќРёР¶Рµ РјРѕР¶РЅРѕ Р±СѓРґРµС‚ СЃРѕР·РґР°С‚СЊ СЃРІРѕР№ РїСЂРѕРјРѕРєРѕРґ РґР»СЏ РґСЂСѓР·РµР№.',
+		ref_btn: 'РЎРѕР·РґР°С‚СЊ РїСЂРѕРјРѕРєРѕРґ (СЃРєРѕСЂРѕ)',
+		inv_sell: 'РџСЂРѕРґР°С‚СЊ',
+		inv_withdraw: 'Р’С‹РІРµСЃС‚Рё',
 		// Deposit modal
-		deposit_modal_title: 'Пополнение баланса',
+		deposit_modal_title: 'РџРѕРїРѕР»РЅРµРЅРёРµ Р±Р°Р»Р°РЅСЃР°',
 		deposit_tab_ton: 'TON',
-		deposit_tab_nft: 'NFT подарком',
-		deposit_subtitle: 'Заполните данные',
-		connect_wallet_btn: 'Подключите TON кошелёк',
-		deposit_label: 'Сумма пополнения (TON)',
-		deposit_nft_subtitle: 'Пополнение подарком (NFT)',
+		deposit_tab_nft: 'NFT РїРѕРґР°СЂРєРѕРј',
+		deposit_subtitle: 'Р—Р°РїРѕР»РЅРёС‚Рµ РґР°РЅРЅС‹Рµ',
+		connect_wallet_btn: 'РџРѕРґРєР»СЋС‡РёС‚Рµ TON РєРѕС€РµР»С‘Рє',
+		deposit_label: 'РЎСѓРјРјР° РїРѕРїРѕР»РЅРµРЅРёСЏ (TON)',
+		deposit_nft_subtitle: 'РџРѕРїРѕР»РЅРµРЅРёРµ РїРѕРґР°СЂРєРѕРј (NFT)',
 		deposit_nft_text:
-			'Для депозита подарком (NFT) напишите нашему модератору в Telegram. Он примет подарок и зачислит эквивалент на баланс.',
-		deposit_nft_btn: 'Написать @modergw',
-		deposit_close_btn: 'Закрыть',
-		deposit_confirm_btn: 'Пополнить',
+			'Р”Р»СЏ РґРµРїРѕР·РёС‚Р° РїРѕРґР°СЂРєРѕРј (NFT) РЅР°РїРёС€РёС‚Рµ РЅР°С€РµРјСѓ РјРѕРґРµСЂР°С‚РѕСЂСѓ РІ Telegram. РћРЅ РїСЂРёРјРµС‚ РїРѕРґР°СЂРѕРє Рё Р·Р°С‡РёСЃР»РёС‚ СЌРєРІРёРІР°Р»РµРЅС‚ РЅР° Р±Р°Р»Р°РЅСЃ.',
+		deposit_nft_btn: 'РќР°РїРёСЃР°С‚СЊ @modergw',
+		deposit_close_btn: 'Р—Р°РєСЂС‹С‚СЊ',
+		deposit_confirm_btn: 'РџРѕРїРѕР»РЅРёС‚СЊ',
 		// Withdraw modal
-		withdraw_modal_title: 'Вывод TON',
-		withdraw_modal_text: 'Укажи сумму вывода (минимум 5 TON).',
-		withdraw_balance_hint: 'Баланс:',
-		withdraw_cancel_btn: 'Отмена',
-		withdraw_confirm_btn: 'Подтвердить',
+		withdraw_modal_title: 'Р’С‹РІРѕРґ TON',
+		withdraw_modal_text: 'РЈРєР°Р¶Рё СЃСѓРјРјСѓ РІС‹РІРѕРґР° (РјРёРЅРёРјСѓРј 5 TON).',
+		withdraw_balance_hint: 'Р‘Р°Р»Р°РЅСЃ:',
+		withdraw_cancel_btn: 'РћС‚РјРµРЅР°',
+		withdraw_confirm_btn: 'РџРѕРґС‚РІРµСЂРґРёС‚СЊ',
 		// Prize modal
-		prize_modal_title: 'Поздравляем!',
-		prize_modal_text: 'Вы выиграли',
-		prize_modal_price: 'Стоимость:',
-		prize_sell_btn: 'Продать',
-		prize_keep_btn: 'В инвентарь',
+		prize_modal_title: 'РџРѕР·РґСЂР°РІР»СЏРµРј!',
+		prize_modal_text: 'Р’С‹ РІС‹РёРіСЂР°Р»Рё',
+		prize_modal_price: 'РЎС‚РѕРёРјРѕСЃС‚СЊ:',
+		prize_sell_btn: 'РџСЂРѕРґР°С‚СЊ',
+		prize_keep_btn: 'Р’ РёРЅРІРµРЅС‚Р°СЂСЊ',
 		// Invite screen
-		invite_title: 'Пригласить друзей',
-		invite_subtitle: 'Делитесь ссылкой и получайте процент с игры друзей.',
-		invite_card_title: 'Ваша пригласительная ссылка',
-		invite_copy_btn: 'Скопировать ссылку',
-		invite_link_placeholder: 'Скоро добавим генерацию ссылки.',
+		invite_title: 'РџСЂРёРіР»Р°СЃРёС‚СЊ РґСЂСѓР·РµР№',
+		invite_subtitle: 'Р”РµР»РёС‚РµСЃСЊ СЃСЃС‹Р»РєРѕР№ Рё РїРѕР»СѓС‡Р°Р№С‚Рµ РїСЂРѕС†РµРЅС‚ СЃ РёРіСЂС‹ РґСЂСѓР·РµР№.',
+		invite_card_title: 'Р’Р°С€Р° РїСЂРёРіР»Р°СЃРёС‚РµР»СЊРЅР°СЏ СЃСЃС‹Р»РєР°',
+		invite_copy_btn: 'РЎРєРѕРїРёСЂРѕРІР°С‚СЊ СЃСЃС‹Р»РєСѓ',
+		invite_link_placeholder: 'РЎРєРѕСЂРѕ РґРѕР±Р°РІРёРј РіРµРЅРµСЂР°С†РёСЋ СЃСЃС‹Р»РєРё.',
 		// Bonus screen
-		bonus_title: 'Бонусы и промокоды',
-		bonus_subtitle: 'Введите промокод, чтобы получить бонус или скидку.',
-		promo_placeholder: 'Введите промокод',
-		promo_apply_btn: 'Активировать',
-		promo_card_title: 'Раздел промокоды',
+		bonus_title: 'Р‘РѕРЅСѓСЃС‹ Рё РїСЂРѕРјРѕРєРѕРґС‹',
+		bonus_subtitle: 'Р’РІРµРґРёС‚Рµ РїСЂРѕРјРѕРєРѕРґ, С‡С‚РѕР±С‹ РїРѕР»СѓС‡РёС‚СЊ Р±РѕРЅСѓСЃ РёР»Рё СЃРєРёРґРєСѓ.',
+		promo_placeholder: 'Р’РІРµРґРёС‚Рµ РїСЂРѕРјРѕРєРѕРґ',
+		promo_apply_btn: 'РђРєС‚РёРІРёСЂРѕРІР°С‚СЊ',
+		promo_card_title: 'Р Р°Р·РґРµР» РїСЂРѕРјРѕРєРѕРґС‹',
 		promo_card_text:
-			'В данном разделе можно будет ввести промокод, промокоды будут публиковаться в тг‑канале.',
+			'Р’ РґР°РЅРЅРѕРј СЂР°Р·РґРµР»Рµ РјРѕР¶РЅРѕ Р±СѓРґРµС‚ РІРІРµСЃС‚Рё РїСЂРѕРјРѕРєРѕРґ, РїСЂРѕРјРѕРєРѕРґС‹ Р±СѓРґСѓС‚ РїСѓР±Р»РёРєРѕРІР°С‚СЊСЃСЏ РІ С‚РівЂ‘РєР°РЅР°Р»Рµ.',
 		// Rewards
-		reward_claim_available: 'Забрать',
-		reward_claim_locked: 'Недоступно',
+		reward_claim_available: 'Р—Р°Р±СЂР°С‚СЊ',
+		reward_claim_locked: 'РќРµРґРѕСЃС‚СѓРїРЅРѕ',
 		// Alerts
-		alert_link_copied: 'Ссылка скопирована',
-		alert_copy_fail: 'Не удалось скопировать ссылку (попробуй вручную).',
-		alert_promo_empty: 'Введите промокод',
-		alert_promo_applied_balance: 'Промокод применён: +{amount} TON',
+		alert_link_copied: 'РЎСЃС‹Р»РєР° СЃРєРѕРїРёСЂРѕРІР°РЅР°',
+		alert_copy_fail: 'РќРµ СѓРґР°Р»РѕСЃСЊ СЃРєРѕРїРёСЂРѕРІР°С‚СЊ СЃСЃС‹Р»РєСѓ (РїРѕРїСЂРѕР±СѓР№ РІСЂСѓС‡РЅСѓСЋ).',
+		alert_promo_empty: 'Р’РІРµРґРёС‚Рµ РїСЂРѕРјРѕРєРѕРґ',
+		alert_promo_applied_balance: 'РџСЂРѕРјРѕРєРѕРґ РїСЂРёРјРµРЅС‘РЅ: +{amount} TON',
 		alert_promo_applied_gift:
-			'Промокод применён: подарок зачислен в инвентарь.',
-		alert_promo_applied: 'Промокод применён',
-		alert_withdraw_gift_sent: 'Заявка на вывод подарка отправлена админу.',
-		alert_withdraw_ton_sent: 'Заявка на вывод {amount} TON отправлена админу.',
-		alert_deposit_credited: 'Депозит зачислен: +{amount} TON',
+			'РџСЂРѕРјРѕРєРѕРґ РїСЂРёРјРµРЅС‘РЅ: РїРѕРґР°СЂРѕРє Р·Р°С‡РёСЃР»РµРЅ РІ РёРЅРІРµРЅС‚Р°СЂСЊ.',
+		alert_promo_applied: 'РџСЂРѕРјРѕРєРѕРґ РїСЂРёРјРµРЅС‘РЅ',
+		alert_withdraw_gift_sent: 'Р—Р°СЏРІРєР° РЅР° РІС‹РІРѕРґ РїРѕРґР°СЂРєР° РѕС‚РїСЂР°РІР»РµРЅР° Р°РґРјРёРЅСѓ.',
+		alert_withdraw_ton_sent: 'Р—Р°СЏРІРєР° РЅР° РІС‹РІРѕРґ {amount} TON РѕС‚РїСЂР°РІР»РµРЅР° Р°РґРјРёРЅСѓ.',
+		alert_deposit_credited: 'Р”РµРїРѕР·РёС‚ Р·Р°С‡РёСЃР»РµРЅ: +{amount} TON',
 		alert_deposit_pending:
-			'Транзакция отправлена. Если не зачислилось — подожди 1–2 минуты и попробуй ещё раз.',
-		alert_wallet_required: 'Сначала подключи TON-кошелёк.',
-		alert_amount_invalid: 'Введите корректную сумму',
-		alert_min_deposit: 'Минимум {min} TON',
-		alert_min_withdraw: 'Недостаточно средств',
-		alert_confirm_wallet: 'Подтверди транзакцию в кошельке...',
-		alert_request_sent: 'Запрос отправлен в кошелёк. Подтверди транзакцию.',
+			'РўСЂР°РЅР·Р°РєС†РёСЏ РѕС‚РїСЂР°РІР»РµРЅР°. Р•СЃР»Рё РЅРµ Р·Р°С‡РёСЃР»РёР»РѕСЃСЊ вЂ” РїРѕРґРѕР¶РґРё 1вЂ“2 РјРёРЅСѓС‚С‹ Рё РїРѕРїСЂРѕР±СѓР№ РµС‰С‘ СЂР°Р·.',
+		alert_wallet_required: 'РЎРЅР°С‡Р°Р»Р° РїРѕРґРєР»СЋС‡Рё TON-РєРѕС€РµР»С‘Рє.',
+		alert_amount_invalid: 'Р’РІРµРґРёС‚Рµ РєРѕСЂСЂРµРєС‚РЅСѓСЋ СЃСѓРјРјСѓ',
+		alert_min_deposit: 'РњРёРЅРёРјСѓРј {min} TON',
+		alert_min_withdraw: 'РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ СЃСЂРµРґСЃС‚РІ',
+		alert_confirm_wallet: 'РџРѕРґС‚РІРµСЂРґРё С‚СЂР°РЅР·Р°РєС†РёСЋ РІ РєРѕС€РµР»СЊРєРµ...',
+		alert_request_sent: 'Р—Р°РїСЂРѕСЃ РѕС‚РїСЂР°РІР»РµРЅ РІ РєРѕС€РµР»С‘Рє. РџРѕРґС‚РІРµСЂРґРё С‚СЂР°РЅР·Р°РєС†РёСЋ.',
 		alert_deposit_required:
-			'Прежде чем вывести, нужно сделать минимальное пополнение 1 TON',
-		alert_min_withdraw_ton: 'Минимум {min} TON',
+			'РџСЂРµР¶РґРµ С‡РµРј РІС‹РІРµСЃС‚Рё, РЅСѓР¶РЅРѕ СЃРґРµР»Р°С‚СЊ РјРёРЅРёРјР°Р»СЊРЅРѕРµ РїРѕРїРѕР»РЅРµРЅРёРµ 1 TON',
+		alert_min_withdraw_ton: 'РњРёРЅРёРјСѓРј {min} TON',
 	},
 	en: {
 		// Top bar
@@ -170,7 +170,7 @@ const TRANSLATIONS = {
 			'Withdrawal request for {amount} TON sent to admin.',
 		alert_deposit_credited: 'Deposit credited: +{amount} TON',
 		alert_deposit_pending:
-			'Transaction sent. If not credited — wait 1–2 minutes and try again.',
+			'Transaction sent. If not credited вЂ” wait 1вЂ“2 minutes and try again.',
 		alert_wallet_required: 'Please connect your TON wallet first.',
 		alert_amount_invalid: 'Enter a valid amount',
 		alert_min_deposit: 'Minimum {min} TON',
@@ -349,8 +349,8 @@ function applyTranslations() {
 	if (inviteSubtitleEl) {
 		inviteSubtitleEl.textContent =
 			currentLang === 'en'
-				? 'Share your link and get 0.1 TON for each new invited friend.'
-				: 'Делитесь ссылкой и получайте 0.1 TON за каждого нового приглашенного друга.'
+				? 'Share your link and get 0.3 TON for each invited friend who made at least one deposit.'
+				: 'Получайте 0.3 TON за каждого приглашенного друга, который сделал хотя бы один депозит.'
 	}
 
 	const inviteCardTitleEl = document.querySelector(
@@ -361,7 +361,7 @@ function applyTranslations() {
 	const inviteStatsTitleEl = document.querySelector('#invite-stats-card .bonus-title')
 	if (inviteStatsTitleEl) {
 		inviteStatsTitleEl.textContent =
-			currentLang === 'en' ? 'Referral stats' : 'Реферальная статистика'
+			currentLang === 'en' ? 'Referral stats' : 'Р РµС„РµСЂР°Р»СЊРЅР°СЏ СЃС‚Р°С‚РёСЃС‚РёРєР°'
 	}
 
 	const inviteCopyBtnEl = document.getElementById('invite-copy-btn')
@@ -370,7 +370,7 @@ function applyTranslations() {
 	const inviteClaimBtnEl = document.getElementById('invite-claim-btn')
 	if (inviteClaimBtnEl) {
 		inviteClaimBtnEl.textContent =
-			currentLang === 'en' ? 'Claim to balance' : 'Вывести на баланс'
+			currentLang === 'en' ? 'Claim to balance' : 'Р’С‹РІРµСЃС‚Рё РЅР° Р±Р°Р»Р°РЅСЃ'
 	}
 
 	// Invite link placeholder (only if no real link yet)
@@ -444,7 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		?.addEventListener('click', () => setLang('en'))
 })
 
-// Также вешаем через делегирование на случай если DOMContentLoaded уже прошёл
+// РўР°РєР¶Рµ РІРµС€Р°РµРј С‡РµСЂРµР· РґРµР»РµРіРёСЂРѕРІР°РЅРёРµ РЅР° СЃР»СѓС‡Р°Р№ РµСЃР»Рё DOMContentLoaded СѓР¶Рµ РїСЂРѕС€С‘Р»
 document.addEventListener('click', e => {
 	if (e.target.id === 'lang-ru') setLang('ru')
 	if (e.target.id === 'lang-en') setLang('en')
@@ -460,23 +460,23 @@ const MIN_DEPOSIT_TON = 0.1
 const BOT_USERNAME = 'GiftWheels_bot'
 
 const wheelSectors = [
-	{ emoji: '🐸', name: 'Pepe', nameKey: 'Pepe', price: 0.0 }, // 0
-	{ emoji: '🗡️', name: 'Lightsword', nameKey: 'lightsword', price: 7.0 }, // 1
+	{ emoji: 'рџђё', name: 'Pepe', nameKey: 'Pepe', price: 0.0 }, // 0
+	{ emoji: 'рџ—ЎпёЏ', name: 'Lightsword', nameKey: 'lightsword', price: 7.0 }, // 1
 	{
-		emoji: '📅',
+		emoji: 'рџ“…',
 		name: 'Celendar (random)',
 		nameKey: 'Celendar (random)',
 		price: 4.5,
 	}, // 2
-	{ emoji: '🧪', name: 'Hexpot', nameKey: 'Hexpot', price: 10.0 }, // 3
-	{ emoji: '🧸', name: 'Bear', nameKey: 'Bear', price: 0.1 }, // 4
+	{ emoji: 'рџ§Є', name: 'Hexpot', nameKey: 'Hexpot', price: 10.0 }, // 3
+	{ emoji: 'рџ§ё', name: 'Bear', nameKey: 'Bear', price: 0.1 }, // 4
 	{
-		emoji: '🍑',
+		emoji: 'рџЌ‘',
 		name: 'Precious Peach (random)',
 		nameKey: 'Precious Peach (random)',
 		price: 500.0,
 	}, // 5
-	{ emoji: '🧸', name: 'Bear', nameKey: 'Bear', price: 0.1 }, // 6
+	{ emoji: 'рџ§ё', name: 'Bear', nameKey: 'Bear', price: 0.1 }, // 6
 ]
 
 // ===== CASES CONFIG =====
@@ -487,13 +487,13 @@ const CASES = {
 		priceTon: 0.5,
 		imageSelector: '.case-image-newyear',
 		contents: [
-			{ emoji: '📅', name: 'Celendar (random)', price: 4.5 },
-			{ emoji: '🍭', name: 'lolpop', price: 7.0 },
-			{ emoji: '🧸', name: 'Bear', price: 0.1 },
-			{ emoji: '🧦', name: 'socks', price: 10.0 },
-			{ emoji: '🧸', name: 'Bear', price: 0.1 },
-			{ emoji: '🪆', name: 'Woodoo (random)', price: 30.0 },
-			{ emoji: '🧸', name: 'Bear', price: 0.1 },
+			{ emoji: 'рџ“…', name: 'Celendar (random)', price: 4.5 },
+			{ emoji: 'рџЌ­', name: 'lolpop', price: 7.0 },
+			{ emoji: 'рџ§ё', name: 'Bear', price: 0.1 },
+			{ emoji: 'рџ§¦', name: 'socks', price: 10.0 },
+			{ emoji: 'рџ§ё', name: 'Bear', price: 0.1 },
+			{ emoji: 'рџЄ†', name: 'Woodoo (random)', price: 30.0 },
+			{ emoji: 'рџ§ё', name: 'Bear', price: 0.1 },
 		],
 	},
 
@@ -503,16 +503,16 @@ const CASES = {
 		priceTon: 2.5,
 		imageSelector: '.case-image-onlynft',
 		contents: [
-			{ emoji: '🐸', name: 'Plush Pepe Pink Latex', price: 10000.0 },
+			{ emoji: 'рџђё', name: 'Plush Pepe Pink Latex', price: 10000.0 },
 
-			{ emoji: '💔', name: 'Trapped Hearts', price: 20.0 },
-			{ emoji: '🐱', name: 'Scared Cats', price: 200.0 },
-			{ emoji: '💵', name: 'Snoop Cigars', price: 15.0 },
-			{ emoji: '🥃', name: 'Vintage Cigars', price: 40.0 },
-			{ emoji: '🎩', name: 'Witch Hats', price: 7.0 },
-			{ emoji: '🍪', name: 'Happy Brownies', price: 5.0 },
+			{ emoji: 'рџ’”', name: 'Trapped Hearts', price: 20.0 },
+			{ emoji: 'рџђ±', name: 'Scared Cats', price: 200.0 },
+			{ emoji: 'рџ’µ', name: 'Snoop Cigars', price: 15.0 },
+			{ emoji: 'рџҐѓ', name: 'Vintage Cigars', price: 40.0 },
+			{ emoji: 'рџЋ©', name: 'Witch Hats', price: 7.0 },
+			{ emoji: 'рџЌЄ', name: 'Happy Brownies', price: 5.0 },
 
-			{ emoji: '🧸', name: 'Bear', price: 0.1 },
+			{ emoji: 'рџ§ё', name: 'Bear', price: 0.1 },
 		],
 	},
 
@@ -522,8 +522,8 @@ const CASES = {
 		priceTon: 1.2,
 		imageSelector: '.case-image-crypto',
 		contents: [
-			{ emoji: '🍑', name: 'Precious Peach (random)', price: 500.0 },
-			{ emoji: '🧸', name: 'Bear', price: 0.1 },
+			{ emoji: 'рџЌ‘', name: 'Precious Peach (random)', price: 500.0 },
+			{ emoji: 'рџ§ё', name: 'Bear', price: 0.1 },
 		],
 	},
 
@@ -533,16 +533,16 @@ const CASES = {
 		priceTon: 12.5,
 		imageSelector: '.case-image-elite',
 		contents: [
-			{ emoji: '📅', name: 'Celendar (random)', price: 4.5 },
-			{ emoji: '🪆', name: 'Woodoo (random)', price: 30.0 },
+			{ emoji: 'рџ“…', name: 'Celendar (random)', price: 4.5 },
+			{ emoji: 'рџЄ†', name: 'Woodoo (random)', price: 30.0 },
 		],
 	},
 }
 
-// Всегда выдаваемый приз (winner).
-const CASES_ALWAYS_PRIZE = { emoji: '🧸', name: 'Bear', price: 0.1 }
+// Р’СЃРµРіРґР° РІС‹РґР°РІР°РµРјС‹Р№ РїСЂРёР· (winner).
+const CASES_ALWAYS_PRIZE = { emoji: 'рџ§ё', name: 'Bear', price: 0.1 }
 
-// CUSTOM IMAGES (ключ = точное item.name)
+// CUSTOM IMAGES (РєР»СЋС‡ = С‚РѕС‡РЅРѕРµ item.name)
 const GIFT_IMAGES = {
 	Pepe: 'epepepepe.webp',
 	'Plush Pepe Pink Latex': 'PinkLat.webp',
@@ -583,7 +583,7 @@ function giftVisual(item) {
 // ===== TELEGRAM =====
 const tg = window.Telegram?.WebApp || null
 if (!tg) {
-	alert('Открой приложение через Telegram.')
+	alert('РћС‚РєСЂРѕР№ РїСЂРёР»РѕР¶РµРЅРёРµ С‡РµСЂРµР· Telegram.')
 	throw new Error('Telegram WebApp not found')
 }
 
@@ -633,7 +633,7 @@ const screens = {
 	frog: document.getElementById('screen-frog'),
 }
 
-// Кнопка "Назад" на экране кейсов
+// РљРЅРѕРїРєР° "РќР°Р·Р°Рґ" РЅР° СЌРєСЂР°РЅРµ РєРµР№СЃРѕРІ
 document.getElementById('cases-back')?.addEventListener('click', () => {
 	setScreen('home')
 })
@@ -643,7 +643,7 @@ const rewardsListEl = document.getElementById('rewards-list')
 const depositBtn = document.getElementById('deposit-btn')
 const withdrawBtn = document.getElementById('withdraw-btn')
 
-// Модалка приза
+// РњРѕРґР°Р»РєР° РїСЂРёР·Р°
 const prizeModal = document.getElementById('prize-modal')
 const modalPrizeEmoji = document.getElementById('modal-prize-emoji')
 const modalPrizeName = document.getElementById('modal-prize-name')
@@ -772,7 +772,7 @@ function makeAnimItemHTML(prize) {
 	return `<div class="case-anim-item">${isIcon ? v : `<div class="emoji">${v}</div>`}</div>`
 }
 
-// Рулетка-анимация в оверлее (если захочешь использовать)
+// Р СѓР»РµС‚РєР°-Р°РЅРёРјР°С†РёСЏ РІ РѕРІРµСЂР»РµРµ (РµСЃР»Рё Р·Р°С…РѕС‡РµС€СЊ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ)
 async function playCaseOpenAnimation({ pool, winner }) {
 	if (!caseAnimTrack || !caseAnimOverlay) return
 
@@ -809,7 +809,7 @@ async function playCaseOpenAnimation({ pool, winner }) {
 	setCaseAnimVisible(false)
 }
 
-// Inline-анимация в экране кейса
+// Inline-Р°РЅРёРјР°С†РёСЏ РІ СЌРєСЂР°РЅРµ РєРµР№СЃР°
 async function playInlineCaseAnimation(pool, winner) {
 	if (!caseOpenTrack) return
 
@@ -879,7 +879,7 @@ let referralState = {
 	claimedCount: 0,
 	pendingCount: 0,
 	pendingTon: 0,
-	rateTon: 0.1,
+	rateTon: 0.3,
 	minClaimTon: 5,
 	canClaim: false,
 }
@@ -892,7 +892,7 @@ const adminState = {
 
 // Live carousel state
 
-// прогресс к бесплатному колесу
+// РїСЂРѕРіСЂРµСЃСЃ Рє Р±РµСЃРїР»Р°С‚РЅРѕРјСѓ РєРѕР»РµСЃСѓ
 const WHEEL_DEPOSIT_TARGET = 0.5
 let freeWheelAvailable = false
 let wheelDepositProgressTon = 0
@@ -908,7 +908,7 @@ function updateBalanceUI() {
 
 function setLastPrizeText(prize) {
 	if (!lastPrizeSpan) return
-	lastPrizeSpan.textContent = prize ? `${prize.emoji} ${prize.name}` : '—'
+	lastPrizeSpan.textContent = prize ? `${prize.emoji} ${prize.name}` : 'вЂ”'
 }
 
 function openModal(prize) {
@@ -1014,7 +1014,7 @@ function renderInventoryContent() {
               ${giftVisual(item)}
             </div>
             <div class="inv-card-name">
-              ${escapeHtml(item.name || 'Подарок')}
+              ${escapeHtml(item.name || 'РџРѕРґР°СЂРѕРє')}
             </div>
           </div>
 
@@ -1024,8 +1024,8 @@ function renderInventoryContent() {
               <span class="inv-ton-value">${price}</span>
             </div>
             <div class="inv-card-actions">
-              <button class="inv-btn inv-sell" type="button">Продать</button>
-              <button class="inv-btn inv-withdraw" type="button">Вывести</button>
+              <button class="inv-btn inv-sell" type="button">РџСЂРѕРґР°С‚СЊ</button>
+              <button class="inv-btn inv-withdraw" type="button">Р’С‹РІРµСЃС‚Рё</button>
             </div>
           </div>
         </div>
@@ -1038,7 +1038,7 @@ function renderInventory() {
 	if (!inventoryList) return
 
 	if (!Array.isArray(inventory) || inventory.length === 0) {
-		inventoryList.innerHTML = `<div class="inventory-empty">У вас пока нет подарков</div>`
+		inventoryList.innerHTML = `<div class="inventory-empty">РЈ РІР°СЃ РїРѕРєР° РЅРµС‚ РїРѕРґР°СЂРєРѕРІ</div>`
 		return
 	}
 
@@ -1055,7 +1055,7 @@ function renderInventory() {
 	renderInventoryContent()
 }
 
-// ===== LIVE GIFTS CAROUSEL (глобальная лента с сервера, без сброса при перезаходе) =====
+// ===== LIVE GIFTS CAROUSEL (РіР»РѕР±Р°Р»СЊРЅР°СЏ Р»РµРЅС‚Р° СЃ СЃРµСЂРІРµСЂР°, Р±РµР· СЃР±СЂРѕСЃР° РїСЂРё РїРµСЂРµР·Р°С…РѕРґРµ) =====
 let liveFeedLastCount = 0
 let liveFeedPollTimer = null
 const LIVE_FEED_POLL_MS = 25_000
@@ -1095,7 +1095,7 @@ async function fetchLiveFeed() {
 		renderLiveFeed(items, { animateNew: onHome && hasNew && prevCount > 0 })
 		liveFeedLastCount = items.length
 	} catch (_) {
-		// без ленты при ошибке авторизации/сети просто не обновляем
+		// Р±РµР· Р»РµРЅС‚С‹ РїСЂРё РѕС€РёР±РєРµ Р°РІС‚РѕСЂРёР·Р°С†РёРё/СЃРµС‚Рё РїСЂРѕСЃС‚Рѕ РЅРµ РѕР±РЅРѕРІР»СЏРµРј
 	}
 }
 
@@ -1165,29 +1165,29 @@ function renderReferralStatus() {
 		friendsWrap.innerHTML =
 			currentLang === 'en'
 				? 'Invited friends: <b id="invite-friends-count">' + invited + '</b>'
-				: 'Приглашено друзей: <b id="invite-friends-count">' + invited + '</b>'
+				: 'РџСЂРёРіР»Р°С€РµРЅРѕ РґСЂСѓР·РµР№: <b id="invite-friends-count">' + invited + '</b>'
 	}
 
 	if (pendingWrap) {
 		pendingWrap.innerHTML =
 			currentLang === 'en'
 				? 'Available to claim: <b id="invite-pending-ton">' + pendingTon + '</b> TON'
-				: 'Доступно к выводу: <b id="invite-pending-ton">' + pendingTon + '</b> TON'
+				: 'Р”РѕСЃС‚СѓРїРЅРѕ Рє РІС‹РІРѕРґСѓ: <b id="invite-pending-ton">' + pendingTon + '</b> TON'
 	}
 
 	if (inviteRateTextEl) {
-		const rate = Number(referralState.rateTon || 0.1).toFixed(1)
+		const rate = Number(referralState.rateTon || 0.3).toFixed(1)
 		const min = Number(referralState.minClaimTon || 5).toFixed(0)
 		inviteRateTextEl.textContent =
 			currentLang === 'en'
-				? '1 friend = ' + rate + ' TON, minimum claim is ' + min + ' TON.'
-				: '1 друг = ' + rate + ' TON, минимум вывода ' + min + ' TON.'
+				? '1 deposited referral = ' + rate + ' TON, minimum claim is ' + min + ' TON.'
+				: '1 реферал с депозитом = ' + rate + ' TON, минимум вывода ' + min + ' TON.'
 	}
 
 	if (inviteClaimBtn) {
 		inviteClaimBtn.disabled = !referralState.canClaim
 		inviteClaimBtn.textContent =
-			currentLang === 'en' ? 'Claim to balance' : 'Вывести на баланс'
+			currentLang === 'en' ? 'Claim to balance' : 'Р’С‹РІРµСЃС‚Рё РЅР° Р±Р°Р»Р°РЅСЃ'
 	}
 }
 
@@ -1199,7 +1199,7 @@ async function loadReferralStatus() {
 			claimedCount: Number(s?.claimedCount || 0),
 			pendingCount: Number(s?.pendingCount || 0),
 			pendingTon: Number(s?.pendingTon || 0),
-			rateTon: Number(s?.rateTon || 0.1),
+			rateTon: Number(s?.rateTon || 0.3),
 			minClaimTon: Number(s?.minClaimTon || 5),
 			canClaim: Boolean(s?.canClaim),
 		}
@@ -1214,19 +1214,19 @@ inviteCopyBtn?.addEventListener('click', async () => {
 		alert(
 			currentLang === 'en'
 				? 'Set BOT_USERNAME in script.js first'
-				: 'Сначала укажи BOT_USERNAME в script.js',
+				: 'РЎРЅР°С‡Р°Р»Р° СѓРєР°Р¶Рё BOT_USERNAME РІ script.js',
 		)
 		return
 	}
 
 	try {
 		await navigator.clipboard.writeText(link)
-		alert(currentLang === 'en' ? 'Link copied' : 'Ссылка скопирована')
+		alert(currentLang === 'en' ? 'Link copied' : 'РЎСЃС‹Р»РєР° СЃРєРѕРїРёСЂРѕРІР°РЅР°')
 	} catch (e) {
 		alert(
 			currentLang === 'en'
 				? 'Could not copy link (try manually).'
-				: 'Не удалось скопировать ссылку (попробуй вручную).',
+				: 'РќРµ СѓРґР°Р»РѕСЃСЊ СЃРєРѕРїРёСЂРѕРІР°С‚СЊ СЃСЃС‹Р»РєСѓ (РїРѕРїСЂРѕР±СѓР№ РІСЂСѓС‡РЅСѓСЋ).',
 		)
 	}
 })
@@ -1245,14 +1245,14 @@ inviteClaimBtn?.addEventListener('click', async () => {
 		alert(
 			currentLang === 'en'
 				? 'Credited ' + credited.toFixed(2) + ' TON to game balance.'
-				: 'На игровой баланс зачислено ' + credited.toFixed(2) + ' TON.',
+				: 'РќР° РёРіСЂРѕРІРѕР№ Р±Р°Р»Р°РЅСЃ Р·Р°С‡РёСЃР»РµРЅРѕ ' + credited.toFixed(2) + ' TON.',
 		)
 	} catch (e) {
 		alert(
 			e?.message ||
 				(currentLang === 'en'
 					? 'Referral claim error'
-					: 'Ошибка вывода реферального бонуса'),
+					: 'РћС€РёР±РєР° РІС‹РІРѕРґР° СЂРµС„РµСЂР°Р»СЊРЅРѕРіРѕ Р±РѕРЅСѓСЃР°'),
 		)
 	} finally {
 		setButtonLoading(inviteClaimBtn, false)
@@ -1309,7 +1309,7 @@ function renderCaseRewardsList(cfg) {
 		})
 		.join('')
 
-	// Trapped Hearts: подтянуть цену и картинку с Tonnel для Classic case
+	// Trapped Hearts: РїРѕРґС‚СЏРЅСѓС‚СЊ С†РµРЅСѓ Рё РєР°СЂС‚РёРЅРєСѓ СЃ Tonnel РґР»СЏ Classic case
 	if (cfg.id === 'onlynft') {
 		getTonnelGift('Trapped Hearts').then(r => {
 			if (!r || !caseOpenRewardsListEl) return
@@ -1345,7 +1345,7 @@ function renderCasePreviewTrack(cfg) {
 function openCase(caseType) {
 	const cfg = CASES[caseType]
 	if (!cfg) {
-		alert('Этот кейс скоро добавим.')
+		alert('Р­С‚РѕС‚ РєРµР№СЃ СЃРєРѕСЂРѕ РґРѕР±Р°РІРёРј.')
 		return
 	}
 
@@ -1385,7 +1385,7 @@ function isWalletConnected() {
 
 function formatAddress(addr) {
 	if (!addr) return ''
-	return addr.slice(0, 4) + '…' + addr.slice(-3)
+	return addr.slice(0, 4) + 'вЂ¦' + addr.slice(-3)
 }
 
 function updateWalletStatusUI() {
@@ -1409,7 +1409,7 @@ function updateConnectButtonUI() {
 
 	if (!connected) {
 		connectTonBtn.classList.remove('connect-wallet-bound')
-		connectTonBtn.textContent = 'Подключите TON кошелёк'
+		connectTonBtn.textContent = 'РџРѕРґРєР»СЋС‡РёС‚Рµ TON РєРѕС€РµР»С‘Рє'
 		return
 	}
 
@@ -1417,7 +1417,7 @@ function updateConnectButtonUI() {
 	connectTonBtn.classList.add('connect-wallet-bound')
 	connectTonBtn.innerHTML = `
     <span>${formatAddress(addr)}</span>
-    <span>Изменить</span>
+    <span>РР·РјРµРЅРёС‚СЊ</span>
   `
 }
 
@@ -1425,7 +1425,7 @@ function updateDepositButtonState() {
 	if (depositBtn) {
 		const connected = isWalletConnected()
 		depositBtn.disabled = false
-		depositBtn.title = connected ? '' : 'Сначала подключи TON-кошелёк в модалке'
+		depositBtn.title = connected ? '' : 'РЎРЅР°С‡Р°Р»Р° РїРѕРґРєР»СЋС‡Рё TON-РєРѕС€РµР»С‘Рє РІ РјРѕРґР°Р»РєРµ'
 	}
 	updateWalletStatusUI()
 	updateConnectButtonUI()
@@ -1438,7 +1438,7 @@ tonConnectUI.onStatusChange(() => {
 // ===== API (initData auth) =====
 async function apiPost(path, body = {}) {
 	const base = String(API_URL || '').replace(/\/+$/, '') // "/api"
-	const p = String(path || '').replace(/^\/+/, '') // "me" или "admin/users"
+	const p = String(path || '').replace(/^\/+/, '') // "me" РёР»Рё "admin/users"
 	const url = `${base}/${p}` // "/api/me"
 
 	const res = await fetch(url, {
@@ -1479,15 +1479,15 @@ function updateWheelPriceLabel() {
 	if (!priceLabelEl) return
 
 	if (freeWheelAvailable) {
-		priceLabelEl.textContent = 'Бесплатно'
+		priceLabelEl.textContent = 'Р‘РµСЃРїР»Р°С‚РЅРѕ'
 	} else {
 		const need = Math.max(0, WHEEL_DEPOSIT_TARGET - wheelDepositProgressTon)
 			.toFixed(2)
 			.replace(/\.?0+$/, '')
 		priceLabelEl.textContent =
 			need === '0'
-				? 'Бесплатно'
-				: `Сделайте депозит ещё ${need} TON, чтобы колесо стало бесплатным`
+				? 'Р‘РµСЃРїР»Р°С‚РЅРѕ'
+				: `РЎРґРµР»Р°Р№С‚Рµ РґРµРїРѕР·РёС‚ РµС‰С‘ ${need} TON, С‡С‚РѕР±С‹ РєРѕР»РµСЃРѕ СЃС‚Р°Р»Рѕ Р±РµСЃРїР»Р°С‚РЅС‹Рј`
 	}
 }
 
@@ -1616,17 +1616,17 @@ function loadImage(src) {
 	})
 }
 
-// Глобальные переменные для FROGTON (убедиcь, что они объявлены один раз)
+// Р“Р»РѕР±Р°Р»СЊРЅС‹Рµ РїРµСЂРµРјРµРЅРЅС‹Рµ РґР»СЏ FROGTON (СѓР±РµРґРёcСЊ, С‡С‚Рѕ РѕРЅРё РѕР±СЉСЏРІР»РµРЅС‹ РѕРґРёРЅ СЂР°Р·)
 const FROG_HATCH_MULTS = [
 	1.15, 1.3, 1.6, 2.0, 3.0, 5.0, 10.0, 15.0, 25.0, 100.0,
 ]
 
 let frogState = 'idle'
 let frogBet = 0
-let frogCurrentHatch = -1 // -1 = старт у светофора
+let frogCurrentHatch = -1 // -1 = СЃС‚Р°СЂС‚ Сѓ СЃРІРµС‚РѕС„РѕСЂР°
 let frogWinningHatch = -1
 let frogAutoHatch = null
-let frogCameraOffset = 0 // смещение дороги влево/вправо
+let frogCameraOffset = 0 // СЃРјРµС‰РµРЅРёРµ РґРѕСЂРѕРіРё РІР»РµРІРѕ/РІРїСЂР°РІРѕ
 
 let frogJumpProgress = 0 // 0..1
 let frogAnimX = 0
@@ -1679,22 +1679,22 @@ function drawRoadBackground() {
 	const h = frogCanvas.height
 	const groundY = getGroundY()
 
-	// асфальт
+	// Р°СЃС„Р°Р»СЊС‚
 	frogCtx.fillStyle = '#020617'
 	frogCtx.fillRect(0, 0, w, h)
 
-	// дорога
+	// РґРѕСЂРѕРіР°
 	const roadTop = groundY - 80
 	const roadBottom = groundY + 40
 	frogCtx.fillStyle = '#0b1120'
 	frogCtx.fillRect(0, roadTop, w, roadBottom - roadTop)
 
-	// бордюры
+	// Р±РѕСЂРґСЋСЂС‹
 	frogCtx.fillStyle = '#111827'
 	frogCtx.fillRect(0, roadTop - 10, w, 10)
 	frogCtx.fillRect(0, roadBottom, w, 10)
 
-	// центральная пунктирная линия
+	// С†РµРЅС‚СЂР°Р»СЊРЅР°СЏ РїСѓРЅРєС‚РёСЂРЅР°СЏ Р»РёРЅРёСЏ
 	frogCtx.strokeStyle = 'rgba(148,163,184,0.7)'
 	frogCtx.lineWidth = 3
 	frogCtx.setLineDash([14, 14])
@@ -1711,11 +1711,11 @@ function drawTrafficLight() {
 	const x = w * 0.12
 	const y = h * 0.18
 
-	// стойка
+	// СЃС‚РѕР№РєР°
 	frogCtx.fillStyle = '#0f172a'
 	frogCtx.fillRect(x - 4, y, 8, 70)
 
-	// корпус
+	// РєРѕСЂРїСѓСЃ
 	frogCtx.fillStyle = '#020617'
 	frogCtx.fillRect(x - 16, y - 40, 32, 60)
 	frogCtx.strokeStyle = 'rgba(148,163,184,0.6)'
@@ -1727,19 +1727,19 @@ function drawTrafficLight() {
 	const cy2 = y - 12
 	const cy3 = y + 4
 
-	// красный
+	// РєСЂР°СЃРЅС‹Р№
 	frogCtx.fillStyle = 'rgba(248,113,113,0.25)'
 	frogCtx.beginPath()
 	frogCtx.arc(x, cy1, r, 0, Math.PI * 2)
 	frogCtx.fill()
 
-	// жёлтый
+	// Р¶С‘Р»С‚С‹Р№
 	frogCtx.fillStyle = 'rgba(252,211,77,0.25)'
 	frogCtx.beginPath()
 	frogCtx.arc(x, cy2, r, 0, Math.PI * 2)
 	frogCtx.fill()
 
-	// зелёный активный
+	// Р·РµР»С‘РЅС‹Р№ Р°РєС‚РёРІРЅС‹Р№
 	frogCtx.fillStyle = '#22c55e'
 	frogCtx.shadowColor = 'rgba(34,197,94,0.8)'
 	frogCtx.shadowBlur = 16
@@ -1764,7 +1764,7 @@ function drawFrogScene(showCar = false) {
 		drawTrafficLight()
 	}
 
-	// люки + множители
+	// Р»СЋРєРё + РјРЅРѕР¶РёС‚РµР»Рё
 	frogCtx.font = '12px system-ui'
 	frogCtx.textAlign = 'center'
 	frogCtx.textBaseline = 'top'
@@ -1784,7 +1784,7 @@ function drawFrogScene(showCar = false) {
 		if (isCurrent) baseColor = '#4c1d95'
 
 		const glowColor = isCurrent
-			? 'rgba(216,180,254,0.98)' // неоновый фиолетовый
+			? 'rgba(216,180,254,0.98)' // РЅРµРѕРЅРѕРІС‹Р№ С„РёРѕР»РµС‚РѕРІС‹Р№
 			: 'rgba(15,23,42,0.9)'
 
 		frogCtx.save()
@@ -1823,7 +1823,7 @@ function drawFrogScene(showCar = false) {
 		frogCtx.fillText(`${mult.toFixed(2)}x`, x, labelY + 2)
 	}
 
-	// лягушка
+	// Р»СЏРіСѓС€РєР°
 	if (frogSprite) {
 		const size = 80
 		let x
@@ -1850,7 +1850,7 @@ function drawFrogScene(showCar = false) {
 		)
 	}
 
-	// машина
+	// РјР°С€РёРЅР°
 	if (showCar && frogCarSprite && frogCurrentHatch >= 0) {
 		const size = 115
 		const worldX = getHatchX(frogCurrentHatch)
@@ -1866,16 +1866,16 @@ function drawFrogScene(showCar = false) {
 	}
 }
 
-// --- UI helpers (оставляем как было, только без scrollFrogToHatch) ---
+// --- UI helpers (РѕСЃС‚Р°РІР»СЏРµРј РєР°Рє Р±С‹Р»Рѕ, С‚РѕР»СЊРєРѕ Р±РµР· scrollFrogToHatch) ---
 
 function updateFrogUI() {
 	if (!frogMainActionBtn) return
 	if (frogState === 'idle' || frogState === 'cashed' || frogState === 'dead') {
-		frogMainActionBtn.textContent = 'Сделать ставку'
+		frogMainActionBtn.textContent = 'РЎРґРµР»Р°С‚СЊ СЃС‚Р°РІРєСѓ'
 		frogMainActionBtn.disabled = false
 		frogCashoutBtn.disabled = true
 	} else if (frogState === 'bet_placed' || frogState === 'running') {
-		frogMainActionBtn.textContent = 'Играть (прыжок)'
+		frogMainActionBtn.textContent = 'РРіСЂР°С‚СЊ (РїСЂС‹Р¶РѕРє)'
 		frogMainActionBtn.disabled = false
 		frogCashoutBtn.disabled = false
 	}
@@ -1896,7 +1896,7 @@ function updateFrogUI() {
 		)
 		const mult = FROG_HATCH_MULTS[idx] || 1
 		const win = frogBet * mult
-		frogPotentialWinEl.textContent = frogBet > 0 ? `${win.toFixed(2)} TON` : '—'
+		frogPotentialWinEl.textContent = frogBet > 0 ? `${win.toFixed(2)} TON` : 'вЂ”'
 	}
 }
 
@@ -1904,7 +1904,7 @@ function updateFrogUI() {
 function renderAdminStats(stats) {
 	if (!adminStatsBox) return
 	if (!stats) {
-		adminStatsBox.textContent = '—'
+		adminStatsBox.textContent = 'вЂ”'
 		return
 	}
 	const usersCount = Number(stats.usersCount || 0)
@@ -1912,15 +1912,15 @@ function renderAdminStats(stats) {
 	const totalDeposits = Number(stats.totalDeposits || 0).toFixed(2)
 
 	adminStatsBox.innerHTML =
-		`Пользователей: <b>${usersCount}</b><br/>` +
-		`Сумма балансов: <b>${totalBalance}</b> TON<br/>` +
-		`Сумма депозитов: <b>${totalDeposits}</b> TON`
+		`РџРѕР»СЊР·РѕРІР°С‚РµР»РµР№: <b>${usersCount}</b><br/>` +
+		`РЎСѓРјРјР° Р±Р°Р»Р°РЅСЃРѕРІ: <b>${totalBalance}</b> TON<br/>` +
+		`РЎСѓРјРјР° РґРµРїРѕР·РёС‚РѕРІ: <b>${totalDeposits}</b> TON`
 }
 
 function renderAdminPromos(items) {
 	if (!adminPromosList) return
 	if (!Array.isArray(items) || items.length === 0) {
-		adminPromosList.textContent = 'Промокодов нет'
+		adminPromosList.textContent = 'РџСЂРѕРјРѕРєРѕРґРѕРІ РЅРµС‚'
 		return
 	}
 
@@ -1931,18 +1931,18 @@ function renderAdminPromos(items) {
 			const value =
 				p.type === 'balance'
 					? `${Number(p.amount || 0).toFixed(2)} TON`
-					: `${escapeHtml(p.gift_name || 'Мишка')}`
+					: `${escapeHtml(p.gift_name || 'РњРёС€РєР°')}`
 			const used = `${Number(p.used_count || 0)}/${Number(p.max_uses || 0)}`
-			const active = Number(p.is_active || 0) ? 'активен' : 'выкл'
+			const active = Number(p.is_active || 0) ? 'Р°РєС‚РёРІРµРЅ' : 'РІС‹РєР»'
 
 			return `
         <div class="admin-promo-item">
           <div class="admin-promo-left">
             <div class="admin-promo-code">${code}</div>
-            <div class="admin-promo-meta">${type}: ${value} • uses: ${used} • ${active}</div>
+            <div class="admin-promo-meta">${type}: ${value} вЂў uses: ${used} вЂў ${active}</div>
           </div>
           <div class="admin-promo-actions">
-            <button class="admin-mini-btn admin-mini-danger" data-del-promo="${code}" type="button">Удалить</button>
+            <button class="admin-mini-btn admin-mini-danger" data-del-promo="${code}" type="button">РЈРґР°Р»РёС‚СЊ</button>
           </div>
         </div>
       `
@@ -1953,7 +1953,7 @@ function renderAdminPromos(items) {
 function renderAdminUsersGrid(items) {
 	if (!adminUsersGrid) return
 	if (!Array.isArray(items) || items.length === 0) {
-		adminUsersGrid.innerHTML = `<div class="inventory-empty">Ничего не найдено</div>`
+		adminUsersGrid.innerHTML = `<div class="inventory-empty">РќРёС‡РµРіРѕ РЅРµ РЅР°Р№РґРµРЅРѕ</div>`
 		return
 	}
 
@@ -1970,7 +1970,7 @@ function renderAdminUsersGrid(items) {
 
 			const lastSeen = u.last_seen_at
 				? new Date(Number(u.last_seen_at)).toLocaleString()
-				: '—'
+				: 'вЂ”'
 
 			return `
         <div class="admin-user-card">
@@ -2053,8 +2053,8 @@ async function loadRewards() {
 	if (!items.length) {
 		rewardsListEl.innerHTML = `
       <div class="bonus-card">
-        <div class="bonus-title">Наград нет</div>
-        <div class="bonus-text">Пока нечего показывать</div>
+        <div class="bonus-title">РќР°РіСЂР°Рґ РЅРµС‚</div>
+        <div class="bonus-text">РџРѕРєР° РЅРµС‡РµРіРѕ РїРѕРєР°Р·С‹РІР°С‚СЊ</div>
       </div>
     `
 		return
@@ -2063,7 +2063,7 @@ async function loadRewards() {
 	rewardsListEl.innerHTML = items
 		.map(it => {
 			const key = escapeHtml(it.key || '')
-			const title = escapeHtml(it.title || 'Награда')
+			const title = escapeHtml(it.title || 'РќР°РіСЂР°РґР°')
 			const desc = escapeHtml(it.desc || '')
 			const status = String(it.status || 'locked')
 			const canClaim = status === 'available'
@@ -2073,7 +2073,7 @@ async function loadRewards() {
         <div class="bonus-title">${title}</div>
         <div class="bonus-text">${desc}</div>
         <button class="action-btn action-green reward-claim-btn" type="button" ${canClaim ? '' : 'disabled'}>
-          ${canClaim ? 'Забрать' : 'Недоступно'}
+          ${canClaim ? 'Р—Р°Р±СЂР°С‚СЊ' : 'РќРµРґРѕСЃС‚СѓРїРЅРѕ'}
         </button>
       </div>
     `
@@ -2083,7 +2083,7 @@ async function loadRewards() {
 
 // ===== EVENTS =====
 
-// навигация по вкладкам
+// РЅР°РІРёРіР°С†РёСЏ РїРѕ РІРєР»Р°РґРєР°Рј
 navButtons.forEach(btn => {
 	btn.addEventListener('click', () => {
 		const target = btn.dataset.target
@@ -2103,13 +2103,13 @@ navButtons.forEach(btn => {
 		}
 
 		if (target === 'bonus') {
-			loadRewards().catch(e => alert(e.message || 'Ошибка наград'))
+			loadRewards().catch(e => alert(e.message || 'РћС€РёР±РєР° РЅР°РіСЂР°Рґ'))
 		}
 
 		if (target === 'admin') {
 			loadAdminStats().catch(() => {})
 			loadAdminPromos().catch(() => {})
-			loadAdminUsers().catch(e => alert(e.message || 'Ошибка админки'))
+			loadAdminUsers().catch(e => alert(e.message || 'РћС€РёР±РєР° Р°РґРјРёРЅРєРё'))
 		}
 	})
 })
@@ -2135,14 +2135,14 @@ document.addEventListener('click', async e => {
 		await loadRewards()
 		await fetchUserData()
 	} catch (err) {
-		alert(err.message || 'Ошибка награды')
+		alert(err.message || 'РћС€РёР±РєР° РЅР°РіСЂР°РґС‹')
 	} finally {
 		setButtonLoading(btn, false)
 		btn.disabled = false
 	}
 })
 
-// клики по карточкам на главной
+// РєР»РёРєРё РїРѕ РєР°СЂС‚РѕС‡РєР°Рј РЅР° РіР»Р°РІРЅРѕР№
 document.querySelectorAll('[data-home-target]').forEach(card => {
 	card.addEventListener('click', () => {
 		const target = card.getAttribute('data-home-target')
@@ -2165,7 +2165,7 @@ document.querySelectorAll('[data-home-target]').forEach(card => {
 		if (target === 'crash') {
 			stopCrashPolling()
 			setScreen('crash')
-			// инициализируем canvas и запускаем polling — так же как при нажатии nav-btn
+			// РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј canvas Рё Р·Р°РїСѓСЃРєР°РµРј polling вЂ” С‚Р°Рє Р¶Рµ РєР°Рє РїСЂРё РЅР°Р¶Р°С‚РёРё nav-btn
 			initCrashCanvas()
 			startCrashRenderLoop()
 			if (crashBetsListEl) {
@@ -2181,13 +2181,13 @@ document.querySelectorAll('[data-home-target]').forEach(card => {
 	})
 })
 
-// Кейсы: клик по карточке
+// РљРµР№СЃС‹: РєР»РёРє РїРѕ РєР°СЂС‚РѕС‡РєРµ
 caseCards.forEach(card => {
 	card.addEventListener('click', () => {
 		const type = card.getAttribute('data-case-type')
 		const cfg = CASES?.[type]
 		if (!cfg) {
-			alert('Этот кейс скоро добавим.')
+			alert('Р­С‚РѕС‚ РєРµР№СЃ СЃРєРѕСЂРѕ РґРѕР±Р°РІРёРј.')
 			return
 		}
 		openCase(type)
@@ -2198,7 +2198,7 @@ caseOpenBackBtn?.addEventListener('click', () => {
 	setScreen('cases')
 })
 
-// Открыть кейс через сервер
+// РћС‚РєСЂС‹С‚СЊ РєРµР№СЃ С‡РµСЂРµР· СЃРµСЂРІРµСЂ
 caseOpenSpinBtn?.addEventListener('click', async () => {
 	const cfg = CASES[selectedCaseType]
 	if (!cfg) return
@@ -2219,7 +2219,7 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
 
 		const prize = r?.prize
 		if (!prize) {
-			alert('Сервер не вернул приз')
+			alert('РЎРµСЂРІРµСЂ РЅРµ РІРµСЂРЅСѓР» РїСЂРёР·')
 			return
 		}
 
@@ -2237,7 +2237,7 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
 		setLastPrizeText(currentPrize)
 		openModal(currentPrize)
 	} catch (e) {
-		alert(e?.message || 'Ошибка открытия кейса')
+		alert(e?.message || 'РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ РєРµР№СЃР°')
 	} finally {
 		setButtonLoading(caseOpenSpinBtn, false)
 		isCaseOpening = false
@@ -2245,7 +2245,7 @@ caseOpenSpinBtn?.addEventListener('click', async () => {
 	}
 })
 
-// Крутилка
+// РљСЂСѓС‚РёР»РєР°
 spinButton?.addEventListener('click', async e => {
 	e.preventDefault()
 	e.stopPropagation()
@@ -2260,8 +2260,8 @@ spinButton?.addEventListener('click', async e => {
 	if (!freeWheelAvailable) {
 		alert(
 			need === '0'
-				? 'Сделайте депозит 0.5 TON, чтобы колесо стало бесплатным.'
-				: `Сделайте депозит ещё ${need} TON, чтобы колесо стало бесплатным.`,
+				? 'РЎРґРµР»Р°Р№С‚Рµ РґРµРїРѕР·РёС‚ 0.5 TON, С‡С‚РѕР±С‹ РєРѕР»РµСЃРѕ СЃС‚Р°Р»Рѕ Р±РµСЃРїР»Р°С‚РЅС‹Рј.'
+				: `РЎРґРµР»Р°Р№С‚Рµ РґРµРїРѕР·РёС‚ РµС‰С‘ ${need} TON, С‡С‚РѕР±С‹ РєРѕР»РµСЃРѕ СЃС‚Р°Р»Рѕ Р±РµСЃРїР»Р°С‚РЅС‹Рј.`,
 		)
 		return
 	}
@@ -2276,7 +2276,7 @@ spinButton?.addEventListener('click', async e => {
 		setButtonLoading(spinButton, false)
 	} catch (err) {
 		setButtonLoading(spinButton, false)
-		alert(err.message || 'Ошибка при прокрутке')
+		alert(err.message || 'РћС€РёР±РєР° РїСЂРё РїСЂРѕРєСЂСѓС‚РєРµ')
 		isSpinning = false
 		spinButton.disabled = false
 		return
@@ -2325,7 +2325,7 @@ wheel?.addEventListener('transitionend', e => {
 	fetchUserData().catch(() => {})
 })
 
-// Кнопка "В инвентарь"
+// РљРЅРѕРїРєР° "Р’ РёРЅРІРµРЅС‚Р°СЂСЊ"
 modalKeepBtn?.addEventListener('click', async () => {
 	if (!prizeModal) return
 
@@ -2362,7 +2362,7 @@ modalSellBtn?.addEventListener('click', async () => {
 			await fetchUserData()
 		}
 	} catch (err) {
-		alert(err.message || 'Ошибка продажи')
+		alert(err.message || 'РћС€РёР±РєР° РїСЂРѕРґР°Р¶Рё')
 	} finally {
 		currentPrize = null
 		currentPrizeIdx = null
@@ -2371,7 +2371,7 @@ modalSellBtn?.addEventListener('click', async () => {
 	}
 })
 
-// инвентарь
+// РёРЅРІРµРЅС‚Р°СЂСЊ
 inventoryList?.addEventListener('click', async e => {
 	const card = e.target.closest('.inv-card')
 	if (!card) return
@@ -2387,7 +2387,7 @@ inventoryList?.addEventListener('click', async e => {
 			updateBalanceUI()
 			await fetchUserData()
 		} catch (err) {
-			alert(err.message || 'Ошибка продажи')
+			alert(err.message || 'РћС€РёР±РєР° РїСЂРѕРґР°Р¶Рё')
 		}
 	}
 
@@ -2396,18 +2396,18 @@ inventoryList?.addEventListener('click', async e => {
 			const r = await withdrawGiftApi(idx)
 			inventory = Array.isArray(r.inventory) ? r.inventory : inventory
 			renderInventory()
-			alert('Заявка на вывод подарка отправлена админу.')
+			alert('Р—Р°СЏРІРєР° РЅР° РІС‹РІРѕРґ РїРѕРґР°СЂРєР° РѕС‚РїСЂР°РІР»РµРЅР° Р°РґРјРёРЅСѓ.')
 		} catch (err) {
-			alert(err.message || 'Ошибка вывода подарка')
+			alert(err.message || 'РћС€РёР±РєР° РІС‹РІРѕРґР° РїРѕРґР°СЂРєР°')
 		}
 	}
 })
 
-// промокоды
+// РїСЂРѕРјРѕРєРѕРґС‹
 promoApplyBtn?.addEventListener('click', async () => {
 	const code = (promoInput?.value || '').trim()
 	if (!code) {
-		alert('Введите промокод')
+		alert('Р’РІРµРґРёС‚Рµ РїСЂРѕРјРѕРєРѕРґ')
 		return
 	}
 
@@ -2419,7 +2419,7 @@ promoApplyBtn?.addEventListener('click', async () => {
 			balance = Number(data.newBalance ?? balance)
 			updateBalanceUI()
 			promoInput.value = ''
-			alert(`Промокод применён: +${Number(data.amount || 0).toFixed(2)} TON`)
+			alert(`РџСЂРѕРјРѕРєРѕРґ РїСЂРёРјРµРЅС‘РЅ: +${Number(data.amount || 0).toFixed(2)} TON`)
 			await fetchUserData()
 			return
 		}
@@ -2428,16 +2428,16 @@ promoApplyBtn?.addEventListener('click', async () => {
 			if (Array.isArray(data.inventory)) inventory = data.inventory
 			renderInventory()
 			promoInput.value = ''
-			alert('Промокод применён: подарок зачислен в инвентарь.')
+			alert('РџСЂРѕРјРѕРєРѕРґ РїСЂРёРјРµРЅС‘РЅ: РїРѕРґР°СЂРѕРє Р·Р°С‡РёСЃР»РµРЅ РІ РёРЅРІРµРЅС‚Р°СЂСЊ.')
 			await fetchUserData()
 			return
 		}
 
-		alert('Промокод применён')
+		alert('РџСЂРѕРјРѕРєРѕРґ РїСЂРёРјРµРЅС‘РЅ')
 		promoInput.value = ''
 		await fetchUserData()
 	} catch (err) {
-		alert(err.message || 'Ошибка промокода')
+		alert(err.message || 'РћС€РёР±РєР° РїСЂРѕРјРѕРєРѕРґР°')
 	} finally {
 		setButtonLoading(promoApplyBtn, false)
 	}
@@ -2512,7 +2512,7 @@ connectTonBtn?.addEventListener('click', async () => {
 depositConfirmBtn?.addEventListener('click', async () => {
 	try {
 		if (!isWalletConnected()) {
-			alert('Сначала подключи TON-кошелёк.')
+			alert('РЎРЅР°С‡Р°Р»Р° РїРѕРґРєР»СЋС‡Рё TON-РєРѕС€РµР»С‘Рє.')
 			return
 		}
 
@@ -2528,11 +2528,11 @@ depositConfirmBtn?.addEventListener('click', async () => {
 		const amountTon = Number(raw)
 
 		if (!Number.isFinite(amountTon) || amountTon <= 0) {
-			alert('Введите корректную сумму')
+			alert('Р’РІРµРґРёС‚Рµ РєРѕСЂСЂРµРєС‚РЅСѓСЋ СЃСѓРјРјСѓ')
 			return
 		}
 		if (amountTon < minDeposit) {
-			alert(`Минимум ${minDeposit} TON`)
+			alert(`РњРёРЅРёРјСѓРј ${minDeposit} TON`)
 			return
 		}
 
@@ -2552,7 +2552,7 @@ depositConfirmBtn?.addEventListener('click', async () => {
 			],
 		}
 
-		alert('Подтверди транзакцию в кошельке...')
+		alert('РџРѕРґС‚РІРµСЂРґРё С‚СЂР°РЅР·Р°РєС†РёСЋ РІ РєРѕС€РµР»СЊРєРµ...')
 		let requestSent = false
 
 		await tonConnectUI.sendTransaction(tx, {
@@ -2561,13 +2561,13 @@ depositConfirmBtn?.addEventListener('click', async () => {
 			skipRedirectToWallet: 'never',
 			onRequestSent: () => {
 				requestSent = true
-				alert('Запрос отправлен в кошелёк. Подтверди транзакцию.')
+				alert('Р—Р°РїСЂРѕСЃ РѕС‚РїСЂР°РІР»РµРЅ РІ РєРѕС€РµР»С‘Рє. РџРѕРґС‚РІРµСЂРґРё С‚СЂР°РЅР·Р°РєС†РёСЋ.')
 			},
 		})
 
 		if (!requestSent) {
 			alert(
-				'Ожидаем подтверждение... (если кошелёк не открылся — открой вручную)',
+				'РћР¶РёРґР°РµРј РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ... (РµСЃР»Рё РєРѕС€РµР»С‘Рє РЅРµ РѕС‚РєСЂС‹Р»СЃСЏ вЂ” РѕС‚РєСЂРѕР№ РІСЂСѓС‡РЅСѓСЋ)',
 			)
 		}
 
@@ -2576,17 +2576,17 @@ depositConfirmBtn?.addEventListener('click', async () => {
 			const r = await depositCheckApi(dep.depositId)
 			if (r.credited) {
 				await fetchUserData()
-				alert(`Депозит зачислен: +${Number(dep.amount).toFixed(2)} TON`)
+				alert(`Р”РµРїРѕР·РёС‚ Р·Р°С‡РёСЃР»РµРЅ: +${Number(dep.amount).toFixed(2)} TON`)
 				depositModal.classList.remove('active')
 				return
 			}
 		}
 
 		alert(
-			'Транзакция отправлена. Если не зачислилось — подожди 1–2 минуты и попробуй ещё раз.',
+			'РўСЂР°РЅР·Р°РєС†РёСЏ РѕС‚РїСЂР°РІР»РµРЅР°. Р•СЃР»Рё РЅРµ Р·Р°С‡РёСЃР»РёР»РѕСЃСЊ вЂ” РїРѕРґРѕР¶РґРё 1вЂ“2 РјРёРЅСѓС‚С‹ Рё РїРѕРїСЂРѕР±СѓР№ РµС‰С‘ СЂР°Р·.',
 		)
 	} catch (err) {
-		alert(err.message || 'Ошибка депозита')
+		alert(err.message || 'РћС€РёР±РєР° РґРµРїРѕР·РёС‚Р°')
 	} finally {
 		setButtonLoading(depositConfirmBtn, false)
 		depositConfirmBtn.disabled = false
@@ -2608,15 +2608,15 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
 	const amount = Number(raw)
 
 	if (!Number.isFinite(amount)) {
-		alert('Введите корректную сумму')
+		alert('Р’РІРµРґРёС‚Рµ РєРѕСЂСЂРµРєС‚РЅСѓСЋ СЃСѓРјРјСѓ')
 		return
 	}
 	if (amount < MIN_WITHDRAW_TON) {
-		alert(`Минимум ${MIN_WITHDRAW_TON} TON`)
+		alert(`РњРёРЅРёРјСѓРј ${MIN_WITHDRAW_TON} TON`)
 		return
 	}
 	if (amount > balance) {
-		alert('Недостаточно средств')
+		alert('РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ СЃСЂРµРґСЃС‚РІ')
 		return
 	}
 
@@ -2627,14 +2627,14 @@ withdrawConfirmBtn?.addEventListener('click', async () => {
 		balance = Number(r.newBalance ?? balance)
 		updateBalanceUI()
 		closeWithdrawModal()
-		alert(`Заявка на вывод ${amount.toFixed(2)} TON отправлена админу.`)
+		alert(`Р—Р°СЏРІРєР° РЅР° РІС‹РІРѕРґ ${amount.toFixed(2)} TON РѕС‚РїСЂР°РІР»РµРЅР° Р°РґРјРёРЅСѓ.`)
 		await fetchUserData()
 	} catch (err) {
 		const msg = String(err.message || '')
-		if (msg.includes('минимальное пополнение')) {
-			alert('Прежде чем вывести, нужно сделать минимальное пополнение 1 TON')
+		if (msg.includes('РјРёРЅРёРјР°Р»СЊРЅРѕРµ РїРѕРїРѕР»РЅРµРЅРёРµ')) {
+			alert('РџСЂРµР¶РґРµ С‡РµРј РІС‹РІРµСЃС‚Рё, РЅСѓР¶РЅРѕ СЃРґРµР»Р°С‚СЊ РјРёРЅРёРјР°Р»СЊРЅРѕРµ РїРѕРїРѕР»РЅРµРЅРёРµ 1 TON')
 		} else {
-			alert(msg || 'Ошибка заявки на вывод')
+			alert(msg || 'РћС€РёР±РєР° Р·Р°СЏРІРєРё РЅР° РІС‹РІРѕРґ')
 		}
 	} finally {
 		setButtonLoading(withdrawConfirmBtn, false)
@@ -2649,7 +2649,7 @@ const crashCtx = crashCanvas ? crashCanvas.getContext('2d') : null
 const rocketVideo = document.getElementById('rocket-video')
 const uiLoopVideos = Array.from(document.querySelectorAll('.ui-loop-video'))
 
-// offscreen canvas для вырезания чёрного фона (chroma key)
+// offscreen canvas РґР»СЏ РІС‹СЂРµР·Р°РЅРёСЏ С‡С‘СЂРЅРѕРіРѕ С„РѕРЅР° (chroma key)
 const rocketKeyCanvas = document.createElement('canvas')
 const rocketKeyCtx = rocketKeyCanvas.getContext('2d', {
 	willReadFrequently: true,
@@ -2681,10 +2681,10 @@ let crashPollTimer = null
 let crashCountdownTimer = null
 let crashLastRoundId = null
 
-// m(t) = exp(k*t), синхронно с сервером
+// m(t) = exp(k*t), СЃРёРЅС…СЂРѕРЅРЅРѕ СЃ СЃРµСЂРІРµСЂРѕРј
 let crashK = 0.07
 
-// визуальные состояния
+// РІРёР·СѓР°Р»СЊРЅС‹Рµ СЃРѕСЃС‚РѕСЏРЅРёСЏ
 let crashImpact = null // {x,y,ts}
 let crashShake = 0 // 0..1
 
@@ -2709,7 +2709,7 @@ async function tryPlayLoopVideo(video) {
 		video.playsInline = true
 		await video.play()
 	} catch (_) {
-		// иногда браузер временно блокирует autoplay, повторим позже
+		// РёРЅРѕРіРґР° Р±СЂР°СѓР·РµСЂ РІСЂРµРјРµРЅРЅРѕ Р±Р»РѕРєРёСЂСѓРµС‚ autoplay, РїРѕРІС‚РѕСЂРёРј РїРѕР·Р¶Рµ
 	}
 }
 
@@ -2761,7 +2761,7 @@ async function ensureRocketVideoPlaying() {
 		rocketVideo.playsInline = true
 		await rocketVideo.play()
 	} catch (_) {
-		// autoplay может быть заблокирован — норм
+		// autoplay РјРѕР¶РµС‚ Р±С‹С‚СЊ Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ вЂ” РЅРѕСЂРј
 	}
 }
 
@@ -2779,7 +2779,7 @@ function renderCrashBets(bets, roundStatus) {
 	if (!crashBetsListEl) return
 	if (!Array.isArray(bets) || bets.length === 0) {
 		crashBetsListEl.innerHTML =
-			'<div class="crash-bets-empty">Пока нет ставок</div>'
+			'<div class="crash-bets-empty">РџРѕРєР° РЅРµС‚ СЃС‚Р°РІРѕРє</div>'
 		return
 	}
 	const showStatus = roundStatus === 'flying' || roundStatus === 'crashed'
@@ -2798,7 +2798,7 @@ function renderCrashBets(bets, roundStatus) {
 			if (showStatus) {
 				statusClass = cashed ? 'cashed-out' : 'busted'
 				statusHtml = cashed
-					? `<span class="crash-bet-cashout win">${mult > 0 ? mult.toFixed(2) + 'x' : '✓'}</span>`
+					? `<span class="crash-bet-cashout win">${mult > 0 ? mult.toFixed(2) + 'x' : 'вњ“'}</span>`
 					: `<span class="crash-bet-cashout loss">0x</span>`
 			}
 			return `
@@ -2886,12 +2886,12 @@ function applyCrashState(state) {
 		screens.crash?.classList.remove('playing')
 		crashState = 'idle'
 		crashLastRoundId = null
-		setCrashStatus('Скоро взлетаем', '#e5e7eb')
+		setCrashStatus('РЎРєРѕСЂРѕ РІР·Р»РµС‚Р°РµРј', '#e5e7eb')
 		updateCrashButtonUI()
 		return
 	}
 
-	// если до этого летели, а теперь сервер прислал не flying — принудительно докручиваем взрыв
+	// РµСЃР»Рё РґРѕ СЌС‚РѕРіРѕ Р»РµС‚РµР»Рё, Р° С‚РµРїРµСЂСЊ СЃРµСЂРІРµСЂ РїСЂРёСЃР»Р°Р» РЅРµ flying вЂ” РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ РґРѕРєСЂСѓС‡РёРІР°РµРј РІР·СЂС‹РІ
 	if (crashState === 'playing' && round.status !== 'flying') {
 		crashBoomIntoMoon()
 		endCrash()
@@ -2899,8 +2899,8 @@ function applyCrashState(state) {
 
 	if (round.status === 'counting') {
 		screens.crash?.classList.remove('playing')
-		// запускаем отсчёт только при входе в новый раунд,
-		// чтобы не дёргать анимацию на каждом опросе и при ставке
+		// Р·Р°РїСѓСЃРєР°РµРј РѕС‚СЃС‡С‘С‚ С‚РѕР»СЊРєРѕ РїСЂРё РІС…РѕРґРµ РІ РЅРѕРІС‹Р№ СЂР°СѓРЅРґ,
+		// С‡С‚РѕР±С‹ РЅРµ РґС‘СЂРіР°С‚СЊ Р°РЅРёРјР°С†РёСЋ РЅР° РєР°Р¶РґРѕРј РѕРїСЂРѕСЃРµ Рё РїСЂРё СЃС‚Р°РІРєРµ
 		if (crashLastRoundId !== round.id || crashState !== 'counting') {
 			crashLastRoundId = round.id
 			crashState = 'counting'
@@ -2911,7 +2911,7 @@ function applyCrashState(state) {
 		const myBet = state.myBet
 		crashBetAmount = myBet ? myBet.amount : 0
 		crashHasCashedOut = myBet ? !!myBet.cashedOut : false
-		setCrashStatus('Ставки принимаются', '#e5e7eb')
+		setCrashStatus('РЎС‚Р°РІРєРё РїСЂРёРЅРёРјР°СЋС‚СЃСЏ', '#e5e7eb')
 		updateCrashButtonUI()
 		return
 	}
@@ -2925,7 +2925,7 @@ function applyCrashState(state) {
 		}
 		if (crashCountdownEl) crashCountdownEl.classList.add('hidden')
 
-		// Входим в новый летящий раунд: инициализируем один раз
+		// Р’С…РѕРґРёРј РІ РЅРѕРІС‹Р№ Р»РµС‚СЏС‰РёР№ СЂР°СѓРЅРґ: РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РѕРґРёРЅ СЂР°Р·
 		if (crashLastRoundId !== round.id || crashState !== 'playing') {
 			crashLastRoundId = round.id
 			crashState = 'playing'
@@ -2935,7 +2935,7 @@ function applyCrashState(state) {
 			crashHasCashedOut = state.myBet ? !!state.myBet.cashedOut : false
 			crashMultiplier = 1.0
 			if (crashMultiplierEl) crashMultiplierEl.textContent = '1.00x'
-			setCrashStatus('Летим...', '#e5e7eb')
+			setCrashStatus('Р›РµС‚РёРј...', '#e5e7eb')
 			ensureRocketVideoPlaying().catch?.(() => {})
 			startCrashRenderLoop()
 		}
@@ -2947,7 +2947,7 @@ function applyCrashState(state) {
 	screens.crash?.classList.remove('playing')
 	crashLastRoundId = null
 	crashState = 'idle'
-	setCrashStatus('Скоро взлетаем', '#e5e7eb')
+	setCrashStatus('РЎРєРѕСЂРѕ РІР·Р»РµС‚Р°РµРј', '#e5e7eb')
 	updateCrashButtonUI()
 }
 
@@ -3004,7 +3004,7 @@ function drawParticles(ctx) {
 	}
 }
 
-// (можно оставить старую векторную ракету — она больше не используется)
+// (РјРѕР¶РЅРѕ РѕСЃС‚Р°РІРёС‚СЊ СЃС‚Р°СЂСѓСЋ РІРµРєС‚РѕСЂРЅСѓСЋ СЂР°РєРµС‚Сѓ вЂ” РѕРЅР° Р±РѕР»СЊС€Рµ РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ)
 function drawRocket(ctx, x, y, ang, flamePower) {
 	ctx.save()
 	ctx.translate(x, y)
@@ -3070,7 +3070,7 @@ function drawRocket(ctx, x, y, ang, flamePower) {
 	ctx.restore()
 }
 
-// Видео-ракета: правильные пропорции + наклон + вырезание чёрного фона
+// Р’РёРґРµРѕ-СЂР°РєРµС‚Р°: РїСЂР°РІРёР»СЊРЅС‹Рµ РїСЂРѕРїРѕСЂС†РёРё + РЅР°РєР»РѕРЅ + РІС‹СЂРµР·Р°РЅРёРµ С‡С‘СЂРЅРѕРіРѕ С„РѕРЅР°
 function drawRocketVideo(ctx, x, y, ang, size = 70) {
 	if (!rocketVideo || rocketVideo.readyState < 2 || !rocketKeyCtx) return
 
@@ -3078,16 +3078,16 @@ function drawRocketVideo(ctx, x, y, ang, size = 70) {
 	const vh = rocketVideo.videoHeight
 	if (!vw || !vh) return
 
-	// 1) кадр видео -> offscreen canvas
+	// 1) РєР°РґСЂ РІРёРґРµРѕ -> offscreen canvas
 	rocketKeyCanvas.width = vw
 	rocketKeyCanvas.height = vh
 	rocketKeyCtx.clearRect(0, 0, vw, vh)
 	rocketKeyCtx.drawImage(rocketVideo, 0, 0, vw, vh)
 
-	// 2) вырезаем "почти чёрный" фон
+	// 2) РІС‹СЂРµР·Р°РµРј "РїРѕС‡С‚Рё С‡С‘СЂРЅС‹Р№" С„РѕРЅ
 	const frame = rocketKeyCtx.getImageData(0, 0, vw, vh)
 	const d = frame.data
-	const threshold = 45 // если съедает ракету — уменьши (30–40)
+	const threshold = 45 // РµСЃР»Рё СЃСЉРµРґР°РµС‚ СЂР°РєРµС‚Сѓ вЂ” СѓРјРµРЅСЊС€Рё (30вЂ“40)
 
 	for (let i = 0; i < d.length; i += 4) {
 		const r = d[i]
@@ -3099,11 +3099,11 @@ function drawRocketVideo(ctx, x, y, ang, size = 70) {
 	}
 	rocketKeyCtx.putImageData(frame, 0, 0)
 
-	// 3) сохраняем реальные пропорции видео
+	// 3) СЃРѕС…СЂР°РЅСЏРµРј СЂРµР°Р»СЊРЅС‹Рµ РїСЂРѕРїРѕСЂС†РёРё РІРёРґРµРѕ
 	const aspect = vw / vh
 
 	const width = size * 2.85
-	const height = width / aspect // <-- ВАЖНО: теперь нет растяжения
+	const height = width / aspect // <-- Р’РђР–РќРћ: С‚РµРїРµСЂСЊ РЅРµС‚ СЂР°СЃС‚СЏР¶РµРЅРёСЏ
 
 	const extraTilt = 0.25
 
@@ -3120,13 +3120,13 @@ function drawRocketVideo(ctx, x, y, ang, size = 70) {
 function updateCrashButtonUI() {
 	if (!crashMainActionBtn) return
 	if (crashState === 'idle' || crashState === 'counting') {
-		crashMainActionBtn.textContent = 'Сделать ставку'
+		crashMainActionBtn.textContent = 'РЎРґРµР»Р°С‚СЊ СЃС‚Р°РІРєСѓ'
 		crashMainActionBtn.disabled = false
 	} else if (crashState === 'playing') {
-		crashMainActionBtn.textContent = 'Забрать'
+		crashMainActionBtn.textContent = 'Р—Р°Р±СЂР°С‚СЊ'
 		crashMainActionBtn.disabled = !(crashBetAmount > 0 && !crashHasCashedOut)
 	} else {
-		crashMainActionBtn.textContent = 'Раунд завершён'
+		crashMainActionBtn.textContent = 'Р Р°СѓРЅРґ Р·Р°РІРµСЂС€С‘РЅ'
 		crashMainActionBtn.disabled = true
 	}
 }
@@ -3165,12 +3165,12 @@ async function cashoutCrash(isAuto = false) {
 		updateBalanceUI()
 
 		crashHasCashedOut = true
-		setCrashStatus(isAuto ? 'Авто-вывод!' : 'Вы забрали!', '#22c55e')
+		setCrashStatus(isAuto ? 'РђРІС‚Рѕ-РІС‹РІРѕРґ!' : 'Р’С‹ Р·Р°Р±СЂР°Р»Рё!', '#22c55e')
 		updateCrashButtonUI()
 		const state = await fetchCrashState()
 		if (state) applyCrashState(state)
 	} catch (err) {
-		alert(err.message || 'Ошибка вывода')
+		alert(err.message || 'РћС€РёР±РєР° РІС‹РІРѕРґР°')
 	}
 }
 
@@ -3178,7 +3178,7 @@ function crashBoomIntoMoon() {
 	if (!crashCanvas) return
 	const { w, h } = getSceneSize()
 
-	// Точка взрыва = точка ракеты (фикс сверху)
+	// РўРѕС‡РєР° РІР·СЂС‹РІР° = С‚РѕС‡РєР° СЂР°РєРµС‚С‹ (С„РёРєСЃ СЃРІРµСЂС…Сѓ)
 	const ix = Math.round(w * 0.5)
 	const iy = Math.round(h * 0.6)
 
@@ -3186,8 +3186,8 @@ function crashBoomIntoMoon() {
 	crashShake = 1
 	spawnExplosion(ix, iy)
 
-	// показываем взрыв всегда, даже если игрок успел забрать
-	setCrashStatus('Краш!', '#f97373')
+	// РїРѕРєР°Р·С‹РІР°РµРј РІР·СЂС‹РІ РІСЃРµРіРґР°, РґР°Р¶Рµ РµСЃР»Рё РёРіСЂРѕРє СѓСЃРїРµР» Р·Р°Р±СЂР°С‚СЊ
+	setCrashStatus('РљСЂР°С€!', '#f97373')
 }
 
 function endCrash() {
@@ -3204,10 +3204,10 @@ function endCrash() {
 		crashImpact = null
 		crashShake = 0
 
-		setCrashStatus('Скоро взлетаем', '#e5e7eb')
+		setCrashStatus('РЎРєРѕСЂРѕ РІР·Р»РµС‚Р°РµРј', '#e5e7eb')
 		if (crashMultiplierEl) crashMultiplierEl.textContent = '1.00x'
-		if (crashCurrentBetEl) crashCurrentBetEl.textContent = '—'
-		if (crashPotentialWinEl) crashPotentialWinEl.textContent = '—'
+		if (crashCurrentBetEl) crashCurrentBetEl.textContent = 'вЂ”'
+		if (crashPotentialWinEl) crashPotentialWinEl.textContent = 'вЂ”'
 		updateCrashButtonUI()
 
 		startCrashRenderLoop()
@@ -3219,11 +3219,11 @@ async function startCrash() {
 
 	const amount = parseFloat(crashBetInput?.value || '0')
 	if (isNaN(amount) || amount < 0.1) {
-		alert('Минимум 0.1 TON')
+		alert('РњРёРЅРёРјСѓРј 0.1 TON')
 		return
 	}
 	if (balance < amount) {
-		alert('Недостаточно средств.')
+		alert('РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ СЃСЂРµРґСЃС‚РІ.')
 		return
 	}
 
@@ -3236,7 +3236,7 @@ async function startCrash() {
 		const state = await fetchCrashState()
 		if (state) applyCrashState(state)
 	} catch (err) {
-		alert(err.message || 'Ошибка ставки')
+		alert(err.message || 'РћС€РёР±РєР° СЃС‚Р°РІРєРё')
 	}
 }
 
@@ -3254,7 +3254,7 @@ function startCrashRenderLoop() {
 function renderCrash(ts) {
 	if (!crashCtx || !crashCanvas) return
 
-	// 1) логика каждый кадр
+	// 1) Р»РѕРіРёРєР° РєР°Р¶РґС‹Р№ РєР°РґСЂ
 	if (crashState === 'playing') {
 		stepCrashMultiplier()
 		updateCrashMultiplierUI()
@@ -3283,10 +3283,10 @@ function renderCrash(ts) {
 		crashCtx.translate((Math.random() - 0.5) * mag, (Math.random() - 0.5) * mag)
 	}
 
-	// canvas прозрачный, фон = видео под ним
+	// canvas РїСЂРѕР·СЂР°С‡РЅС‹Р№, С„РѕРЅ = РІРёРґРµРѕ РїРѕРґ РЅРёРј
 	crashCtx.clearRect(0, 0, w, h)
 
-	// Ракета фиксированно сверху
+	// Р Р°РєРµС‚Р° С„РёРєСЃРёСЂРѕРІР°РЅРЅРѕ СЃРІРµСЂС…Сѓ
 	if (crashState === 'playing') {
 		const rx = w * 0.5
 		const ry = h * 0.6
@@ -3375,12 +3375,12 @@ async function frogStartBet() {
 
 	const amount = Number(frogBetInput.value || 0)
 	if (!Number.isFinite(amount) || amount <= 0) {
-		alert('Укажи ставку (TON)')
+		alert('РЈРєР°Р¶Рё СЃС‚Р°РІРєСѓ (TON)')
 		return
 	}
 
 	if (amount > balance) {
-		alert('Недостаточно средств')
+		alert('РќРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ СЃСЂРµРґСЃС‚РІ')
 		return
 	}
 
@@ -3389,7 +3389,7 @@ async function frogStartBet() {
 		balance = Number(r.newBalance ?? balance)
 		updateBalanceUI()
 	} catch (e) {
-		alert(e.message || 'Ошибка ставки')
+		alert(e.message || 'РћС€РёР±РєР° СЃС‚Р°РІРєРё')
 		return
 	}
 
@@ -3412,15 +3412,15 @@ async function frogStartBet() {
 async function frogJump() {
 	if (frogState !== 'bet_placed' && frogState !== 'running') return
 
-	// первый прыжок: от светофора к люку 0
+	// РїРµСЂРІС‹Р№ РїСЂС‹Р¶РѕРє: РѕС‚ СЃРІРµС‚РѕС„РѕСЂР° Рє Р»СЋРєСѓ 0
 	if (frogCurrentHatch < 0) {
 		frogState = 'running'
 		const targetIndex = 0
 
 		const w = frogCanvas.width
-		const startX = w * 0.22 // экранная позиция старта
-		const endWorldX = getHatchX(targetIndex) // мировая
-		const endX = endWorldX - frogCameraOffset // экранная позиция люка
+		const startX = w * 0.22 // СЌРєСЂР°РЅРЅР°СЏ РїРѕР·РёС†РёСЏ СЃС‚Р°СЂС‚Р°
+		const endWorldX = getHatchX(targetIndex) // РјРёСЂРѕРІР°СЏ
+		const endX = endWorldX - frogCameraOffset // СЌРєСЂР°РЅРЅР°СЏ РїРѕР·РёС†РёСЏ Р»СЋРєР°
 
 		const duration = 500
 		const startTime = performance.now()
@@ -3458,14 +3458,14 @@ async function frogJump() {
 		return
 	}
 
-	// последующие прыжки: от люка к люку
+	// РїРѕСЃР»РµРґСѓСЋС‰РёРµ РїСЂС‹Р¶РєРё: РѕС‚ Р»СЋРєР° Рє Р»СЋРєСѓ
 	const fromIndex = frogCurrentHatch
 	const toIndex = frogCurrentHatch + 1
 	if (toIndex >= FROG_HATCH_MULTS.length) return
 
 	frogState = 'running'
 
-	// считаем в МИРОВЫХ координатах, а на экран выводим через камеру
+	// СЃС‡РёС‚Р°РµРј РІ РњРР РћР’Р«РҐ РєРѕРѕСЂРґРёРЅР°С‚Р°С…, Р° РЅР° СЌРєСЂР°РЅ РІС‹РІРѕРґРёРј С‡РµСЂРµР· РєР°РјРµСЂСѓ
 	const startWorldX = getHatchX(fromIndex)
 	const endWorldX = getHatchX(toIndex)
 
@@ -3482,7 +3482,7 @@ async function frogJump() {
 			frogJumpProgress = ease
 
 			const interpWorldX = startWorldX + (endWorldX - startWorldX) * ease
-			frogAnimX = interpWorldX - frogCameraOffset // переводим в экранные
+			frogAnimX = interpWorldX - frogCameraOffset // РїРµСЂРµРІРѕРґРёРј РІ СЌРєСЂР°РЅРЅС‹Рµ
 
 			drawFrogScene(false)
 
@@ -3517,7 +3517,7 @@ async function frogJump() {
 async function frogCashout() {
 	if (frogState !== 'bet_placed' && frogState !== 'running') return
 
-	// здесь по-хорошему надо считать win и отправлять на сервер
+	// Р·РґРµСЃСЊ РїРѕ-С…РѕСЂРѕС€РµРјСѓ РЅР°РґРѕ СЃС‡РёС‚Р°С‚СЊ win Рё РѕС‚РїСЂР°РІР»СЏС‚СЊ РЅР° СЃРµСЂРІРµСЂ
 	await frogDie()
 }
 
@@ -3526,7 +3526,7 @@ async function frogDie() {
 	updateFrogUI()
 	drawFrogScene(true)
 
-	alert('Лягушку сбила машина. Ставка проиграна.')
+	alert('Р›СЏРіСѓС€РєСѓ СЃР±РёР»Р° РјР°С€РёРЅР°. РЎС‚Р°РІРєР° РїСЂРѕРёРіСЂР°РЅР°.')
 
 	frogBet = 0
 	frogCurrentHatch = -1
@@ -3534,7 +3534,7 @@ async function frogDie() {
 	frogAutoHatch = null
 }
 
-// кнопки FrogTon
+// РєРЅРѕРїРєРё FrogTon
 frogMainActionBtn?.addEventListener('click', async () => {
 	if (frogState === 'idle' || frogState === 'cashed' || frogState === 'dead') {
 		await frogStartBet()
@@ -3562,11 +3562,11 @@ adminPromoCreateBtn?.addEventListener('click', async () => {
 	const maxUses = Number(adminPromoMaxUses?.value || 1)
 
 	if (!code) {
-		alert('Введите код')
+		alert('Р’РІРµРґРёС‚Рµ РєРѕРґ')
 		return
 	}
 	if (!Number.isInteger(maxUses) || maxUses < 1) {
-		alert('maxUses должен быть >= 1')
+		alert('maxUses РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ >= 1')
 		return
 	}
 
@@ -3578,7 +3578,7 @@ adminPromoCreateBtn?.addEventListener('click', async () => {
 				String(adminPromoAmount?.value || '').replace(',', '.'),
 			)
 			if (!Number.isFinite(amount) || amount <= 0) {
-				alert('Сумма TON должна быть > 0')
+				alert('РЎСѓРјРјР° TON РґРѕР»Р¶РЅР° Р±С‹С‚СЊ > 0')
 				return
 			}
 			await adminPromoCreateApi({ type: 'balance', code, amount, maxUses })
@@ -3586,7 +3586,7 @@ adminPromoCreateBtn?.addEventListener('click', async () => {
 			await adminPromoCreateApi({
 				type: 'gift',
 				code,
-				giftName: 'Мишка',
+				giftName: 'РњРёС€РєР°',
 				maxUses,
 			})
 		}
@@ -3594,9 +3594,9 @@ adminPromoCreateBtn?.addEventListener('click', async () => {
 		if (adminPromoCode) adminPromoCode.value = ''
 		if (adminPromoAmount) adminPromoAmount.value = ''
 		await loadAdminPromos()
-		alert('Промокод создан')
+		alert('РџСЂРѕРјРѕРєРѕРґ СЃРѕР·РґР°РЅ')
 	} catch (e) {
-		alert(e.message || 'Ошибка создания промокода')
+		alert(e.message || 'РћС€РёР±РєР° СЃРѕР·РґР°РЅРёСЏ РїСЂРѕРјРѕРєРѕРґР°')
 	} finally {
 		adminPromoCreateBtn.disabled = false
 	}
@@ -3606,7 +3606,7 @@ adminPromosRefresh?.addEventListener('click', async () => {
 	try {
 		await loadAdminPromos()
 	} catch (e) {
-		alert(e.message || 'Ошибка')
+		alert(e.message || 'РћС€РёР±РєР°')
 	}
 })
 
@@ -3615,12 +3615,12 @@ adminPromosList?.addEventListener('click', async e => {
 	if (!btn) return
 	const code = btn.getAttribute('data-del-promo')
 	if (!code) return
-	if (!confirm(`Удалить промокод ${code}?`)) return
+	if (!confirm(`РЈРґР°Р»РёС‚СЊ РїСЂРѕРјРѕРєРѕРґ ${code}?`)) return
 	try {
 		await adminPromoDeleteApi(code)
 		await loadAdminPromos()
 	} catch (e) {
-		alert(e.message || 'Ошибка удаления')
+		alert(e.message || 'РћС€РёР±РєР° СѓРґР°Р»РµРЅРёСЏ')
 	}
 })
 
@@ -3628,7 +3628,7 @@ adminStatsRefresh?.addEventListener('click', async () => {
 	try {
 		await loadAdminStats()
 	} catch (e) {
-		alert(e.message || 'Ошибка')
+		alert(e.message || 'РћС€РёР±РєР°')
 	}
 })
 
@@ -3638,7 +3638,7 @@ adminUsersSearch?.addEventListener('click', async () => {
 	try {
 		await loadAdminUsers()
 	} catch (e) {
-		alert(e.message || 'Ошибка')
+		alert(e.message || 'РћС€РёР±РєР°')
 	}
 })
 
@@ -3648,7 +3648,7 @@ adminPrev?.addEventListener('click', async () => {
 	try {
 		await loadAdminUsers()
 	} catch (e) {
-		alert(e.message || 'Ошибка')
+		alert(e.message || 'РћС€РёР±РєР°')
 	}
 })
 
@@ -3658,7 +3658,7 @@ adminNext?.addEventListener('click', async () => {
 	try {
 		await loadAdminUsers()
 	} catch (e) {
-		alert(e.message || 'Ошибка')
+		alert(e.message || 'РћС€РёР±РєР°')
 	}
 })
 
@@ -3668,11 +3668,11 @@ adminAdjApply?.addEventListener('click', async () => {
 	const delta = Number(String(adminAdjDelta?.value || '').replace(',', '.'))
 
 	if (!tgId) {
-		alert('Введите tg_id')
+		alert('Р’РІРµРґРёС‚Рµ tg_id')
 		return
 	}
 	if (!Number.isFinite(delta) || delta === 0) {
-		alert('Введите delta (например +1 или -1)')
+		alert('Р’РІРµРґРёС‚Рµ delta (РЅР°РїСЂРёРјРµСЂ +1 РёР»Рё -1)')
 		return
 	}
 
@@ -3683,8 +3683,8 @@ adminAdjApply?.addEventListener('click', async () => {
 			adminAdjResult.textContent = `OK. New balance: ${Number(r.newBalance || 0).toFixed(2)} TON`
 		await loadAdminStats()
 	} catch (e) {
-		if (adminAdjResult) adminAdjResult.textContent = e.message || 'Ошибка'
-		alert(e.message || 'Ошибка')
+		if (adminAdjResult) adminAdjResult.textContent = e.message || 'РћС€РёР±РєР°'
+		alert(e.message || 'РћС€РёР±РєР°')
 	} finally {
 		adminAdjApply.disabled = false
 	}
@@ -3694,7 +3694,7 @@ async function createBroadcast(delaySec) {
 	if (!isAdmin) return
 	const text = String(adminBcText?.value || '').trim()
 	if (!text) {
-		alert('Введите текст рассылки')
+		alert('Р’РІРµРґРёС‚Рµ С‚РµРєСЃС‚ СЂР°СЃСЃС‹Р»РєРё')
 		return
 	}
 
@@ -3702,12 +3702,12 @@ async function createBroadcast(delaySec) {
 		const r = await adminBroadcastCreateApi(text, delaySec)
 		const when = new Date(Number(r.runAt || Date.now())).toLocaleString()
 		if (adminBcResult)
-			adminBcResult.textContent = `✅ Задача создана (#${r.jobId}). Отправка: ${when}`
-		alert('Задача рассылки создана')
+			adminBcResult.textContent = `вњ… Р—Р°РґР°С‡Р° СЃРѕР·РґР°РЅР° (#${r.jobId}). РћС‚РїСЂР°РІРєР°: ${when}`
+		alert('Р—Р°РґР°С‡Р° СЂР°СЃСЃС‹Р»РєРё СЃРѕР·РґР°РЅР°')
 	} catch (e) {
 		if (adminBcResult)
-			adminBcResult.textContent = `❌ Ошибка: ${e?.message || e}`
-		alert(e?.message || 'Ошибка рассылки')
+			adminBcResult.textContent = `вќЊ РћС€РёР±РєР°: ${e?.message || e}`
+		alert(e?.message || 'РћС€РёР±РєР° СЂР°СЃСЃС‹Р»РєРё')
 	}
 }
 
@@ -3764,13 +3764,17 @@ async function init() {
 		alert(err.message || 'Unknown error')
 	}
 
-	// Лента Live — общая для всех с сервера, без сброса при перезаходе
+	// Р›РµРЅС‚Р° Live вЂ” РѕР±С‰Р°СЏ РґР»СЏ РІСЃРµС… СЃ СЃРµСЂРІРµСЂР°, Р±РµР· СЃР±СЂРѕСЃР° РїСЂРё РїРµСЂРµР·Р°С…РѕРґРµ
 	await fetchLiveFeed()
 	startLiveFeedPoll()
 
 	await initFrogGraphics()
-	drawFrogScene(false) // ВАЖНО: первый кадр
+	drawFrogScene(false) // Р’РђР–РќРћ: РїРµСЂРІС‹Р№ РєР°РґСЂ
 	updateFrogUI()
 }
 
 init()
+
+
+
+
