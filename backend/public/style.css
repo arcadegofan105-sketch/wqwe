@@ -20,6 +20,11 @@ body {
 		sans-serif;
 	background-color: #020617;
 	color: #e5e7eb;
+	overscroll-behavior-y: none;
+}
+
+html {
+	overscroll-behavior-y: none;
 }
 
 .app {
@@ -37,6 +42,8 @@ body {
 	padding-bottom: 84px;
 	position: relative;
 	overflow-y: auto;
+	overscroll-behavior-y: contain;
+	-webkit-overflow-scrolling: touch;
 }
 
 /* ========== BOTTOM NAV (fixed) ========== */
