@@ -2516,6 +2516,26 @@ body {
 	filter: contrast(1.2) brightness(1.12) saturate(1.15);
 }
 
+.ui-loop-video {
+	pointer-events: none;
+	user-select: none;
+	-webkit-user-select: none;
+	-webkit-touch-callout: none;
+}
+
+.ui-loop-video::-webkit-media-controls {
+	display: none !important;
+	visibility: hidden !important;
+	opacity: 0 !important;
+}
+
+.ui-loop-video::-webkit-media-controls-enclosure,
+.ui-loop-video::-webkit-media-controls-panel,
+.ui-loop-video::-webkit-media-controls-start-playback-button {
+	display: none !important;
+	-webkit-appearance: none !important;
+}
+
 .wheel-banner-body {
 	flex: 1;
 	min-width: 0;
