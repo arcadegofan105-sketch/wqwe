@@ -26,10 +26,10 @@ import db, {
 
   // NEW:
   tryBindReferral,
-  countInvitedByInviter,
   addClaim,
   hasClaim,
-  countInviteClaims,
+  getReferralStatus,
+  claimReferralToBalance,
 
   getCurrentCrashRound,
   createCrashRound,
@@ -295,20 +295,24 @@ const TONNEL_GIFTS_URL = "https://gifts2.tonnel.network/api/pageGifts";
 // key — наше внутреннее имя (item.name / nameKey),
 // значения — как искать на Tonnel.
 const TONNEL_GIFT_MAP = {
+  // пример: Pepe
   Pepe: {
-    gift_name: 'Plush Pepe'
+    gift_name: "Plush Pepe",
+    model: "Plush Pepe Pink Latex",
   },
-  'Plush Pepe Pink Latex': {
-    gift_name: 'Plush Pepe',
-    model: 'Plush Pepe Pink Latex'
+  "Plush Pepe Pink Latex": {
+    gift_name: "Plush Pepe",
+    model: "Plush Pepe Pink Latex",
   },
-  'Celendar (random)': {
-    gift_name: 'Desk Calendar',
-    model: 'Desk Calendar'
+  // пример: Desk Calendar
+  "Celendar (random)": {
+    gift_name: "Desk Calendar",
+    model: "Desk Calendar",
   },
-  'Trapped Hearts': {
-    gift_name: 'Trapped Heart',
-    model: 'Empty Silent'
+  // Classic case: Tonnel gifts → Trapped Heart, model Empty Silent
+  "Trapped Hearts": {
+    gift_name: "Trapped Heart",
+    model: "Empty Silent",
   },
 };
 
@@ -470,7 +474,8 @@ app.post("/api/me", auth, (req, res) => {
   try {
     const params = new URLSearchParams(req.body?.initData || "");
     const startParam = String(params.get("start_param") || "").trim(); // inviter tg_id
-    if (startParam && /^\d+$/.test(startParam)) {
+    // Засчитываем реферала только в первый реальный визит (новый пользователь).
+    if (startParam && /^\d+$/.test(startParam) && Number(u?.visits_count || 0) <= 1) {
       tryBindReferral(String(tgUser.id), startParam);
     }
   } catch {}
@@ -487,6 +492,28 @@ app.post("/api/me", auth, (req, res) => {
     freeWheelAvailable: !!u.free_wheel_available,
     wheelDepositProgressTon: safeNumber(u.wheel_deposit_progress_ton, 0),
   });
+});
+
+app.post("/api/referral/status", auth, (req, res) => {
+  const tgId = String(req.tgUser.id);
+  touchUserVisit(req.tgUser);
+
+  try {
+    return res.json(getReferralStatus(tgId));
+  } catch (e) {
+    return res.status(400).json({ error: e.message || "referral status error" });
+  }
+});
+
+app.post("/api/referral/claim", auth, (req, res) => {
+  const tgId = String(req.tgUser.id);
+  touchUserVisit(req.tgUser);
+
+  try {
+    return res.json(claimReferralToBalance(tgId));
+  } catch (e) {
+    return res.status(400).json({ error: e.message || "referral claim error" });
+  }
 });
 
 // ===== TONNEL GIFTS API (helper for frontend / admin) =====
@@ -1263,30 +1290,13 @@ function handleRewardsList(req, res) {
   const firstDepositClaimed = hasClaim(tgId, "first_deposit");
   const firstDepositStatus =
     firstDepositClaimed ? "claimed" : firstDepositEligible ? "available" : "locked";
-
-  const invited = countInvitedByInviter(tgId);
-  const claimedInvites = countInviteClaims(tgId);
-  const maxInvites = 5;
-
-  const inviteStatus =
-    claimedInvites >= maxInvites ? "claimed" : invited > claimedInvites ? "available" : "locked";
-
-  res.json({
+res.json({
     items: [
       {
         key: "first_deposit",
         title: "Первый депозит",
         desc: "+0.5 TON к балансу после первого пополнения. Начисляется один раз, повторно получить нельзя.",
         status: firstDepositStatus,
-      },
-      {
-        key: "invite",
-        title: "Инвайты",
-        desc: "+0.1 TON за каждого приглашённого, который открыл мини‑апп по твоей ссылке. Можно получить максимум за 5 друзей.",
-        status: inviteStatus,
-        invited,
-        claimed: claimedInvites,
-        max: maxInvites,
       },
     ],
   });
@@ -1313,26 +1323,6 @@ function handleRewardsClaim(req, res) {
 
       return { ok: true, newBalance };
     }
-
-    if (key === "invite") {
-      const invited = countInvitedByInviter(tgId);
-      const already = countInviteClaims(tgId);
-      const max = 5;
-
-      const canTake = Math.min(max - already, Math.max(0, invited - already));
-      if (canTake <= 0) throw new Error("Пока нет доступных инвайтов");
-
-      for (let i = 0; i < canTake; i++) {
-        addClaim(tgId, `invite_${already + i + 1}`, 0.1);
-      }
-
-      const add = 0.1 * canTake;
-      const newBalance = Number((safeNumber(u.balance, 0) + add).toFixed(2));
-      updateUserBalance(tgId, newBalance);
-
-      return { ok: true, newBalance, added: Number(add.toFixed(2)), count: canTake };
-    }
-
     throw new Error("unknown reward");
   });
 
