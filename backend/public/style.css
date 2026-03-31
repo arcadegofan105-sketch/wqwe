@@ -1156,7 +1156,8 @@ html {
 
 /* ===== ANDROID ONLY FIXES ===== */
 .is-android .app {
-	min-height: 100dvh;
+	min-height: 100vh;
+	height: 100vh;
 }
 
 .is-android .app-loading {
@@ -1212,14 +1213,14 @@ html {
 }
 
 .is-android .modal.active {
-	display: block;
+	display: flex;
 }
 
 .is-android .modal-content {
-	position: fixed;
-	left: 50%;
-	top: 50%;
-	transform: translate(-50%, -50%);
+	position: relative;
+	left: auto;
+	top: auto;
+	transform: none;
 	max-height: 90vh;
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
