@@ -1118,15 +1118,17 @@ let currentScreen = 'home'
 
 function bindTap(el, handler) {
 	if (!el || typeof handler !== 'function') return
-	el.addEventListener('click', handler)
-	el.addEventListener(
-		'touchend',
-		e => {
-			e.preventDefault()
-			handler(e)
-		},
-		{ passive: false },
-	)
+	let lastTouchAt = 0
+
+	el.addEventListener('touchend', e => {
+		lastTouchAt = Date.now()
+		handler(e)
+	})
+
+	el.addEventListener('click', e => {
+		if (Date.now() - lastTouchAt < 500) return
+		handler(e)
+	})
 }
 
 function setScreen(name) {
@@ -1243,16 +1245,17 @@ inviteCopyBtn?.addEventListener('click', async () => {
 		return
 	}
 
-	try {
-		await navigator.clipboard.writeText(link)
+	const copied = await copyTextWithFallback(link)
+	if (copied) {
 		alert(currentLang === 'en' ? 'Link copied' : 'Ссылка скопирована')
-	} catch (e) {
-		alert(
-			currentLang === 'en'
-				? 'Could not copy link (try manually).'
-				: 'Не удалось скопировать ссылку (попробуй вручную).',
-		)
+		return
 	}
+
+	alert(
+		currentLang === 'en'
+			? `Could not copy link. Copy manually:\n${link}`
+			: `Не удалось скопировать ссылку. Скопируй вручную:\n${link}`,
+	)
 })
 
 inviteClaimBtn?.addEventListener('click', async () => {
@@ -1616,11 +1619,42 @@ function sleep(ms) {
 
 function escapeHtml(s) {
 	return String(s || '')
-		.replaceAll('&', '&amp;')
-		.replaceAll('<', '&lt;')
-		.replaceAll('>', '&gt;')
-		.replaceAll('"', '&quot;')
-		.replaceAll("'", '&#039;')
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#039;')
+}
+
+async function copyTextWithFallback(text) {
+	const value = String(text || '')
+	if (!value) return false
+
+	try {
+		if (navigator?.clipboard?.writeText) {
+			await navigator.clipboard.writeText(value)
+			return true
+		}
+	} catch (_) {}
+
+	try {
+		const ta = document.createElement('textarea')
+		ta.value = value
+		ta.setAttribute('readonly', '')
+		ta.style.position = 'fixed'
+		ta.style.opacity = '0'
+		ta.style.left = '-9999px'
+		ta.style.top = '0'
+		document.body.appendChild(ta)
+		ta.focus()
+		ta.select()
+		ta.setSelectionRange(0, ta.value.length)
+		const ok = document.execCommand('copy')
+		document.body.removeChild(ta)
+		return !!ok
+	} catch (_) {
+		return false
+	}
 }
 
 // ===== FROGTON DRAW HELPERS =====
