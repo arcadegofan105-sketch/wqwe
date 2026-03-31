@@ -1206,6 +1206,34 @@ html {
 	margin-top: 10px;
 }
 
+/* Android: фикс позиционирования модалок (иногда улетают в левый верхний угол) */
+.is-android .modal {
+	display: none;
+}
+
+.is-android .modal.active {
+	display: block;
+}
+
+.is-android .modal-content {
+	position: fixed;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	max-height: 90vh;
+	overflow-y: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+/* Android: инвентарь — fallback высоты, если aspect-ratio не работает */
+.is-android .inv-card-image {
+	height: 140px;
+}
+
+.is-android .inv-card-image .gift-icon {
+	display: block;
+}
+
 .skeleton-grid-2 {
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
