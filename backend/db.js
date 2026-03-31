@@ -333,14 +333,28 @@ export function countInvitedByInviter(inviterTgId) {
   return Number(row?.c || 0);
 }
 
+function countQualifiedInvitedByInviter(inviterTgId) {
+  const row = db.prepare(
+    `
+    SELECT COUNT(*) as c
+    FROM referrals r
+    JOIN users u ON u.tg_id = r.invited_tg_id
+    WHERE r.inviter_tg_id = ?
+      AND COALESCE(u.total_deposit_ton, 0) > 0
+  `
+  ).get(String(inviterTgId));
+
+  return Number(row?.c || 0);
+}
+
 export function getReferralStatus(tgId) {
   const user = getUserByTgId(tgId);
   if (!user) throw new Error("user not found");
 
-  const invitedCount = countInvitedByInviter(tgId);
+  const invitedCount = countQualifiedInvitedByInviter(tgId);
   const claimedCount = Math.max(0, Number(user.referral_claimed_count || 0));
   const pendingCount = Math.max(0, invitedCount - claimedCount);
-  const rateTon = 0.1;
+  const rateTon = 0.3;
   const minClaimTon = 5;
   const pendingTon = Number((pendingCount * rateTon).toFixed(2));
 
@@ -356,14 +370,14 @@ export function getReferralStatus(tgId) {
 }
 
 export function claimReferralToBalance(tgId) {
-  const rateTon = 0.1;
+  const rateTon = 0.3;
   const minClaimTon = 5;
 
   const tx = db.transaction(() => {
     const user = getUserByTgId(tgId);
     if (!user) throw new Error("user not found");
 
-    const invitedCount = countInvitedByInviter(tgId);
+    const invitedCount = countQualifiedInvitedByInviter(tgId);
     const claimedCount = Math.max(0, Number(user.referral_claimed_count || 0));
     const pendingCount = Math.max(0, invitedCount - claimedCount);
     const pendingTon = Number((pendingCount * rateTon).toFixed(2));
