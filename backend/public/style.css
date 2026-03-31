@@ -2426,6 +2426,8 @@ body {
 	font-weight: 600;
 }
 
+
+
 .wheel-banner-card {
 	width: 100%;
 	display: flex;
@@ -2439,16 +2441,8 @@ body {
 	color: #e5e7eb;
 
 	background:
-		radial-gradient(
-			circle at top left,
-			rgba(129, 140, 248, 0.22),
-			transparent 55%
-		),
-		radial-gradient(
-			circle at bottom right,
-			rgba(56, 189, 248, 0.14),
-			transparent 60%
-		),
+		radial-gradient(circle at top left, rgba(129, 140, 248, 0.22), transparent 55%),
+		radial-gradient(circle at bottom right, rgba(56, 189, 248, 0.14), transparent 60%),
 		rgba(15, 23, 42, 0.97);
 	box-shadow:
 		0 0 0 1px rgba(99, 102, 241, 0.35),
@@ -2482,11 +2476,7 @@ body {
 	height: 52px;
 	border-radius: 16px;
 	background:
-		radial-gradient(
-			circle at 30% 30%,
-			rgba(251, 191, 36, 0.35),
-			transparent 60%
-		),
+		radial-gradient(circle at 30% 30%, rgba(251, 191, 36, 0.35), transparent 60%),
 		rgba(15, 23, 42, 0.9);
 	box-shadow:
 		0 0 0 1px rgba(251, 191, 36, 0.4),
@@ -2547,109 +2537,7 @@ body {
 	line-height: 1;
 }
 
-/* === Кнопка КРАШ на главной === */
-.wheel-banner-card--crash {
-	background:
-		radial-gradient(
-			circle at top left,
-			rgba(239, 68, 68, 0.22),
-			transparent 55%
-		),
-		radial-gradient(
-			circle at bottom right,
-			rgba(251, 191, 36, 0.14),
-			transparent 60%
-		),
-		rgba(15, 23, 42, 0.97);
-	box-shadow:
-		0 0 0 1px rgba(239, 68, 68, 0.35),
-		0 14px 34px rgba(0, 0, 0, 0.85);
-}
-
-.wheel-banner-card--crash:hover {
-	box-shadow:
-		0 0 0 1px rgba(239, 68, 68, 0.7),
-		0 18px 40px rgba(0, 0, 0, 0.95);
-}
-
-.wheel-banner-icon--crash {
-	background:
-		radial-gradient(circle at 30% 30%, rgba(239, 68, 68, 0.4), transparent 60%),
-		rgba(15, 23, 42, 0.9);
-	box-shadow:
-		0 0 0 1px rgba(239, 68, 68, 0.5),
-		0 10px 24px rgba(0, 0, 0, 0.6);
-}
-
-.wheel-banner-badge--crash {
-	background: linear-gradient(135deg, #ef4444, #dc2626);
-	box-shadow:
-		0 0 0 1px rgba(239, 68, 68, 0.7),
-		0 6px 14px rgba(239, 68, 68, 0.45);
-	animation: liveBadgePulse 1.5s ease-in-out infinite;
-}
-
-@keyframes liveBadgePulse {
-	0%,
-	100% {
-		opacity: 1;
-	}
-	50% {
-		opacity: 0.75;
-	}
-}
-
-/* === Кнопка КЕЙСЫ на главной === */
-.wheel-banner-card--cases {
-	background:
-		radial-gradient(
-			circle at top left,
-			rgba(34, 197, 94, 0.2),
-			transparent 55%
-		),
-		radial-gradient(
-			circle at bottom right,
-			rgba(56, 189, 248, 0.14),
-			transparent 60%
-		),
-		rgba(15, 23, 42, 0.97);
-	box-shadow:
-		0 0 0 1px rgba(34, 197, 94, 0.35),
-		0 14px 34px rgba(0, 0, 0, 0.85);
-}
-
-.wheel-banner-card--cases:hover {
-	box-shadow:
-		0 0 0 1px rgba(34, 197, 94, 0.7),
-		0 18px 40px rgba(0, 0, 0, 0.95);
-}
-
-.wheel-banner-icon--cases {
-	background:
-		radial-gradient(
-			circle at 30% 30%,
-			rgba(34, 197, 94, 0.35),
-			transparent 60%
-		),
-		rgba(15, 23, 42, 0.9);
-	box-shadow:
-		0 0 0 1px rgba(34, 197, 94, 0.5),
-		0 10px 24px rgba(0, 0, 0, 0.6);
-}
-
-.wheel-banner-badge--cases {
-	background: linear-gradient(135deg, #22c55e, #16a34a);
-	box-shadow:
-		0 0 0 1px rgba(34, 197, 94, 0.7),
-		0 6px 14px rgba(34, 197, 94, 0.45);
-}
-
-/* убираем лишний отступ между баннер-кнопками */
-.info-row-games {
-	margin-bottom: 0;
-}
-
-/* === GAME CARDS: КРАШ и КОЛЕСО на главной === */
+/* === GAME CARDS: РљР РђРЁ Рё РљРћР›Р•РЎРћ РЅР° РіР»Р°РІРЅРѕР№ === */
 
 .info-row-games {
 	display: flex;
