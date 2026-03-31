@@ -589,6 +589,9 @@ if (!tg) {
 
 tg.ready()
 tg.expand()
+if (typeof tg.disableVerticalSwipes === 'function') {
+	tg.disableVerticalSwipes()
+}
 document.body.style.backgroundColor = tg.themeParams?.bg_color || '#02051a'
 
 const INIT_DATA = tg.initData
@@ -635,6 +638,13 @@ const screens = {
 
 // Кнопка "Назад" на экране кейсов
 document.getElementById('cases-back')?.addEventListener('click', () => {
+	setScreen('home')
+})
+document.getElementById('wheel-back')?.addEventListener('click', () => {
+	setScreen('home')
+})
+document.getElementById('crash-back')?.addEventListener('click', () => {
+	stopCrashPolling()
 	setScreen('home')
 })
 
