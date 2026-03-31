@@ -1160,6 +1160,11 @@ html {
 	height: 100vh;
 }
 
+.is-android html,
+.is-android body {
+	height: 100%;
+}
+
 .is-android .app-loading {
 	inset: 0;
 	padding: 20px 16px;
@@ -1210,6 +1215,10 @@ html {
 /* Android: фикс позиционирования модалок (иногда улетают в левый верхний угол) */
 .is-android .modal {
 	display: none;
+	position: fixed;
+	inset: 0;
+	align-items: center;
+	justify-content: center;
 }
 
 .is-android .modal.active {
@@ -1224,6 +1233,8 @@ html {
 	max-height: 90vh;
 	overflow-y: auto;
 	-webkit-overflow-scrolling: touch;
+	overflow: hidden;
+	background-clip: padding-box;
 }
 
 /* Android: инвентарь — fallback высоты, если aspect-ratio не работает */
