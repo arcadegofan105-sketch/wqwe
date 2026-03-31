@@ -65,11 +65,16 @@
 							<div class="wheel-banner-left">
 								<div class="wheel-banner-icon wheel-banner-icon--video">
 									<video
-										class="wheel-banner-icon-video"
+										class="wheel-banner-icon-video ui-loop-video"
 										autoplay
 										muted
 										loop
 										playsinline
+										webkit-playsinline="true"
+										disablepictureinpicture
+										disableremoteplayback
+										tabindex="-1"
+										aria-hidden="true"
 										preload="metadata"
 									>
 										<source src="colesofons.mp4" type="video/mp4" />
@@ -101,11 +106,16 @@
 									class="wheel-banner-icon wheel-banner-icon--crash wheel-banner-icon--video"
 								>
 									<video
-										class="wheel-banner-icon-video"
+										class="wheel-banner-icon-video ui-loop-video"
 										autoplay
 										muted
 										loop
 										playsinline
+										webkit-playsinline="true"
+										disablepictureinpicture
+										disableremoteplayback
+										tabindex="-1"
+										aria-hidden="true"
 										preload="metadata"
 									>
 										<source src="crashfons.mp4" type="video/mp4" />
@@ -139,11 +149,16 @@
 									class="wheel-banner-icon wheel-banner-icon--cases wheel-banner-icon--video"
 								>
 									<video
-										class="wheel-banner-icon-video"
+										class="wheel-banner-icon-video ui-loop-video"
 										autoplay
 										muted
 										loop
 										playsinline
+										webkit-playsinline="true"
+										disablepictureinpicture
+										disableremoteplayback
+										tabindex="-1"
+										aria-hidden="true"
 										preload="metadata"
 									>
 										<source src="Casesfons.mp4" type="video/mp4" />
@@ -370,11 +385,16 @@
 							<!-- ФОН (только для crash) -->
 							<div class="crash-bg">
 								<video
-									class="crash-bg-video"
+									class="crash-bg-video ui-loop-video"
 									autoplay
 									muted
 									loop
 									playsinline
+									webkit-playsinline="true"
+									disablepictureinpicture
+									disableremoteplayback
+									tabindex="-1"
+									aria-hidden="true"
 									preload="auto"
 								>
 									<source src="foncrash.MP4" type="video/mp4" />
@@ -1087,10 +1107,16 @@
 		<!-- Видео-ракета (рисуем на canvas, сам элемент скрыт) -->
 		<video
 			id="rocket-video"
+			class="ui-loop-video"
 			src="rocket.mp4"
 			muted
 			playsinline
+			webkit-playsinline="true"
 			loop
+			disablepictureinpicture
+			disableremoteplayback
+			tabindex="-1"
+			aria-hidden="true"
 			preload="auto"
 			style="display: none"
 		></video>
