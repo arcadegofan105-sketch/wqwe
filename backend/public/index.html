@@ -556,25 +556,35 @@
 				</section>
 
 				<!-- Экран ПРИГЛАСИТЬ -->
+								<!-- INVITE SCREEN -->
 				<section id="screen-invite" class="screen">
-					<div class="screen-title">Пригласить друзей</div>
+					<div class="screen-title">Invite Friends</div>
 					<div class="screen-subtitle">
-						Делитесь ссылкой и получайте процент с игры друзей.
+						Share your link and get 0.1 TON for each new invited friend.
 					</div>
-
 					<div class="bonus-card">
-						<div class="bonus-title">Ваша пригласительная ссылка</div>
+						<div class="bonus-title">Your invite link</div>
 						<div class="bonus-text" id="invite-link-text">
-							Скоро добавим генерацию ссылки.
+							Link generation coming soon.
 						</div>
 					</div>
-
-					<button
-						class="action-btn action-blue"
-						id="invite-copy-btn"
-						type="button"
-					>
-						Скопировать ссылку
+					<div class="bonus-card" id="invite-stats-card">
+						<div class="bonus-title">Referral stats</div>
+						<div class="bonus-text">
+							Invited friends: <b id="invite-friends-count">0</b>
+						</div>
+						<div class="bonus-text">
+							Available to claim: <b id="invite-pending-ton">0.00</b> TON
+						</div>
+						<div class="bonus-text" id="invite-rate-text">
+							1 friend = 0.1 TON, minimum claim is 5 TON.
+						</div>
+					</div>
+					<button class="action-btn action-blue" id="invite-copy-btn" type="button">
+						Copy link
+					</button>
+					<button class="action-btn action-green" id="invite-claim-btn" type="button">
+						Claim to balance
 					</button>
 				</section>
 
@@ -671,17 +681,6 @@
 							<div id="inventory-list" class="inventory-list">
 								<div class="inventory-empty">У вас пока нет подарков</div>
 							</div>
-						</div>
-
-						<div class="ref-card">
-							<div class="ref-title">Реферальная программа</div>
-							<div class="ref-text">
-								Делимся частью дохода с активными игроками. Ниже можно будет
-								создать свой промокод для друзей.
-							</div>
-							<button class="action-btn action-outline" disabled>
-								Создать промокод (скоро)
-							</button>
 						</div>
 					</div>
 				</section>
