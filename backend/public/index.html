@@ -26,7 +26,7 @@
 				</div>
 
 				<div class="balance">
-					<span class="balance-label">Р‘Р°Р»Р°РЅСЃ</span>
+					<span class="balance-label">Баланс</span>
 					<span class="balance-icon"></span>
 					<span id="balance-value">5</span>
 					<span class="balance-currency">TON</span>
@@ -42,20 +42,20 @@
 			</header>
 
 			<main class="content">
-				<!-- Р“Р»Р°РІРЅР°СЏ: РІС…РѕРґ РІ СЂРµР¶РёРјС‹ + РєРµР№СЃС‹ -->
+				<!-- Главная: вход в режимы + кейсы -->
 				<section id="screen-home" class="screen active">
-					<!-- Live РєР°СЂСѓСЃРµР»СЊ РїРѕРґР°СЂРєРѕРІ -->
+					<!-- Live карусель подарков -->
 					<div class="live-strip">
 						<div class="live-label">
 							<span class="live-dot"></span>
 							<span class="live-text">Live</span>
 						</div>
 						<div class="live-carousel" id="live-gifts-carousel">
-							<!-- СЌР»РµРјРµРЅС‚С‹ Р±СѓРґСѓС‚ РґРѕР±Р°РІР»СЏС‚СЊСЃСЏ С‡РµСЂРµР· JS -->
+							<!-- элементы будут добавляться через JS -->
 						</div>
 					</div>
 
-					<!-- РљР°СЂС‚РѕС‡РєРё РљРћР›Р•РЎРћ, РљР РђРЁ, РљР•Р™РЎР« -->
+					<!-- Карточки КОЛЕСО, КРАШ, КЕЙСЫ -->
 					<div class="info-row info-row-games">
 						<button
 							class="wheel-banner-card"
@@ -83,18 +83,18 @@
 							</div>
 							<div class="wheel-banner-body">
 								<div class="wheel-banner-title-row">
-									<span class="wheel-banner-title">РљРѕР»РµСЃРѕ СЃ РџРµРїРµ</span>
+									<span class="wheel-banner-title">Колесо с Пепе</span>
 									<span class="wheel-banner-badge">FREE</span>
 								</div>
 								<div class="wheel-banner-desc">
-									Р‘РµСЃРїР»Р°С‚РЅРѕРµ РєРѕР»РµСЃРѕ вЂ” РєСЂСѓС‚Рё Рё РІС‹РёРіСЂС‹РІР°Р№ РїРѕРґР°СЂРєРё СЃ РџРµРїРµ!
+									Бесплатное колесо — крути и выигрывай подарки с Пепе!
 								</div>
 							</div>
-							<div class="wheel-banner-arrow">вЂє</div>
+							<div class="wheel-banner-arrow">›</div>
 						</button>
 					</div>
 
-					<!-- РљРЅРѕРїРєР° РљР РђРЁ -->
+					<!-- Кнопка КРАШ -->
 					<div class="info-row info-row-games">
 						<button
 							class="wheel-banner-card wheel-banner-card--crash"
@@ -124,20 +124,20 @@
 							</div>
 							<div class="wheel-banner-body">
 								<div class="wheel-banner-title-row">
-									<span class="wheel-banner-title">РљСЂР°С€</span>
+									<span class="wheel-banner-title">Краш</span>
 									<span class="wheel-banner-badge wheel-banner-badge--crash"
 										>LIVE</span
 									>
 								</div>
 								<div class="wheel-banner-desc">
-									РЎС‚Р°РІСЊ Рё Р·Р°Р±РёСЂР°Р№ РґРѕ РєСЂР°С€Р° вЂ” СѓСЃРїРµР№ РІРѕРІСЂРµРјСЏ!
+									Ставь и забирай до краша — успей вовремя!
 								</div>
 							</div>
-							<div class="wheel-banner-arrow">вЂє</div>
+							<div class="wheel-banner-arrow">›</div>
 						</button>
 					</div>
 
-					<!-- РљРЅРѕРїРєР° РљР•Р™РЎР« -->
+					<!-- Кнопка КЕЙСЫ -->
 					<div class="info-row info-row-games">
 						<button
 							class="wheel-banner-card wheel-banner-card--cases"
@@ -167,24 +167,24 @@
 							</div>
 							<div class="wheel-banner-body">
 								<div class="wheel-banner-title-row">
-									<span class="wheel-banner-title">РљРµР№СЃС‹</span>
+									<span class="wheel-banner-title">Кейсы</span>
 									<span class="wheel-banner-badge wheel-banner-badge--cases"
 										>TON</span
 									>
 								</div>
 								<div class="wheel-banner-desc">
-									РћС‚РєСЂС‹РІР°Р№ РєРµР№СЃС‹ Рё РІС‹РёРіСЂС‹РІР°Р№ СЂРµРґРєРёРµ РїРѕРґР°СЂРєРё!
+									Открывай кейсы и выигрывай редкие подарки!
 								</div>
 							</div>
-							<div class="wheel-banner-arrow">вЂє</div>
+							<div class="wheel-banner-arrow">›</div>
 						</button>
 					</div>
 				</section>
 
-				<!-- Р­РєСЂР°РЅ РљРћР›Р•РЎРћ -->
+				<!-- Экран КОЛЕСО -->
 				<section id="screen-wheel" class="screen">
-					<div class="screen-title">РљРѕР»РµСЃРѕ С„РѕСЂС‚СѓРЅС‹</div>
-					<div class="screen-subtitle">Р‘РµСЃРїР»Р°С‚РЅРѕРµ РєРѕР»РµСЃРѕ</div>
+					<div class="screen-title">Колесо фортуны</div>
+					<div class="screen-subtitle">Бесплатное колесо</div>
 
 					<div class="wheel-wrapper">
 						<div class="wheel-arrow">в–ј</div>
@@ -214,21 +214,21 @@
 
 						<div class="wheel-center">
 							<button id="spin-button" class="spin-button">
-								<span>РљСЂСѓС‚РёС‚СЊ</span>
+								<span>Крутить</span>
 							</button>
 						</div>
 					</div>
 
 					<div class="info-row">
 						<div class="info-card">
-							<div class="info-label">Р’Р°С€ Р±Р°Р»Р°РЅСЃ</div>
+							<div class="info-label">Ваш баланс</div>
 							<div class="info-value">
 								<span id="balance-value-2">5</span> TON
 							</div>
 						</div>
 						<div class="info-card">
-							<div class="info-label">РџРѕСЃР»РµРґРЅРёР№ РІС‹РёРіСЂС‹С€</div>
-							<div class="info-value" id="last-prize">вЂ”</div>
+							<div class="info-label">Последний выигрыш</div>
+							<div class="info-value" id="last-prize">—</div>
 						</div>
 					</div>
 
@@ -236,7 +236,7 @@
 						<div class="wheel-prizes-head">
 							<div class="wheel-prizes-title">
 								<span class="wheel-prizes-cube"></span>
-								Р§С‚Рѕ РІ РєРѕР»РµСЃРµ?
+								Что в колесе?
 							</div>
 						</div>
 
@@ -307,7 +307,7 @@
 					</div>
 				</section>
 
-				<!-- Р­РєСЂР°РЅ FROGTONRUN -->
+				<!-- Экран FROGTONRUN -->
 				<section id="screen-frog" class="screen">
 					<div class="crash-container frog-container-tight">
 						<div class="crash-game-area frog-game-area">
@@ -320,20 +320,20 @@
 								class="crash-main-btn"
 								type="button"
 							>
-								РЎРґРµР»Р°С‚СЊ СЃС‚Р°РІРєСѓ
+								Сделать ставку
 							</button>
 							<button
 								id="frog-cashout-btn"
 								class="crash-secondary-btn"
 								type="button"
 							>
-								РљСЌС€Р°СѓС‚
+								Кэшаут
 							</button>
 						</div>
 
 						<div class="crash-panel">
 							<div class="crash-bet-block">
-								<div class="crash-bet-label">РЎС‚Р°РІРєР° (TON)</div>
+								<div class="crash-bet-label">Ставка (TON)</div>
 								<div class="crash-bet-input-row">
 									<input
 										type="number"
@@ -348,13 +348,13 @@
 							</div>
 
 							<div class="crash-auto-block">
-								<div class="crash-bet-label">РђРІС‚Рѕ-РІС‹РІРѕРґ (Р»СЋРє)</div>
+								<div class="crash-bet-label">Авто-вывод (люк)</div>
 								<div class="crash-bet-input-row">
 									<input
 										type="number"
 										id="frog-auto-input"
 										class="crash-bet-input"
-										placeholder="РќР°РїСЂРёРјРµСЂ: 4"
+										placeholder="Например: 4"
 										min="1"
 										max="10"
 										step="1"
@@ -365,24 +365,24 @@
 
 						<div class="crash-info">
 							<div class="crash-info-item">
-								<span class="crash-info-label">РўРµРєСѓС‰РёР№ РјРЅРѕР¶РёС‚РµР»СЊ:</span>
+								<span class="crash-info-label">Текущий множитель:</span>
 								<span class="crash-info-value" id="frog-current-mult"
 									>1.00x</span
 								>
 							</div>
 							<div class="crash-info-item">
-								<span class="crash-info-label">РџРѕС‚РµРЅС†РёР°Р»СЊРЅС‹Р№ РІС‹РёРіСЂС‹С€:</span>
-								<span class="crash-info-value" id="frog-potential-win">вЂ”</span>
+								<span class="crash-info-label">Потенциальный выигрыш:</span>
+								<span class="crash-info-value" id="frog-potential-win">—</span>
 							</div>
 						</div>
 					</div>
 				</section>
 
-				<!-- Р­РєСЂР°РЅ РљР РђРЁ -->
+				<!-- Экран КРАШ -->
 				<section id="screen-crash" class="screen crash-section">
 					<div class="crash-container">
 						<div class="crash-game-area">
-							<!-- Р¤РћРќ (С‚РѕР»СЊРєРѕ РґР»СЏ crash) -->
+							<!-- ФОН (только для crash) -->
 							<div class="crash-bg">
 								<video
 									class="crash-bg-video ui-loop-video"
@@ -403,7 +403,7 @@
 							<div class="crash-stars crash-stars-back"></div>
 							<div class="crash-stars crash-stars-front"></div>
 
-							<!-- РћР±СЂР°С‚РЅС‹Р№ РѕС‚СЃС‡С‘С‚ 7в†’1 -->
+							<!-- Обратный отсчёт 7→1 -->
 							<div
 								id="crash-countdown"
 								class="crash-countdown hidden"
@@ -414,17 +414,17 @@
 
 							<canvas id="crash-canvas"></canvas>
 							<div class="crash-multiplier" id="crash-multiplier">1.00x</div>
-							<div class="crash-status" id="crash-status">РЎРєРѕСЂРѕ РІР·Р»РµС‚Р°РµРј</div>
+							<div class="crash-status" id="crash-status">Скоро взлетаем</div>
 						</div>
 
-						<!-- Р›РµРЅС‚Р° РїРѕСЃР»РµРґРЅРёС… РјРЅРѕР¶РёС‚РµР»РµР№ -->
+						<!-- Лента последних множителей -->
 						<div class="crash-history-strip">
 							<div id="crash-history-list" class="crash-history-list"></div>
 						</div>
 
 						<div class="crash-panel">
 							<div class="crash-bet-block">
-								<div class="crash-bet-label">РЎС‚Р°РІРєР° (TON)</div>
+								<div class="crash-bet-label">Ставка (TON)</div>
 								<div class="crash-bet-input-row">
 									<input
 										type="number"
@@ -439,25 +439,25 @@
 							</div>
 						</div>
 
-						<!-- РћР”РќРђ РѕСЃРЅРѕРІРЅР°СЏ РєРЅРѕРїРєР°: РЎРґРµР»Р°С‚СЊ СЃС‚Р°РІРєСѓ / Р—Р°Р±СЂР°С‚СЊ -->
+						<!-- ОДНА основная кнопка: Сделать ставку / Забрать -->
 						<button id="crash-main-action" class="crash-main-btn">
-							РЎРґРµР»Р°С‚СЊ СЃС‚Р°РІРєСѓ
+							Сделать ставку
 						</button>
 
-						<!-- Р›РµРЅС‚Р° СЃС‚Р°РІРѕРє: TON + СЃСѓРјРјР°, РЅРёР¶Рµ Р°РІР°С‚Р°СЂРєРё Рё РЅРёРєРё -->
+						<!-- Лента ставок: TON + сумма, ниже аватарки и ники -->
 						<div class="crash-bets-strip">
 							<div id="crash-bets-list" class="crash-bets-list"></div>
 						</div>
 					</div>
 				</section>
 
-				<!-- Р­РєСЂР°РЅ РљР•Р™РЎР« (СЃРїРёСЃРѕРє) -->
+				<!-- Экран КЕЙСЫ (список) -->
 				<section id="screen-cases" class="screen">
 					<div class="case-view-header">
 						<button id="cases-back" class="case-back-btn" type="button">
-							в†ђ РќР°Р·Р°Рґ
+							← Назад
 						</button>
-						<div class="screen-title">РљРµР№СЃС‹</div>
+						<div class="screen-title">Кейсы</div>
 					</div>
 
 					<div class="cases-grid">
@@ -508,16 +508,16 @@
 					</div>
 				</section>
 
-				<!-- Р­РєСЂР°РЅ РћРўРљР Р«РўРРЇ РћР”РќРћР“Рћ РљР•Р™РЎРђ (NEW UI) -->
+				<!-- Экран ОТКРЫТИЯ ОДНОГО КЕЙСА (NEW UI) -->
 				<section id="screen-case-open" class="screen">
 					<div class="case-view-header">
 						<button id="case-open-back" class="case-back-btn" type="button">
-							в†ђ РќР°Р·Р°Рґ
+							← Назад
 						</button>
-						<div class="screen-title">РљРµР№СЃ</div>
+						<div class="screen-title">Кейс</div>
 					</div>
 					<div class="case-view">
-						<!-- СЂСѓР»РµС‚РєР° / Р»РµРЅС‚Р° РїРѕРґР°СЂРєРѕРІ -->
+						<!-- рулетка / лента подарков -->
 						<div class="case-view-reel">
 							<div class="case-anim-window case-view-reel-window">
 								<div class="case-anim-track" id="case-open-track"></div>
@@ -528,20 +528,20 @@
 							</div>
 						</div>
 
-						<!-- Р±РѕР»СЊС€Р°СЏ РєРЅРѕРїРєР° -->
+						<!-- большая кнопка -->
 						<button
 							id="case-open-spin"
 							class="case-open-main-btn case-open-main-btn--big"
 							type="button"
 						>
-							РћС‚РєСЂС‹С‚СЊ РєРµР№СЃ
+							Открыть кейс
 						</button>
 
-						<!-- Р·Р°РіРѕР»РѕРІРѕРє + С†РµРЅР° -->
+						<!-- заголовок + цена -->
 						<div class="case-view-collections-head">
 							<div class="case-view-collections-title">
 								<span class="case-view-cube"></span>
-								РљРѕР»Р»РµРєС†РёРё РІ СЌС‚РѕРј РєРµР№СЃРµ
+								Коллекции в этом кейсе
 							</div>
 
 							<div class="case-view-price">
@@ -550,12 +550,12 @@
 							</div>
 						</div>
 
-						<!-- СЃРїРёСЃРѕРє РїРѕРґР°СЂРєРѕРІ -->
+						<!-- список подарков -->
 						<div id="case-open-rewards-list" class="case-view-grid"></div>
 					</div>
 				</section>
 
-				<!-- Р­РєСЂР°РЅ РџР РР“Р›РђРЎРРўР¬ -->
+				<!-- Экран ПРИГЛАСИТЬ -->
 								<!-- INVITE SCREEN -->
 				<section id="screen-invite" class="screen">
 					<div class="screen-title">Invite Friends</div>
@@ -588,31 +588,31 @@
 					</button>
 				</section>
 
-				<!-- Р­РєСЂР°РЅ Р‘РћРќРЈРЎР« -->
+				<!-- Экран БОНУСЫ -->
 				<section id="screen-bonus" class="screen">
-					<div class="screen-title">Р‘РѕРЅСѓСЃС‹ Рё РїСЂРѕРјРѕРєРѕРґС‹</div>
+					<div class="screen-title">Бонусы и промокоды</div>
 					<div class="screen-subtitle">
-						Р’РІРµРґРёС‚Рµ РїСЂРѕРјРѕРєРѕРґ, С‡С‚РѕР±С‹ РїРѕР»СѓС‡РёС‚СЊ Р±РѕРЅСѓСЃ РёР»Рё СЃРєРёРґРєСѓ.
+						Введите промокод, чтобы получить бонус или скидку.
 					</div>
 
 					<div class="promo-block">
 						<input
 							id="promo-input"
 							type="text"
-							placeholder="Р’РІРµРґРёС‚Рµ РїСЂРѕРјРѕРєРѕРґ"
+							placeholder="Введите промокод"
 						/>
-						<button id="promo-apply">РђРєС‚РёРІРёСЂРѕРІР°С‚СЊ</button>
+						<button id="promo-apply">Активировать</button>
 					</div>
 
 					<div class="bonus-card">
-						<div class="bonus-title">Р Р°Р·РґРµР» РїСЂРѕРјРѕРєРѕРґС‹</div>
+						<div class="bonus-title">Раздел промокоды</div>
 						<div class="bonus-text">
-							Р’ РґР°РЅРЅРѕРј СЂР°Р·РґРµР»Рµ РјРѕР¶РЅРѕ Р±СѓРґРµС‚ РІРІРµСЃС‚Рё РїСЂРѕРјРѕРєРѕРґ, РїСЂРѕРјРѕРєРѕРґС‹ Р±СѓРґСѓС‚
-							РїСѓР±Р»РёРєРѕРІР°С‚СЊСЃСЏ РІ С‚РівЂ‘РєР°РЅР°Р»Рµ.
+							В данном разделе можно будет ввести промокод, промокоды будут
+							публиковаться в тг‑канале.
 						</div>
 					</div>
 
-					<!-- РќР°РіСЂР°РґС‹ Р·Р° Р°РєС‚РёРІРЅРѕСЃС‚СЊ (Р±С‹РІС€РёР№ СЂР°Р·РґРµР» РќР°РіСЂР°РґС‹) -->
+					<!-- Награды за активность (бывший раздел Награды) -->
 					<div id="rewards-list" class="rewards-list">
 						<div class="bonus-card skeleton skeleton-reward-card"></div>
 						<div class="bonus-card skeleton skeleton-reward-card"></div>
@@ -620,19 +620,19 @@
 					</div>
 				</section>
 
-				<!-- Р­РєСЂР°РЅ РџР РћР¤РР›Р¬ -->
+				<!-- Экран ПРОФИЛЬ -->
 				<section id="screen-profile" class="screen">
 					<div class="profile-header">
 						<div class="profile-avatar"></div>
 						<div class="profile-main">
 							<div class="profile-name">Nick</div>
-							<div class="profile-id">ID: С‚РµСЃС‚РѕРІС‹Р№ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ</div>
+							<div class="profile-id">ID: тестовый пользователь</div>
 						</div>
 					</div>
 
 					<div class="profile-balance-card">
 						<div class="profile-balance-top">
-							<span>РћР±С‰РёР№ Р±Р°Р»Р°РЅСЃ</span>
+							<span>Общий баланс</span>
 							<span class="ton-chip">
 								<span class="balance-icon">вљЎ</span>
 								<span id="balance-value-3">5</span> TON
@@ -641,24 +641,24 @@
 
 						<div class="profile-balance-bottom">
 							<button id="deposit-btn" class="action-btn action-green">
-								Р”РµРїРѕР·РёС‚ TON
+								Депозит TON
 							</button>
 							<button id="withdraw-btn" class="action-btn action-blue">
-								Р’С‹РІРѕРґ TON
+								Вывод TON
 							</button>
 						</div>
 
 						<div class="wallet-note">
-							РџСЂРµР¶РґРµ С‡РµРј РїРѕРїРѕР»РЅСЏС‚СЊ Р±Р°Р»Р°РЅСЃ, РЅСѓР¶РЅРѕ СЃРЅР°С‡Р°Р»Р° РїСЂРёРІСЏР·Р°С‚СЊ (РїРѕРґРєР»СЋС‡РёС‚СЊ)
-							РєРѕС€РµР»С‘Рє.
+							Прежде чем пополнять баланс, нужно сначала привязать (подключить)
+							кошелёк.
 						</div>
 
 						<div id="ton-connect" style="margin-top: 10px"></div>
 
-						<!-- РЎРјРµРЅР° СЏР·С‹РєР° -->
+						<!-- Смена языка -->
 						<div class="lang-section">
 							<div class="lang-section-title" data-i18n="lang_title">
-								РР·РјРµРЅРёС‚СЊ СЏР·С‹Рє
+								Изменить язык
 							</div>
 							<div class="lang-switcher">
 								<button
@@ -666,7 +666,7 @@
 									id="lang-ru"
 									type="button"
 								>
-									Р СѓСЃСЃРєРёР№
+									Русский
 								</button>
 								<button class="lang-btn" id="lang-en" type="button">
 									English
@@ -676,28 +676,28 @@
 
 						<div class="inventory-section">
 							<div class="inventory-title" data-i18n="inventory_title">
-								РРЅРІРµРЅС‚Р°СЂСЊ РїРѕРґР°СЂРєРѕРІ
+								Инвентарь подарков
 							</div>
 							<div id="inventory-list" class="inventory-list">
-								<div class="inventory-empty">РЈ РІР°СЃ РїРѕРєР° РЅРµС‚ РїРѕРґР°СЂРєРѕРІ</div>
+								<div class="inventory-empty">У вас пока нет подарков</div>
 							</div>
 						</div>
 					</div>
 				</section>
 
-				<!-- Р­РєСЂР°РЅ РђР”РњРРќ -->
+				<!-- Экран АДМИН -->
 				<section id="screen-admin" class="screen">
-					<div class="screen-title">РђРґРјРёРЅ-РїР°РЅРµР»СЊ</div>
-					<div class="screen-subtitle">Р”РѕСЃС‚СѓРї С‚РѕР»СЊРєРѕ РґР»СЏ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂР°.</div>
+					<div class="screen-title">Админ-панель</div>
+					<div class="screen-subtitle">Доступ только для администратора.</div>
 
-					<!-- 1) РџСЂРѕРјРѕРєРѕРґС‹ -->
+					<!-- 1) Промокоды -->
 					<div class="bonus-card">
-						<div class="bonus-title">РџСЂРѕРјРѕРєРѕРґС‹</div>
+						<div class="bonus-title">Промокоды</div>
 
 						<div class="promo-admin-row">
 							<select id="admin-promo-type">
-								<option value="gift">РќР° РјРёС€РєСѓ</option>
-								<option value="balance">РќР° TON</option>
+								<option value="gift">На мишку</option>
+								<option value="balance">На TON</option>
 							</select>
 							<input id="admin-promo-code" type="text" placeholder="PROMO123" />
 						</div>
@@ -707,7 +707,7 @@
 								id="admin-promo-amount"
 								type="number"
 								step="0.01"
-								placeholder="РЎСѓРјРјР° TON (РµСЃР»Рё TON)"
+								placeholder="Сумма TON (если TON)"
 							/>
 							<input
 								id="admin-promo-maxuses"
@@ -724,51 +724,51 @@
 							class="action-btn action-green"
 							type="button"
 						>
-							РЎРѕР·РґР°С‚СЊ РїСЂРѕРјРѕРєРѕРґ
+							Создать промокод
 						</button>
 
 						<div style="height: 10px"></div>
 
-						<div id="admin-promos-list" class="admin-promos-list">вЂ”</div>
+						<div id="admin-promos-list" class="admin-promos-list">—</div>
 
 						<button
 							id="admin-promos-refresh"
 							class="action-btn action-blue"
 							type="button"
 						>
-							РћР±РЅРѕРІРёС‚СЊ СЃРїРёСЃРѕРє
+							Обновить список
 						</button>
 					</div>
 
-					<!-- 2) РЎС‚Р°С‚РёСЃС‚РёРєР° -->
+					<!-- 2) Статистика -->
 					<div class="bonus-card">
-						<div class="bonus-title">РЎС‚Р°С‚РёСЃС‚РёРєР°</div>
-						<div class="admin-stats" id="admin-stats">вЂ”</div>
+						<div class="bonus-title">Статистика</div>
+						<div class="admin-stats" id="admin-stats">—</div>
 						<button
 							id="admin-stats-refresh"
 							class="action-btn action-blue"
 							type="button"
 						>
-							РћР±РЅРѕРІРёС‚СЊ
+							Обновить
 						</button>
 					</div>
 
-					<!-- 3) РџРѕР»СЊР·РѕРІР°С‚РµР»Рё -->
+					<!-- 3) Пользователи -->
 					<div class="bonus-card">
-						<div class="bonus-title">РџРѕР»СЊР·РѕРІР°С‚РµР»Рё</div>
+						<div class="bonus-title">Пользователи</div>
 
 						<div class="promo-admin-row">
 							<input
 								id="admin-users-q"
 								type="text"
-								placeholder="@username РёР»Рё ID"
+								placeholder="@username или ID"
 							/>
 							<button
 								id="admin-users-search"
 								class="action-btn action-blue"
 								type="button"
 							>
-								РџРѕРёСЃРє
+								Поиск
 							</button>
 						</div>
 
@@ -793,21 +793,21 @@
 						</div>
 					</div>
 
-					<!-- 4) РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° Р±Р°Р»Р°РЅСЃР° -->
+					<!-- 4) Корректировка баланса -->
 					<div class="bonus-card">
-						<div class="bonus-title">Р’С‹РґР°С‚СЊ / СЃРЅСЏС‚СЊ TON</div>
+						<div class="bonus-title">Выдать / снять TON</div>
 
 						<div class="promo-admin-row">
 							<input
 								id="admin-adj-tgid"
 								type="text"
-								placeholder="tg_id (С‡РёСЃР»Рѕ)"
+								placeholder="tg_id (число)"
 							/>
 							<input
 								id="admin-adj-delta"
 								type="number"
 								step="0.01"
-								placeholder="+1 РёР»Рё -1"
+								placeholder="+1 или -1"
 							/>
 						</div>
 
@@ -816,18 +816,18 @@
 							class="action-btn action-green"
 							type="button"
 						>
-							РџСЂРёРјРµРЅРёС‚СЊ
+							Применить
 						</button>
 
 						<div class="admin-stats" id="admin-adj-result"></div>
 					</div>
 
-					<!-- 5) Р Р°СЃСЃС‹Р»РєР° -->
+					<!-- 5) Рассылка -->
 					<div class="bonus-card">
-						<div class="bonus-title">рџ“Ј Р Р°СЃСЃС‹Р»РєР°</div>
+						<div class="bonus-title">📣 Рассылка</div>
 						<div class="bonus-text">
-							РќР°РїРёС€Рё С‚РµРєСЃС‚ Рё РІС‹Р±РµСЂРё, РєРѕРіРґР° РѕС‚РїСЂР°РІРёС‚СЊ. РџРѕРґРґРµСЂР¶РёРІР°РµС‚СЃСЏ HTML
-							(РЅР°РїСЂРёРјРµСЂ: &lt;b&gt;Р¶РёСЂРЅС‹Р№&lt;/b&gt;).
+							Напиши текст и выбери, когда отправить. Поддерживается HTML
+							(например: &lt;b&gt;жирный&lt;/b&gt;).
 						</div>
 
 						<textarea
@@ -838,7 +838,7 @@
 								resize: vertical;
 								margin-top: 10px;
 							"
-							placeholder="РўРµРєСЃС‚ СЂР°СЃСЃС‹Р»РєРё..."
+							placeholder="Текст рассылки..."
 						></textarea>
 
 						<div
@@ -854,28 +854,28 @@
 								class="action-btn action-green"
 								type="button"
 							>
-								РћС‚РїСЂР°РІРёС‚СЊ СЃРµР№С‡Р°СЃ
+								Отправить сейчас
 							</button>
 							<button
 								id="admin-bc-10m"
 								class="action-btn action-blue"
 								type="button"
 							>
-								Р§РµСЂРµР· 10 РјРёРЅСѓС‚
+								Через 10 минут
 							</button>
 							<button
 								id="admin-bc-1h"
 								class="action-btn action-blue"
 								type="button"
 							>
-								Р§РµСЂРµР· 1 С‡Р°СЃ
+								Через 1 час
 							</button>
 							<button
 								id="admin-bc-24h"
 								class="action-btn action-blue"
 								type="button"
 							>
-								Р§РµСЂРµР· 24 С‡Р°СЃР°
+								Через 24 часа
 							</button>
 						</div>
 
@@ -884,7 +884,7 @@
 							class="admin-stats"
 							style="margin-top: 10px"
 						>
-							вЂ”
+							—
 						</div>
 					</div>
 				</section>
@@ -901,7 +901,7 @@
 							<path d="M12 11v6M9 14h6" />
 						</svg>
 					</span>
-					<span>РџСЂРёРіР»Р°СЃРёС‚СЊ</span>
+					<span>Пригласить</span>
 				</button>
 
 				<button class="nav-btn active" data-target="home">
@@ -911,7 +911,7 @@
 							<polyline points="9 22 9 12 15 12 15 22" />
 						</svg>
 					</span>
-					<span>Р“Р»Р°РІРЅР°СЏ</span>
+					<span>Главная</span>
 				</button>
 
 				<button class="nav-btn" data-target="bonus">
@@ -923,7 +923,7 @@
 							<path d="M12 6v4M12 14h.01" />
 						</svg>
 					</span>
-					<span>Р‘РѕРЅСѓСЃС‹</span>
+					<span>Бонусы</span>
 				</button>
 
 				<button class="nav-btn" data-target="profile">
@@ -933,7 +933,7 @@
 							<circle cx="12" cy="7" r="4" />
 						</svg>
 					</span>
-					<span>РџСЂРѕС„РёР»СЊ</span>
+					<span>Профиль</span>
 				</button>
 
 				<button
@@ -947,20 +947,20 @@
 							<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
 						</svg>
 					</span>
-					<span>РђРґРјРёРЅ</span>
+					<span>Админ</span>
 				</button>
 			</nav>
 
-			<!-- РњРѕРґР°Р»РєРё -->
+			<!-- Модалки -->
 			<div id="prize-modal" class="modal">
 				<div class="modal-content">
 					<div class="modal-prize-emoji" id="modal-prize-emoji">рџ§ё</div>
-					<div class="modal-title">РџРѕР·РґСЂР°РІР»СЏРµРј!</div>
+					<div class="modal-title">Поздравляем!</div>
 					<div class="modal-text">
-						Р’С‹ РІС‹РёРіСЂР°Р»Рё <span id="modal-prize-name">РњРёС€РєР°</span>
+						Вы выиграли <span id="modal-prize-name">Мишка</span>
 					</div>
 					<div class="modal-price">
-						РЎС‚РѕРёРјРѕСЃС‚СЊ: <span id="modal-prize-price">15</span> TON
+						Стоимость: <span id="modal-prize-price">15</span> TON
 					</div>
 					<div class="modal-buttons">
 						<button
@@ -968,14 +968,14 @@
 							class="modal-btn modal-btn-sell"
 							type="button"
 						>
-							РџСЂРѕРґР°С‚СЊ
+							Продать
 						</button>
 						<button
 							id="modalKeepBtn"
 							class="modal-btn modal-btn-keep"
 							type="button"
 						>
-							Р’ РёРЅРІРµРЅС‚Р°СЂСЊ
+							В инвентарь
 						</button>
 					</div>
 				</div>
@@ -983,8 +983,8 @@
 
 			<div id="withdraw-modal" class="modal">
 				<div class="modal-content">
-					<div class="modal-title">Р’С‹РІРѕРґ TON</div>
-					<div class="modal-text">РЈРєР°Р¶Рё СЃСѓРјРјСѓ РІС‹РІРѕРґР° (РјРёРЅРёРјСѓРј 5 TON).</div>
+					<div class="modal-title">Вывод TON</div>
+					<div class="modal-text">Укажи сумму вывода (минимум 5 TON).</div>
 
 					<input
 						id="withdraw-amount-input"
@@ -992,12 +992,12 @@
 						type="number"
 						min="5"
 						step="0.01"
-						placeholder="РќР°РїСЂРёРјРµСЂ: 5"
+						placeholder="Например: 5"
 						inputmode="decimal"
 					/>
 
 					<div id="withdraw-hint" class="modal-hint">
-						Р‘Р°Р»Р°РЅСЃ: <span id="withdraw-balance-hint">0</span> TON
+						Баланс: <span id="withdraw-balance-hint">0</span> TON
 					</div>
 
 					<div class="modal-buttons">
@@ -1006,14 +1006,14 @@
 							class="modal-btn modal-btn-sell"
 							type="button"
 						>
-							РћС‚РјРµРЅР°
+							Отмена
 						</button>
 						<button
 							id="withdraw-confirm"
 							class="modal-btn modal-btn-keep"
 							type="button"
 						>
-							РџРѕРґС‚РІРµСЂРґРёС‚СЊ
+							Подтвердить
 						</button>
 					</div>
 				</div>
@@ -1021,54 +1021,54 @@
 
 			<div id="deposit-modal" class="modal">
 				<div class="modal-content">
-					<div class="modal-title">РџРѕРїРѕР»РЅРµРЅРёРµ Р±Р°Р»Р°РЅСЃР°</div>
+					<div class="modal-title">Пополнение баланса</div>
 
 					<div class="deposit-tabs">
 						<button class="deposit-tab active" data-deposit-tab="ton">
 							TON
 						</button>
 						<button class="deposit-tab" data-deposit-tab="nft">
-							NFT РїРѕРґР°СЂРєРѕРј
+							NFT подарком
 						</button>
 					</div>
 
 					<div class="deposit-body deposit-body-ton" style="display: block">
-						<div class="deposit-subtitle">Р—Р°РїРѕР»РЅРёС‚Рµ РґР°РЅРЅС‹Рµ</div>
+						<div class="deposit-subtitle">Заполните данные</div>
 
 						<button
 							id="connect-ton-btn"
 							class="modal-btn modal-btn-keep"
 							type="button"
 						>
-							РџРѕРґРєР»СЋС‡РёС‚Рµ TON РєРѕС€РµР»С‘Рє
+							Подключите TON кошелёк
 						</button>
 
 						<div class="deposit-form">
-							<label class="deposit-label">РЎСѓРјРјР° РїРѕРїРѕР»РЅРµРЅРёСЏ (TON)</label>
+							<label class="deposit-label">Сумма пополнения (TON)</label>
 							<input
 								id="deposit-amount-input"
 								class="modal-input"
 								type="number"
 								min="0.1"
 								step="0.01"
-								placeholder="Р’РІРµРґРёС‚Рµ СЃСѓРјРјСѓ..."
+								placeholder="Введите сумму..."
 								disabled
 							/>
 						</div>
 					</div>
 
 					<div class="deposit-body deposit-body-nft" style="display: none">
-						<div class="deposit-subtitle">РџРѕРїРѕР»РЅРµРЅРёРµ РїРѕРґР°СЂРєРѕРј (NFT)</div>
+						<div class="deposit-subtitle">Пополнение подарком (NFT)</div>
 						<div class="deposit-text">
-							Р”Р»СЏ РґРµРїРѕР·РёС‚Р° РїРѕРґР°СЂРєРѕРј (NFT) РЅР°РїРёС€РёС‚Рµ РЅР°С€РµРјСѓ РјРѕРґРµСЂР°С‚РѕСЂСѓ РІ Telegram.
-							РћРЅ РїСЂРёРјРµС‚ РїРѕРґР°СЂРѕРє Рё Р·Р°С‡РёСЃР»РёС‚ СЌРєРІРёРІР°Р»РµРЅС‚ РЅР° Р±Р°Р»Р°РЅСЃ.
+							Для депозита подарком (NFT) напишите нашему модератору в Telegram.
+							Он примет подарок и зачислит эквивалент на баланс.
 						</div>
 						<button
 							id="deposit-nft-contact"
 							class="modal-btn modal-btn-keep"
 							type="button"
 						>
-							РќР°РїРёСЃР°С‚СЊ @modergw
+							Написать @modergw
 						</button>
 					</div>
 
@@ -1078,7 +1078,7 @@
 							class="modal-btn modal-btn-sell"
 							type="button"
 						>
-							Р—Р°РєСЂС‹С‚СЊ
+							Закрыть
 						</button>
 						<button
 							id="deposit-confirm"
@@ -1086,7 +1086,7 @@
 							type="button"
 							disabled
 						>
-							РџРѕРїРѕР»РЅРёС‚СЊ
+							Пополнить
 						</button>
 					</div>
 				</div>
@@ -1103,7 +1103,7 @@
 			</div>
 		</div>
 
-		<!-- Р’РёРґРµРѕ-СЂР°РєРµС‚Р° (СЂРёСЃСѓРµРј РЅР° canvas, СЃР°Рј СЌР»РµРјРµРЅС‚ СЃРєСЂС‹С‚) -->
+		<!-- Видео-ракета (рисуем на canvas, сам элемент скрыт) -->
 		<video
 			id="rocket-video"
 			class="ui-loop-video"
