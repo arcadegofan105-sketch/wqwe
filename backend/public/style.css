@@ -264,7 +264,7 @@ body {
 	font-weight: 700;
 }
 
-/* РѕР±С‰Р°СЏ РєРЅРѕРїРєР°-СЃС‚Р°С‚СѓСЃ РєРѕС€РµР»СЊРєР° */
+/* общая кнопка-статус кошелька */
 .wallet-status {
 	margin-left: 4px;
 	border-radius: 999px;
@@ -284,7 +284,7 @@ body {
 		transform 0.1s ease;
 }
 
-/* РЅРµ РїРѕРґРєР»СЋС‡РµРЅ вЂ” РєСЂСѓРі СЃ РїР»СЋСЃРёРєРѕРј, РЅРµРѕРЅ-СЃРёРЅРёР№ */
+/* не подключен — круг с плюсиком, неон-синий */
 .wallet-status-disconnected {
 	width: 24px;
 	padding: 0;
@@ -297,7 +297,7 @@ body {
 		0 8px 20px rgba(37, 99, 235, 0.65);
 }
 
-/* РїРѕРґРєР»СЋС‡РµРЅ вЂ” С‡РёРї СЃ РѕР±РІРѕРґРєРѕР№ TON */
+/* подключен — чип с обводкой TON */
 .wallet-status-connected {
 	background: rgba(15, 23, 42, 0.95);
 	color: #e5e7eb;
@@ -350,19 +350,19 @@ body {
 	initial-value: 0deg;
 }
 
-/* ===== WHEEL (РіРѕС‚РѕРІС‹Р№ Р±Р»РѕРє) ===== */
+/* ===== WHEEL (готовый блок) ===== */
 
-/* Р’РђР–РќРћ: С‡С‚РѕР±С‹ Р°РЅРёРјР°С†РёСЏ РєР°СЃС‚РѕРјРЅРѕРіРѕ СѓРіР»Р° СЂР°Р±РѕС‚Р°Р»Р° РєР°Рє РЅР°РґРѕ */
+/* ВАЖНО: чтобы анимация кастомного угла работала как надо */
 @property --wheel-rot {
 	syntax: '<angle>';
 	inherits: true;
 	initial-value: 0deg;
 }
 
-/* РќР°СЃС‚СЂРѕР№РєРё СЂР°Р·РјРµСЂРѕРІ (РїРѕРґРєСЂСѓС‡РёРІР°Р№ РїРѕРґ СЃРµР±СЏ) */
+/* Настройки размеров (подкручивай под себя) */
 :root {
-	--wheel-icon-box: 68px; /* СЂР°Р·РјРµСЂ "РїР»Р°С€РєРё" РїРѕРґ РїРѕРґР°СЂРѕРє */
-	--wheel-icon-size: 46px; /* СЂР°Р·РјРµСЂ СЃР°РјРѕР№ РёРєРѕРЅРєРё */
+	--wheel-icon-box: 68px; /* размер "плашки" под подарок */
+	--wheel-icon-size: 46px; /* размер самой иконки */
 }
 
 .wheel-wrapper {
@@ -400,7 +400,7 @@ body {
 	transition: --wheel-rot 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
 }
 
-/* ===== РєСЂР°СЃРёРІРѕРµ РґРµР»РµРЅРёРµ РєРѕР»РµСЃР° РЅР° 7 СЃРµРєС‚РѕСЂРѕРІ (СЃРїРёС†С‹) ===== */
+/* ===== красивое деление колеса на 7 секторов (спицы) ===== */
 .wheel::after {
 	content: '';
 	position: absolute;
@@ -430,7 +430,7 @@ body {
 			transparent 100%
 		);
 
-	/* 7 СЃРµРєС‚РѕСЂРѕРІ => 360/7 = 51.4286deg */
+	/* 7 секторов => 360/7 = 51.4286deg */
 	-webkit-mask: conic-gradient(
 		from -90deg,
 		#000 0 1deg,
@@ -449,7 +449,7 @@ body {
 		conic-gradient(from -90deg, #000 0 1deg, transparent 1deg 51.4286deg);
 }
 
-/* РРєРѕРЅРєРё Рё С†РµРЅС‚СЂ вЂ” РІС‹С€Рµ СЃРїРёС† */
+/* Иконки и центр — выше спиц */
 .sector {
 	z-index: 3;
 }
@@ -457,12 +457,12 @@ body {
 	z-index: 4;
 }
 
-/* Р Р°РґРёСѓСЃ, РЅР° РєРѕС‚РѕСЂРѕРј СЃС‚РѕСЏС‚ РёРєРѕРЅРєРё (РїРѕРґРєСЂСѓС‡РёРІР°Р№ 105вЂ“125) */
+/* Радиус, на котором стоят иконки (подкручивай 105-125) */
 #wheel {
 	--icon-r: 112px;
 }
 
-/* РЎРµРєС‚РѕСЂ (РїРѕР·РёС†РёСЏ РЅР° РѕРєСЂСѓР¶РЅРѕСЃС‚Рё) */
+/* Сектор (позиция на окружности) */
 #wheel .sector {
 	position: absolute;
 	top: 50%;
@@ -475,10 +475,10 @@ body {
 	justify-content: center;
 
 	transform: translate(-50%, -50%) rotate(var(--a))
-		translateY(calc(-1 * var(--icon-r))) rotate(calc(0deg - var(--a))); /* С‡С‚РѕР±С‹ РёРєРѕРЅРєР° Р±С‹Р»Р° СЂРѕРІРЅРѕР№ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ СЃРµРєС‚РѕСЂР° */
+		translateY(calc(-1 * var(--icon-r))) rotate(calc(0deg - var(--a))); /* чтобы иконка была ровной относительно сектора */
 }
 
-/* РЈРіРѕР» РґР»СЏ РєР°Р¶РґРѕРіРѕ СЃРµРєС‚РѕСЂР° */
+/* Угол для каждого сектора */
 #wheel .sector[data-index='0'] {
 	--a: 0deg;
 }
@@ -501,7 +501,7 @@ body {
 	--a: 308.57deg;
 }
 
-/* РџР»Р°С€РєР° + РІС‹СЂР°РІРЅРёРІР°РЅРёРµ СЂР°Р·РјРµСЂР° РїРѕРґР°СЂРєРѕРІ */
+/* Плашка + выравнивание размера подарков */
 #wheel .sector .sector-inner {
 	width: var(--wheel-icon-box);
 	height: var(--wheel-icon-box);
@@ -516,16 +516,16 @@ body {
 		0 0 0 1px rgba(148, 163, 184, 0.22),
 		0 14px 30px rgba(0, 0, 0, 0.45);
 
-	/* РѕРґРёРЅР°РєРѕРІС‹Р№ СЂР°Р·РјРµСЂ РґР»СЏ СЌРјРѕРґР·Рё */
+	/* одинаковый размер для эмодзи */
 	font-size: var(--wheel-icon-size);
 	line-height: 1;
 
-	/* Р“Р›РђР’РќРћР•: РєРѕРјРїРµРЅСЃРёСЂСѓРµРј РІСЂР°С‰РµРЅРёРµ РІСЃРµРіРѕ РєРѕР»РµСЃР°, С‡С‚РѕР±С‹ РІСЃРµРіРґР° Р±С‹Р»Рѕ СЂРѕРІРЅРѕ */
+	/* ГЛАВНОЕ: компенсируем вращение всего колеса, чтобы всегда было ровно */
 	transform: rotate(calc(-1 * var(--wheel-rot)));
 	transform-origin: center;
 }
 
-/* Р•СЃР»Рё РІРЅСѓС‚СЂРё sector-inner Сѓ С‚РµР±СЏ РєР°СЂС‚РёРЅРєР° <img> */
+/* Если внутри sector-inner у тебя картинка <img> */
 #wheel .sector .sector-inner img {
 	width: var(--wheel-icon-size);
 	height: var(--wheel-icon-size);
@@ -533,7 +533,7 @@ body {
 	display: block;
 }
 
-/* Р•СЃР»Рё РёРєРѕРЅРєРё С‡РµСЂРµР· background-image (pepe-icon / gift-icon) */
+/* Если иконки через background-image (pepe-icon / gift-icon) */
 #wheel .sector .pepe-icon,
 #wheel .sector .gift-icon {
 	width: var(--wheel-icon-size);
@@ -543,7 +543,7 @@ body {
 	background-position: center;
 }
 
-/* РљР°Р»РµРЅРґР°СЂСЊ: РєСЂСѓРїРЅРѕ, Р±РµР· РёСЃРєР°Р¶РµРЅРёР№ (РєР°РґСЂРёСЂРѕРІР°РЅРёРµ РІРјРµСЃС‚Рѕ "РјРµР»РєРѕ") */
+/* Календарь: крупно, без искажений (кадрирование вместо "мелко") */
 #wheel .sector .gift-icon[style*='Deskcelend.png'] {
 	width: calc(var(--wheel-icon-size) * 1.35);
 	height: calc(var(--wheel-icon-size) * 1.05);
@@ -656,7 +656,7 @@ body {
 	text-align: center;
 }
 
-/* ===== WHEEL PRIZES (new "Р§С‚Рѕ РІ РєРѕР»РµСЃРµ?") ===== */
+/* ===== WHEEL PRIZES (new "Что в колесе?") ===== */
 
 .wheel-prizes {
 	margin-top: 14px;
@@ -682,7 +682,7 @@ body {
 	text-shadow: 0 10px 24px rgba(0, 0, 0, 0.55);
 }
 
-/* РјР°Р»РµРЅСЊРєРёР№ "РєСѓР±РёРє" РєР°Рє РІ РєРµР№СЃР°С…, РїРѕРґ РѕР±С‰РёР№ СЃС‚РёР»СЊ */
+/* маленький "кубик" как в кейсах, под общий стиль */
 .wheel-prizes-cube {
 	width: 18px;
 	height: 18px;
@@ -699,14 +699,14 @@ body {
 		0 10px 26px rgba(56, 189, 248, 0.16);
 }
 
-/* СЃРµС‚РєР° РєР°Рє РЅР° "С‡С‚Рѕ РІ РєРµР№СЃРµ": 2 РєРѕР»РѕРЅРєРё (РЅР° СѓР·РєРёС… СЌРєСЂР°РЅР°С…), РЅР° С€РёСЂРѕРєРёС… РјРѕР¶РЅРѕ 3 */
+/* сетка как на "что в кейсе": 2 колонки (на узких экранах), на широких можно 3 */
 .wheel-prizes .wheel-prizes-grid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 12px;
 }
 
-/* РЅР° Р±РѕР»РµРµ С€РёСЂРѕРєРёС… вЂ” 3 РєРѕР»РѕРЅРєРё, С‡С‚РѕР±С‹ Р±С‹Р»Рѕ РїР»РѕС‚РЅРµРµ РєР°Рє Сѓ С‚РµР±СЏ СЂР°РЅСЊС€Рµ */
+/* на более широких — 3 колонки, чтобы было плотнее как у тебя раньше */
 @media (min-width: 430px) {
 	.wheel-prizes .wheel-prizes-grid {
 		grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -755,10 +755,10 @@ body {
 	background: rgba(15, 23, 42, 0.65);
 	box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.16);
 
-	font-size: 34px; /* РµСЃР»Рё РІРґСЂСѓРі СЌРјРѕРґР·Рё */
+	font-size: 34px; /* если вдруг эмодзи */
 }
 
-/* С‡С‚РѕР±С‹ С‚РІРѕРё .gift-icon (webp) РєСЂР°СЃРёРІРѕ СЃРјРѕС‚СЂРµР»РёСЃСЊ РІ РєР°СЂС‚РѕС‡РєРµ */
+/* чтобы твои .gift-icon (webp) красиво смотрелись в карточке */
 .wheel-prizes .wheel-prize-emoji .gift-icon {
 	width: 46px;
 	height: 46px;
@@ -1170,13 +1170,13 @@ body {
 	transform: scale(0.98);
 }
 
-/* РџСЂРѕРґР°С‚СЊ */
+/* Продать */
 .inventory-btn.inv-sell {
 	background: linear-gradient(135deg, #f59e0b, #d97706);
 	color: #1f1300;
 }
 
-/* Р’С‹РІРµСЃС‚Рё */
+/* Вывести */
 .inventory-btn.inv-withdraw {
 	background: linear-gradient(135deg, #60a5fa, #6366f1);
 	color: #0b1020;
@@ -1262,7 +1262,7 @@ body {
 	opacity: 0.9;
 }
 
-/* С„РёРѕР»РµС‚РѕРІР°СЏ РїРѕР»РѕСЃРєР° СЃРІРµСЂС…Сѓ Р°РєС‚РёРІРЅРѕР№ РІРєР»Р°РґРєРё */
+/* фиолетовая полоска сверху активной вкладки */
 .nav-btn::before {
 	content: '';
 	position: absolute;
@@ -1287,7 +1287,7 @@ body {
 .nav-btn .nav-icon {
 	width: 24px;
 	height: 24px;
-	border-radius: 0; /* Р±РµР· РєСЂСѓРіР»РѕР№ РїРѕРґР»РѕР¶РєРё */
+	border-radius: 0; /* без круглой подложки */
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
@@ -1308,7 +1308,7 @@ body {
 	font-size: 11px;
 }
 
-/* Р°РєС‚РёРІРЅР°СЏ РІРєР»Р°РґРєР°: С„РёРѕР»РµС‚РѕРІР°СЏ РїРѕР»РѕСЃРєР° + РїСЂСЏРјРѕСѓРіРѕР»СЊРЅС‹Р№ С„РѕРЅ РїРѕРґ РІСЃРµР№ РєРЅРѕРїРєРѕР№ */
+/* активная вкладка: фиолетовая полоска + прямоугольный фон под всей кнопкой */
 .nav-btn.active {
 	color: #f9fafb;
 	background:
@@ -1322,7 +1322,7 @@ body {
 	transform: translateY(0);
 }
 
-/* Р±РµР· РѕС‚РґРµР»СЊРЅРѕРіРѕ РєСЂСѓР¶РєР° РІРѕРєСЂСѓРі РёРєРѕРЅРєРё */
+/* без отдельного кружка вокруг иконки */
 .nav-btn.active .nav-icon {
 	background: transparent;
 	box-shadow: none;
@@ -1335,7 +1335,7 @@ body {
 	}
 }
 
-/* ===== MODAL (РѕР±С‰Р°СЏ РѕР±РѕР»РѕС‡РєР°) ===== */
+/* ===== MODAL (общая оболочка) ===== */
 
 .modal {
 	display: none;
@@ -1353,7 +1353,7 @@ body {
 	display: flex;
 }
 
-/* РєР°СЂС‚РѕС‡РєР° РјРѕРґР°Р»РєРё РІ СЃС‚РёР»Рµ glass / РјРёРЅРёРјР°Р»РёР·Рј */
+/* карточка модалки в стиле glass / минимализм */
 .modal-content {
 	background:
 		radial-gradient(circle at top, rgba(59, 130, 246, 0.35), transparent 60%),
@@ -1373,7 +1373,7 @@ body {
 	color: #e5e7eb;
 }
 
-/* РєСЂСѓРїРЅР°СЏ РєР°СЂС‚РёРЅРєР° РїСЂРёР·Р° */
+/* крупная картинка приза */
 .modal-prize-emoji {
 	width: 96px;
 	height: 96px;
@@ -1399,7 +1399,7 @@ body {
 		0 0 0 1px rgba(15, 23, 42, 0.95);
 }
 
-/* РµСЃР»Рё СЌС‚Рѕ gift-icon РєР°СЂС‚РёРЅРєР° */
+/* если это gift-icon картинка */
 .modal-prize-emoji .gift-icon {
 	width: 72px;
 	height: 72px;
@@ -1408,13 +1408,13 @@ body {
 	background-position: center;
 }
 
-/* РµСЃР»Рё РїСЂРѕСЃС‚Рѕ СЌРјРѕРґР·Рё */
+/* если просто эмодзи */
 .modal-prize-emoji span:not(.gift-icon),
 .modal-prize-emoji .emoji {
 	font-size: 54px;
 }
 
-/* Р·Р°РіРѕР»РѕРІРѕРє/С‚РµРєСЃС‚/С†РµРЅР° */
+/* заголовок/текст/цена */
 .modal-title {
 	font-size: 19px;
 	font-weight: 700;
@@ -1436,7 +1436,7 @@ body {
 	margin-bottom: 8px;
 }
 
-/* РєРЅРѕРїРєРё */
+/* кнопки */
 .modal-buttons {
 	display: flex;
 	gap: 8px;
@@ -1463,21 +1463,21 @@ body {
 	transform: translateY(1px) scale(0.97);
 }
 
-/* РџСЂРѕРґР°С‚СЊ вЂ” Р°РєС†РµРЅС‚РЅС‹Р№ РєСЂР°СЃРЅС‹Р№ */
+/* Продать — акцентный красный */
 .modal-btn-sell {
 	background: linear-gradient(135deg, #f97373, #ef4444);
 	color: #fef2f2;
 	box-shadow: 0 8px 22px rgba(248, 113, 113, 0.5);
 }
 
-/* Р’ РёРЅРІРµРЅС‚Р°СЂСЊ вЂ” Р·РµР»С‘РЅС‹Р№ */
+/* В инвентарь — зелёный */
 .modal-btn-keep {
 	background: linear-gradient(135deg, #34d399, #16a34a);
 	color: #ecfdf3;
 	box-shadow: 0 8px 22px rgba(52, 211, 153, 0.5);
 }
 
-/* РљРЅРѕРїРєР° TON РІ РјРѕРґР°Р»РєРµ, РєРѕРіРґР° РєРѕС€РµР»С‘Рє СѓР¶Рµ РїСЂРёРІСЏР·Р°РЅ */
+/* Кнопка TON в модалке, когда кошелёк уже привязан */
 .connect-wallet-bound {
 	display: flex;
 	justify-content: space-between;
@@ -2117,7 +2117,7 @@ body {
 	}
 }
 
-/* вњ… ADD: input styles for withdraw modal */
+/* ✅ ADD: input styles for withdraw modal */
 .modal-input {
 	width: 100%;
 	padding: 12px 14px;
@@ -2166,7 +2166,7 @@ body {
 	line-height: 1.35;
 }
 
-/* === РРєРѕРЅРєРё-РїРѕРґР°СЂРєРё (РєР°СЂС‚РёРЅРєРё) === */
+/* === Иконки-подарки (картинки) === */
 .gift-icon {
 	display: inline-block;
 	background-repeat: no-repeat;
@@ -2174,26 +2174,26 @@ body {
 	background-size: cover;
 }
 
-/* РЎРџРРЎРљР (РєРѕР»РµСЃРѕ, РєРµР№СЃС‹, РЅР°РіСЂР°РґС‹ Рё С‚.Рї.) */
+/* СПИСКИ (колесо, кейсы, награды и т.п.) */
 .prize-emoji .gift-icon,
 .case-prize-emoji .gift-icon,
 .case-open-reward-emoji .gift-icon {
-	width: 44px; /* Р±РѕР»СЊС€РёРµ, РЅРѕ С‡СѓС‚СЊ РјРµРЅСЊС€Рµ РёРЅРІРµРЅС‚Р°СЂСЏ */
+	width: 44px; /* большие, но чуть меньше инвентаря */
 	height: 44px;
 	border-radius: 14px;
 	box-shadow: 0 5px 14px rgba(0, 0, 0, 0.55);
 }
 
-/* РРќР’Р•РќРўРђР Р¬ */
+/* ИНВЕНТАРЬ */
 .inventory-item-emoji .gift-icon,
 .inv-card-image .gift-icon {
-	width: 52px; /* РµС‰С‘ РєСЂСѓРїРЅРµРµ */
+	width: 52px; /* ещё крупнее */
 	height: 52px;
 	border-radius: 16px;
 	box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6);
 }
 
-/* РњРћР”РђР›РљРђ РџР РР—Рђ (С†РµРЅС‚СЂ) */
+/* МОДАЛКА ПРИЗА (центр) */
 .modal-prize-emoji .gift-icon {
 	width: 80px;
 	height: 80px;
@@ -2328,7 +2328,7 @@ body {
 	color: #bbf7d0;
 }
 
-/* 3 РєРµР№СЃР° */
+/* 3 кейса */
 .case-image-newyear {
 	background-image: url('celendarcase.jpg'); /* Celendar case */
 }
@@ -2358,7 +2358,7 @@ body {
 	color: #a5f3fc;
 }
 
-/* СЌРєСЂР°РЅ РѕС‚РєСЂС‹С‚РёСЏ РѕРґРЅРѕРіРѕ РєРµР№СЃР° */
+/* экран открытия одного кейса */
 
 .case-open-card {
 	margin-top: 16px;
@@ -2984,7 +2984,7 @@ body {
 	white-space: nowrap;
 }
 
-/* СЃРµС‚РєР° РїРѕРґР°СЂРєРѕРІ СЃРЅРёР·Сѓ РєР°Рє РІ wheel-prizes */
+/* сетка подарков снизу как в wheel-prizes */
 .case-view-grid {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2997,7 +2997,7 @@ body {
 	}
 }
 
-/* РєР°СЂС‚РѕС‡РєР° РїРѕРґР°СЂРєР° (СѓРЅРёРІРµСЂСЃР°Р»СЊРЅР°СЏ) */
+/* карточка подарка (универсальная) */
 .case-view-grid .case-prize-card {
 	padding: 12px 12px 10px;
 	border-radius: 16px;
@@ -3252,7 +3252,7 @@ body {
 	overflow: hidden;
 }
 
-/* ===== NEON POINTERS (СЃРёР»СЊРЅРѕ Р»РµРІРµРµ С†РµРЅС‚СЂР°) ===== */
+/* ===== NEON POINTERS (сильно левее центра) ===== */
 .case-anim-pointer {
 	position: absolute;
 	left: 50%;
@@ -3269,21 +3269,21 @@ body {
 		drop-shadow(0 12px 18px rgba(0, 0, 0, 0.55));
 }
 
-/* РІРµСЂС…РЅСЏСЏ: РЅРѕСЃ РІРЅРёР·, СЃРґРІРёРі РІР»РµРІРѕ РЅР° 24px */
+/* верхняя: нос вниз, сдвиг влево на 24px */
 .case-anim-pointer-top {
 	top: 10px !important;
 	bottom: auto !important;
 	transform: translateX(-50%) rotate(0deg) !important;
 }
 
-/* РЅРёР¶РЅСЏСЏ: РЅРѕСЃ РІРІРµСЂС…, С‚РѕС‚ Р¶Рµ СЃРґРІРёРі */
+/* нижняя: нос вверх, тот же сдвиг */
 .case-anim-pointer-bottom {
 	bottom: 10px !important;
 	top: auto !important;
 	transform: translateX(-50%) rotate(180deg) !important;
 }
 
-/* Р»РёРЅРёСЏ, С‚РѕС‚ Р¶Рµ СЃРґРІРёРі РІР»РµРІРѕ */
+/* линия, тот же сдвиг влево */
 .case-anim-pointer-line {
 	position: absolute;
 	left: 50%;
@@ -3338,7 +3338,7 @@ body {
 	font-size: 54px;
 }
 
-/* ===== WHEEL PRIZES (new "Р§С‚Рѕ РІ РєРѕР»РµСЃРµ?") ===== */
+/* ===== WHEEL PRIZES (new "Что в колесе?") ===== */
 
 .wheel-prizes {
 	margin-top: 14px;
@@ -3450,7 +3450,7 @@ body {
 	line-height: 1.15;
 }
 
-/* С†РµРЅР° РєР°Рє РЅР° С„РѕС‚Рѕ: РјР°Р»РµРЅСЊРєРёР№ TON-Р»РѕРіРѕ + С‚РµРєСЃС‚, Р±РµР· Р·РІС‘Р·Рґ */
+/* цена как на фото: маленький TON-лого + текст, без звёзд */
 .wheel-prizes .wheel-prize-price {
 	display: inline-flex;
 	align-items: center;
@@ -3472,7 +3472,7 @@ body {
 	width: 14px;
 	height: 14px;
 	display: inline-block;
-	background-image: url('toncoin-ton-logo.png'); /* С‚РѕС‚ Р¶Рµ С„Р°Р№Р» С‡С‚Рѕ РІ .balance-icon */
+	background-image: url('toncoin-ton-logo.png'); /* тот же файл что в .balance-icon */
 	background-size: contain;
 	background-repeat: no-repeat;
 	background-position: center;
@@ -3483,7 +3483,7 @@ body {
 	line-height: 1;
 }
 
-/* --- wheel icons upright (РЅРµ РєСЂСѓС‚СЏС‚СЃСЏ РІРјРµСЃС‚Рµ СЃ РєРѕР»РµСЃРѕРј) --- */
+/* --- wheel icons upright (не крутятся вместе с колесом) --- */
 :root {
 	--wheel-rot: 0deg;
 }
@@ -3493,7 +3493,7 @@ body {
 	align-items: center;
 	justify-content: center;
 
-	/* РіР»Р°РІРЅРѕРµ: РєРѕРЅС‚СЂ-РїРѕРІРѕСЂРѕС‚ */
+	/* главное: контр-поворот */
 	transform: rotate(calc(-1 * var(--wheel-rot)));
 	transform-origin: center;
 }
@@ -3562,7 +3562,7 @@ body {
 	line-height: 1;
 }
 
-/* РЈРІРµР»РёС‡РёС‚СЊ РёРєРѕРЅРєРё РІ СЃРїРёСЃРєРµ РїСЂРёР·РѕРІ РєРµР№СЃР° (РІРЅРёР·Сѓ) */
+/* Увеличить иконки в списке призов кейса (внизу) */
 #case-open-rewards-list .gift-icon {
 	width: 44px;
 	height: 44px;
@@ -3573,7 +3573,7 @@ body {
 	flex: 0 0 44px;
 }
 
-/* РљРѕРЅС‚РµР№РЅРµСЂ РёРЅРІРµРЅС‚Р°СЂСЏ */
+/* Контейнер инвентаря */
 #inventory-list {
 	margin-top: 12px;
 	display: grid;
@@ -3587,7 +3587,7 @@ body {
 	}
 }
 
-/* РљР°СЂС‚РѕС‡РєР° РїСЂРµРґРјРµС‚Р° */
+/* Карточка предмета */
 .inv-card {
 	position: relative;
 	border-radius: 18px;
@@ -3606,7 +3606,7 @@ body {
 	gap: 8px;
 }
 
-/* Р’РµСЂС… вЂ” Р±РѕР»СЊС€Р°СЏ РєР°СЂС‚РёРЅРєР° + РЅР°Р·РІР°РЅРёРµ */
+/* Верх — большая картинка + название */
 .inv-card-image-wrap {
 	display: flex;
 	flex-direction: column;
@@ -3616,7 +3616,7 @@ body {
 
 .inv-card-image {
 	width: 100%;
-	aspect-ratio: 1 / 1; /* РєРІР°РґСЂР°С‚ РєР°Рє РЅР° СЃРєСЂРёРЅРµ */
+	aspect-ratio: 1 / 1; /* квадрат как на скрине */
 	border-radius: 16px;
 	background: radial-gradient(
 		circle at top,
@@ -3629,7 +3629,7 @@ body {
 	overflow: hidden;
 }
 
-/* РґРµР»Р°РµРј РёРєРѕРЅРєРё РєСЂСѓРїРЅС‹РјРё */
+/* делаем иконки крупными */
 .inv-card-image .gift-icon {
 	width: 86%;
 	height: 86%;
@@ -3652,7 +3652,7 @@ body {
 	text-shadow: 0 8px 18px rgba(0, 0, 0, 0.85);
 }
 
-/* РќРёР· вЂ” С†РµРЅР° + РґРІРµ РєРЅРѕРїРєРё */
+/* Низ — цена + две кнопки */
 .inv-card-footer {
 	margin-top: 4px;
 	display: flex;
@@ -3660,7 +3660,7 @@ body {
 	gap: 8px;
 }
 
-/* TON С†РµРЅР° */
+/* TON цена */
 .inv-card-price {
 	align-self: flex-start;
 	display: inline-flex;
@@ -3677,7 +3677,7 @@ body {
 	color: #bbf7d0;
 }
 
-/* TON РёРєРѕРЅРєР° (РїРѕРґСЃС‚Р°РІСЊ РїСЂР°РІРёР»СЊРЅС‹Р№ РїСѓС‚СЊ Рє РєР°СЂС‚РёРЅРєРµ) */
+/* TON иконка (подставь правильный путь к картинке) */
 .inv-ton-icon {
 	width: 16px;
 	height: 16px;
@@ -3693,7 +3693,7 @@ body {
 	line-height: 1;
 }
 
-/* РљРЅРѕРїРєРё РџСЂРѕРґР°С‚СЊ / Р’С‹РІРµСЃС‚Рё */
+/* Кнопки Продать / Вывести */
 .inv-card-actions {
 	display: flex;
 	gap: 8px;
@@ -3730,7 +3730,7 @@ body {
 	transform: translateY(1px) scale(0.98);
 }
 
-/* ===== REWARDS / РќРђР“Р РђР”Р« ===== */
+/* ===== REWARDS / НАГРАДЫ ===== */
 
 #screen-rewards .screen-title {
 	font-size: 20px;
@@ -3744,7 +3744,7 @@ body {
 	margin-top: 4px;
 }
 
-/* РєРѕР»РѕРЅРєР° РЅР°РіСЂР°Рґ */
+/* колонка наград */
 .rewards-list {
 	margin-top: 14px;
 	display: flex;
@@ -3752,7 +3752,7 @@ body {
 	gap: 10px;
 }
 
-/* РєР°СЂС‚РѕС‡РєР° РЅР°РіСЂР°РґС‹ */
+/* карточка награды */
 .bonus-card {
 	position: relative;
 	border-radius: 18px;
@@ -3777,7 +3777,7 @@ body {
 	gap: 6px;
 }
 
-/* РІРµСЂС‚РёРєР°Р»СЊРЅР°СЏ С†РІРµС‚РЅР°СЏ РїРѕР»РѕСЃР° СЃР»РµРІР° */
+/* вертикальная цветная полоса слева */
 .bonus-card::before {
 	content: '';
 	position: absolute;
@@ -3790,7 +3790,7 @@ body {
 	opacity: 0.9;
 }
 
-/* Р·Р°РіРѕР»РѕРІРѕРє Рё С‚РµРєСЃС‚ СЃ СѓС‡С‘С‚РѕРј РїРѕР»РѕСЃРєРё */
+/* заголовок и текст с учётом полоски */
 .bonus-title {
 	margin-left: 12px;
 	font-size: 14px;
@@ -3805,12 +3805,12 @@ body {
 	color: #9ca3af;
 }
 
-/* РїСЂРѕРіСЂРµСЃСЃ (invite) РґРµР»Р°РµРј Р·Р°РјРµС‚РЅРµРµ */
+/* прогресс (invite) делаем заметнее */
 .bonus-card .bonus-text + .bonus-text {
 	color: #c7d2fe;
 }
 
-/* РєРЅРѕРїРєР° РЅР°РіСЂР°РґС‹ */
+/* кнопка награды */
 .bonus-card .action-btn {
 	margin-top: 6px;
 	align-self: flex-start;
@@ -3820,7 +3820,7 @@ body {
 	font-weight: 700;
 }
 
-/* РґРѕСЃС‚СѓРїРЅР°: Р·РµР»С‘РЅС‹Р№ РЅРµРѕРЅ */
+/* доступна: зелёный неон */
 .bonus-card .action-btn:not([disabled]) {
 	background: linear-gradient(135deg, #22c55e, #16a34a);
 	color: #ecfdf5;
@@ -3829,7 +3829,7 @@ body {
 		0 10px 24px rgba(22, 163, 74, 0.55);
 }
 
-/* РЅРµРґРѕСЃС‚СѓРїРЅР°: С‚С‘РјРЅР°СЏ */
+/* недоступна: тёмная */
 .bonus-card .action-btn[disabled] {
 	background: rgba(15, 23, 42, 0.9);
 	color: #6b7280;
