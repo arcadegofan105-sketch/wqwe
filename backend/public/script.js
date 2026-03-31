@@ -2515,6 +2515,7 @@ const crashCanvas = document.getElementById('crash-canvas')
 const crashCtx = crashCanvas ? crashCanvas.getContext('2d') : null
 
 const rocketVideo = document.getElementById('rocket-video')
+const uiLoopVideos = Array.from(document.querySelectorAll('.ui-loop-video'))
 
 // offscreen canvas для вырезания чёрного фона (chroma key)
 const rocketKeyCanvas = document.createElement('canvas')
@@ -2566,6 +2567,59 @@ function initCrashCanvas() {
 	crashCanvas.width = Math.max(1, Math.floor(rect.width * dpr))
 	crashCanvas.height = Math.max(1, Math.floor(rect.height * dpr))
 	crashCtx.setTransform(dpr, 0, 0, dpr, 0, 0)
+}
+
+async function tryPlayLoopVideo(video) {
+	if (!video) return
+	try {
+		video.defaultMuted = true
+		video.muted = true
+		video.playsInline = true
+		await video.play()
+	} catch (_) {
+		// иногда браузер временно блокирует autoplay, повторим позже
+	}
+}
+
+function initLoopVideos() {
+	if (!uiLoopVideos.length) return
+
+	const revive = () => {
+		uiLoopVideos.forEach(v => {
+			if (v?.paused) void tryPlayLoopVideo(v)
+		})
+	}
+
+	uiLoopVideos.forEach(video => {
+		video.defaultMuted = true
+		video.muted = true
+		video.playsInline = true
+		video.setAttribute('playsinline', '')
+		video.setAttribute('webkit-playsinline', 'true')
+
+		video.addEventListener('pause', () => void tryPlayLoopVideo(video), {
+			passive: true,
+		})
+		video.addEventListener('canplay', () => void tryPlayLoopVideo(video), {
+			passive: true,
+		})
+		video.addEventListener('loadeddata', () => void tryPlayLoopVideo(video), {
+			passive: true,
+		})
+
+		void tryPlayLoopVideo(video)
+	})
+
+	document.addEventListener(
+		'visibilitychange',
+		() => {
+			if (document.visibilityState === 'visible') revive()
+		},
+		{ passive: true },
+	)
+
+	window.addEventListener('pageshow', revive, { passive: true })
+	window.addEventListener('focus', revive, { passive: true })
 }
 
 async function ensureRocketVideoPlaying() {
@@ -3554,6 +3608,7 @@ function setButtonLoading(btn, loading) {
 
 // ===== INIT =====
 async function init() {
+	initLoopVideos()
 	updateTelegramUserUI()
 	renderWheel()
 	renderPrizesList()
