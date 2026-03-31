@@ -32,7 +32,8 @@ db.prepare(
     last_seen_at INTEGER NOT NULL,
     last_free_spin_at INTEGER NOT NULL DEFAULT 0,
     free_wheel_available INTEGER NOT NULL DEFAULT 0,
-    wheel_deposit_progress_ton REAL NOT NULL DEFAULT 0
+    wheel_deposit_progress_ton REAL NOT NULL DEFAULT 0,
+    referral_claimed_count INTEGER NOT NULL DEFAULT 0
   )
 `
 ).run();
@@ -58,6 +59,14 @@ try {
 try {
   db.prepare(
     `ALTER TABLE users ADD COLUMN wheel_deposit_progress_ton REAL NOT NULL DEFAULT 0`
+  ).run();
+} catch (e) {
+  // колонка уже есть — игнорируем
+}
+
+try {
+  db.prepare(
+    `ALTER TABLE users ADD COLUMN referral_claimed_count INTEGER NOT NULL DEFAULT 0`
   ).run();
 } catch (e) {
   // колонка уже есть — игнорируем
@@ -322,6 +331,68 @@ export function countInvitedByInviter(inviterTgId) {
   `
   ).get(String(inviterTgId));
   return Number(row?.c || 0);
+}
+
+export function getReferralStatus(tgId) {
+  const user = getUserByTgId(tgId);
+  if (!user) throw new Error("user not found");
+
+  const invitedCount = countInvitedByInviter(tgId);
+  const claimedCount = Math.max(0, Number(user.referral_claimed_count || 0));
+  const pendingCount = Math.max(0, invitedCount - claimedCount);
+  const rateTon = 0.1;
+  const minClaimTon = 5;
+  const pendingTon = Number((pendingCount * rateTon).toFixed(2));
+
+  return {
+    invitedCount,
+    claimedCount,
+    pendingCount,
+    rateTon,
+    minClaimTon,
+    pendingTon,
+    canClaim: pendingTon >= minClaimTon,
+  };
+}
+
+export function claimReferralToBalance(tgId) {
+  const rateTon = 0.1;
+  const minClaimTon = 5;
+
+  const tx = db.transaction(() => {
+    const user = getUserByTgId(tgId);
+    if (!user) throw new Error("user not found");
+
+    const invitedCount = countInvitedByInviter(tgId);
+    const claimedCount = Math.max(0, Number(user.referral_claimed_count || 0));
+    const pendingCount = Math.max(0, invitedCount - claimedCount);
+    const pendingTon = Number((pendingCount * rateTon).toFixed(2));
+
+    if (pendingTon < minClaimTon) {
+      throw new Error(`Минимальный вывод ${minClaimTon} TON`);
+    }
+
+    const newBalance = Number((Number(user.balance || 0) + pendingTon).toFixed(2));
+
+    db.prepare(
+      `UPDATE users SET balance = ?, referral_claimed_count = ? WHERE tg_id = ?`
+    ).run(newBalance, invitedCount, String(tgId));
+
+    return {
+      ok: true,
+      creditedTon: pendingTon,
+      claimedFriends: pendingCount,
+      newBalance,
+      invitedCount,
+      claimedCount: invitedCount,
+      pendingCount: 0,
+      rateTon,
+      minClaimTon,
+      canClaim: false,
+    };
+  });
+
+  return tx();
 }
 
 // ===== Reward claims helpers =====
