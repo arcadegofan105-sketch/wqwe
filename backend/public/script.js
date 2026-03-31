@@ -346,21 +346,39 @@ function applyTranslations() {
 	const inviteSubtitleEl = document.querySelector(
 		'#screen-invite .screen-subtitle',
 	)
-	if (inviteSubtitleEl) inviteSubtitleEl.textContent = t('invite_subtitle')
+	if (inviteSubtitleEl) {
+		inviteSubtitleEl.textContent =
+			currentLang === 'en'
+				? 'Share your link and get 0.1 TON for each new invited friend.'
+				: 'Делитесь ссылкой и получайте 0.1 TON за каждого нового приглашенного друга.'
+	}
 
 	const inviteCardTitleEl = document.querySelector(
 		'#screen-invite .bonus-title',
 	)
 	if (inviteCardTitleEl) inviteCardTitleEl.textContent = t('invite_card_title')
 
+	const inviteStatsTitleEl = document.querySelector('#invite-stats-card .bonus-title')
+	if (inviteStatsTitleEl) {
+		inviteStatsTitleEl.textContent =
+			currentLang === 'en' ? 'Referral stats' : 'Реферальная статистика'
+	}
+
 	const inviteCopyBtnEl = document.getElementById('invite-copy-btn')
 	if (inviteCopyBtnEl) inviteCopyBtnEl.textContent = t('invite_copy_btn')
+
+	const inviteClaimBtnEl = document.getElementById('invite-claim-btn')
+	if (inviteClaimBtnEl) {
+		inviteClaimBtnEl.textContent =
+			currentLang === 'en' ? 'Claim to balance' : 'Вывести на баланс'
+	}
 
 	// Invite link placeholder (only if no real link yet)
 	const inviteLinkTextEl = document.getElementById('invite-link-text')
 	if (inviteLinkTextEl && !buildInviteLink()) {
 		inviteLinkTextEl.textContent = t('invite_link_placeholder')
 	}
+	renderReferralStatus()
 
 	// Bonus screen
 	const bonusTitleEl = document.querySelector('#screen-bonus .screen-title')
@@ -690,6 +708,10 @@ const adminBcResult = document.getElementById('admin-bc-result')
 // Invite UI
 const inviteLinkText = document.getElementById('invite-link-text')
 const inviteCopyBtn = document.getElementById('invite-copy-btn')
+const inviteClaimBtn = document.getElementById('invite-claim-btn')
+const inviteFriendsCountEl = document.getElementById('invite-friends-count')
+const invitePendingTonEl = document.getElementById('invite-pending-ton')
+const inviteRateTextEl = document.getElementById('invite-rate-text')
 
 // Live gifts carousel
 const liveGiftsCarouselEl = document.getElementById('live-gifts-carousel')
@@ -852,6 +874,15 @@ let isSpinning = false
 let isAdmin = false
 let selectedCaseType = null
 let isCaseOpening = false
+let referralState = {
+	invitedCount: 0,
+	claimedCount: 0,
+	pendingCount: 0,
+	pendingTon: 0,
+	rateTon: 0.1,
+	minClaimTon: 5,
+	canClaim: false,
+}
 
 const adminState = {
 	q: '',
@@ -1114,30 +1145,121 @@ function buildInviteLink() {
 	const myId = telegramUser?.id
 	if (!myId) return null
 	if (!BOT_USERNAME || BOT_USERNAME === 'YOUR_BOT_USERNAME') return null
-	return `https://t.me/${BOT_USERNAME}?startapp=${myId}`
+	return 'https://t.me/' + BOT_USERNAME + '?startapp=' + myId
 }
 
 function updateInviteUI() {
 	const link = buildInviteLink()
-	if (inviteLinkText)
-		inviteLinkText.textContent = link || 'Укажи BOT_USERNAME в script.js'
+	if (inviteLinkText) {
+		inviteLinkText.textContent = link || 'Set BOT_USERNAME in script.js'
+	}
+}
+
+function renderReferralStatus() {
+	const invited = String(referralState.invitedCount || 0)
+	const pendingTon = Number(referralState.pendingTon || 0).toFixed(2)
+	const friendsWrap = inviteFriendsCountEl?.parentElement || null
+	const pendingWrap = invitePendingTonEl?.parentElement || null
+
+	if (friendsWrap) {
+		friendsWrap.innerHTML =
+			currentLang === 'en'
+				? 'Invited friends: <b id="invite-friends-count">' + invited + '</b>'
+				: 'Приглашено друзей: <b id="invite-friends-count">' + invited + '</b>'
+	}
+
+	if (pendingWrap) {
+		pendingWrap.innerHTML =
+			currentLang === 'en'
+				? 'Available to claim: <b id="invite-pending-ton">' + pendingTon + '</b> TON'
+				: 'Доступно к выводу: <b id="invite-pending-ton">' + pendingTon + '</b> TON'
+	}
+
+	if (inviteRateTextEl) {
+		const rate = Number(referralState.rateTon || 0.1).toFixed(1)
+		const min = Number(referralState.minClaimTon || 5).toFixed(0)
+		inviteRateTextEl.textContent =
+			currentLang === 'en'
+				? '1 friend = ' + rate + ' TON, minimum claim is ' + min + ' TON.'
+				: '1 друг = ' + rate + ' TON, минимум вывода ' + min + ' TON.'
+	}
+
+	if (inviteClaimBtn) {
+		inviteClaimBtn.disabled = !referralState.canClaim
+		inviteClaimBtn.textContent =
+			currentLang === 'en' ? 'Claim to balance' : 'Вывести на баланс'
+	}
+}
+
+async function loadReferralStatus() {
+	try {
+		const s = await referralStatusApi()
+		referralState = {
+			invitedCount: Number(s?.invitedCount || 0),
+			claimedCount: Number(s?.claimedCount || 0),
+			pendingCount: Number(s?.pendingCount || 0),
+			pendingTon: Number(s?.pendingTon || 0),
+			rateTon: Number(s?.rateTon || 0.1),
+			minClaimTon: Number(s?.minClaimTon || 5),
+			canClaim: Boolean(s?.canClaim),
+		}
+	} catch (_) {}
+
+	renderReferralStatus()
 }
 
 inviteCopyBtn?.addEventListener('click', async () => {
 	const link = buildInviteLink()
 	if (!link) {
-		alert('Сначала укажи BOT_USERNAME в script.js')
+		alert(
+			currentLang === 'en'
+				? 'Set BOT_USERNAME in script.js first'
+				: 'Сначала укажи BOT_USERNAME в script.js',
+		)
 		return
 	}
+
 	try {
 		await navigator.clipboard.writeText(link)
-		alert('Ссылка скопирована')
+		alert(currentLang === 'en' ? 'Link copied' : 'Ссылка скопирована')
 	} catch (e) {
-		alert('Не удалось скопировать ссылку (попробуй вручную).')
+		alert(
+			currentLang === 'en'
+				? 'Could not copy link (try manually).'
+				: 'Не удалось скопировать ссылку (попробуй вручную).',
+		)
 	}
 })
 
-// Кэш Tonnel: ключ -> { priceTon, imageUrl }
+inviteClaimBtn?.addEventListener('click', async () => {
+	try {
+		inviteClaimBtn.disabled = true
+		setButtonLoading(inviteClaimBtn, true)
+
+		const r = await referralClaimApi()
+		const credited = Number(r?.creditedTon || 0)
+		balance = Number(r?.newBalance ?? balance)
+		updateBalanceUI()
+		await loadReferralStatus()
+
+		alert(
+			currentLang === 'en'
+				? 'Credited ' + credited.toFixed(2) + ' TON to game balance.'
+				: 'На игровой баланс зачислено ' + credited.toFixed(2) + ' TON.',
+		)
+	} catch (e) {
+		alert(
+			e?.message ||
+				(currentLang === 'en'
+					? 'Referral claim error'
+					: 'Ошибка вывода реферального бонуса'),
+		)
+	} finally {
+		setButtonLoading(inviteClaimBtn, false)
+		renderReferralStatus()
+	}
+})
+
 let tonnelGiftCache = {}
 
 async function getTonnelGift(key) {
@@ -1348,6 +1470,7 @@ async function fetchUserData() {
 
 	updateBalanceUI()
 	renderInventory()
+	await loadReferralStatus()
 	return data
 }
 
@@ -1398,6 +1521,15 @@ async function withdrawTonApi(amount) {
 
 async function withdrawGiftApi(idx) {
 	return apiPost('/withdraw/gift', { idx })
+}
+
+// referral APIs
+async function referralStatusApi() {
+	return apiPost('/referral/status')
+}
+
+async function referralClaimApi() {
+	return apiPost('/referral/claim')
 }
 
 // deposit APIs
