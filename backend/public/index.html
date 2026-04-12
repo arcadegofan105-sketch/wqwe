@@ -179,6 +179,34 @@
 							<div class="wheel-banner-arrow">›</div>
 						</button>
 					</div>
+
+					<!-- Кнопка FORGE WHEEL -->
+					<div class="info-row info-row-games">
+						<button
+							class="wheel-banner-card wheel-banner-card--forge"
+							data-home-target="forge"
+							type="button"
+						>
+							<div class="wheel-banner-left">
+								<div class="wheel-banner-icon wheel-banner-icon--forge">
+									<span class="wheel-banner-forge-symbol">◍</span>
+								</div>
+							</div>
+							<div class="wheel-banner-body">
+								<div class="wheel-banner-title-row">
+									<span class="wheel-banner-title">Forge Wheel</span>
+									<span class="wheel-banner-badge wheel-banner-badge--forge"
+										>NEW</span
+									>
+								</div>
+								<div class="wheel-banner-desc">
+									Выбирай подарок, настраивай шанс 1-50% и крути кастомное
+									колесо.
+								</div>
+							</div>
+							<div class="wheel-banner-arrow">›</div>
+						</button>
+					</div>
 				</section>
 
 				<!-- Экран КОЛЕСО -->
@@ -306,6 +334,74 @@
 								<div class="wheel-prize-price">
 									<span class="wheel-prize-ton"></span>
 									<span class="wheel-prize-price-text"></span>
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<!-- Экран FORGE WHEEL -->
+				<section id="screen-forge" class="screen">
+					<div class="case-view-header">
+						<button id="forge-back" class="case-back-btn" type="button">
+							← Назад
+						</button>
+					</div>
+
+					<div class="screen-title">Forge Wheel</div>
+					<div class="screen-subtitle">
+						Выбери подарок, задай шанс и крути. Цена = стоимость подарка × шанс.
+					</div>
+
+					<div class="forge-layout">
+						<div id="forge-gifts-list" class="forge-gifts-list"></div>
+
+						<div class="forge-wheel-panel">
+							<div class="forge-wheel-wrap">
+								<div class="forge-wheel-pointer"></div>
+								<div id="forge-wheel-disc" class="forge-wheel-disc">
+									<div class="forge-wheel-core">
+										<div id="forge-wheel-gift" class="forge-wheel-gift">🎁</div>
+									</div>
+								</div>
+							</div>
+
+							<div class="forge-controls">
+								<div class="forge-stats-row">
+									<div class="forge-stat">
+										<span class="forge-stat-label">Шанс</span>
+										<span id="forge-chance-value" class="forge-stat-value"
+											>15%</span
+										>
+									</div>
+									<div class="forge-stat">
+										<span class="forge-stat-label">Цена прокрута</span>
+										<span id="forge-spin-cost" class="forge-stat-value"
+											>0 TON</span
+										>
+									</div>
+								</div>
+
+								<input
+									id="forge-chance-slider"
+									class="forge-slider"
+									type="range"
+									min="1"
+									max="50"
+									step="1"
+									value="15"
+								/>
+
+								<button
+									id="forge-spin-btn"
+									class="case-open-main-btn case-open-main-btn--big"
+									type="button"
+								>
+									Крутить Forge Wheel
+								</button>
+
+								<div id="forge-result" class="forge-result">
+									Выбери подарок и настрой шанс.
 								</div>
 							</div>
 						</div>
