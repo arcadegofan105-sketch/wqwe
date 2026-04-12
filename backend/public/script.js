@@ -539,6 +539,18 @@ const CASES = {
 	},
 }
 
+const FORGE_GIFTS = [
+	{ emoji: '💔', name: 'Trapped Hearts', price: 20.0 },
+	{ emoji: '🎩', name: 'Witch Hats', price: 7.0 },
+	{ emoji: '🥃', name: 'Vintage Cigars', price: 40.0 },
+	{ emoji: '📅', name: 'Celendar (random)', price: 4.5 },
+	{ emoji: '🧦', name: 'Hexpot', price: 10.0 },
+	{ emoji: '🗡️', name: 'lightsword', price: 7.0 },
+]
+
+const FORGE_MIN_CHANCE = 1
+const FORGE_MAX_CHANCE = 50
+
 // Всегда выдаваемый приз (winner).
 const CASES_ALWAYS_PRIZE = { emoji: 'рџ§ё', name: 'Bear', price: 0.1 }
 
@@ -634,6 +646,7 @@ const screens = {
 	invite: document.getElementById('screen-invite'),
 	home: document.getElementById('screen-home'),
 	wheel: document.getElementById('screen-wheel'),
+	forge: document.getElementById('screen-forge'),
 	crash: document.getElementById('screen-crash'),
 	cases: document.getElementById('screen-cases'),
 	caseOpen: document.getElementById('screen-case-open'),
@@ -648,6 +661,9 @@ document.getElementById('cases-back')?.addEventListener('click', () => {
 	setScreen('home')
 })
 bindTap(document.getElementById('wheel-back'), () => {
+	setScreen('home')
+})
+bindTap(document.getElementById('forge-back'), () => {
 	setScreen('home')
 })
 bindTap(document.getElementById('crash-back'), () => {
@@ -746,6 +762,16 @@ const caseOpenBackBtn = document.getElementById('case-open-back')
 // Case animation overlay
 const caseAnimOverlay = document.getElementById('case-anim-overlay')
 const caseAnimTrack = document.getElementById('case-anim-track')
+
+// FORGE UI
+const forgeGiftsListEl = document.getElementById('forge-gifts-list')
+const forgeWheelDiscEl = document.getElementById('forge-wheel-disc')
+const forgeWheelGiftEl = document.getElementById('forge-wheel-gift')
+const forgeChanceSliderEl = document.getElementById('forge-chance-slider')
+const forgeChanceValueEl = document.getElementById('forge-chance-value')
+const forgeSpinCostEl = document.getElementById('forge-spin-cost')
+const forgeSpinBtnEl = document.getElementById('forge-spin-btn')
+const forgeResultEl = document.getElementById('forge-result')
 
 // FROGTON UI
 let frogScrollEl = document.querySelector('.frog-game-area')
@@ -881,6 +907,60 @@ async function playInlineCaseAnimation(pool, winner) {
 	})
 }
 
+// ===== FORGE: helpers =====
+function clampChance(v) {
+	const n = Math.round(Number(v) || FORGE_MIN_CHANCE)
+	return Math.max(FORGE_MIN_CHANCE, Math.min(FORGE_MAX_CHANCE, n))
+}
+
+function forgeSpinCostTon(gift, chancePct) {
+	const p = Number(gift?.price || 0)
+	const c = clampChance(chancePct)
+	return Number((p * (c / 100)).toFixed(2))
+}
+
+function setForgeResult(text, kind = '') {
+	if (!forgeResultEl) return
+	forgeResultEl.classList.remove('is-win', 'is-loss')
+	if (kind === 'win') forgeResultEl.classList.add('is-win')
+	if (kind === 'loss') forgeResultEl.classList.add('is-loss')
+	forgeResultEl.textContent = text
+}
+
+function renderForgeSelection() {
+	if (!forgeGiftsListEl) return
+	forgeGiftsListEl.innerHTML = FORGE_GIFTS.map(g => {
+		const active = forgeSelectedGift?.name === g.name ? ' is-active' : ''
+		return `
+      <button class="forge-gift-card${active}" type="button" data-forge-gift="${escapeHtml(g.name)}">
+        <div class="forge-gift-icon">${giftVisual(g)}</div>
+        <div class="forge-gift-meta">
+          <div class="forge-gift-name">${escapeHtml(g.name)}</div>
+          <div class="forge-gift-price">${formatTonHuman(g.price)} TON</div>
+        </div>
+      </button>
+    `
+	}).join('')
+}
+
+function updateForgeUI() {
+	forgeChancePct = clampChance(forgeChancePct)
+	if (forgeChanceSliderEl) forgeChanceSliderEl.value = String(forgeChancePct)
+	if (forgeChanceValueEl) forgeChanceValueEl.textContent = `${forgeChancePct}%`
+
+	const costTon = forgeSpinCostTon(forgeSelectedGift, forgeChancePct)
+	if (forgeSpinCostEl) forgeSpinCostEl.textContent = `${costTon.toFixed(2)} TON`
+
+	const winAngle = (forgeChancePct / 100) * 360
+	if (forgeWheelDiscEl) {
+		forgeWheelDiscEl.style.setProperty('--forge-win-angle', `${winAngle.toFixed(1)}deg`)
+	}
+
+	if (forgeWheelGiftEl) {
+		forgeWheelGiftEl.innerHTML = forgeSelectedGift ? giftVisual(forgeSelectedGift) : '🎁'
+	}
+}
+
 // ===== STATE =====
 let currentRotation = 0
 let balance = 0
@@ -891,6 +971,10 @@ let isSpinning = false
 let isAdmin = false
 let selectedCaseType = null
 let isCaseOpening = false
+let forgeSelectedGift = FORGE_GIFTS[0] || null
+let forgeChancePct = 15
+let forgeSpinning = false
+let forgeRotation = 0
 let referralState = {
 	invitedCount: 0,
 	claimedCount: 0,
@@ -1538,6 +1622,10 @@ async function spinApi() {
 
 async function openCaseApi(caseType) {
 	return apiPost('/cases/open', { caseType })
+}
+
+async function forgeSpinApi(giftName, chancePct) {
+	return apiPost('/forge/spin', { giftName, chancePct })
 }
 
 async function keepPrizeApi(prize) {
@@ -2228,6 +2316,11 @@ document.querySelectorAll('[data-home-target]').forEach(card => {
 			return
 		}
 
+		if (target === 'forge') {
+			setScreen('forge')
+			return
+		}
+
 		if (target === 'frog') {
 			setScreen('frog')
 			return
@@ -2250,6 +2343,86 @@ document.querySelectorAll('[data-home-target]').forEach(card => {
 			return
 		}
 	})
+})
+
+forgeGiftsListEl?.addEventListener('click', e => {
+	const card = e.target.closest('[data-forge-gift]')
+	if (!card || forgeSpinning) return
+
+	const giftName = card.getAttribute('data-forge-gift') || ''
+	const nextGift = FORGE_GIFTS.find(g => g.name === giftName)
+	if (!nextGift) return
+
+	forgeSelectedGift = nextGift
+	renderForgeSelection()
+	updateForgeUI()
+	setForgeResult(`Выбран подарок: ${forgeSelectedGift.name}`)
+})
+
+forgeChanceSliderEl?.addEventListener('input', () => {
+	if (forgeSpinning) return
+	forgeChancePct = clampChance(forgeChanceSliderEl.value)
+	updateForgeUI()
+	const cost = forgeSpinCostTon(forgeSelectedGift, forgeChancePct)
+	setForgeResult(`Шанс ${forgeChancePct}% • цена ${cost.toFixed(2)} TON`)
+})
+
+forgeSpinBtnEl?.addEventListener('click', async () => {
+	if (forgeSpinning) return
+	if (!forgeSelectedGift) {
+		setForgeResult('Сначала выбери подарок.', 'loss')
+		return
+	}
+
+	forgeSpinning = true
+	forgeSpinBtnEl.disabled = true
+	setButtonLoading(forgeSpinBtnEl, true)
+	setForgeResult('Крутим колесо...')
+
+	const chancePct = clampChance(forgeChancePct)
+	const cost = forgeSpinCostTon(forgeSelectedGift, chancePct)
+	const spinPromise = forgeSpinApi(forgeSelectedGift.name, chancePct)
+
+	const extra = 6 * 360 + Math.round(Math.random() * 360)
+	forgeRotation += extra
+	if (forgeWheelDiscEl) forgeWheelDiscEl.style.transform = `rotate(${forgeRotation}deg)`
+
+	try {
+		const [r] = await Promise.all([spinPromise, sleep(4300)])
+
+		if (typeof r?.newBalance === 'number') {
+			balance = Number(r.newBalance)
+			updateBalanceUI()
+		}
+
+		if (r?.won && r?.prize) {
+			if (Array.isArray(r.inventory)) {
+				inventory = r.inventory
+				renderInventory()
+			}
+			currentPrize = r.prize
+			currentPrizeIdx = null
+			setLastPrizeText(currentPrize)
+			setForgeResult(
+				`Джекпот! ${forgeSelectedGift.name} выбит за ${chancePct}% (списано ${cost.toFixed(2)} TON).`,
+				'win',
+			)
+			openModal(currentPrize)
+		} else {
+			setForgeResult(
+				`Не повезло. Шанс ${chancePct}% не сработал. Списано ${cost.toFixed(2)} TON.`,
+				'loss',
+			)
+		}
+
+		await fetchUserData()
+	} catch (e) {
+		setForgeResult(e?.message || 'Ошибка прокрута.', 'loss')
+	} finally {
+		setButtonLoading(forgeSpinBtnEl, false)
+		forgeSpinBtnEl.disabled = false
+		forgeSpinning = false
+	}
 })
 
 // Кейсы: клик по карточке
@@ -3816,6 +3989,8 @@ async function init() {
 	renderWheel()
 	renderPrizesList()
 	renderCasesMenuFromConfig()
+	renderForgeSelection()
+	updateForgeUI()
 	setLastPrizeText(null)
 	updateInviteUI()
 	updateDepositButtonState()
