@@ -2381,14 +2381,44 @@ forgeSpinBtnEl?.addEventListener('click', async () => {
 
 	const chancePct = clampChance(forgeChancePct)
 	const cost = forgeSpinCostTon(forgeSelectedGift, chancePct)
-	const spinPromise = forgeSpinApi(forgeSelectedGift.name, chancePct)
-
-	const extra = 6 * 360 + Math.round(Math.random() * 360)
-	forgeRotation += extra
-	if (forgeWheelDiscEl) forgeWheelDiscEl.style.transform = `rotate(${forgeRotation}deg)`
 
 	try {
-		const [r] = await Promise.all([spinPromise, sleep(4300)])
+		const r = await forgeSpinApi(forgeSelectedGift.name, chancePct)
+
+		const winAngle = Math.max(0, Math.min(360, (chancePct / 100) * 360))
+		const margin = 3
+
+		const pickRandom = (a, b) => a + Math.random() * Math.max(0, b - a)
+
+		let probeAngle = 180
+		if (r?.won) {
+			if (winAngle <= margin * 2) {
+				probeAngle = Math.max(0.5, winAngle / 2)
+			} else {
+				probeAngle = pickRandom(margin, winAngle - margin)
+			}
+		} else {
+			if (winAngle >= 360 - margin * 2) {
+				probeAngle = 180
+			} else {
+				probeAngle = pickRandom(
+					Math.min(359, winAngle + margin),
+					360 - margin,
+				)
+			}
+		}
+
+		// pointer фиксирован сверху, поэтому целевой угол колеса считаем обратным
+		const targetMod = (360 - probeAngle) % 360
+		const currentMod = ((forgeRotation % 360) + 360) % 360
+		let delta = (targetMod - currentMod + 360) % 360
+		if (delta < 120) delta += 360
+
+		forgeRotation += 5 * 360 + delta
+		if (forgeWheelDiscEl) {
+			forgeWheelDiscEl.style.setProperty('--forge-rot', `${forgeRotation}deg`)
+		}
+		await sleep(4300)
 
 		if (typeof r?.newBalance === 'number') {
 			balance = Number(r.newBalance)
