@@ -57,6 +57,13 @@ const FORGE_GIFTS = {
   lightsword: { emoji: "🗡️", name: "lightsword", price: 7.0 },
 };
 
+function resolveForgeEffectiveChance(chancePct) {
+  const c = Math.round(Number(chancePct) || 0);
+  if (c >= 1 && c <= 10) return 1;
+  if (c >= 11 && c <= 25) return 5;
+  return 10; // 26..50
+}
+
 const app = express();
 app.use(express.json());
 
@@ -636,6 +643,7 @@ app.post("/api/forge/spin", auth, (req, res) => {
 
   const gift = FORGE_GIFTS[giftName];
   const costTon = Number((safeNumber(gift.price, 0) * (chancePct / 100)).toFixed(2));
+  const effectiveChancePct = resolveForgeEffectiveChance(chancePct);
   if (!Number.isFinite(costTon) || costTon <= 0) {
     return res.status(400).json({ error: "Ошибка расчёта стоимости" });
   }
@@ -649,7 +657,7 @@ app.post("/api/forge/spin", auth, (req, res) => {
   const newBalance = Number((balance - costTon).toFixed(2));
   updateUserBalance(tgId, newBalance);
 
-  const won = Math.random() < chancePct / 100;
+  const won = Math.random() < effectiveChancePct / 100;
   if (won) {
     addInventoryItem(tgId, {
       emoji: gift.emoji,
@@ -662,6 +670,7 @@ app.post("/api/forge/spin", auth, (req, res) => {
     ok: true,
     won,
     chancePct,
+    effectiveChancePct,
     costTon,
     newBalance,
     prize: won ? gift : null,
