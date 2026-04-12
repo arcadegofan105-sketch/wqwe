@@ -45,6 +45,17 @@ import db, {
 } from "./db.js";
 
 const CRASH_K = 0.07;
+const FORGE_MIN_CHANCE = 1;
+const FORGE_MAX_CHANCE = 50;
+
+const FORGE_GIFTS = {
+  "Trapped Hearts": { emoji: "💔", name: "Trapped Hearts", price: 20.0 },
+  "Witch Hats": { emoji: "🎩", name: "Witch Hats", price: 7.0 },
+  "Vintage Cigars": { emoji: "🥃", name: "Vintage Cigars", price: 40.0 },
+  "Celendar (random)": { emoji: "📅", name: "Celendar (random)", price: 4.5 },
+  Hexpot: { emoji: "🧦", name: "Hexpot", price: 10.0 },
+  lightsword: { emoji: "🗡️", name: "lightsword", price: 7.0 },
+};
 
 const app = express();
 app.use(express.json());
@@ -601,6 +612,60 @@ app.post("/api/spin", auth, (req, res) => {
     freeWheelAvailable: false, // после спина бесплатного флага нет
     wheelDepositProgressTon, // прогресс не меняем тут, только при депозите
     isFreeSpin,
+  });
+});
+
+// ===== FORGE WHEEL =====
+app.post("/api/forge/spin", auth, (req, res) => {
+  const tgId = String(req.tgUser.id);
+  touchUserVisit(req.tgUser);
+
+  const giftName = String(req.body?.giftName || "").trim();
+  const chancePctRaw = safeNumber(req.body?.chancePct, NaN);
+  const chancePct = Math.round(chancePctRaw);
+
+  if (!giftName || !FORGE_GIFTS[giftName]) {
+    return res.status(400).json({ error: "Некорректный подарок" });
+  }
+
+  if (!Number.isFinite(chancePct) || chancePct < FORGE_MIN_CHANCE || chancePct > FORGE_MAX_CHANCE) {
+    return res.status(400).json({
+      error: `Шанс должен быть от ${FORGE_MIN_CHANCE}% до ${FORGE_MAX_CHANCE}%`,
+    });
+  }
+
+  const gift = FORGE_GIFTS[giftName];
+  const costTon = Number((safeNumber(gift.price, 0) * (chancePct / 100)).toFixed(2));
+  if (!Number.isFinite(costTon) || costTon <= 0) {
+    return res.status(400).json({ error: "Ошибка расчёта стоимости" });
+  }
+
+  const user = mustGetUser(tgId);
+  const balance = safeNumber(user.balance, 0);
+  if (balance < costTon) {
+    return res.status(400).json({ error: "Недостаточно средств" });
+  }
+
+  const newBalance = Number((balance - costTon).toFixed(2));
+  updateUserBalance(tgId, newBalance);
+
+  const won = Math.random() < chancePct / 100;
+  if (won) {
+    addInventoryItem(tgId, {
+      emoji: gift.emoji,
+      name: gift.name,
+      price: safeNumber(gift.price, 0),
+    });
+  }
+
+  return res.json({
+    ok: true,
+    won,
+    chancePct,
+    costTon,
+    newBalance,
+    prize: won ? gift : null,
+    inventory: won ? listInventory(tgId) : undefined,
   });
 });
 
