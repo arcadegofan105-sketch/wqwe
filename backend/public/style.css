@@ -4220,14 +4220,15 @@ html {
 	border: 2px solid rgba(255, 255, 255, 0.12);
 	background: conic-gradient(
 		from -90deg,
-		rgba(72, 235, 162, 0.92) 0deg,
-		rgba(72, 235, 162, 0.92) var(--forge-win-angle),
-		rgba(255, 255, 255, 0.14) var(--forge-win-angle),
-		rgba(255, 255, 255, 0.07) 360deg
+		#43e7a5 0deg,
+		#43e7a5 var(--forge-win-angle),
+		#070a12 var(--forge-win-angle),
+		#070a12 360deg
 	);
 	box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
 	transform: rotate(var(--forge-rot));
 	transition: transform 4.2s cubic-bezier(0.08, 0.8, 0.12, 1);
+	overflow: hidden;
 }
 
 .forge-wheel-disc::before {
@@ -4244,6 +4245,7 @@ html {
 	width: 112px;
 	height: 112px;
 	transform: translate(-50%, -50%) rotate(calc(-1 * var(--forge-rot)));
+	transition: transform 4.2s cubic-bezier(0.08, 0.8, 0.12, 1);
 	border-radius: 50%;
 	display: grid;
 	place-items: center;
