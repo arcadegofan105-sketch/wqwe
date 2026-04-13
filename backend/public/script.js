@@ -916,8 +916,11 @@ function clampChance(v) {
 function resolveForgeEffectiveChance(v) {
 	const c = clampChance(v)
 	if (c <= 10) return 1
-	if (c <= 25) return 5
-	return 10
+	if (c <= 20) return 5
+	if (c <= 25) return 8
+	if (c <= 35) return 10
+	if (c <= 45) return 15
+	return 20
 }
 
 function forgeSpinCostTon(gift, chancePct) {
