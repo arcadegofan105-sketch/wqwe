@@ -60,8 +60,11 @@ const FORGE_GIFTS = {
 function resolveForgeEffectiveChance(chancePct) {
   const c = Math.round(Number(chancePct) || 0);
   if (c >= 1 && c <= 10) return 1;
-  if (c >= 11 && c <= 25) return 5;
-  return 10; // 26..50
+  if (c >= 11 && c <= 20) return 5;
+  if (c >= 21 && c <= 25) return 8;
+  if (c >= 26 && c <= 35) return 10;
+  if (c >= 36 && c <= 45) return 15;
+  return 20; // 46..50
 }
 
 const app = express();
