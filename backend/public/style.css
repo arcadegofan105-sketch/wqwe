@@ -4219,7 +4219,7 @@ html {
 	position: relative;
 	border: 2px solid rgba(255, 255, 255, 0.12);
 	background: conic-gradient(
-		from -90deg,
+		from 0deg,
 		#43e7a5 0deg,
 		#43e7a5 var(--forge-win-angle),
 		#070a12 var(--forge-win-angle),
