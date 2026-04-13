@@ -958,8 +958,8 @@ function updateForgeUI() {
 	const costTon = forgeSpinCostTon(forgeSelectedGift, forgeChancePct)
 	if (forgeSpinCostEl) forgeSpinCostEl.textContent = `${costTon.toFixed(2)} TON`
 
-	const effectiveChancePct = resolveForgeEffectiveChance(forgeChancePct)
-	const winAngle = (effectiveChancePct / 100) * 360
+	// Визуальный сектор = выбранному значению слайдера (как просили в UI)
+	const winAngle = (forgeChancePct / 100) * 360
 	if (forgeWheelDiscEl) {
 		forgeWheelDiscEl.style.setProperty('--forge-win-angle', `${winAngle.toFixed(1)}deg`)
 	}
@@ -2393,26 +2393,28 @@ forgeSpinBtnEl?.addEventListener('click', async () => {
 	try {
 		const r = await forgeSpinApi(forgeSelectedGift.name, chancePct)
 
-		const effectiveChancePct = clampChance(r?.effectiveChancePct ?? resolveForgeEffectiveChance(chancePct))
-		const winAngle = Math.max(0, Math.min(360, (effectiveChancePct / 100) * 360))
-		const margin = 1
+		// Визуальная зона всегда от слайдера (например 50% = полкруга).
+		const visualChancePct = clampChance(chancePct)
+		const winAngle = Math.max(0, Math.min(360, (visualChancePct / 100) * 360))
+		const margin = 0.8
 
 		const pickRandom = (a, b) => a + Math.random() * Math.max(0, b - a)
 
-		let probeAngle = 180
+		// angleFromTopCW: 0..360, от верхней точки по часовой.
+		let angleFromTopCW = 180
 		if (r?.won) {
 			if (winAngle <= margin * 2 + 0.2) {
-				probeAngle = Math.max(0.1, winAngle / 2)
+				angleFromTopCW = Math.max(0.1, winAngle / 2)
 			} else {
-				probeAngle = pickRandom(margin, winAngle - margin)
+				angleFromTopCW = pickRandom(margin, winAngle - margin)
 			}
 		} else {
 			const lossStart = Math.min(359.9, winAngle + margin)
 			const lossEnd = 360 - margin
 			if (lossStart >= lossEnd) {
-				probeAngle = 180
+				angleFromTopCW = 180
 			} else {
-				probeAngle = pickRandom(lossStart, lossEnd)
+				angleFromTopCW = pickRandom(lossStart, lossEnd)
 			}
 		}
 
@@ -2421,7 +2423,7 @@ forgeSpinBtnEl?.addEventListener('click', async () => {
 		}
 
 		// pointer фиксирован сверху, поэтому целевой угол колеса считаем обратным
-		const targetMod = (360 - probeAngle) % 360
+		const targetMod = (360 - angleFromTopCW) % 360
 		const currentMod = ((forgeRotation % 360) + 360) % 360
 		let delta = (targetMod - currentMod + 360) % 360
 		if (delta < 120) delta += 360
