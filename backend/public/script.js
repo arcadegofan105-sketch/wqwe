@@ -913,6 +913,13 @@ function clampChance(v) {
 	return Math.max(FORGE_MIN_CHANCE, Math.min(FORGE_MAX_CHANCE, n))
 }
 
+function resolveForgeEffectiveChance(v) {
+	const c = clampChance(v)
+	if (c <= 10) return 1
+	if (c <= 25) return 5
+	return 10
+}
+
 function forgeSpinCostTon(gift, chancePct) {
 	const p = Number(gift?.price || 0)
 	const c = clampChance(chancePct)
@@ -951,7 +958,8 @@ function updateForgeUI() {
 	const costTon = forgeSpinCostTon(forgeSelectedGift, forgeChancePct)
 	if (forgeSpinCostEl) forgeSpinCostEl.textContent = `${costTon.toFixed(2)} TON`
 
-	const winAngle = (forgeChancePct / 100) * 360
+	const effectiveChancePct = resolveForgeEffectiveChance(forgeChancePct)
+	const winAngle = (effectiveChancePct / 100) * 360
 	if (forgeWheelDiscEl) {
 		forgeWheelDiscEl.style.setProperty('--forge-win-angle', `${winAngle.toFixed(1)}deg`)
 	}
@@ -2385,27 +2393,31 @@ forgeSpinBtnEl?.addEventListener('click', async () => {
 	try {
 		const r = await forgeSpinApi(forgeSelectedGift.name, chancePct)
 
-		const winAngle = Math.max(0, Math.min(360, (chancePct / 100) * 360))
-		const margin = 3
+		const effectiveChancePct = clampChance(r?.effectiveChancePct ?? resolveForgeEffectiveChance(chancePct))
+		const winAngle = Math.max(0, Math.min(360, (effectiveChancePct / 100) * 360))
+		const margin = 1
 
 		const pickRandom = (a, b) => a + Math.random() * Math.max(0, b - a)
 
 		let probeAngle = 180
 		if (r?.won) {
-			if (winAngle <= margin * 2) {
-				probeAngle = Math.max(0.5, winAngle / 2)
+			if (winAngle <= margin * 2 + 0.2) {
+				probeAngle = Math.max(0.1, winAngle / 2)
 			} else {
 				probeAngle = pickRandom(margin, winAngle - margin)
 			}
 		} else {
-			if (winAngle >= 360 - margin * 2) {
+			const lossStart = Math.min(359.9, winAngle + margin)
+			const lossEnd = 360 - margin
+			if (lossStart >= lossEnd) {
 				probeAngle = 180
 			} else {
-				probeAngle = pickRandom(
-					Math.min(359, winAngle + margin),
-					360 - margin,
-				)
+				probeAngle = pickRandom(lossStart, lossEnd)
 			}
+		}
+
+		if (forgeWheelDiscEl) {
+			forgeWheelDiscEl.style.setProperty('--forge-win-angle', `${winAngle.toFixed(1)}deg`)
 		}
 
 		// pointer фиксирован сверху, поэтому целевой угол колеса считаем обратным
